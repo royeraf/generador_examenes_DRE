@@ -1,5 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, JSONResponse
+import os
 
 from app.config import get_settings
 from app.routes import preguntas, desempenos
@@ -27,48 +30,54 @@ app.add_middleware(
 async def startup_event():
     init_db()
 
-# Include routers
+# ==========================================
+# API ROUTES (PRIMERO - IMPORTANTE)
+# ==========================================
 app.include_router(preguntas.router, prefix="/api/preguntas", tags=["Preguntas"])
 app.include_router(desempenos.router, prefix="/api/desempenos", tags=["Desempeños"])
 
-
-
-
-@app.get("/health")
+@app.get("/api/health")  # Cambié a /api/health para consistencia
 async def health_check():
     """Health check endpoint."""
     return {"status": "healthy"}
 
-# Mount frontend static files
-import os
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, JSONResponse
-
-# Absolute path to frontend/dist relative to this file
+# ==========================================
+# FRONTEND STATIC FILES (AL FINAL)
+# ==========================================
 frontend_dist = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../frontend/dist")
 
-# Ensure the directory exists
 if os.path.exists(frontend_dist):
-    # 1. Mount assets specifically (CSS, JS, Images from Vite build)
-    # This assumes Vite puts assets in 'assets' folder
+    # Montar carpeta assets para archivos estáticos (CSS, JS, imágenes)
     assets_dir = os.path.join(frontend_dist, "assets")
     if os.path.exists(assets_dir):
         app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
-
-    # 2. Catch-all route for SPA (Vue Router support)
+    
+    # Servir archivos estáticos adicionales (favicon, etc.)
+    @app.get("/favicon.ico")
+    async def favicon():
+        favicon_path = os.path.join(frontend_dist, "favicon.ico")
+        if os.path.exists(favicon_path):
+            return FileResponse(favicon_path)
+        return JSONResponse(status_code=404, content={"detail": "Not Found"})
+    
+    # Catch-all para SPA (Vue Router) - DEBE IR AL FINAL
     @app.get("/{full_path:path}")
     async def serve_spa(full_path: str):
-        # If it starts with api/, it's a 404 for the API (since API routes are defined above)
-        if full_path.startswith("api"):
-            return JSONResponse(status_code=404, content={"detail": "Not Found"})
-            
-        # Check if a specific file exists (like favicon.ico, robots.txt)
+        # Si es una ruta API que no existe, retornar 404
+        if full_path.startswith("api/"):
+            return JSONResponse(status_code=404, content={"detail": "API endpoint not found"})
+        
+        # Si existe un archivo específico, servirlo
         file_path = os.path.join(frontend_dist, full_path)
         if os.path.isfile(file_path):
             return FileResponse(file_path)
-            
-        # Otherwise, serve index.html for client-side routing
-        return FileResponse(os.path.join(frontend_dist, "index.html"))
+        
+        # Para todo lo demás (rutas de Vue Router), servir index.html
+        index_path = os.path.join(frontend_dist, "index.html")
+        if os.path.exists(index_path):
+            return FileResponse(index_path)
+        
+        return JSONResponse(status_code=404, content={"detail": "Not Found"})
 else:
     print(f"⚠️ ADVERTENCIA: No se encontró la carpeta del frontend en: {frontend_dist}")
-    print("El frontend no se servirá. Asegúrate de ejecutar 'npm run build' y que la ruta sea correcta.")
+    print("El frontend no se servirá. Asegúrate de ejecutar 'npm run build' en la carpeta frontend.")
