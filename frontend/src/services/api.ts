@@ -117,7 +117,7 @@ export const desempenosService = {
     const contentDisposition = response.headers['content-disposition'];
     let filename = 'examen.docx';
     if (contentDisposition) {
-      const filenameMatch = contentDisposition.match(/filename="?(.+)"?/);
+      const filenameMatch = contentDisposition.match(/filename="([^"]+)"/) || contentDisposition.match(/filename=([^\s;]+)/);
       if (filenameMatch) {
         filename = filenameMatch[1];
       }
