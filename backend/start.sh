@@ -1,17 +1,19 @@
 #!/bin/bash
 set -e
 
-# Navegar al directorio donde está este script (si es necesario) o asumir que se corre desde root backend
-# Render ejecuta el comando desde el "Root Directory" configurado. Supongamos que Root Dir es 'backend' o la raíz del repo.
-# Si el root dir es 'backend', estamos bien.
+# Configuración de despliegue para Render
+# Nos aseguramos de estar en el directorio del backend donde se encuentra este script
+cd "$(dirname "$0")"
 
-echo "🔄 Iniciando script de arranque para Render..."
+echo "📂 Directorio de trabajo: $(pwd)"
+echo "🔄 Iniciando script de arranque..."
 
-# 1. Ejecutar la carga de datos (Se va a recrear la BD desempeños.db)
-echo "📊 Cargando base de datos de desempeños desde Excel..."
+# 1. Generar la base de datos local y cargar datos iniciales
+# Ejecutamos el script que crea las tablas y carga los datos desde el Excel
+echo "📊 Generando y cargando base de datos de desempeños..."
 python -m scripts.load_desempenos
 
-# 2. Iniciar la aplicación Uvicorn
-# Usamos la variable de entorno PORT que provee Render, por defecto 10000
+# 2. Iniciar el servidor FastAPI (que también sirve el frontend Vue compilado)
+# Render inyecta la variable de entorno PORT automáticamente
 echo "🚀 Iniciando servidor Uvicorn en el puerto ${PORT:-10000}..."
 exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-10000}
