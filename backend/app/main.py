@@ -42,10 +42,33 @@ async def health_check():
 # Mount frontend static files
 import os
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, JSONResponse
 
 # Absolute path to frontend/dist relative to this file
 frontend_dist = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../frontend/dist")
 
-# Ensure the directory exists before mounting to avoid errors during development if not built
+# Ensure the directory exists
 if os.path.exists(frontend_dist):
-    app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="static")
+    # 1. Mount assets specifically (CSS, JS, Images from Vite build)
+    # This assumes Vite puts assets in 'assets' folder
+    assets_dir = os.path.join(frontend_dist, "assets")
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+    # 2. Catch-all route for SPA (Vue Router support)
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        # If it starts with api/, it's a 404 for the API (since API routes are defined above)
+        if full_path.startswith("api"):
+            return JSONResponse(status_code=404, content={"detail": "Not Found"})
+            
+        # Check if a specific file exists (like favicon.ico, robots.txt)
+        file_path = os.path.join(frontend_dist, full_path)
+        if os.path.isfile(file_path):
+            return FileResponse(file_path)
+            
+        # Otherwise, serve index.html for client-side routing
+        return FileResponse(os.path.join(frontend_dist, "index.html"))
+else:
+    print(f"⚠️ ADVERTENCIA: No se encontró la carpeta del frontend en: {frontend_dist}")
+    print("El frontend no se servirá. Asegúrate de ejecutar 'npm run build' y que la ruta sea correcta.")
