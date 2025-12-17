@@ -15,7 +15,6 @@ import {
   Copy,
   Check,
   AlertTriangle,
-  ClipboardList,
   Loader2,
   HelpCircle,
   Download,
@@ -28,9 +27,37 @@ import {
   GraduationCap,
   Target,
   Eye,
-  EyeOff
+  EyeOff,
+  Pencil,
+  Sigma,
+  Brain,
+  Rocket,
+  Star,
+  Award,
+  Atom,
+  Calculator,
+  Globe,
+  Trophy,
+  Palette,
+  Layers,
+  FileQuestion,
+  Medal,
+  Music,
+  Compass,
+  Microscope,
+  Ruler,
+  PenTool,
+  Shapes,
+  Puzzle,
+  Wand2,
+  Infinity,
+  FileSearch,
+  Lightbulb,
+  ClipboardCheck
 } from 'lucide-vue-next';
 import Footer from './Footer.vue'
+import logoDre from '../assets/logo.png'
+import Checkbox from '../components/Checkbox.vue'
 
 const { isDark, toggleTheme } = useTheme();
 
@@ -167,14 +194,6 @@ onMounted(async () => {
   }
 });
 
-const toggleDesempeno = (id: number) => {
-  const index = selectedDesempenoIds.value.indexOf(id);
-  if (index === -1) {
-    selectedDesempenoIds.value.push(id);
-  } else {
-    selectedDesempenoIds.value.splice(index, 1);
-  }
-};
 
 const selectAllCapacidad = (tipo: string) => {
   const ids = desempenosPorCapacidad.value[tipo]?.map(d => d.id) || [];
@@ -296,9 +315,9 @@ const getCapacidadLabel = (tipo: string): string => {
 
 const getNivelBadgeClass = (nivel: string): string => {
   const classes: Record<string, string> = {
-    'LITERAL': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+    'LITERAL': 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
     'INFERENCIAL': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-    'CRITICO': 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
+    'CRITICO': 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400'
   };
   return classes[nivel] || 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
 };
@@ -306,45 +325,177 @@ const getNivelBadgeClass = (nivel: string): string => {
 
 <template>
   <div
-    class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/50 to-indigo-100/50 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950/50 transition-colors">
+    class="min-h-screen flex flex-col bg-gradient-to-br from-teal-50/50 via-amber-50/30 to-sky-50/50 dark:from-slate-950 dark:via-slate-900 dark:to-teal-950/30 transition-colors edu-pattern-bg">
 
-    <!-- Decorative Background Elements -->
+    <!-- Decorative Background Elements - Tema Educativo -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
-      <div class="absolute -top-24 -right-24 w-96 h-96 bg-indigo-200/40 dark:bg-indigo-500/10 rounded-full blur-3xl">
+      <!-- Círculos decorativos con colores educativos -->
+      <div
+        class="absolute -top-24 -right-24 w-96 h-96 bg-teal-200/40 dark:bg-teal-500/10 rounded-full blur-3xl animate-float">
       </div>
-      <div class="absolute top-1/3 -left-24 w-80 h-80 bg-blue-200/40 dark:bg-blue-500/10 rounded-full blur-3xl"></div>
-      <div class="absolute bottom-0 right-1/4 w-72 h-72 bg-purple-200/30 dark:bg-purple-500/10 rounded-full blur-3xl">
+      <div class="absolute top-1/3 -left-24 w-80 h-80 bg-amber-200/40 dark:bg-amber-500/10 rounded-full blur-3xl"
+        style="animation-delay: 2s;"></div>
+      <div
+        class="absolute bottom-0 right-1/4 w-72 h-72 bg-sky-200/30 dark:bg-sky-500/10 rounded-full blur-3xl animate-float"
+        style="animation-delay: 4s;">
       </div>
-      <div class="absolute top-2/3 left-1/3 w-64 h-64 bg-emerald-200/20 dark:bg-emerald-500/5 rounded-full blur-3xl">
+      <div class="absolute top-2/3 left-1/3 w-64 h-64 bg-violet-200/20 dark:bg-violet-500/5 rounded-full blur-3xl">
+      </div>
+      <!-- Círculos adicionales -->
+      <div
+        class="absolute top-1/4 right-1/3 w-48 h-48 bg-rose-200/20 dark:bg-rose-500/5 rounded-full blur-3xl animate-float"
+        style="animation-delay: 6s;">
+      </div>
+      <div class="absolute bottom-1/4 left-1/4 w-56 h-56 bg-emerald-200/25 dark:bg-emerald-500/5 rounded-full blur-3xl"
+        style="animation-delay: 3.5s;">
+      </div>
+
+      <!-- Elementos decorativos educativos flotantes - Iconos -->
+      <div class="absolute top-20 right-[15%] text-teal-400/40 dark:text-teal-500/25 animate-float">
+        <BookOpen class="w-16 h-16" />
+      </div>
+      <div class="absolute top-[40%] left-[8%] text-amber-400/40 dark:text-amber-500/25 animate-float"
+        style="animation-delay: 3s;">
+        <Pencil class="w-12 h-12" />
+      </div>
+      <div class="absolute bottom-[20%] right-[10%] text-sky-400/40 dark:text-sky-500/25 animate-float"
+        style="animation-delay: 1s;">
+        <Star class="w-14 h-14" />
+      </div>
+      <div class="absolute bottom-[35%] left-[20%] text-violet-400/35 dark:text-violet-500/20 animate-float"
+        style="animation-delay: 5s;">
+        <GraduationCap class="w-10 h-10" />
+      </div>
+      <!-- Más iconos educativos -->
+      <div class="absolute top-[15%] left-[25%] text-emerald-400/35 dark:text-emerald-500/20 animate-float"
+        style="animation-delay: 2.5s;">
+        <Calculator class="w-10 h-10" />
+      </div>
+      <div class="absolute top-[55%] right-[20%] text-rose-400/35 dark:text-rose-500/20 animate-float"
+        style="animation-delay: 4.5s;">
+        <Globe class="w-12 h-12" />
+      </div>
+      <div class="absolute bottom-[45%] right-[35%] text-amber-400/35 dark:text-amber-500/20 animate-float"
+        style="animation-delay: 1.5s;">
+        <Trophy class="w-9 h-9" />
+      </div>
+      <div class="absolute top-[70%] left-[12%] text-cyan-400/35 dark:text-cyan-500/20 animate-float"
+        style="animation-delay: 6.5s;">
+        <Atom class="w-11 h-11" />
+      </div>
+      <div class="absolute top-[30%] right-[8%] text-pink-400/35 dark:text-pink-500/20 animate-float"
+        style="animation-delay: 3.5s;">
+        <Palette class="w-10 h-10" />
+      </div>
+      <div class="absolute bottom-[15%] left-[40%] text-indigo-400/35 dark:text-indigo-500/20 animate-float"
+        style="animation-delay: 7s;">
+        <Layers class="w-8 h-8" />
+      </div>
+      <div class="absolute top-[85%] right-[25%] text-teal-400/30 dark:text-teal-500/18 animate-float"
+        style="animation-delay: 5.5s;">
+        <FileQuestion class="w-9 h-9" />
+      </div>
+      <div class="absolute top-[10%] left-[45%] text-amber-400/30 dark:text-amber-500/18 animate-float"
+        style="animation-delay: 8s;">
+        <Medal class="w-8 h-8" />
+      </div>
+
+      <!-- Nuevos iconos educativos flotantes -->
+      <div class="absolute top-[5%] right-[40%] text-purple-400/35 dark:text-purple-500/20 animate-float"
+        style="animation-delay: 2s;">
+        <Music class="w-9 h-9" />
+      </div>
+      <div class="absolute top-[45%] left-[5%] text-blue-400/35 dark:text-blue-500/20 animate-float"
+        style="animation-delay: 4s;">
+        <Compass class="w-11 h-11" />
+      </div>
+      <div class="absolute top-[60%] right-[5%] text-green-400/35 dark:text-green-500/20 animate-float"
+        style="animation-delay: 9s;">
+        <Microscope class="w-12 h-12" />
+      </div>
+      <div class="absolute bottom-[8%] left-[15%] text-orange-400/35 dark:text-orange-500/20 animate-float"
+        style="animation-delay: 6s;">
+        <Ruler class="w-10 h-10" />
+      </div>
+      <div class="absolute top-[20%] left-[65%] text-red-400/30 dark:text-red-500/18 animate-float"
+        style="animation-delay: 3s;">
+        <PenTool class="w-8 h-8" />
+      </div>
+      <div class="absolute bottom-[55%] right-[45%] text-cyan-400/30 dark:text-cyan-500/18 animate-float"
+        style="animation-delay: 7.5s;">
+        <Shapes class="w-9 h-9" />
+      </div>
+      <div class="absolute top-[75%] left-[55%] text-lime-400/35 dark:text-lime-500/20 animate-float"
+        style="animation-delay: 1.5s;">
+        <Puzzle class="w-11 h-11" />
+      </div>
+      <div class="absolute bottom-[40%] left-[70%] text-fuchsia-400/35 dark:text-fuchsia-500/20 animate-float"
+        style="animation-delay: 8.5s;">
+        <Wand2 class="w-8 h-8" />
+      </div>
+      <div class="absolute top-[50%] right-[55%] text-sky-400/30 dark:text-sky-500/18 animate-float"
+        style="animation-delay: 4.5s;">
+        <Infinity class="w-10 h-10" />
+      </div>
+      <div class="absolute bottom-[25%] right-[60%] text-violet-400/30 dark:text-violet-500/18 animate-float"
+        style="animation-delay: 10s;">
+        <Sigma class="w-9 h-9" />
+      </div>
+
+      <!-- Círculos adicionales de fondo -->
+      <div
+        class="absolute top-[80%] left-[60%] w-40 h-40 bg-lime-300/25 dark:bg-lime-500/10 rounded-full blur-3xl animate-float"
+        style="animation-delay: 5s;">
+      </div>
+      <div
+        class="absolute top-[40%] right-[50%] w-52 h-52 bg-fuchsia-300/20 dark:bg-fuchsia-500/8 rounded-full blur-3xl"
+        style="animation-delay: 7s;">
       </div>
     </div>
 
-    <!-- Header -->
-    <header class="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 sticky top-0 z-50">
-      <div class="max-w-7xl mx-auto px-6 py-4">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
-              <Sparkles class="w-5 h-5 text-white" />
+    <!-- Header Educativo -->
+    <header
+      class="bg-gradient-to-r from-teal-600 via-teal-500 to-sky-500 dark:from-slate-800 dark:via-slate-800 dark:to-slate-800 border-b border-teal-400/20 dark:border-slate-700 sticky top-0 z-50 shadow-lg shadow-teal-500/20 dark:shadow-none">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2 sm:gap-4">
+            <!-- Logo con icono de libro -->
+            <div class="relative flex-shrink-0">
+              <div
+                class="w-10 h-10 sm:w-14 sm:h-14 bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg border border-white/30 p-1">
+                <img :src="logoDre" alt="Logo DRE" class="w-full h-full object-contain" />
+              </div>
+              <!-- Estrella decorativa -->
+              <div
+                class="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-amber-400 rounded-full flex items-center justify-center shadow-md animate-pulse">
+                <Star class="w-2 h-2 sm:w-3 sm:h-3 text-white fill-white" />
+              </div>
             </div>
-            <div>
-              <h1 class="text-xl font-bold text-slate-900 dark:text-white">LectoSistem</h1>
-              <p class="text-slate-500 dark:text-slate-400 text-sm">La aventura de una lectura inteligente</p>
+            <div class="min-w-0">
+              <h1 class="text-lg sm:text-2xl font-bold text-white tracking-tight flex items-center gap-2 truncate">
+                LectoSistem
+                <span
+                  class="text-[10px] sm:text-xs bg-amber-400 text-amber-900 px-2 py-0.5 rounded-full font-semibold">DRE</span>
+              </h1>
+              <p
+                class="text-teal-100 dark:text-slate-400 text-[10px] sm:text-sm font-medium flex items-center gap-1 truncate">
+                <GraduationCap class="w-3 h-3 sm:w-4 sm:h-4" />
+                <span class="truncate">Lectura inteligente</span>
+              </p>
             </div>
           </div>
 
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2 sm:gap-3">
             <button v-if="resultado && !loading && activeTab === 'generador'" @click="showResults = !showResults"
-              class="px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors" :class="showResults
-                ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400'
-                : 'bg-gray-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'">
-              <Eye v-if="showResults" class="w-4 h-4" />
-              <EyeOff v-else class="w-4 h-4" />
-              {{ showResults ? 'Ocultar' : 'Ver Resultado' }}
+              class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl font-medium text-[10px] sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all duration-300 bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30">
+              <Eye v-if="showResults" class="w-3 h-3 sm:w-4 sm:h-4" />
+              <EyeOff v-else class="w-3 h-3 sm:w-4 sm:h-4" />
+              <span class="hidden sm:inline">{{ showResults ? 'Ocultar' : 'Ver Resultado' }}</span>
+              <span class="sm:hidden">{{ showResults ? 'Cerrar' : 'Ver' }}</span>
             </button>
 
             <button @click="toggleTheme"
-              class="p-2.5 rounded-lg bg-gray-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">
+              class="p-2.5 rounded-xl bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600 transition-all duration-300">
               <Sun v-if="isDark" class="w-5 h-5" />
               <Moon v-else class="w-5 h-5" />
             </button>
@@ -353,147 +504,164 @@ const getNivelBadgeClass = (nivel: string): string => {
       </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-6 py-6">
+    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 w-full">
 
-      <!-- Tabs Navigation -->
-      <div class="mb-6">
-        <div class="border-b border-gray-200 dark:border-slate-700">
-          <nav class="-mb-px flex gap-6" aria-label="Tabs">
-            <button @click="activeTab = 'generador'" :class="[
-              activeTab === 'generador'
-                ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
-                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-gray-300 dark:text-slate-400 dark:hover:text-slate-300',
-              'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors'
-            ]">
-              <Sparkles class="w-4 h-4" />
-              Generador de Examen
-            </button>
+      <!-- Tabs Navigation - Estilo Educativo -->
+      <div class="mb-6 overflow-x-auto pb-2 scrollbar-hide">
+        <div
+          class="bg-white dark:bg-slate-800 rounded-2xl p-1.5 sm:p-2 shadow-lg border border-gray-100 dark:border-slate-700 flex sm:inline-flex gap-1 sm:gap-2 min-w-max">
+          <button @click="activeTab = 'generador'"
+            class="flex items-center gap-2 px-3 py-2 sm:px-5 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 whitespace-nowrap"
+            :class="activeTab === 'generador'
+              ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-lg shadow-teal-500/30'
+              : 'text-slate-600 dark:text-slate-400 hover:bg-teal-50 dark:hover:bg-slate-700'">
+            <Brain class="w-4 h-4 sm:w-5 sm:h-5" />
+            <span>Generador de Examen</span>
+            <Sparkles v-if="activeTab === 'generador'" class="w-3 h-3 sm:w-4 sm:h-4 text-amber-300" />
+          </button>
 
-            <button @click="activeTab = 'sistematizador'" :class="[
-              activeTab === 'sistematizador'
-                ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
-                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-gray-300 dark:text-slate-400 dark:hover:text-slate-300',
-              'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors'
-            ]">
-              <LayoutGrid class="w-4 h-4" />
-              Sistematizador
-            </button>
-          </nav>
+          <button @click="activeTab = 'sistematizador'"
+            class="flex items-center gap-2 px-3 py-2 sm:px-5 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 whitespace-nowrap"
+            :class="activeTab === 'sistematizador'
+              ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30'
+              : 'text-slate-600 dark:text-slate-400 hover:bg-amber-50 dark:hover:bg-slate-700'">
+            <LayoutGrid class="w-4 h-4 sm:w-5 sm:h-5" />
+            <span>Sistematizador</span>
+            <Award v-if="activeTab === 'sistematizador'" class="w-3 h-3 sm:w-4 sm:h-4 text-yellow-300" />
+          </button>
         </div>
       </div>
 
       <!-- Generator Tab Content -->
       <div v-show="activeTab === 'generador'">
-        <!-- Configuration Row -->
+        <!-- Configuration Row - Diseño Educativo -->
         <div class="grid md:grid-cols-3 gap-4 mb-6">
 
           <!-- Grade Selection -->
-          <div class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-gray-200 dark:border-slate-700">
-            <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
-              <GraduationCap class="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-              Grado
+          <div
+            class="bg-white dark:bg-slate-800 rounded-2xl p-5 border-2 border-teal-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-teal-200 transition-all duration-300">
+            <label class="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">
+              <div
+                class="w-8 h-8 bg-gradient-to-br from-teal-400 to-teal-600 rounded-lg flex items-center justify-center">
+                <GraduationCap class="w-4 h-4 text-white" />
+              </div>
+              Grado Escolar
             </label>
             <ComboBox v-model="selectedGradoId" :options="gradoOptions" placeholder="Seleccionar grado..." />
           </div>
 
           <!-- Quantity -->
-          <div class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-gray-200 dark:border-slate-700">
-            <label class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
-              <Hash class="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+          <div
+            class="bg-white dark:bg-slate-800 rounded-2xl p-5 border-2 border-amber-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-amber-200 transition-all duration-300">
+            <label class="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">
+              <div
+                class="w-8 h-8 bg-gradient-to-br from-amber-400 to-amber-600 rounded-lg flex items-center justify-center">
+                <Hash class="w-4 h-4 text-white" />
+              </div>
               Cantidad de Preguntas
             </label>
             <div class="flex items-center gap-4">
               <input type="range" v-model="cantidadPreguntas" min="1" max="10"
-                class="flex-1 h-2 bg-gray-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600" />
+                class="flex-1 h-3 bg-gradient-to-r from-teal-100 to-amber-100 dark:bg-slate-700 rounded-full appearance-none cursor-pointer accent-teal-600" />
               <span
-                class="w-10 h-10 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-lg font-bold text-indigo-700 dark:text-indigo-400">
+                class="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center text-xl font-bold text-white shadow-lg shadow-teal-500/30">
                 {{ cantidadPreguntas }}
               </span>
             </div>
           </div>
 
           <!-- File Upload -->
-          <div class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-gray-200 dark:border-slate-700">
-            <label class="flex items-center gap-2 cursor-pointer select-none mb-3">
-              <input type="checkbox" v-model="useTextoBase"
-                class="w-4 h-4 rounded border-gray-300 dark:border-slate-600 text-indigo-600 focus:ring-indigo-500" />
-              <FileUp class="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-              <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Usar Texto Base</span>
-            </label>
+          <div
+            class="bg-white dark:bg-slate-800 rounded-2xl p-5 border-2 border-sky-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-sky-200 transition-all duration-300">
+            <Checkbox v-model="useTextoBase" class="items-center mb-3">
+              <div class="flex items-center gap-2">
+                <div
+                  class="w-8 h-8 bg-gradient-to-br from-sky-400 to-sky-600 rounded-lg flex items-center justify-center">
+                  <FileUp class="w-4 h-4 text-white" />
+                </div>
+                <span class="text-sm font-bold text-slate-700 dark:text-slate-300">Usar Texto Base</span>
+              </div>
+            </Checkbox>
 
             <div v-if="useTextoBase" class="space-y-2">
               <div v-if="selectedFiles.length === 0 && !uploadingFile" class="relative">
                 <input type="file" accept=".pdf,.docx,.doc" multiple @change="handleFileUpload"
                   class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                 <div
-                  class="flex items-center justify-center py-3 px-3 bg-gray-50 dark:bg-slate-900 border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-lg hover:border-indigo-400 transition-colors">
+                  class="flex items-center justify-center py-4 px-3 bg-gradient-to-br from-sky-50 to-teal-50 dark:bg-slate-900 border-2 border-dashed border-sky-300 dark:border-slate-600 rounded-xl hover:border-teal-400 hover:bg-teal-50 transition-all duration-300">
                   <div class="text-center">
-                    <CloudUpload class="w-5 h-5 text-gray-400 mx-auto mb-1" />
-                    <span class="text-gray-500 dark:text-slate-400 text-xs">PDF o Word</span>
+                    <CloudUpload class="w-6 h-6 text-teal-500 mx-auto mb-1" />
+                    <span class="text-teal-600 dark:text-slate-400 text-xs font-medium">📄 PDF o Word</span>
                   </div>
                 </div>
               </div>
 
               <div v-if="uploadingFile"
-                class="flex items-center justify-center gap-2 py-3 bg-gray-50 dark:bg-slate-900 rounded-lg">
-                <Loader2 class="w-4 h-4 text-indigo-600 animate-spin" />
-                <span class="text-indigo-600 dark:text-indigo-400 text-sm">Procesando...</span>
+                class="flex items-center justify-center gap-2 py-4 bg-teal-50 dark:bg-slate-900 rounded-xl">
+                <Loader2 class="w-5 h-5 text-teal-600 animate-spin" />
+                <span class="text-teal-600 dark:text-teal-400 text-sm font-medium">Procesando...</span>
               </div>
 
               <div v-if="selectedFiles.length > 0 && !uploadingFile && filesMetadata" class="space-y-2">
                 <div v-for="(archivo, index) in filesMetadata.archivos" :key="index"
-                  class="flex items-center gap-2 p-2 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg text-xs">
-                  <FileText class="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                  <span class="flex-1 truncate text-slate-700 dark:text-slate-200">{{ archivo.filename }}</span>
-                  <span class="text-slate-500">{{ archivo.palabras }}p</span>
+                  class="flex items-center gap-2 p-3 bg-gradient-to-r from-teal-50 to-emerald-50 dark:bg-emerald-900/20 border-2 border-teal-200 dark:border-emerald-800 rounded-xl text-xs">
+                  <FileText class="w-5 h-5 text-teal-600 dark:text-emerald-400" />
+                  <span class="flex-1 truncate text-slate-700 dark:text-slate-200 font-medium">{{ archivo.filename
+                  }}</span>
+                  <span class="text-teal-600 font-bold bg-teal-100 px-2 py-0.5 rounded-full">{{ archivo.palabras
+                  }}p</span>
                 </div>
-                <button @click="clearFiles" class="text-xs text-red-500 hover:text-red-600 flex items-center gap-1">
-                  <X class="w-3 h-3" /> Quitar
+                <button @click="clearFiles"
+                  class="text-xs text-red-500 hover:text-red-600 flex items-center gap-1 font-medium">
+                  <X class="w-3 h-3" /> Quitar archivo
                 </button>
               </div>
 
               <div v-if="uploadError"
-                class="p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                <p class="text-red-600 dark:text-red-400 text-xs flex items-center gap-1">
-                  <AlertTriangle class="w-3 h-3" />
+                class="p-3 bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-xl">
+                <p class="text-red-600 dark:text-red-400 text-xs flex items-center gap-1 font-medium">
+                  <AlertTriangle class="w-4 h-4" />
                   {{ uploadError }}
                 </p>
               </div>
             </div>
 
-            <p v-else class="text-gray-400 dark:text-slate-500 text-xs">
-              Activa para usar lectura personalizada
+            <p v-else class="text-slate-400 dark:text-slate-500 text-xs mt-2 flex items-center gap-1">
+              <BookOpen class="w-3 h-3" /> Activa para usar lectura personalizada
             </p>
           </div>
         </div>
 
         <!-- Main Content -->
-        <div class="grid lg:grid-cols-2 gap-6">
+        <div class="grid lg:grid-cols-2 gap-4 sm:gap-6">
 
           <!-- Left: Desempeños -->
-          <div class="flex flex-col space-y-3">
+          <div class="flex flex-col space-y-3 order-1 lg:order-1">
 
             <!-- Desempeños Card -->
             <div
-              class="h-[580px] flex flex-col bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden shadow-sm">
+              class="h-[500px] sm:h-[580px] lg:h-[650px] flex flex-col bg-white dark:bg-slate-800 rounded-2xl border-2 border-teal-100 dark:border-slate-700 overflow-hidden shadow-lg">
 
-              <!-- Card Header -->
-              <div class="bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-3">
+              <!-- Card Header - Educativo -->
+              <div class="bg-gradient-to-r from-teal-500 via-teal-600 to-sky-500 px-5 py-4">
                 <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                      <Target class="w-4 h-4 text-white" />
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
+                      <Target class="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <h2 class="text-base font-semibold text-white">Desempeños</h2>
-                      <span v-if="desempenos.length" class="text-xs text-white/70">
-                        {{ desempenos.length }} disponibles
+                      <h2 class="text-lg font-bold text-white">
+                        Desempeños
+                      </h2>
+                      <span v-if="desempenos.length" class="text-xs text-teal-100 font-medium">
+                        {{ desempenos.length }} disponibles para evaluar
                       </span>
                     </div>
                   </div>
                   <span v-if="selectedDesempenosCount > 0"
-                    class="px-2.5 py-1 rounded-full bg-white/20 text-white text-xs font-medium backdrop-blur-sm">
-                    {{ selectedDesempenosCount }} seleccionados
+                    class="px-3 py-1.5 rounded-full bg-amber-400 text-amber-900 text-xs font-bold shadow-lg">
+                    ✓ {{ selectedDesempenosCount }} seleccionados
                   </span>
                 </div>
               </div>
@@ -516,37 +684,24 @@ const getNivelBadgeClass = (nivel: string): string => {
               <!-- Desempeños List with Tabs -->
               <div v-else-if="desempenos.length > 0" class="flex-1 flex flex-col overflow-hidden">
 
-                <!-- Tab Navigation -->
-                <div class="flex border-b border-gray-200 dark:border-slate-700">
+                <!-- Tab Navigation - Niveles de Comprensión -->
+                <div class="flex overflow-x-auto scrollbar-hide bg-gray-50 dark:bg-slate-900 p-1.5 gap-1 min-w-full">
                   <button v-for="tipo in ['literal', 'inferencial', 'critico']" :key="tipo"
                     @click="activeCapacidadTab = tipo"
-                    class="flex-1 relative px-4 py-3 text-xs font-bold uppercase tracking-wide transition-colors"
+                    class="flex-1 min-w-[100px] relative px-2 sm:px-4 py-2 sm:py-2.5 text-[10px] sm:text-xs font-bold uppercase tracking-wide transition-all duration-300 rounded-lg whitespace-nowrap"
                     :class="activeCapacidadTab === tipo
                       ? {
-                        'text-emerald-600 dark:text-emerald-400': tipo === 'literal',
-                        'text-amber-600 dark:text-amber-400': tipo === 'inferencial',
-                        'text-purple-600 dark:text-purple-400': tipo === 'critico'
+                        'bg-teal-500 text-white shadow-lg shadow-teal-500/30': tipo === 'literal',
+                        'bg-amber-500 text-white shadow-lg shadow-amber-500/30': tipo === 'inferencial',
+                        'bg-violet-500 text-white shadow-lg shadow-violet-500/30': tipo === 'critico'
                       }
-                      : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'">
-                    <div class="flex items-center justify-center gap-2">
+                      : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800'">
+                    <div class="flex items-center justify-center gap-1.5 sm:gap-2">
+                      <BookOpen v-if="tipo === 'literal'" class="w-3 h-3 sm:w-4 h-4" />
+                      <FileSearch v-else-if="tipo === 'inferencial'" class="w-3 h-3 sm:w-4 h-4" />
+                      <Lightbulb v-else class="w-3 h-3 sm:w-4 h-4" />
                       <span>{{ getCapacidadLabel(tipo) }}</span>
-                      <span v-if="desempenosPorCapacidad[tipo]?.length"
-                        class="text-[10px] px-1.5 py-0.5 rounded-full font-medium" :class="activeCapacidadTab === tipo
-                          ? {
-                            'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/50 dark:text-emerald-400': tipo === 'literal',
-                            'bg-amber-100 text-amber-600 dark:bg-amber-900/50 dark:text-amber-400': tipo === 'inferencial',
-                            'bg-purple-100 text-purple-600 dark:bg-purple-900/50 dark:text-purple-400': tipo === 'critico'
-                          }
-                          : 'bg-slate-100 dark:bg-slate-800'">
-                        {{ desempenosPorCapacidad[tipo].length }}
-                      </span>
                     </div>
-                    <!-- Active indicator -->
-                    <div v-if="activeCapacidadTab === tipo" class="absolute bottom-0 left-0 right-0 h-0.5" :class="{
-                      'bg-emerald-500': tipo === 'literal',
-                      'bg-amber-500': tipo === 'inferencial',
-                      'bg-purple-500': tipo === 'critico'
-                    }"></div>
                   </button>
                 </div>
 
@@ -576,7 +731,8 @@ const getNivelBadgeClass = (nivel: string): string => {
                   <!-- Items Grid -->
                   <div class="flex-1 overflow-y-auto space-y-1.5 pr-1">
                     <template v-if="desempenosPorCapacidad[activeCapacidadTab]?.length">
-                      <label v-for="des in desempenosPorCapacidad[activeCapacidadTab]" :key="des.id"
+                      <Checkbox v-for="des in desempenosPorCapacidad[activeCapacidadTab]" :key="des.id"
+                        v-model="selectedDesempenoIds" :value="des.id"
                         class="group flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-all duration-150 border"
                         :class="selectedDesempenoIds.includes(des.id)
                           ? {
@@ -584,33 +740,25 @@ const getNivelBadgeClass = (nivel: string): string => {
                             'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 ring-1 ring-amber-300 dark:ring-amber-700': activeCapacidadTab === 'inferencial',
                             'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800 ring-1 ring-purple-300 dark:ring-purple-700': activeCapacidadTab === 'critico'
                           }
-                          : 'border-gray-100 dark:border-slate-700 hover:border-gray-200 dark:hover:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-800/50'">
-                        <div class="relative flex items-center justify-center mt-0.5">
-                          <input type="checkbox" :checked="selectedDesempenoIds.includes(des.id)"
-                            @change="toggleDesempeno(des.id)"
-                            class="h-5 w-5 rounded-md border-2 transition-colors cursor-pointer" :class="selectedDesempenoIds.includes(des.id)
-                              ? {
-                                'border-emerald-500 text-emerald-600 dark:border-emerald-400': activeCapacidadTab === 'literal',
-                                'border-amber-500 text-amber-600 dark:border-amber-400': activeCapacidadTab === 'inferencial',
-                                'border-purple-500 text-purple-600 dark:border-purple-400': activeCapacidadTab === 'critico'
-                              }
-                              : 'border-gray-300 dark:border-slate-500 group-hover:border-indigo-400'" />
+                          : 'border-gray-100 dark:border-slate-700 hover:border-gray-200 dark:hover:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-800/50'"
+                        :color="activeCapacidadTab === 'literal'
+                          ? 'checked:bg-emerald-600 checked:border-emerald-600 dark:checked:bg-emerald-500 dark:checked:border-emerald-500 focus:ring-emerald-500/50'
+                          : (activeCapacidadTab === 'inferencial'
+                            ? 'checked:bg-amber-600 checked:border-amber-600 dark:checked:bg-amber-500 dark:checked:border-amber-500 focus:ring-amber-500/50'
+                            : 'checked:bg-purple-600 checked:border-purple-600 dark:checked:bg-purple-500 dark:checked:border-purple-500 focus:ring-purple-500/50')">
+                        <div class="flex items-center gap-2 mb-1">
+                          <span class="text-[10px] px-2 py-0.5 rounded-md font-mono font-bold" :class="{
+                            'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400': activeCapacidadTab === 'literal',
+                            'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400': activeCapacidadTab === 'inferencial',
+                            'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400': activeCapacidadTab === 'critico'
+                          }">
+                            {{ des.codigo }}
+                          </span>
                         </div>
-                        <div class="flex-1 min-w-0">
-                          <div class="flex items-center gap-2 mb-1">
-                            <span class="text-[10px] px-2 py-0.5 rounded-md font-mono font-bold" :class="{
-                              'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400': activeCapacidadTab === 'literal',
-                              'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400': activeCapacidadTab === 'inferencial',
-                              'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400': activeCapacidadTab === 'critico'
-                            }">
-                              {{ des.codigo }}
-                            </span>
-                          </div>
-                          <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                            {{ des.descripcion }}
-                          </p>
-                        </div>
-                      </label>
+                        <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                          {{ des.descripcion }}
+                        </p>
+                      </Checkbox>
                     </template>
 
                     <!-- Empty Tab -->
@@ -635,78 +783,93 @@ const getNivelBadgeClass = (nivel: string): string => {
               </div>
             </div>
 
-            <!-- Generate Button -->
+            <!-- Generate Button - Educativo -->
             <button @click="generarPreguntas"
               :disabled="loading || !selectedGradoId || selectedDesempenoIds.length === 0"
-              class="w-full px-6 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-              <Loader2 v-if="loading" class="w-5 h-5 animate-spin" />
-              <Zap v-else class="w-5 h-5" />
-              {{ loading ? 'Generando...' : 'Generar Examen' }}
+              class="w-full px-4 py-4 sm:px-6 sm:py-5 bg-gradient-to-r from-teal-500 via-teal-600 to-sky-500 hover:from-teal-600 hover:via-teal-700 hover:to-sky-600 text-white font-bold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 shadow-xl shadow-teal-500/30 hover:shadow-2xl hover:shadow-teal-500/40 hover:-translate-y-1 text-base sm:text-lg">
+              <Loader2 v-if="loading" class="w-5 h-5 sm:w-6 sm:h-6 animate-spin" />
+              <template v-else>
+                <Rocket class="w-5 h-5 sm:w-6 sm:h-6" />
+                <span>{{ loading ? 'Generando...' : 'Generar Examen con IA' }}</span>
+              </template>
+              <span v-if="loading" class="hidden sm:inline">Generando examen mágico...</span>
             </button>
 
             <!-- Error -->
             <div v-if="error"
-              class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 p-4 rounded-lg text-sm flex items-start gap-2">
-              <AlertTriangle class="w-5 h-5 flex-shrink-0" />
-              <p>{{ error }}</p>
+              class="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 p-4 rounded-2xl text-sm flex items-start gap-3">
+              <div
+                class="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                <AlertTriangle class="w-5 h-5" />
+              </div>
+              <p class="font-medium">{{ error }}</p>
             </div>
 
-            <!-- Prompt Button -->
+            <!-- Prompt Button - Educativo -->
             <button v-if="promptTexto" @click="showPromptModal = true"
-              class="w-full px-4 py-3 bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
-              <span class="text-slate-700 dark:text-slate-300 text-sm font-medium flex items-center gap-2">
-                <Copy class="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                Ver Prompt
+              class="w-full px-5 py-4 bg-white dark:bg-slate-800 rounded-2xl border-2 border-amber-200 dark:border-slate-700 flex items-center justify-between hover:bg-amber-50 dark:hover:bg-slate-700 hover:border-amber-300 transition-all duration-300 group">
+              <span class="text-slate-700 dark:text-slate-300 text-sm font-bold flex items-center gap-3">
+                <div
+                  class="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform">
+                  <Copy class="w-5 h-5 text-white" />
+                </div>
+                Ver Prompt Generado
               </span>
-              <span class="text-xs text-slate-400 dark:text-slate-500">Clic para abrir</span>
+              <span
+                class="text-xs text-amber-600 dark:text-slate-500 font-medium bg-amber-100 dark:bg-slate-700 px-3 py-1 rounded-full">Clic
+                para copiar</span>
             </button>
           </div>
 
           <!-- Right: Results -->
-          <div class="flex flex-col">
+          <div class="flex flex-col order-2 lg:order-2">
 
             <!-- Empty State -->
             <div v-if="!resultado && !loading"
-              class="h-[580px] bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 text-center flex flex-col items-center justify-center shadow-sm">
-              <Zap class="w-12 h-12 text-gray-300 dark:text-slate-600 mb-4" />
-              <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-2">Listo para generar</h3>
-              <p class="text-slate-500 dark:text-slate-400 text-sm max-w-xs">
+              class="h-[300px] sm:h-[580px] lg:h-[650px] bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 text-center flex flex-col items-center justify-center shadow-sm p-6">
+              <Zap class="w-10 h-10 sm:w-12 sm:h-12 text-gray-300 dark:text-slate-600 mb-4" />
+              <h3 class="text-base sm:text-lg font-semibold text-slate-800 dark:text-white mb-2">Listo para generar</h3>
+              <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm max-w-xs">
                 Selecciona los desempeños y genera tu examen con IA.
               </p>
             </div>
 
             <!-- Loading State -->
             <div v-if="loading"
-              class="h-[580px] bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 text-center flex flex-col items-center justify-center shadow-sm">
+              class="h-[400px] sm:h-[580px] lg:h-[650px] bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 text-center flex flex-col items-center justify-center shadow-sm p-6">
               <div
-                class="w-14 h-14 border-4 border-gray-200 dark:border-slate-600 border-t-indigo-600 dark:border-t-indigo-400 rounded-full animate-spin mb-4">
+                class="w-10 h-10 sm:w-14 sm:h-14 border-4 border-gray-200 dark:border-slate-600 border-t-indigo-600 dark:border-t-indigo-400 rounded-full animate-spin mb-4">
               </div>
-              <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-2">Generando Examen</h3>
-              <p class="text-slate-500 dark:text-slate-400 text-sm">Esto puede tomar unos segundos...</p>
+              <h3 class="text-base sm:text-lg font-semibold text-slate-800 dark:text-white mb-2">Generando Examen</h3>
+              <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm">Esto puede tomar unos segundos...</p>
             </div>
 
             <!-- Results -->
             <div v-if="resultado && !loading && showResults"
-              class="h-[580px] bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden">
+              class="h-[500px] sm:h-[580px] lg:h-[650px] bg-white dark:bg-slate-800 rounded-2xl border-2 border-amber-200 dark:border-slate-700 shadow-xl flex flex-col overflow-hidden">
 
-              <!-- Results Header -->
-              <div class="bg-gradient-to-r from-emerald-500 to-teal-600 px-4 py-3 flex-shrink-0">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                      <ClipboardList class="w-4 h-4 text-white" />
+              <!-- Results Header - Celebratorio -->
+              <div
+                class="bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 px-4 sm:px-5 py-3 sm:py-4 flex-shrink-0">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <div
+                      class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 backdrop-blur-sm rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
+                      <Award class="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
-                    <div>
-                      <h2 class="text-base font-semibold text-white">{{ resultado.examen.titulo }}</h2>
-                      <span class="text-xs text-white/70">
+                    <div class="min-w-0 flex-1">
+                      <h2 class="text-base sm:text-lg font-bold text-white truncate">
+                        {{ resultado.examen.titulo }}
+                      </h2>
+                      <span class="text-[10px] sm:text-xs text-amber-100 font-medium block">
                         {{ resultado.total_preguntas }} preguntas · {{ resultado.examen.grado }}
                       </span>
                     </div>
                   </div>
                   <button @click="descargarExamenWord" :disabled="descargandoWord"
-                    class="px-3 py-1.5 bg-white/20 hover:bg-white/30 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5">
-                    <Loader2 v-if="descargandoWord" class="w-3.5 h-3.5 animate-spin" />
-                    <Download v-else class="w-3.5 h-3.5" />
+                    class="w-full sm:w-auto px-4 py-2 bg-white text-amber-600 hover:bg-amber-50 text-xs sm:text-sm font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:-translate-y-0.5">
+                    <Loader2 v-if="descargandoWord" class="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
+                    <Download v-else class="w-3 h-3 sm:w-4 sm:h-4" />
                     {{ descargandoWord ? 'Generando...' : 'Descargar Word' }}
                   </button>
                 </div>
@@ -717,54 +880,71 @@ const getNivelBadgeClass = (nivel: string): string => {
 
                 <!-- Instrucciones -->
                 <div
-                  class="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-3 border border-indigo-100 dark:border-indigo-800">
+                  class="bg-gradient-to-r from-teal-50 to-sky-50 dark:from-teal-900/40 dark:to-slate-900 rounded-xl p-4 border-2 border-teal-100 dark:border-teal-800">
                   <p class="text-slate-700 dark:text-slate-300 text-sm">
-                    <strong class="text-indigo-700 dark:text-indigo-400">Instrucciones:</strong>
+                    <strong class="text-teal-700 dark:text-teal-400 flex items-center gap-2 mb-2">
+                      <ClipboardCheck class="w-4 h-4" />
+                      Instrucciones:
+                    </strong>
                     {{ resultado.examen.instrucciones }}
                   </p>
                 </div>
 
                 <!-- Lectura -->
-                <div class="bg-gray-50 dark:bg-slate-900 rounded-lg p-4 border border-gray-200 dark:border-slate-700">
-                  <h4 class="text-sm font-semibold text-slate-800 dark:text-white mb-2 flex items-center gap-2">
-                    <BookOpen class="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                <div
+                  class="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-900 dark:to-slate-950 rounded-xl p-5 border-2 border-amber-100 dark:border-slate-700">
+                  <h4 class="text-sm font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
+                    <div
+                      class="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center">
+                      <BookOpen class="w-4 h-4 text-white" />
+                    </div>
                     Lectura
                   </h4>
-                  <p class="text-slate-700 dark:text-slate-300 text-sm leading-7 whitespace-pre-line">
+                  <p
+                    class="text-slate-700 dark:text-slate-300 text-sm leading-7 whitespace-pre-line bg-white/50 dark:bg-black/20 p-4 rounded-lg">
                     {{ resultado.examen.lectura }}
                   </p>
                 </div>
 
                 <!-- Preguntas -->
-                <div class="space-y-3">
-                  <h4 class="text-sm font-semibold text-slate-800 dark:text-white flex items-center gap-2">
-                    <HelpCircle class="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                    Preguntas
+                <div class="space-y-4">
+                  <h4 class="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                    <div
+                      class="w-8 h-8 bg-gradient-to-br from-violet-400 to-purple-500 rounded-lg flex items-center justify-center">
+                      <HelpCircle class="w-4 h-4 text-white" />
+                    </div>
+                    Preguntas del Examen
                   </h4>
 
                   <div v-for="pregunta in resultado.examen.preguntas" :key="pregunta.numero"
-                    class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-gray-200 dark:border-slate-700">
-                    <div class="flex items-start gap-3">
+                    class="bg-white dark:bg-slate-800 rounded-xl p-5 border-2 border-slate-100 dark:border-slate-700 hover:border-teal-200 dark:hover:border-teal-700 transition-all duration-300">
+                    <div class="flex items-start gap-4">
                       <span
-                        class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                        class="w-10 h-10 bg-gradient-to-br from-teal-500 to-sky-500 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-lg shadow-teal-500/20">
                         {{ pregunta.numero }}
                       </span>
                       <div class="flex-1">
-                        <span class="inline-block px-2 py-0.5 text-[10px] font-semibold uppercase rounded mb-2"
+                        <span
+                          class="inline-flex items-center gap-1 px-3 py-1 text-[10px] font-bold uppercase rounded-full mb-2"
                           :class="getNivelBadgeClass(pregunta.nivel)">
+                          <BookOpen v-if="pregunta.nivel === 'LITERAL'" class="w-3 h-3" />
+                          <FileSearch v-else-if="pregunta.nivel === 'INFERENCIAL'" class="w-3 h-3" />
+                          <Lightbulb v-else class="w-3 h-3" />
                           {{ pregunta.nivel }}
                         </span>
-                        <p class="text-slate-800 dark:text-slate-200 font-medium mb-3">{{ pregunta.enunciado }}</p>
+                        <p class="text-slate-800 dark:text-slate-200 font-semibold mb-4">{{ pregunta.enunciado }}</p>
 
                         <div class="space-y-2">
                           <div v-for="opcion in pregunta.opciones" :key="opcion.letra"
-                            class="flex items-center gap-2 text-sm py-2 px-3 rounded-lg border"
+                            class="flex items-center gap-3 text-sm py-3 px-4 rounded-xl border-2 transition-all duration-200"
                             :class="opcion.es_correcta
-                              ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400'
-                              : 'bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'">
-                            <span class="font-semibold">{{ opcion.letra }})</span>
+                              ? 'bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-emerald-900/40 dark:to-slate-900 border-teal-300 dark:border-emerald-800 text-teal-700 dark:text-emerald-400'
+                              : 'bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-gray-300'">
+                            <span class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm"
+                              :class="opcion.es_correcta ? 'bg-teal-500 text-white' : 'bg-gray-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'">{{
+                                opcion.letra }}</span>
                             <span class="flex-1">{{ opcion.texto }}</span>
-                            <Check v-if="opcion.es_correcta" class="w-4 h-4" />
+                            <Check v-if="opcion.es_correcta" class="w-5 h-5 text-teal-500" />
                           </div>
                         </div>
                       </div>
@@ -773,39 +953,47 @@ const getNivelBadgeClass = (nivel: string): string => {
                 </div>
 
                 <!-- Answer Table -->
-                <div class="bg-white dark:bg-slate-800 rounded-lg p-4 border border-gray-200 dark:border-slate-700">
-                  <h4 class="text-sm font-semibold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
-                    <LayoutGrid class="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                <div class="bg-white dark:bg-slate-800 rounded-xl p-5 border-2 border-sky-100 dark:border-slate-700">
+                  <h4 class="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                    <div
+                      class="w-8 h-8 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg flex items-center justify-center">
+                      <LayoutGrid class="w-4 h-4 text-white" />
+                    </div>
                     Tabla de Respuestas
                   </h4>
-                  <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-slate-700">
+                  <div class="overflow-x-auto rounded-xl border-2 border-gray-100 dark:border-slate-700">
                     <table class="w-full text-sm">
                       <thead>
-                        <tr class="bg-gray-50 dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700">
-                          <th class="text-left py-2 px-3 text-slate-500 dark:text-slate-400 font-medium text-xs">#</th>
-                          <th class="text-left py-2 px-3 text-slate-500 dark:text-slate-400 font-medium text-xs">
+                        <tr
+                          class="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-900 dark:to-slate-950 border-b-2 border-gray-200 dark:border-slate-700">
+                          <th class="text-left py-3 px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">#</th>
+                          <th class="text-left py-3 px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
                             Desempeño
                           </th>
-                          <th class="text-left py-2 px-3 text-slate-500 dark:text-slate-400 font-medium text-xs">Nivel
+                          <th class="text-left py-3 px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">Nivel
                           </th>
-                          <th class="text-center py-2 px-3 text-slate-500 dark:text-slate-400 font-medium text-xs">Rpta.
+                          <th class="text-center py-3 px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">Rpta.
                           </th>
                         </tr>
                       </thead>
                       <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
-                        <tr v-for="fila in resultado.examen.tabla_respuestas" :key="fila.pregunta">
-                          <td class="py-2 px-3 text-slate-800 dark:text-slate-200 font-semibold">{{ fila.pregunta }}
+                        <tr v-for="fila in resultado.examen.tabla_respuestas" :key="fila.pregunta"
+                          class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
+                          <td class="py-3 px-4 text-slate-800 dark:text-slate-200 font-bold">{{ fila.pregunta }}
                           </td>
-                          <td class="py-2 px-3 text-slate-600 dark:text-slate-400 text-xs">{{ fila.desempeno }}</td>
-                          <td class="py-2 px-3">
-                            <span class="px-2 py-0.5 text-[10px] font-semibold rounded"
+                          <td class="py-3 px-4 text-slate-600 dark:text-slate-400 text-xs">{{ fila.desempeno }}</td>
+                          <td class="py-3 px-4">
+                            <span class="px-2.5 py-1 text-[10px] font-bold rounded-full inline-flex items-center gap-1"
                               :class="getNivelBadgeClass(fila.nivel)">
+                              <BookOpen v-if="fila.nivel === 'LITERAL'" class="w-3 h-3" />
+                              <FileSearch v-else-if="fila.nivel === 'INFERENCIAL'" class="w-3 h-3" />
+                              <Lightbulb v-else class="w-3 h-3" />
                               {{ fila.nivel }}
                             </span>
                           </td>
-                          <td class="py-2 px-3 text-center">
+                          <td class="py-3 px-4 text-center">
                             <span
-                              class="w-6 h-6 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-lg inline-flex items-center justify-center font-bold text-xs">
+                              class="w-8 h-8 bg-gradient-to-br from-teal-400 to-teal-600 text-white rounded-lg inline-flex items-center justify-center font-bold text-sm shadow-lg shadow-teal-500/20">
                               {{ fila.respuesta_correcta }}
                             </span>
                           </td>
@@ -815,8 +1003,12 @@ const getNivelBadgeClass = (nivel: string): string => {
                   </div>
                 </div>
 
-                <p class="text-center text-xs text-slate-400 dark:text-slate-500">
-                  Examen generado por IA - Revisar antes de usar
+                <p
+                  class="text-center text-xs text-slate-500 dark:text-slate-400 bg-gradient-to-r from-teal-50 to-amber-50 dark:from-slate-900 dark:to-slate-800 p-3 rounded-xl flex items-center justify-center gap-2">
+                  <Sparkles class="w-4 h-4 text-amber-500" /> Examen generado con IA - <strong>Revisar antes de usar con
+                    los
+                    estudiantes</strong>
+                  <GraduationCap class="w-4 h-4 text-teal-500" />
                 </p>
               </div>
             </div>
