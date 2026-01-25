@@ -1,0 +1,63 @@
+@startuml
+title Flujo de Usuario - LectoSistem
+skinparam backgroundColor white
+skinparam activity {
+  BackgroundColor #e1f5fe
+  BorderColor #01579b
+  ArrowColor #01579b
+}
+
+start
+:Ingresar a la Plataforma;
+:Seleccionar Pestaña **"Generador de Examen"**;
+:Seleccionar **Grado Escolar**;
+note right
+  Primaria o Secundaria
+  (Carga desempeños correspondientes)
+end note
+
+package "Configuración de Evaluación" {
+  :Filtrar Desempeños por Capacidad;
+  note right
+    - Literal
+    - Inferencial
+    - Crítico
+  end note
+  
+  :Seleccionar **Desempeños** específicos;
+  
+  :Configurar **Cantidad de Preguntas**;
+  
+  if (¿Usar Texto Base Personalizado?) then (Sí)
+    :Activar "Usar Texto Base";
+    :Subir Archivo (PDF / Word);
+    :Sistema procesa y extrae texto;
+  else (No)
+    :Sistema seleccionará/generará texto
+    basado en desempeños;
+  endif
+}
+
+:Clic en botón **"Generar Preguntas"**;
+
+partition "Procesamiento (Backend)" {
+  :Construir Prompt para IA;
+  :Enviar solicitud a Servicio IA (Gemini);
+  :Recibir Respuesta JSON estructurada;
+}
+
+:Visualizar **Vista Previa** del Examen;
+note left
+  Muestra:
+  - Título
+  - Lectura
+  - Preguntas
+  - Solucionario
+end note
+
+:Clic en **"Descargar Word"**;
+:Sistema genera archivo .docx;
+:Usuario guarda el archivo;
+
+stop
+@enduml

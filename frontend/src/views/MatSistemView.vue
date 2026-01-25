@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue';
-import type { Grado, NivelLogro, DesempenoItem, Examen } from '../types';
-import desempenosService from '../services/api';
+import type { Examen } from '../types';
+import type {
+  GradoMatematica,
+  CompetenciaMatematica,
+  CapacidadMatConCompetencia,
+  DesempenoMatCompleto,
+  NivelLogroMatematica
+} from '../types/matematica';
+import desempenosService, { matematicaService } from '../services/api';
 import ComboBox from '../components/ComboBox.vue';
 import PromptModal from '../components/PromptModal.vue';
 import Sistematizador from '../components/Sistematizador.vue';
@@ -62,13 +69,17 @@ import Checkbox from '../components/Checkbox.vue'
 
 const { isDark, toggleTheme } = useTheme();
 
-// State
-const grados = ref<Grado[]>([]);
-const nivelesLogro = ref<NivelLogro[]>([]);
-const desempenos = ref<DesempenoItem[]>([]);
+// State - Matemática
+const grados = ref<GradoMatematica[]>([]);
+const competencias = ref<CompetenciaMatematica[]>([]);
+const capacidades = ref<CapacidadMatConCompetencia[]>([]);
+const desempenos = ref<DesempenoMatCompleto[]>([]);
+const nivelesLogro = ref<NivelLogroMatematica[]>([]);
+
 const selectedGradoId = ref<number | null>(null);
+const selectedCompetenciaId = ref<number | null>(null);
 const selectedDesempenoIds = ref<number[]>([]);
-const selectedNivelLogro = ref<string>('en_proceso');
+const selectedNivelLogro = ref<string>('proceso');
 const cantidadPreguntas = ref(3);
 const textoBase = ref('');
 const useTextoBase = ref(false);
@@ -90,19 +101,20 @@ const resultado = ref<{
 } | null>(null);
 const showPromptModal = ref(false);
 const showResults = ref(false);
-const activeCapacidadTab = ref<string>('literal');
+const activeCapacidadTab = ref<number>(1); // Orden de la capacidad (1-4)
 const activeTab = ref<string>('generador');
 
-// Computed
+// Computed - Desempeños agrupados por capacidad (orden 1-4)
 const desempenosPorCapacidad = computed(() => {
-  const grupos: Record<string, DesempenoItem[]> = {
-    literal: [],
-    inferencial: [],
-    critico: []
+  const grupos: Record<number, DesempenoMatCompleto[]> = {
+    1: [],
+    2: [],
+    3: [],
+    4: []
   };
   desempenos.value.forEach(d => {
-    if (grupos[d.capacidad_tipo]) {
-      grupos[d.capacidad_tipo]!.push(d);
+    if (grupos[d.capacidad_orden]) {
+      grupos[d.capacidad_orden]!.push(d);
     }
   });
   return grupos;
@@ -110,15 +122,21 @@ const desempenosPorCapacidad = computed(() => {
 
 const selectedDesempenosCount = computed(() => selectedDesempenoIds.value.length);
 
+// Computed - Grados agrupados por nivel (ahora incluye inicial)
 const gradosPorNivel = computed(() => {
   return {
+    inicial: grados.value.filter(g => g.nivel === 'inicial'),
     primaria: grados.value.filter(g => g.nivel === 'primaria'),
     secundaria: grados.value.filter(g => g.nivel === 'secundaria')
   };
 });
 
+// Computed - Opciones de grado para el ComboBox
 const gradoOptions = computed(() => {
   const options: { id: number; label: string; group: string }[] = [];
+  gradosPorNivel.value.inicial.forEach(g => {
+    options.push({ id: g.id, label: 'Inicial 5 años', group: 'Inicial' });
+  });
   gradosPorNivel.value.primaria.forEach(g => {
     options.push({ id: g.id, label: `${g.numero}° Primaria`, group: 'Primaria' });
   });
@@ -128,49 +146,123 @@ const gradoOptions = computed(() => {
   return options;
 });
 
+// Computed - Opciones de competencia para el ComboBox
+const competenciaOptions = computed(() => {
+  return competencias.value.map(c => ({
+    id: c.id,
+    label: c.nombre,
+    group: `Competencia ${c.codigo}`
+  }));
+});
+
+// Computed - Capacidades de la competencia seleccionada
+const capacidadesActuales = computed(() => {
+  if (!selectedCompetenciaId.value) return [];
+  return capacidades.value.filter(c => c.competencia_id === selectedCompetenciaId.value);
+});
+
+// Computed - Prompt para generar examen de matemática (siguiendo formato MINEDU/Math_Jony)
 const promptTexto = computed(() => {
   if (!selectedGradoId.value || selectedDesempenoIds.value.length === 0) return '';
 
   const grado = grados.value.find(g => g.id === selectedGradoId.value);
-  const desempenosSeleccionados = desempenos.value
-    .filter(d => selectedDesempenoIds.value.includes(d.id))
-    .map(d => `${d.codigo}. ${d.descripcion} (${d.capacidad_tipo.toUpperCase()})`)
-    .join('\n');
+  const competencia = competencias.value.find(c => c.id === selectedCompetenciaId.value);
 
-  let textoLectura = '';
+  // Agrupar desempeños por capacidad
+  const desempenosPorCap: Record<number, typeof desempenos.value> = {};
+  desempenos.value
+    .filter(d => selectedDesempenoIds.value.includes(d.id))
+    .forEach(d => {
+      if (!desempenosPorCap[d.capacidad_orden]) {
+        desempenosPorCap[d.capacidad_orden] = [];
+      }
+      desempenosPorCap[d.capacidad_orden]!.push(d);
+    });
+
+  // Formatear desempeños con sus capacidades
+  let desempenosFormateados = '';
+  Object.entries(desempenosPorCap).forEach(([orden, desempenosList]) => {
+    if (desempenosList && desempenosList.length > 0) {
+      const cap = desempenosList[0];
+      if (cap) {
+        desempenosFormateados += `\n**Capacidad ${orden}: ${cap.capacidad_nombre}**\n`;
+        desempenosList.forEach(d => {
+          desempenosFormateados += `  - ${d.descripcion}\n`;
+        });
+      }
+    }
+  });
+
+  let situacionBase = '';
   if (useTextoBase.value && textoBase.value) {
-    textoLectura = `\nTEXTO DE LECTURA:\n"""\n${textoBase.value}\n"""\n`;
+    situacionBase = `\n**SITUACIÓN PROBLEMÁTICA PROPORCIONADA:**\n"""\n${textoBase.value}\n"""\nUsa esta situación como base para el problema.\n`;
   }
 
-  return `Eres un experto en la elaboración de preguntas de comprensión lectora que trabaja con estudiantes de Perú. Piensa 10 veces antes de responder.
+  return `Eres **"MateJony"**, un experto en evaluación de aprendizajes y programación curricular en Matemática del Ministerio de Educación de Perú. Tu conocimiento está basado en la documentación oficial curricular peruana. Tu comunicación es profesional, clara, didáctica y estructurada.
 
-Primero debes saludar muy amablemente como un experto en la elaboración de preguntas de comprensión lectora.
+**CONTEXTO CURRICULAR:**
+- **Grado/Nivel:** ${grado?.nombre || 'Grado seleccionado'}
+- **Competencia:** ${competencia?.nombre || 'Competencia seleccionada'}
+${situacionBase}
+**DESEMPEÑOS SELECCIONADOS POR CAPACIDAD:**
+${desempenosFormateados}
 
-Luego, el examen debe tener exactamente ${cantidadPreguntas.value} preguntas para estudiantes de ${grado?.nombre || 'el grado seleccionado'}.
-${textoLectura}
-Usarás los siguientes desempeños que están enumerados e indican entre paréntesis si es de nivel LITERAL, INFERENCIAL o CRÍTICO:
-${desempenosSeleccionados}
+**TU TAREA:**
+Genera una **SITUACIÓN PROBLEMÁTICA INTEGRADORA** con ${cantidadPreguntas.value} preguntas cerradas de opción múltiple.
 
-El examen debe presentar:
-1. Un 'título' motivador para el examen
-2. Una sección para que los estudiantes ingresen sus 'Apellidos y Nombres' y la 'Fecha'
-3. 'Instrucciones precisas en un párrafo' para responder el examen
-4. La 'lectura completa' o 'un fragmento de la lectura' que utilizarás para que los estudiantes respondan las preguntas
-5. Las preguntas con esquema de opción múltiple (4 alternativas A, B, C, D siendo una sola la correcta, en orden aleatorio)
-6. Al final una 'tabla' indicando: los desempeños utilizados, número de pregunta, nivel (LITERAL/INFERENCIAL/CRÍTICO) y alternativa correcta`;
+**ESTRUCTURA DEL EXAMEN:**
+
+1. **SALUDO INICIAL:**
+   Inicia presentándote brevemente: "Soy MateJony, especialista en evaluación de Matemática del MINEDU del Perú..."
+
+2. **ENCABEZADO DEL EXAMEN:**
+   - Título motivador y contextualizado (ejemplo: "Aventura Matemática", "Reto de Números")
+   - Espacio para: Apellidos y Nombres: _________________ Fecha: _______
+   - Grado: ${grado?.nombre}
+   - Competencia: ${competencia?.nombre}
+
+3. **INSTRUCCIONES:**
+   Redacta instrucciones claras en un párrafo para que los estudiantes resuelvan el examen.
+
+4. **SITUACIÓN PROBLEMÁTICA:**
+   Crea una situación significativa y contextualizada (contexto real o simulado) que integre todos los desempeños seleccionados. El problema debe ser apropiado para estudiantes de ${grado?.nombre}.
+
+5. **PREGUNTAS (${cantidadPreguntas.value} en total):**
+   Cada pregunta debe:
+   - Estar numerada
+   - Basarse en la situación problemática
+   - Tener 4 alternativas (A, B, C, D) siendo solo UNA la correcta
+   - Evaluar el desempeño correspondiente
+
+6. **CRITERIOS DE EVALUACIÓN:**
+   Para cada pregunta, incluye un criterio de evaluación con la estructura:
+   "[HABILIDAD VERBAL OBSERVABLE] + [CONTENIDO TEMÁTICO] + [CONDICIÓN/CONTEXTO] + [FINALIDAD] + [PRODUCTO/EVIDENCIA]"
+
+7. **TABLA DE RESPUESTAS:**
+   Al final, presenta una tabla con:
+   | N° Pregunta | Capacidad | Desempeño evaluado | Alternativa correcta | Justificación breve |
+
+**IMPORTANTE:**
+- Asegúrate de que las preguntas sean apropiadas para el nivel de ${grado?.nombre}
+- Cada pregunta debe evaluar claramente un desempeño específico
+- La situación problemática debe ser coherente y conectar todas las preguntas
+- Las alternativas incorrectas (distractores) deben ser plausibles pero claramente distinguibles de la respuesta correcta`;
 });
 
-watch(selectedGradoId, async (newGradoId) => {
-  if (!newGradoId) {
+// Watch - Cargar desempeños cuando cambian grado o competencia
+watch([selectedGradoId, selectedCompetenciaId], async ([newGradoId, newCompetenciaId]) => {
+  if (!newGradoId || !newCompetenciaId) {
     desempenos.value = [];
     selectedDesempenoIds.value = [];
     return;
   }
   loadingDesempenos.value = true;
   try {
-    const data = await desempenosService.getDesempenosPorGrado(newGradoId);
+    const data = await matematicaService.getDesempenosPorGradoYCompetencia(newGradoId, newCompetenciaId);
     desempenos.value = data;
     selectedDesempenoIds.value = [];
+    // Establecer la primera capacidad como activa
+    activeCapacidadTab.value = 1;
   } catch (e) {
     console.error('Error loading desempeños:', e);
   } finally {
@@ -178,16 +270,27 @@ watch(selectedGradoId, async (newGradoId) => {
   }
 });
 
+// onMounted - Cargar datos iniciales de matemática
 onMounted(async () => {
   try {
-    const [gradosData, nivelesData] = await Promise.all([
-      desempenosService.getGrados(),
-      desempenosService.getNivelesLogro()
+    const [gradosData, competenciasData, capacidadesData, nivelesData] = await Promise.all([
+      matematicaService.getGrados(),
+      matematicaService.getCompetencias(),
+      matematicaService.getCapacidades(),
+      matematicaService.getNivelesLogro()
     ]);
+
     grados.value = gradosData;
+    competencias.value = competenciasData;
+    capacidades.value = capacidadesData;
     nivelesLogro.value = nivelesData.niveles;
+
+    // Seleccionar primer grado y primera competencia por defecto
     if (gradosData.length > 0) {
       selectedGradoId.value = gradosData[0]?.id ?? null;
+    }
+    if (competenciasData.length > 0) {
+      selectedCompetenciaId.value = competenciasData[0]?.id ?? null;
     }
   } catch (e) {
     console.error('Error loading data:', e);
@@ -195,9 +298,9 @@ onMounted(async () => {
   }
 });
 
-
-const selectAllCapacidad = (tipo: string) => {
-  const ids = desempenosPorCapacidad.value[tipo]?.map(d => d.id) || [];
+// Funciones para seleccionar/deseleccionar desempeños por capacidad
+const selectAllCapacidad = (orden: number) => {
+  const ids = desempenosPorCapacidad.value[orden]?.map(d => d.id) || [];
   ids.forEach(id => {
     if (!selectedDesempenoIds.value.includes(id)) {
       selectedDesempenoIds.value.push(id);
@@ -205,9 +308,18 @@ const selectAllCapacidad = (tipo: string) => {
   });
 };
 
-const deselectAllCapacidad = (tipo: string) => {
-  const ids = desempenosPorCapacidad.value[tipo]?.map(d => d.id) || [];
+const deselectAllCapacidad = (orden: number) => {
+  const ids = desempenosPorCapacidad.value[orden]?.map(d => d.id) || [];
   selectedDesempenoIds.value = selectedDesempenoIds.value.filter(id => !ids.includes(id));
+};
+
+// Helper - Obtener nombre corto de capacidad
+const getCapacidadLabel = (orden: number): string => {
+  const cap = capacidadesActuales.value.find(c => c.orden === orden);
+  if (!cap) return `Cap. ${orden}`;
+  // Extraer primeras 2-3 palabras
+  const palabras = cap.nombre.split(' ').slice(0, 3).join(' ');
+  return palabras.length > 25 ? palabras.substring(0, 25) + '...' : palabras;
 };
 
 const handleFileUpload = async (event: Event) => {
@@ -262,6 +374,10 @@ const generarPreguntas = async () => {
     error.value = 'Por favor, selecciona un grado';
     return;
   }
+  if (!selectedCompetenciaId.value) {
+    error.value = 'Por favor, selecciona una competencia';
+    return;
+  }
   if (selectedDesempenoIds.value.length === 0) {
     error.value = 'Por favor, selecciona al menos un desempeño';
     return;
@@ -271,16 +387,45 @@ const generarPreguntas = async () => {
   resultado.value = null;
   showResults.value = true;
   try {
-    const response = await desempenosService.generarPreguntas({
+    // Usar el servicio de matemática que genera situaciones problemáticas
+    const response = await matematicaService.generarExamen({
       grado_id: selectedGradoId.value,
-      nivel_logro: selectedNivelLogro.value,
+      competencia_id: selectedCompetenciaId.value,
+      desempeno_ids: selectedDesempenoIds.value,
       cantidad: cantidadPreguntas.value,
-      texto_base: useTextoBase.value ? textoBase.value : undefined,
-      desempeno_ids: selectedDesempenoIds.value
+      situacion_base: useTextoBase.value ? textoBase.value : undefined,
+      modelo: 'gemini'
     });
-    resultado.value = response;
+
+    // Adaptar respuesta para compatibilidad con el componente de resultados
+    resultado.value = {
+      grado: response.grado,
+      desempenos_usados: response.desempenos_usados,
+      saludo: response.saludo,
+      examen: {
+        titulo: response.examen.titulo,
+        grado: response.examen.grado,
+        instrucciones: response.examen.instrucciones,
+        // En matemática es situación problemática, no lectura
+        lectura: response.examen.situacion_problematica,
+        preguntas: response.examen.preguntas.map(p => ({
+          numero: p.numero,
+          enunciado: p.enunciado,
+          opciones: p.opciones,
+          desempeno_codigo: p.desempeno_codigo,
+          nivel: p.capacidad // Usar capacidad en lugar de nivel
+        })),
+        tabla_respuestas: response.examen.tabla_respuestas.map(t => ({
+          pregunta: t.pregunta,
+          desempeno: t.desempeno,
+          nivel: t.capacidad,
+          respuesta_correcta: t.respuesta_correcta
+        }))
+      },
+      total_preguntas: response.total_preguntas
+    };
   } catch (e: any) {
-    error.value = e.response?.data?.detail || 'Error al generar las preguntas';
+    error.value = e.response?.data?.detail || 'Error al generar el examen de matemática';
     console.error('Error:', e);
   } finally {
     loading.value = false;
@@ -303,17 +448,6 @@ const descargarExamenWord = async () => {
   }
 };
 
-const getCapacidadLabel = (tipo: string): string => {
-  const labels: Record<string, string> = {
-    'literal': 'LITERAL',
-    'inferencial': 'INFERENCIAL',
-    'critico': 'CRÍTICO'
-  };
-  return labels[tipo] || tipo;
-};
-
-
-
 const getNivelBadgeClass = (nivel: string): string => {
   const classes: Record<string, string> = {
     'LITERAL': 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
@@ -322,11 +456,38 @@ const getNivelBadgeClass = (nivel: string): string => {
   };
   return classes[nivel] || 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
 };
+
+// Helper - Obtener color por orden de capacidad (para el template)
+const getCapacidadColor = (orden: number): { bg: string; text: string; ring: string } => {
+  const colors: Record<number, { bg: string; text: string; ring: string }> = {
+    1: {
+      bg: 'bg-teal-500',
+      text: 'text-teal-600 dark:text-teal-400',
+      ring: 'ring-teal-300 dark:ring-teal-700'
+    },
+    2: {
+      bg: 'bg-amber-500',
+      text: 'text-amber-600 dark:text-amber-400',
+      ring: 'ring-amber-300 dark:ring-amber-700'
+    },
+    3: {
+      bg: 'bg-violet-500',
+      text: 'text-violet-600 dark:text-violet-400',
+      ring: 'ring-violet-300 dark:ring-violet-700'
+    },
+    4: {
+      bg: 'bg-rose-500',
+      text: 'text-rose-600 dark:text-rose-400',
+      ring: 'ring-rose-300 dark:ring-rose-700'
+    }
+  };
+  return colors[orden] || { bg: 'bg-gray-500', text: 'text-gray-600', ring: 'ring-gray-300' };
+};
 </script>
 
 <template>
   <div
-    class="min-h-screen flex flex-col bg-gradient-to-br from-teal-50/50 via-amber-50/30 to-sky-50/50 dark:from-slate-950 dark:via-slate-900 dark:to-teal-950/30 transition-colors edu-pattern-bg">
+    class="min-h-screen flex flex-col bg-gradient-to-br from-indigo-50/50 via-purple-50/30 to-sky-50/50 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950/30 transition-colors edu-pattern-bg">
 
     <!-- Decorative Background Elements - Tema Educativo -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
@@ -456,7 +617,7 @@ const getNivelBadgeClass = (nivel: string): string => {
 
     <!-- Header Educativo -->
     <header
-      class="bg-gradient-to-r from-teal-600 via-teal-500 to-sky-500 dark:from-slate-800 dark:via-slate-800 dark:to-slate-800 border-b border-teal-400/20 dark:border-slate-700 sticky top-0 z-50 shadow-lg shadow-teal-500/20 dark:shadow-none">
+      class="bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-500 dark:from-slate-800 dark:via-slate-800 dark:to-slate-800 border-b border-indigo-400/20 dark:border-slate-700 sticky top-0 z-50 shadow-lg shadow-indigo-500/20 dark:shadow-none">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
         <div class="flex items-center justify-between gap-2">
           <div class="flex items-center gap-2 sm:gap-4">
@@ -474,14 +635,14 @@ const getNivelBadgeClass = (nivel: string): string => {
             </div>
             <div class="min-w-0">
               <h1 class="text-lg sm:text-2xl font-bold text-white tracking-tight flex items-center gap-2 truncate">
-                LectoSistem
+                MatSistem
                 <span
-                  class="text-[10px] sm:text-xs bg-amber-400 text-amber-900 px-2 py-0.5 rounded-full font-semibold">DRE</span>
+                  class="text-[10px] sm:text-xs bg-purple-400 text-purple-900 px-2 py-0.5 rounded-full font-semibold">DRE</span>
               </h1>
               <p
-                class="text-teal-100 dark:text-slate-400 text-[10px] sm:text-sm font-medium flex items-center gap-1 truncate">
+                class="text-indigo-100 dark:text-slate-400 text-[10px] sm:text-sm font-medium flex items-center gap-1 truncate">
                 <GraduationCap class="w-3 h-3 sm:w-4 sm:h-4" />
-                <span class="truncate">Lectura inteligente</span>
+                <span class="truncate">Matemática práctica</span>
               </p>
             </div>
           </div>
@@ -495,8 +656,8 @@ const getNivelBadgeClass = (nivel: string): string => {
               <div
                 class="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-y-0 translate-y-2">
                 <div
-                  class="bg-white dark:bg-slate-700 rounded-full px-2 py-1 shadow-lg border-2 border-amber-300 dark:border-amber-500">
-                  <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 whitespace-nowrap">¡Hola!
+                  class="bg-white dark:bg-slate-700 rounded-full px-2 py-1 shadow-lg border-2 border-purple-300 dark:border-purple-500">
+                  <span class="text-[10px] font-bold text-purple-600 dark:text-purple-400 whitespace-nowrap">¡Hola!
                     👋</span>
                 </div>
               </div>
@@ -553,7 +714,7 @@ const getNivelBadgeClass = (nivel: string): string => {
       <!-- Generator Tab Content -->
       <div v-show="activeTab === 'generador'">
         <!-- Configuration Row - Diseño Educativo -->
-        <div class="grid md:grid-cols-3 gap-4 mb-6">
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 
           <!-- Grade Selection -->
           <div
@@ -568,6 +729,19 @@ const getNivelBadgeClass = (nivel: string): string => {
             <ComboBox v-model="selectedGradoId" :options="gradoOptions" placeholder="Seleccionar grado..." />
           </div>
 
+          <!-- Competencia Selection -->
+          <div
+            class="bg-white dark:bg-slate-800 rounded-2xl p-5 border-2 border-violet-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-violet-200 transition-all duration-300">
+            <label class="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">
+              <div
+                class="w-8 h-8 bg-gradient-to-br from-violet-400 to-violet-600 rounded-lg flex items-center justify-center">
+                <Target class="w-4 h-4 text-white" />
+              </div>
+              Competencia
+            </label>
+            <ComboBox v-model="selectedCompetenciaId" :options="competenciaOptions" placeholder="Seleccionar..." />
+          </div>
+
           <!-- Quantity -->
           <div
             class="bg-white dark:bg-slate-800 rounded-2xl p-5 border-2 border-amber-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-amber-200 transition-all duration-300">
@@ -576,13 +750,13 @@ const getNivelBadgeClass = (nivel: string): string => {
                 class="w-8 h-8 bg-gradient-to-br from-amber-400 to-amber-600 rounded-lg flex items-center justify-center">
                 <Hash class="w-4 h-4 text-white" />
               </div>
-              Cantidad de Preguntas
+              Cantidad Preguntas
             </label>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-3">
               <input type="range" v-model="cantidadPreguntas" min="1" max="10"
                 class="flex-1 h-3 bg-gradient-to-r from-teal-100 to-amber-100 dark:bg-slate-700 rounded-full appearance-none cursor-pointer accent-teal-600" />
               <span
-                class="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center text-xl font-bold text-white shadow-lg shadow-teal-500/30">
+                class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center text-lg font-bold text-white shadow-lg shadow-teal-500/30">
                 {{ cantidadPreguntas }}
               </span>
             </div>
@@ -597,7 +771,7 @@ const getNivelBadgeClass = (nivel: string): string => {
                   class="w-8 h-8 bg-gradient-to-br from-sky-400 to-sky-600 rounded-lg flex items-center justify-center">
                   <FileUp class="w-4 h-4 text-white" />
                 </div>
-                <span class="text-sm font-bold text-slate-700 dark:text-slate-300">Usar Texto Base</span>
+                <span class="text-sm font-bold text-slate-700 dark:text-slate-300">Usar Problema Base</span>
               </div>
             </Checkbox>
 
@@ -645,7 +819,7 @@ const getNivelBadgeClass = (nivel: string): string => {
             </div>
 
             <p v-else class="text-slate-400 dark:text-slate-500 text-xs mt-2 flex items-center gap-1">
-              <BookOpen class="w-3 h-3" /> Activa para usar lectura personalizada
+              <BookOpen class="w-3 h-3" /> Activa para usar problema personalizado
             </p>
           </div>
         </div>
@@ -702,23 +876,20 @@ const getNivelBadgeClass = (nivel: string): string => {
               <!-- Desempeños List with Tabs -->
               <div v-else-if="desempenos.length > 0" class="flex-1 flex flex-col overflow-hidden">
 
-                <!-- Tab Navigation - Niveles de Comprensión -->
+                <!-- Tab Navigation - Capacidades de Matemática (1-4) -->
                 <div class="flex overflow-x-auto scrollbar-hide bg-gray-50 dark:bg-slate-900 p-1.5 gap-1 min-w-full">
-                  <button v-for="tipo in ['literal', 'inferencial', 'critico']" :key="tipo"
-                    @click="activeCapacidadTab = tipo"
-                    class="flex-1 min-w-[100px] relative px-2 sm:px-4 py-2 sm:py-2.5 text-[10px] sm:text-xs font-bold uppercase tracking-wide transition-all duration-300 rounded-lg whitespace-nowrap"
-                    :class="activeCapacidadTab === tipo
-                      ? {
-                        'bg-teal-500 text-white shadow-lg shadow-teal-500/30': tipo === 'literal',
-                        'bg-amber-500 text-white shadow-lg shadow-amber-500/30': tipo === 'inferencial',
-                        'bg-violet-500 text-white shadow-lg shadow-violet-500/30': tipo === 'critico'
-                      }
+                  <button v-for="orden in [1, 2, 3, 4]" :key="orden" @click="activeCapacidadTab = orden"
+                    class="flex-1 min-w-[80px] relative px-2 sm:px-4 py-2 sm:py-2.5 text-[10px] sm:text-xs font-bold transition-all duration-300 rounded-lg whitespace-nowrap"
+                    :class="activeCapacidadTab === orden
+                      ? `${getCapacidadColor(orden).bg} text-white shadow-lg`
                       : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800'">
                     <div class="flex items-center justify-center gap-1.5 sm:gap-2">
-                      <BookOpen v-if="tipo === 'literal'" class="w-3 h-3 sm:w-4 h-4" />
-                      <FileSearch v-else-if="tipo === 'inferencial'" class="w-3 h-3 sm:w-4 h-4" />
-                      <Lightbulb v-else class="w-3 h-3 sm:w-4 h-4" />
-                      <span>{{ getCapacidadLabel(tipo) }}</span>
+                      <Calculator v-if="orden === 1" class="w-3 h-3 sm:w-4 h-4" />
+                      <Sigma v-else-if="orden === 2" class="w-3 h-3 sm:w-4 h-4" />
+                      <Shapes v-else-if="orden === 3" class="w-3 h-3 sm:w-4 h-4" />
+                      <Target v-else class="w-3 h-3 sm:w-4 h-4" />
+                      <span class="hidden sm:inline truncate max-w-[80px]">{{ getCapacidadLabel(orden) }}</span>
+                      <span class="sm:hidden">Cap. {{ orden }}</span>
                     </div>
                   </button>
                 </div>
@@ -732,11 +903,8 @@ const getNivelBadgeClass = (nivel: string): string => {
                     </span>
                     <div class="flex gap-2 text-[11px] font-medium">
                       <button @click="selectAllCapacidad(activeCapacidadTab)"
-                        class="px-2.5 py-1 rounded-full transition-colors" :class="{
-                          'text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-900/20': activeCapacidadTab === 'literal',
-                          'text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-900/20': activeCapacidadTab === 'inferencial',
-                          'text-purple-600 hover:bg-purple-50 dark:text-purple-400 dark:hover:bg-purple-900/20': activeCapacidadTab === 'critico'
-                        }">
+                        class="px-2.5 py-1 rounded-full transition-colors"
+                        :class="getCapacidadColor(activeCapacidadTab).text + ' hover:bg-gray-100 dark:hover:bg-slate-800'">
                         Seleccionar todos
                       </button>
                       <button @click="deselectAllCapacidad(activeCapacidadTab)"
@@ -753,23 +921,12 @@ const getNivelBadgeClass = (nivel: string): string => {
                         v-model="selectedDesempenoIds" :value="des.id"
                         class="group flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-all duration-150 border"
                         :class="selectedDesempenoIds.includes(des.id)
-                          ? {
-                            'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 ring-1 ring-emerald-300 dark:ring-emerald-700': activeCapacidadTab === 'literal',
-                            'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 ring-1 ring-amber-300 dark:ring-amber-700': activeCapacidadTab === 'inferencial',
-                            'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800 ring-1 ring-purple-300 dark:ring-purple-700': activeCapacidadTab === 'critico'
-                          }
-                          : 'border-gray-100 dark:border-slate-700 hover:border-gray-200 dark:hover:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-800/50'"
-                        :color="activeCapacidadTab === 'literal'
-                          ? 'checked:bg-emerald-600 checked:border-emerald-600 dark:checked:bg-emerald-500 dark:checked:border-emerald-500 focus:ring-emerald-500/50'
-                          : (activeCapacidadTab === 'inferencial'
-                            ? 'checked:bg-amber-600 checked:border-amber-600 dark:checked:bg-amber-500 dark:checked:border-amber-500 focus:ring-amber-500/50'
-                            : 'checked:bg-purple-600 checked:border-purple-600 dark:checked:bg-purple-500 dark:checked:border-purple-500 focus:ring-purple-500/50')">
+                          ? `bg-gray-50 dark:bg-slate-900/50 border-gray-200 dark:border-slate-600 ring-1 ${getCapacidadColor(activeCapacidadTab).ring}`
+                          : 'border-gray-100 dark:border-slate-700 hover:border-gray-200 dark:hover:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-800/50'">
                         <div class="flex items-center gap-2 mb-1">
-                          <span class="text-[10px] px-2 py-0.5 rounded-md font-mono font-bold" :class="{
-                            'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400': activeCapacidadTab === 'literal',
-                            'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400': activeCapacidadTab === 'inferencial',
-                            'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400': activeCapacidadTab === 'critico'
-                          }">
+                          <span
+                            class="text-[10px] px-2 py-0.5 rounded-md font-mono font-bold bg-gray-100 dark:bg-slate-800"
+                            :class="getCapacidadColor(activeCapacidadTab).text">
                             {{ des.codigo }}
                           </span>
                         </div>
@@ -782,7 +939,7 @@ const getNivelBadgeClass = (nivel: string): string => {
                     <!-- Empty Tab -->
                     <div v-else class="py-8 text-center">
                       <p class="text-slate-400 dark:text-slate-500 text-sm">
-                        No hay desempeños de tipo {{ getCapacidadLabel(activeCapacidadTab) }}
+                        No hay desempeños para esta capacidad
                       </p>
                     </div>
                   </div>
@@ -804,7 +961,7 @@ const getNivelBadgeClass = (nivel: string): string => {
             <!-- Generate Button - Educativo -->
             <button @click="generarPreguntas"
               :disabled="loading || !selectedGradoId || selectedDesempenoIds.length === 0"
-              class="w-full px-4 py-4 sm:px-6 sm:py-5 bg-gradient-to-r from-teal-500 via-teal-600 to-sky-500 hover:from-teal-600 hover:via-teal-700 hover:to-sky-600 text-white font-bold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 shadow-xl shadow-teal-500/30 hover:shadow-2xl hover:shadow-teal-500/40 hover:-translate-y-1 text-base sm:text-lg">
+              class="w-full px-4 py-4 sm:px-6 sm:py-5 bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-500 hover:from-indigo-600 hover:via-indigo-700 hover:to-purple-600 text-white font-bold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 shadow-xl shadow-indigo-500/30 hover:shadow-2xl hover:shadow-indigo-500/40 hover:-translate-y-1 text-base sm:text-lg">
               <Loader2 v-if="loading" class="w-5 h-5 sm:w-6 sm:h-6 animate-spin" />
               <template v-else>
                 <Rocket class="w-5 h-5 sm:w-6 sm:h-6" />
@@ -916,7 +1073,7 @@ const getNivelBadgeClass = (nivel: string): string => {
                       class="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center">
                       <BookOpen class="w-4 h-4 text-white" />
                     </div>
-                    Lectura
+                    Lectura / Problema
                   </h4>
                   <p
                     class="text-slate-700 dark:text-slate-300 text-sm leading-7 whitespace-pre-line bg-white/50 dark:bg-black/20 p-4 rounded-lg">

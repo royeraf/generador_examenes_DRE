@@ -1,0 +1,83 @@
+@startuml
+
+!theme plain
+hide circle
+skinparam linetype ortho
+
+' Entities
+
+entity "Grado" as grados {
+  *id : Integer <<generated>>
+  --
+  *nombre : String(100)
+  *numero : Integer
+  *nivel : String(20)
+  *orden : Integer
+}
+
+entity "Capacidad" as capacidades {
+  *id : Integer <<generated>>
+  --
+  *nombre : String(200)
+  *tipo : String(20)
+  descripcion : Text
+}
+
+entity "Desempeno" as desempenos {
+  *id : Integer <<generated>>
+  --
+  *codigo : String(10)
+  *descripcion : Text
+  *grado_id : Integer <<FK>>
+  *capacidad_id : Integer <<FK>>
+}
+
+entity "CompetenciaMatematica" as competencias_matematica {
+  *id : Integer <<generated>>
+  --
+  *codigo : Integer
+  *nombre : String(200)
+  descripcion : Text
+}
+
+entity "CapacidadMatematica" as capacidades_matematica {
+  *id : Integer <<generated>>
+  --
+  *orden : Integer
+  *nombre : String(300)
+  descripcion : Text
+  *competencia_id : Integer <<FK>>
+}
+
+entity "EstandarMatematica" as estandares_matematica {
+  *id : Integer <<generated>>
+  --
+  *descripcion : Text
+  ciclo : String(20)
+  *grado_id : Integer <<FK>>
+  *competencia_id : Integer <<FK>>
+}
+
+entity "DesempenoMatematica" as desempenos_matematica {
+  *id : Integer <<generated>>
+  --
+  *codigo : String(10)
+  *descripcion : Text
+  *grado_id : Integer <<FK>>
+  *capacidad_id : Integer <<FK>>
+}
+
+' Relationships
+
+grados ||..o{ desempenos
+capacidades ||..o{ desempenos
+
+competencias_matematica ||..o{ capacidades_matematica
+competencias_matematica ||..o{ estandares_matematica
+
+grados ||..o{ estandares_matematica
+grados ||..o{ desempenos_matematica
+
+capacidades_matematica ||..o{ desempenos_matematica
+
+@enduml

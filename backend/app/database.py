@@ -30,5 +30,9 @@ def get_db():
 
 def init_db():
     """Initialize database tables."""
-    from app.models.db_models import Grado, Capacidad, Desempeno
+    from app.models.db_models import (
+        Grado, Capacidad, Desempeno,
+        CompetenciaMatematica, CapacidadMatematica, 
+        EstandarMatematica, DesempenoMatematica
+    )
     Base.metadata.create_all(bind=engine)

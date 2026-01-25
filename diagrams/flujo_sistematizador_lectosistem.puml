@@ -1,0 +1,66 @@
+@startuml
+title Flujo de Sistematización - LectoSistem
+skinparam backgroundColor white
+skinparam activity {
+  BackgroundColor #e1f5fe
+  BorderColor #01579b
+  ArrowColor #01579b
+}
+
+start
+:Ingresar al Módulo **Sistematizador**;
+:Seleccionar **Grado Escolar**;
+
+partition "1. Configuración de la Prueba" {
+  :Definir **Competencia a Evaluar**;
+  note right
+    Ej: "Lee diversos tipos de textos..."
+  end note
+
+  :Configurar Matriz de Evaluación;
+  repeat
+    :Seleccionar Nivel de Logro;
+    note right
+      - Pre-Inicio
+      - Inicio
+      - Proceso
+      - Satisfactorio
+      - Destacado
+    end note
+    :Agregar Pregunta;
+    :Asignar **Desempeño** específico;
+    :Definir **Clave Correcta** (A, B, C, D);
+  repeat while (¿Más preguntas?)
+}
+
+partition "2. Registro de Evaluaciones" {
+  :Ingresar Lista de Estudiantes;
+  
+  repeat
+    :Seleccionar Estudiante;
+    :Registrar Respuestas por Pregunta;
+    note right
+      Input: A, B, C, D o vacío
+    end note
+  repeat while (¿Más estudiantes?)
+
+  :Clic en **"Calcular Resultados"**;
+  :Sistema procesa puntajes automáticamente;
+  note right
+    Algoritmo determina el Nivel de Logro
+    según porcentaje de aciertos por nivel
+  end note
+}
+
+partition "3. Resultados y Reportes" {
+  :Visualizar Tabla de Resultados;
+  :Ver Gráfico Estadístico (Barras);
+  
+  if (¿Exportar?) then (Sí)
+    :Clic en **"Exportar Excel/CSV"**;
+    :Descargar Reporte detallado;
+  endif
+}
+
+stop
+@enduml

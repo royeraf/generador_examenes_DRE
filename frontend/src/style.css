@@ -166,3 +166,33 @@ h1, h2, h3, h4, h5, h6 {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* ====== MASCOTA LECTOSISTEM ====== */
+@keyframes mascota-float {
+  0%, 100% { 
+    transform: translateY(0px) rotate(0deg); 
+  }
+  25% { 
+    transform: translateY(-3px) rotate(1deg); 
+  }
+  50% { 
+    transform: translateY(-6px) rotate(0deg); 
+  }
+  75% { 
+    transform: translateY(-3px) rotate(-1deg); 
+  }
+}
+
+.animate-mascota-float {
+  animation: mascota-float 4s ease-in-out infinite;
+}
+
+/* Efecto de brillo para la mascota */
+.mascota-glow {
+  filter: drop-shadow(0 0 10px rgba(13, 148, 136, 0.3));
+  transition: filter 0.3s ease;
+}
+
+.mascota-glow:hover {
+  filter: drop-shadow(0 0 20px rgba(13, 148, 136, 0.5));
+}

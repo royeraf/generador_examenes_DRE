@@ -1,0 +1,67 @@
+@startuml
+title Flujo de Usuario - MatSistem
+skinparam backgroundColor white
+skinparam activity {
+  BackgroundColor #f3e5f5
+  BorderColor #4a148c
+  ArrowColor #4a148c
+}
+
+start
+:Ingresar a la Plataforma;
+:Seleccionar Pestaña **"MatSistem"** (Nuevo Módulo);
+:Seleccionar **Grado Escolar**;
+
+package "Configuración de Ficha Matemática" {
+  :Seleccionar **Competencia Matemática**;
+  note right
+    Ej:
+    - Resuelve problemas de cantidad
+    - Resuelve problemas de forma...
+    - Resuelve problemas de gestión de datos...
+  end note
+  
+  :Seleccionar **Capacidades/Desempeños**;
+  
+  :Configurar **Nivel de Dificultad**;
+  note right
+    - Básico
+    - Intermedio
+    - Avanzado
+  end note
+
+  :Configurar **Contexto/Tema** (Opcional);
+  note right
+    Ej: "Mercado", "Fútbol", 
+    "Construcción", etc.
+  end note
+  
+  :Definir **Cantidad de Problemas**;
+}
+
+:Clic en botón **"Generar Problemas"**;
+
+partition "Procesamiento (Backend)" {
+  :Seleccionar Estrategia/Plantilla Matemática;
+  :Construir Prompt para IA (Especializado en Math);
+  :Enviar solicitud a Servicio IA;
+  :Recibir problemas (incluyendo fórmulas/gráficos);
+}
+
+:Visualizar **Vista Previa** de la Ficha;
+note left
+  Muestra:
+  - Situación Problemática
+  - Ejercicios
+  - Espacio para resolución
+end note
+
+if (¿Requiere Solucionario?) then (Sí)
+  :Generar paso a paso de resolución;
+endif
+
+:Clic en **"Descargar Ficha (Word/PDF)"**;
+:Usuario guarda el archivo;
+
+stop
+@enduml

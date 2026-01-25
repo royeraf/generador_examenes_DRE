@@ -1,0 +1,46 @@
+@startuml c4_componentes_generador
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Diagrama C4 - Nivel 3: Componentes\nAPI Backend - Generador de Exámenes (Lectosistem DRE)
+
+Container(spa, "Aplicación Web SPA", "Vue 3", "Frontend del usuario")
+ContainerDb(db, "Base de Datos", "SQLite", "Datos curriculares")
+System_Ext(gemini, "Google Gemini API", "IA Generativa")
+System_Ext(chatgpt, "OpenAI ChatGPT API", "IA Alternativa")
+
+Container_Boundary(api, "API Backend (FastAPI)") {
+    Component(routes, "Desempeños Router", "FastAPI Router", "Endpoints REST: /grados, /desempenos, /generar, /descargar-word")
+    
+    Component(desempeno_svc, "DesempenoService", "Python Class", "Consulta desempeños y construye prompts para generación de exámenes")
+    
+    Component(ai_factory, "AIFactory", "Factory Pattern", "Selecciona el servicio de IA según configuración (Gemini o ChatGPT)")
+    
+    Component(gemini_svc, "GeminiService", "Python Class", "Comunica con Google Gemini API y parsea respuestas JSON")
+    
+    Component(chatgpt_svc, "ChatGPTService", "Python Class", "Comunica con OpenAI API y parsea respuestas JSON")
+    
+    Component(file_svc, "FileService", "Python Class", "Extrae texto de archivos PDF y Word subidos")
+    
+    Component(word_gen, "WordGenerator", "Python Module", "Genera documentos Word (.docx) con formato de examen")
+    
+    Component(models, "Models", "SQLAlchemy ORM", "Entidades: Grado, Capacidad, Desempeno")
+}
+
+Rel(spa, routes, "Consume", "JSON/HTTPS")
+Rel(routes, desempeno_svc, "Usa")
+Rel(routes, file_svc, "Usa")
+Rel(routes, word_gen, "Usa")
+Rel(desempeno_svc, ai_factory, "Solicita servicio IA")
+Rel(desempeno_svc, models, "Consulta")
+Rel(ai_factory, gemini_svc, "Crea")
+Rel(ai_factory, chatgpt_svc, "Crea")
+Rel(gemini_svc, gemini, "Genera contenido", "HTTPS")
+Rel(chatgpt_svc, chatgpt, "Genera contenido", "HTTPS")
+Rel(models, db, "Lee/Escribe", "SQL")
+
+SHOW_LEGEND()
+
+footer Lectosistem DRE - Diagrama C4 Componentes | Enero 2026
+@enduml

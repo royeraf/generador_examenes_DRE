@@ -5,15 +5,19 @@ from fastapi.responses import FileResponse, JSONResponse
 import os
 
 from app.config import get_settings
-from app.routes import preguntas, desempenos
+from app.routes import api_router
 from app.database import init_db
 
 settings = get_settings()
 
 app = FastAPI(
     title=settings.app_name,
-    description="API para generar preguntas de evaluación usando IA (Gemini y ChatGPT)",
+    description="API para generar preguntas de evaluación usando IA (Gemini y ChatGPT). "
+                "Soporta módulos de Comunicación (LectoSistem) y Matemática (MatSistem).",
     version="1.0.0",
+    docs_url="/api/docs",
+    redoc_url="/api/redoc",
+    openapi_url="/api/openapi.json"
 )
 
 # CORS configuration
@@ -31,15 +35,14 @@ async def startup_event():
     init_db()
 
 # ==========================================
-# API ROUTES (PRIMERO - IMPORTANTE)
+# API ROUTES - Usando router central
 # ==========================================
-app.include_router(preguntas.router, prefix="/api/preguntas", tags=["Preguntas"])
-app.include_router(desempenos.router, prefix="/api/desempenos", tags=["Desempeños"])
+app.include_router(api_router, prefix="/api")
 
-@app.get("/api/health")  # Cambié a /api/health para consistencia
+@app.get("/api/health")
 async def health_check():
     """Health check endpoint."""
-    return {"status": "healthy"}
+    return {"status": "healthy", "modules": ["comunicacion", "matematica"]}
 
 # ==========================================
 # FRONTEND STATIC FILES (AL FINAL)

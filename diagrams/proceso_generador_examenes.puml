@@ -1,0 +1,225 @@
+@startuml proceso_generador_examenes
+!theme cerulean-outline
+
+title **Diagrama de Procesos: Generador de Exámenes de Comprensión Lectora**\n(Lectosistem DRE)
+
+|#LightBlue|Usuario/Docente|
+|#LightGreen|Frontend (Vue.js)|
+|#LightYellow|Backend (FastAPI)|
+|#LightPink|Servicios|
+|#LightCoral|IA (Gemini/ChatGPT)|
+|#LightGray|Base de Datos|
+
+|Usuario/Docente|
+start
+:Accede al módulo\n**Generador de Exámenes**;
+
+|Frontend (Vue.js)|
+:Cargar página GeneradorView.vue;
+:Solicitar datos iniciales (onMounted);
+
+|Backend (FastAPI)|
+:GET /api/desempenos/grados;
+:GET /api/desempenos/niveles-logro;
+
+|Base de Datos|
+:Consultar tabla **Grados**\n(Primaria 1°-6°, Secundaria 1°-5°);
+:Consultar **Niveles de Logro**\n(Pre-inicio, Inicio, En Proceso,\nLogro Esperado, Logro Destacado);
+
+|Backend (FastAPI)|
+:Retornar JSON con grados y niveles;
+
+|Frontend (Vue.js)|
+:Mostrar selector de grados\ny niveles de logro;
+
+|Usuario/Docente|
+:1. Seleccionar **Grado**\n   (Ej: 4° Primaria);
+
+|Frontend (Vue.js)|
+:Detectar cambio de grado (watch);
+:GET /api/desempenos/grados/{id}/desempenos;
+
+|Backend (FastAPI)|
+:Invocar DesempenoService\n.get_desempenos_por_grado();
+
+|Base de Datos|
+:Consultar tabla **Desempeños**\nfiltrado por grado_id;
+:Incluir datos de **Capacidades**\n(Literal, Inferencial, Crítico);
+
+|Backend (FastAPI)|
+:Retornar lista de desempeños\ncon tipo de capacidad;
+
+|Frontend (Vue.js)|
+:Mostrar desempeños agrupados\npor capacidad en la UI;
+
+|Usuario/Docente|
+:2. Seleccionar **Desempeños**\n   a evaluar (checkboxes);
+:3. Definir **Cantidad de Preguntas**\n   (1-10 preguntas);
+
+if (¿Subir texto de lectura?) then (Sí)
+    |Usuario/Docente|
+    :4a. Subir archivos\nPDF/Word con lectura;
+    
+    |Frontend (Vue.js)|
+    :POST /api/desempenos/upload-texto\n(FormData con archivos);
+    
+    |Backend (FastAPI)|
+    :Invocar FileService\n.extract_text_from_file();
+    
+    |Servicios|
+    :Procesar archivos PDF (PyPDF2)\ny Word (python-docx);
+    :Extraer y combinar textos;
+    :Calcular estadísticas\n(palabras, caracteres);
+    
+    |Backend (FastAPI)|
+    :Retornar texto extraído\ny metadata de archivos;
+    
+    |Frontend (Vue.js)|
+    :Mostrar texto extraído\nen área de texto;
+else (No)
+    |Usuario/Docente|
+    :4b. Escribir/pegar\ntexto base manualmente;
+endif
+
+|Usuario/Docente|
+:5. Clic en botón\n**"Generar Examen"**;
+
+|Frontend (Vue.js)|
+:Validar selecciones\n(grado + desempeños);
+
+if (¿Validación exitosa?) then (No)
+    :Mostrar mensaje de error;
+    stop
+else (Sí)
+    :Mostrar indicador de carga;
+    :POST /api/desempenos/generar\n{grado_id, cantidad, texto_base,\ndesempeno_ids, modelo};
+endif
+
+|Backend (FastAPI)|
+:Recibir GenerarPreguntasRequest;
+:Invocar DesempenoService\n.generar_preguntas_por_desempenos();
+
+|Servicios|
+:Obtener servicio IA\n(AIFactory.get_service);
+:Verificar configuración API;
+
+|Base de Datos|
+:Consultar Grado por ID;
+:Consultar Desempeños\npor IDs seleccionados;
+:Obtener Capacidades asociadas;
+
+|Servicios|
+:Construir lista de desempeños\ncon códigos y niveles;
+:Generar **PROMPT** especializado\npara comprensión lectora;
+
+note right
+  **Estructura del Prompt:**
+  - Rol de experto en evaluación
+  - Cantidad de preguntas
+  - Grado del estudiante
+  - Texto de lectura (opcional)
+  - Lista de desempeños con niveles
+  - Formato JSON de salida esperado
+  - Instrucciones pedagógicas
+end note
+
+|IA (Gemini/ChatGPT)|
+:Recibir prompt;
+:Procesar con modelo LLM\n(gemini-2.5-flash / gpt-4);
+:Generar examen estructurado\nen formato JSON;
+
+note right
+  **Contenido Generado:**
+  - Saludo del experto
+  - Título motivador
+  - Instrucciones para el alumno
+  - Texto de lectura contextualizado
+  - Preguntas con 4 opciones (A-D)
+  - Tabla de respuestas correctas
+end note
+
+|Servicios|
+:Recibir respuesta de IA;
+:Limpiar y parsear JSON;
+:clean_json_response();
+
+if (¿JSON válido?) then (No)
+    |Backend (FastAPI)|
+    :Lanzar ValueError\n"Error al parsear respuesta";
+    |Frontend (Vue.js)|
+    :Mostrar error al usuario;
+    stop
+else (Sí)
+    |Servicios|
+    :Estructurar respuesta final\n{grado, desempenos_usados,\nsaludo, examen, total_preguntas};
+endif
+
+|Backend (FastAPI)|
+:Retornar JSON con examen generado;
+
+|Frontend (Vue.js)|
+:Ocultar indicador de carga;
+:Renderizar sección de resultados;
+:Mostrar saludo del experto;
+:Mostrar título del examen;
+:Mostrar texto de lectura;
+:Mostrar preguntas con opciones;
+:Mostrar tabla de respuestas;
+
+|Usuario/Docente|
+:Revisar examen generado;
+
+if (¿Descargar en Word?) then (Sí)
+    |Usuario/Docente|
+    :Clic en **"Descargar Word"**;
+    
+    |Frontend (Vue.js)|
+    :POST /api/desempenos/descargar-word\n{examen, grado};
+    
+    |Backend (FastAPI)|
+    :Invocar generar_examen_word();
+    
+    |Servicios|
+    :Crear documento Word (python-docx);
+    :Configurar márgenes\ny estilos del documento;
+    :Agregar título centrado;
+    :Agregar sección\n"Apellidos y Nombres / Fecha";
+    :Agregar instrucciones;
+    :Agregar texto de lectura;
+    :Agregar preguntas con opciones\n(formato profesional);
+    :Agregar salto de página;
+    :Agregar tabla de respuestas\n(para el docente);
+    :Guardar en BytesIO buffer;
+    
+    |Backend (FastAPI)|
+    :Retornar StreamingResponse\n(application/docx);
+    
+    |Frontend (Vue.js)|
+    :Crear Blob y enlace\nde descarga;
+    :Iniciar descarga automática\n"examen_titulo.docx";
+    
+    |Usuario/Docente|
+    :Recibir archivo Word\nlisto para imprimir;
+else (No)
+    |Usuario/Docente|
+    :Continuar revisando\nen pantalla;
+endif
+
+|Usuario/Docente|
+:Proceso completado\n¡Examen listo para usar!;
+stop
+
+legend right
+  **Tecnologías utilizadas:**
+  |= Capa |= Tecnología |
+  | Frontend | Vue 3 + TypeScript + Tailwind CSS |
+  | Backend | FastAPI (Python) |
+  | Base de Datos | SQLite (SQLAlchemy ORM) |
+  | IA | Google Gemini / OpenAI ChatGPT |
+  | Generación Word | python-docx |
+  | Extracción texto | PyPDF2, python-docx |
+endlegend
+
+footer Lectosistem DRE - Generador de Exámenes v1.0 | Generado: Enero 2026
+
+@enduml

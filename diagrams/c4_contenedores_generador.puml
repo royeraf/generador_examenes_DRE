@@ -1,0 +1,30 @@
+@startuml c4_contenedores_generador
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Diagrama C4 - Nivel 2: Contenedores\nGenerador de Exámenes de Comprensión Lectora (Lectosistem DRE)
+
+Person(docente, "Docente", "Usuario que genera exámenes de comprensión lectora")
+
+System_Boundary(lectosistem, "Lectosistem DRE") {
+    Container(spa, "Aplicación Web SPA", "Vue 3, TypeScript, Tailwind CSS", "Interfaz de usuario para seleccionar grados, desempeños y visualizar exámenes generados")
+    
+    Container(api, "API Backend", "FastAPI, Python 3.11", "Gestiona lógica de negocio, generación de prompts, comunicación con IA y generación de documentos Word")
+    
+    ContainerDb(db, "Base de Datos", "SQLite", "Almacena grados, capacidades y desempeños del currículo nacional")
+}
+
+System_Ext(gemini, "Google Gemini API", "Servicio de IA generativa")
+System_Ext(chatgpt, "OpenAI ChatGPT API", "Servicio alternativo de IA")
+
+Rel(docente, spa, "Usa", "HTTPS/Browser")
+Rel(spa, api, "Consume API REST", "JSON/HTTPS")
+Rel(api, db, "Lee datos curriculares", "SQLAlchemy ORM")
+Rel(api, gemini, "Genera exámenes", "HTTPS/REST")
+Rel(api, chatgpt, "Genera exámenes (alternativo)", "HTTPS/REST")
+
+SHOW_LEGEND()
+
+footer Lectosistem DRE - Diagrama C4 Contenedores | Enero 2026
+@enduml

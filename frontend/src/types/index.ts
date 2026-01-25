@@ -50,7 +50,7 @@ export interface PreguntaExamen {
   enunciado: string;
   opciones: OpcionPregunta[];
   desempeno_codigo: string;
-  nivel: 'LITERAL' | 'INFERENCIAL' | 'CRITICO';
+  nivel: string; // En comunicación: LITERAL/INFERENCIAL/CRITICO, en matemática: nombre de capacidad
 }
 
 // Fila de la tabla de respuestas

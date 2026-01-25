@@ -34,7 +34,7 @@
                     class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-white/80 text-[10px] sm:text-xs">
                     <div class="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full">
                         <Star class="w-3 h-3 sm:w-4 sm:h-4 text-amber-300" />
-                        <span>© 2025</span>
+                        <span>© 2026</span>
                     </div>
                     <div class="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full">
                         <Sparkles class="w-3 h-3 sm:w-4 sm:h-4 text-sky-300" />

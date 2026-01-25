@@ -1,0 +1,68 @@
+@startuml
+title Flujo de Sistematización - MatSistem
+skinparam backgroundColor white
+skinparam activity {
+  BackgroundColor #f3e5f5
+  BorderColor #4a148c
+  ArrowColor #4a148c
+}
+
+start
+:Ingresar al Módulo **Sistematizador**;
+:Seleccionar **Grado Escolar**;
+
+partition "1. Configuración de la Ficha Matemática" {
+  :Seleccionar **Competencia Matemática**;
+  note right
+    Ej: "Resuelve problemas de cantidad"
+  end note
+
+  :Configurar Items por Nivel de Complejidad;
+  repeat
+    :Seleccionar Nivel de Logro Esperado;
+    note right
+      - Pre-Inicio (Ejercicios básicos)
+      - Inicio
+      - Proceso
+      - Satisfactorio
+      - Destacado (Retos complejos)
+    end note
+    :Agregar Item/Problema;
+    :Asignar **Capacidad/Desempeño**;
+    :Definir **Clave/Respuesta Correcta**;
+  repeat while (¿Más items?)
+}
+
+partition "2. Registro de Evidencias" {
+  :Cargar Lista de Estudiantes;
+  
+  repeat
+    :Seleccionar Estudiante;
+    :Registrar Respuestas de la Ficha;
+    note right
+      Puede ser opción múltiple
+      o valoración directa
+    end note
+  repeat while (¿Más estudiantes?)
+
+  :Clic en **"Calcular Nivel de Logro"**;
+  :Sistema evalúa progreso de competencias;
+}
+
+partition "3. Resultados y Toma de Decisiones" {
+  :Visualizar Mapa de Calor de Resultados;
+  note right
+    Identificar qué capacidades
+    necesitan refuerzo
+  end note
+  
+  :Ver Gráficos de Rendimiento;
+  
+  if (¿Reporte Oficial?) then (Sí)
+    :Clic en **"Exportar Reporte"**;
+    :Descargar Excel con semáforo de logro;
+  endif
+}
+
+stop
+@enduml
