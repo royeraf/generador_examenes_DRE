@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { BookOpen, Calculator, Sparkles, GraduationCap } from 'lucide-vue-next';
 import { useTheme } from '../composables/useTheme';
-import EduBackground from '../components/EduBackground.vue';
 import logoDre from '../assets/logo.png';
 
 useTheme(); // Initialize theme but we don't need isDark ref here since valid classes handle it
