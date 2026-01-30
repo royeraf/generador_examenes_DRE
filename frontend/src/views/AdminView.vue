@@ -2,7 +2,12 @@
 import { ref, shallowRef, onMounted } from 'vue';
 import { adminService } from '../services/api';
 import type { Grado, Capacidad, DesempenoItem } from '../types';
-import { Trash2, Edit, Plus, Save, X, Database } from 'lucide-vue-next';
+import { Trash2, Edit, Plus, Save, X } from 'lucide-vue-next';
+import Header from '../components/Header.vue';
+import EduBackground from '../components/EduBackground.vue';
+import { useTheme } from '../composables/useTheme';
+
+const { isDark, toggleTheme } = useTheme();
 
 // State
 const activeTab = shallowRef<'grados' | 'capacidades' | 'desempenos'>('desempenos');
@@ -122,27 +127,25 @@ const deleteItem = async (id: number) => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-slate-50 dark:bg-slate-900 p-4 sm:p-8 font-sans">
-        <div class="max-w-6xl mx-auto">
-            <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 class="text-3xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                        <Database class="w-8 h-8 text-teal-600" />
-                        Administración
-                    </h1>
-                    <p class="text-slate-500 dark:text-slate-400">Gestión de datos del sistema</p>
-                </div>
+    <div class="min-h-screen bg-slate-50 dark:bg-slate-900 p-4 sm:p-8 font-sans relative">
+        <EduBackground variant="emerald" />
+        <div class="max-w-6xl mx-auto relative z-10">
+            <Header title="Admin" subtitle="Gestión de Comunicación" :is-dark="isDark"
+                gradient-class="from-teal-600 via-teal-500 to-emerald-600 shadow-teal-500/20"
+                class="rounded-xl sm:rounded-2xl mb-6 sticky top-0" @toggle-theme="toggleTheme" />
 
+            <!-- Tab Navigation -->
+            <div class="mb-8 flex justify-center">
                 <div
-                    class="flex bg-white dark:bg-slate-800 p-1 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+                    class="flex bg-white dark:bg-slate-800 p-1.5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
                     <button v-for="tab in ['grados', 'capacidades', 'desempenos']" :key="tab"
                         @click="activeTab = tab as any"
-                        class="px-4 py-2 rounded-lg text-sm font-medium capitalize transition-all"
+                        class="px-5 py-2.5 rounded-lg text-sm font-medium capitalize transition-all"
                         :class="activeTab === tab ? 'bg-teal-500 text-white shadow-md' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'">
                         {{ tab }}
                     </button>
                 </div>
-            </header>
+            </div>
 
             <!-- Tool Bar -->
             <div
@@ -203,7 +206,7 @@ const deleteItem = async (id: number) => {
                                     <td class="p-4 text-sm font-medium text-slate-800 dark:text-slate-200">{{ (item as
                                         Grado).nombre }}</td>
                                     <td class="p-4 text-sm text-slate-600 dark:text-slate-400">{{ (item as Grado).numero
-                                    }}</td>
+                                        }}</td>
                                     <td class="p-4 text-sm capitalize"><span
                                             class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">{{
                                                 (item as Grado).nivel }}</span></td>
@@ -333,7 +336,7 @@ const deleteItem = async (id: number) => {
                                 <select v-model="editItem.capacidad_id"
                                     class="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white">
                                     <option v-for="c in capacidades" :key="c.id" :value="c.id">{{ c.nombre }} ({{ c.tipo
-                                    }})</option>
+                                        }})</option>
                                 </select>
                             </div>
                         </div>

@@ -9,6 +9,11 @@ import type {
 } from '../types/matematica';
 import { Trash2, Edit, Plus, Save, X, Calculator, Eye, Target, Layers, BookOpen } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
+import Header from '../components/Header.vue';
+import EduBackground from '../components/EduBackground.vue';
+import { useTheme } from '../composables/useTheme';
+
+const { isDark, toggleTheme } = useTheme();
 
 // State
 const activeTab = shallowRef<'competencias' | 'capacidades' | 'desempenos'>('desempenos');
@@ -191,27 +196,23 @@ const deleteItem = async (id: number) => {
 
 <template>
     <div
-        class="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-violet-950/30 p-4 sm:p-8 font-sans">
-        <div class="max-w-7xl mx-auto">
+        class="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-violet-950/30 p-4 sm:p-8 font-sans relative">
+
+        <EduBackground variant="violet" />
+
+        <div class="max-w-7xl mx-auto relative z-10">
 
             <!-- Header -->
-            <header class="mb-8">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                    <div class="flex items-center gap-4">
-                        <div
-                            class="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/30">
-                            <Calculator class="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                            <h1 class="text-3xl font-bold text-slate-800 dark:text-white">
-                                Administración Matemática
-                            </h1>
-                            <p class="text-slate-500 dark:text-slate-400 mt-1">Gestión de competencias, capacidades y
-                                desempeños</p>
-                        </div>
-                    </div>
+            <Header title="AdminMat" subtitle="Gestión Matemática" :is-dark="isDark"
+                gradient-class="from-violet-600 via-purple-600 to-indigo-600 shadow-violet-500/20"
+                version-badge-class="bg-violet-400 text-violet-900" subtitle-class="text-violet-100 dark:text-slate-400"
+                mascota-bubble-class="border-violet-300 dark:border-violet-500"
+                mascota-text-class="text-violet-600 dark:text-violet-400" class="rounded-2xl mb-8 sticky top-0"
+                @toggle-theme="toggleTheme" />
 
-                    <!-- Tab Navigation -->
+            <!-- Tab Navigation & Stats -->
+            <div class="space-y-6 mb-8">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div
                         class="flex bg-white dark:bg-slate-800 p-1.5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
                         <button v-for="tab in [
@@ -227,36 +228,21 @@ const deleteItem = async (id: number) => {
                             {{ tab.label }}
                         </button>
                     </div>
-                </div>
 
-                <!-- Stats Cards -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div
-                        class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm">
-                        <div class="text-3xl font-bold text-violet-600 dark:text-violet-400">{{ stats.competencias }}
+                        class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white/50 dark:bg-slate-800/50 p-2 rounded-2xl backdrop-blur-sm border border-slate-200 dark:border-slate-700">
+                        <div v-for="stat in [
+                            { label: 'Comp.', value: stats.competencias, color: 'text-violet-600' },
+                            { label: 'Cap.', value: stats.capacidades, color: 'text-purple-600' },
+                            { label: 'Des.', value: stats.desempenos, color: 'text-indigo-600' },
+                            { label: 'Grados', value: stats.grados, color: 'text-teal-600' }
+                        ]" :key="stat.label" class="px-3 py-1 flex flex-col items-center">
+                            <span :class="['text-lg font-bold', stat.color]">{{ stat.value }}</span>
+                            <span class="text-[10px] uppercase font-bold text-slate-400">{{ stat.label }}</span>
                         </div>
-                        <div class="text-sm text-slate-500 dark:text-slate-400">Competencias</div>
-                    </div>
-                    <div
-                        class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm">
-                        <div class="text-3xl font-bold text-purple-600 dark:text-purple-400">{{ stats.capacidades }}
-                        </div>
-                        <div class="text-sm text-slate-500 dark:text-slate-400">Capacidades</div>
-                    </div>
-                    <div
-                        class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm">
-                        <div class="text-3xl font-bold text-indigo-600 dark:text-indigo-400">{{ stats.desempenos }}
-                        </div>
-                        <div class="text-sm text-slate-500 dark:text-slate-400">Desempeños (filtrados)</div>
-                    </div>
-                    <div
-                        class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm">
-                        <div class="text-3xl font-bold text-teal-600 dark:text-teal-400">{{ stats.grados }}</div>
-                        <div class="text-sm text-slate-500 dark:text-slate-400">Grados</div>
                     </div>
                 </div>
-            </header>
-
+            </div>
             <!-- Tool Bar -->
             <div
                 class="flex flex-wrap items-center justify-between gap-4 mb-6 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
@@ -402,7 +388,7 @@ const deleteItem = async (id: number) => {
                                             <span class="text-xs font-medium text-purple-600 dark:text-purple-400">Cap.
                                                 {{ item.capacidad_orden }}</span>
                                             <span class="text-xs text-slate-400">{{ item.capacidad_nombre.slice(0, 30)
-                                                }}...</span>
+                                            }}...</span>
                                         </div>
                                     </td>
                                     <td class="p-4 text-right space-x-2">

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { BookOpen, Calculator, Sparkles, GraduationCap } from 'lucide-vue-next';
 import { useTheme } from '../composables/useTheme';
+import EduBackground from '../components/EduBackground.vue';
+import logoDre from '../assets/logo.png';
 
 useTheme(); // Initialize theme but we don't need isDark ref here since valid classes handle it
 
@@ -35,15 +37,42 @@ const selectModule = (module: 'lectosistem' | 'matsistem' | 'admin' | 'adminmat'
 
             <!-- Header -->
             <div class="text-center mb-12 space-y-4">
-                <div
-                    class="inline-flex items-center justify-center p-3 bg-white dark:bg-slate-800 rounded-2xl shadow-xl dark:shadow-none mb-4 animate-fade-in-down border border-slate-100 dark:border-slate-700">
-                    <GraduationCap class="w-10 h-10 text-teal-600 dark:text-teal-400" />
+
+                <div class="flex items-center justify-center gap-6 mb-8">
+                    <div class="group relative">
+                        <div
+                            class="absolute -inset-1 bg-gradient-to-r from-teal-500 to-indigo-600 rounded-2xl blur opacity-20 group-hover:opacity-60 transition duration-500">
+                        </div>
+                        <div
+                            class="relative flex items-center justify-center p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-xl dark:shadow-none border border-slate-100 dark:border-slate-700 animate-fade-in-down transition-all duration-300 group-hover:scale-105">
+                            <GraduationCap class="w-10 h-10 text-teal-600 dark:text-teal-400" />
+                        </div>
+                    </div>
+
+                    <div class="group relative">
+                        <div
+                            class="absolute -inset-1 bg-gradient-to-r from-indigo-600 to-teal-500 rounded-2xl blur opacity-20 group-hover:opacity-60 transition duration-500">
+                        </div>
+                        <div
+                            class="relative flex items-center justify-center p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-xl dark:shadow-none border border-slate-100 dark:border-slate-700 animate-fade-in-down transition-all duration-300 group-hover:scale-105">
+                            <div class="logo-gradient-display" :style="{
+                                '--logo-url': `url(${logoDre})`,
+                                'mask-image': `url(${logoDre})`,
+                                '-webkit-mask-image': `url(${logoDre})`
+                            }">
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
                 <h1
                     class="text-4xl md:text-6xl font-black text-slate-800 dark:text-white tracking-tight animate-fade-in-down delay-100">
                     Bienvenido a <span
-                        class="bg-gradient-to-r from-teal-500 to-indigo-600 bg-clip-text text-transparent">EduSistem</span>
+                        class="bg-gradient-to-r from-teal-500 to-indigo-600 bg-clip-text text-transparent">SIEVA</span>
                 </h1>
+                <p
+                    class="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto animate-fade-in-down delay-200">
+                    SISTEMA INTEGRADO DE EVALUACIÓN DE AULA</p>
                 <p
                     class="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto animate-fade-in-down delay-200">
                     Selecciona el módulo educativo para comenzar a generar evaluaciones inteligentes con IA.
@@ -228,5 +257,28 @@ const selectModule = (module: 'lectosistem' | 'matsistem' | 'admin' | 'adminmat'
     to {
         opacity: 1;
     }
+}
+
+.logo-gradient-display {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #14b8a6, #4f46e5);
+    mask-size: contain;
+    -webkit-mask-size: contain;
+    mask-repeat: no-repeat;
+    -webkit-mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-position: center;
+    transition: all 0.3s ease;
+}
+
+.dark .logo-gradient-display {
+    background: linear-gradient(135deg, #5eead4, #818cf8);
+    filter: drop-shadow(0 0 8px rgba(94, 234, 212, 0.3));
+}
+
+.group:hover .logo-gradient-display {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 12px rgba(94, 234, 212, 0.5));
 }
 </style>

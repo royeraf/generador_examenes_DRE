@@ -18,45 +18,20 @@ import {
   Download,
   LayoutGrid,
   X,
-  Sun,
-  Moon,
   Sparkles,
   FileUp,
   GraduationCap,
   Target,
-  Eye,
-  EyeOff,
-  Pencil,
-  Sigma,
   Brain,
   Rocket,
-  Star,
   Award,
-  Atom,
-  Calculator,
-  Globe,
-  Trophy,
-  Palette,
-  Layers,
-  FileQuestion,
-  Medal,
-  Music,
-  Compass,
-  Microscope,
-  Ruler,
-  PenTool,
-  Shapes,
-  Puzzle,
-  Wand2,
-  Infinity,
-  FileSearch,
   Lightbulb,
   ClipboardCheck
 } from 'lucide-vue-next';
 import Footer from '../components/Footer.vue'
-import logoDre from '../assets/logo.png'
-import mascotaLectosistem from '../assets/mascota_lectosistem.png'
 import Checkbox from '../components/Checkbox.vue'
+import Header from '../components/Header.vue';
+import EduBackground from '../components/EduBackground.vue';
 import { useMatSistem } from '../composables/useMatSistem';
 
 const { isDark, toggleTheme } = useTheme();
@@ -239,199 +214,16 @@ const getCapacidadColor = (orden: number): { bg: string; text: string; ring: str
   <div
     class="min-h-screen flex flex-col bg-gradient-to-br from-indigo-50/50 via-purple-50/30 to-sky-50/50 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950/30 transition-colors edu-pattern-bg">
 
-    <!-- Decorative Background Elements - Tema Educativo -->
-    <div class="fixed inset-0 overflow-hidden pointer-events-none">
-      <!-- Círculos decorativos con colores educativos -->
-      <div
-        class="absolute -top-24 -right-24 w-96 h-96 bg-teal-200/40 dark:bg-teal-500/10 rounded-full blur-3xl animate-float">
-      </div>
-      <div class="absolute top-1/3 -left-24 w-80 h-80 bg-amber-200/40 dark:bg-amber-500/10 rounded-full blur-3xl"
-        style="animation-delay: 2s;"></div>
-      <div
-        class="absolute bottom-0 right-1/4 w-72 h-72 bg-sky-200/30 dark:bg-sky-500/10 rounded-full blur-3xl animate-float"
-        style="animation-delay: 4s;">
-      </div>
-      <div class="absolute top-2/3 left-1/3 w-64 h-64 bg-violet-200/20 dark:bg-violet-500/5 rounded-full blur-3xl">
-      </div>
-      <!-- Círculos adicionales -->
-      <div
-        class="absolute top-1/4 right-1/3 w-48 h-48 bg-rose-200/20 dark:bg-rose-500/5 rounded-full blur-3xl animate-float"
-        style="animation-delay: 6s;">
-      </div>
-      <div class="absolute bottom-1/4 left-1/4 w-56 h-56 bg-emerald-200/25 dark:bg-emerald-500/5 rounded-full blur-3xl"
-        style="animation-delay: 3.5s;">
-      </div>
+    <!-- Decorative Background Elements -->
+    <EduBackground variant="indigo" />
 
-      <!-- Elementos decorativos educativos flotantes - Iconos -->
-      <div class="absolute top-20 right-[15%] text-teal-400/40 dark:text-teal-500/25 animate-float">
-        <BookOpen class="w-16 h-16" />
-      </div>
-      <div class="absolute top-[40%] left-[8%] text-amber-400/40 dark:text-amber-500/25 animate-float"
-        style="animation-delay: 3s;">
-        <Pencil class="w-12 h-12" />
-      </div>
-      <div class="absolute bottom-[20%] right-[10%] text-sky-400/40 dark:text-sky-500/25 animate-float"
-        style="animation-delay: 1s;">
-        <Star class="w-14 h-14" />
-      </div>
-      <div class="absolute bottom-[35%] left-[20%] text-violet-400/35 dark:text-violet-500/20 animate-float"
-        style="animation-delay: 5s;">
-        <GraduationCap class="w-10 h-10" />
-      </div>
-      <!-- Más iconos educativos -->
-      <div class="absolute top-[15%] left-[25%] text-emerald-400/35 dark:text-emerald-500/20 animate-float"
-        style="animation-delay: 2.5s;">
-        <Calculator class="w-10 h-10" />
-      </div>
-      <div class="absolute top-[55%] right-[20%] text-rose-400/35 dark:text-rose-500/20 animate-float"
-        style="animation-delay: 4.5s;">
-        <Globe class="w-12 h-12" />
-      </div>
-      <div class="absolute bottom-[45%] right-[35%] text-amber-400/35 dark:text-amber-500/20 animate-float"
-        style="animation-delay: 1.5s;">
-        <Trophy class="w-9 h-9" />
-      </div>
-      <div class="absolute top-[70%] left-[12%] text-cyan-400/35 dark:text-cyan-500/20 animate-float"
-        style="animation-delay: 6.5s;">
-        <Atom class="w-11 h-11" />
-      </div>
-      <div class="absolute top-[30%] right-[8%] text-pink-400/35 dark:text-pink-500/20 animate-float"
-        style="animation-delay: 3.5s;">
-        <Palette class="w-10 h-10" />
-      </div>
-      <div class="absolute bottom-[15%] left-[40%] text-indigo-400/35 dark:text-indigo-500/20 animate-float"
-        style="animation-delay: 7s;">
-        <Layers class="w-8 h-8" />
-      </div>
-      <div class="absolute top-[85%] right-[25%] text-teal-400/30 dark:text-teal-500/18 animate-float"
-        style="animation-delay: 5.5s;">
-        <FileQuestion class="w-9 h-9" />
-      </div>
-      <div class="absolute top-[10%] left-[45%] text-amber-400/30 dark:text-amber-500/18 animate-float"
-        style="animation-delay: 8s;">
-        <Medal class="w-8 h-8" />
-      </div>
-
-      <!-- Nuevos iconos educativos flotantes -->
-      <div class="absolute top-[5%] right-[40%] text-purple-400/35 dark:text-purple-500/20 animate-float"
-        style="animation-delay: 2s;">
-        <Music class="w-9 h-9" />
-      </div>
-      <div class="absolute top-[45%] left-[5%] text-blue-400/35 dark:text-blue-500/20 animate-float"
-        style="animation-delay: 4s;">
-        <Compass class="w-11 h-11" />
-      </div>
-      <div class="absolute top-[60%] right-[5%] text-green-400/35 dark:text-green-500/20 animate-float"
-        style="animation-delay: 9s;">
-        <Microscope class="w-12 h-12" />
-      </div>
-      <div class="absolute bottom-[8%] left-[15%] text-orange-400/35 dark:text-orange-500/20 animate-float"
-        style="animation-delay: 6s;">
-        <Ruler class="w-10 h-10" />
-      </div>
-      <div class="absolute top-[20%] left-[65%] text-red-400/30 dark:text-red-500/18 animate-float"
-        style="animation-delay: 3s;">
-        <PenTool class="w-8 h-8" />
-      </div>
-      <div class="absolute bottom-[55%] right-[45%] text-cyan-400/30 dark:text-cyan-500/18 animate-float"
-        style="animation-delay: 7.5s;">
-        <Shapes class="w-9 h-9" />
-      </div>
-      <div class="absolute top-[75%] left-[55%] text-lime-400/35 dark:text-lime-500/20 animate-float"
-        style="animation-delay: 1.5s;">
-        <Puzzle class="w-11 h-11" />
-      </div>
-      <div class="absolute bottom-[40%] left-[70%] text-fuchsia-400/35 dark:text-fuchsia-500/20 animate-float"
-        style="animation-delay: 8.5s;">
-        <Wand2 class="w-8 h-8" />
-      </div>
-      <div class="absolute top-[50%] right-[55%] text-sky-400/30 dark:text-sky-500/18 animate-float"
-        style="animation-delay: 4.5s;">
-        <Infinity class="w-10 h-10" />
-      </div>
-      <div class="absolute bottom-[25%] right-[60%] text-violet-400/30 dark:text-violet-500/18 animate-float"
-        style="animation-delay: 10s;">
-        <Sigma class="w-9 h-9" />
-      </div>
-
-      <!-- Círculos adicionales de fondo -->
-      <div
-        class="absolute top-[80%] left-[60%] w-40 h-40 bg-lime-300/25 dark:bg-lime-500/10 rounded-full blur-3xl animate-float"
-        style="animation-delay: 5s;">
-      </div>
-      <div
-        class="absolute top-[40%] right-[50%] w-52 h-52 bg-fuchsia-300/20 dark:bg-fuchsia-500/8 rounded-full blur-3xl"
-        style="animation-delay: 7s;">
-      </div>
-    </div>
-
-    <!-- Header Educativo -->
-    <header
-      class="bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-500 dark:from-slate-800 dark:via-slate-800 dark:to-slate-800 border-b border-indigo-400/20 dark:border-slate-700 sticky top-0 z-50 shadow-lg shadow-indigo-500/20 dark:shadow-none">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
-        <div class="flex items-center justify-between gap-2">
-          <div class="flex items-center gap-2 sm:gap-4">
-            <!-- Logo con icono de libro -->
-            <div class="relative flex-shrink-0">
-              <div
-                class="w-10 h-10 sm:w-14 sm:h-14 bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg border border-white/30 p-1">
-                <img :src="logoDre" alt="Logo DRE" class="w-full h-full object-contain" />
-              </div>
-              <!-- Estrella decorativa -->
-              <div
-                class="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-amber-400 rounded-full flex items-center justify-center shadow-md animate-pulse">
-                <Star class="w-2 h-2 sm:w-3 sm:h-3 text-white fill-white" />
-              </div>
-            </div>
-            <div class="min-w-0">
-              <h1 class="text-lg sm:text-2xl font-bold text-white tracking-tight flex items-center gap-2 truncate">
-                MatSistem
-                <span
-                  class="text-[10px] sm:text-xs bg-purple-400 text-purple-900 px-2 py-0.5 rounded-full font-semibold">DRE</span>
-              </h1>
-              <p
-                class="text-indigo-100 dark:text-slate-400 text-[10px] sm:text-sm font-medium flex items-center gap-1 truncate">
-                <GraduationCap class="w-3 h-3 sm:w-4 sm:h-4" />
-                <span class="truncate">Matemática práctica</span>
-              </p>
-            </div>
-          </div>
-
-          <!-- Mascota LECTOSISTEM -->
-          <div class="hidden md:flex items-center">
-            <div class="relative group">
-              <img :src="mascotaLectosistem" alt="Mascota LECTOSISTEM"
-                class="h-16 w-auto object-contain drop-shadow-lg transition-all duration-500 group-hover:scale-110 group-hover:drop-shadow-2xl animate-mascota-float" />
-              <!-- Burbuja de diálogo -->
-              <div
-                class="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-y-0 translate-y-2">
-                <div
-                  class="bg-white dark:bg-slate-700 rounded-full px-2 py-1 shadow-lg border-2 border-purple-300 dark:border-purple-500">
-                  <span class="text-[10px] font-bold text-purple-600 dark:text-purple-400 whitespace-nowrap">¡Hola!
-                    👋</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-2 sm:gap-3">
-            <button v-if="resultado && !loading && activeTab === 'generador'" @click="showResults = !showResults"
-              class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl font-medium text-[10px] sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all duration-300 bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30">
-              <Eye v-if="showResults" class="w-3 h-3 sm:w-4 sm:h-4" />
-              <EyeOff v-else class="w-3 h-3 sm:w-4 sm:h-4" />
-              <span class="hidden sm:inline">{{ showResults ? 'Ocultar' : 'Ver Resultado' }}</span>
-              <span class="sm:hidden">{{ showResults ? 'Cerrar' : 'Ver' }}</span>
-            </button>
-
-            <button @click="toggleTheme"
-              class="p-2.5 rounded-xl bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600 transition-all duration-300">
-              <Sun v-if="isDark" class="w-5 h-5" />
-              <Moon v-else class="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-      </div>
-    </header>
+    <Header title="MatSistem" subtitle="Matemática práctica" :is-dark="isDark" :has-resultado="!!resultado"
+      :loading="loading" :show-results="showResults" :active-tab="activeTab"
+      gradient-class="from-indigo-600 via-indigo-500 to-purple-500 shadow-indigo-500/20"
+      version-badge-class="bg-purple-400 text-purple-900" subtitle-class="text-indigo-100 dark:text-slate-400"
+      mascota-bubble-class="border-purple-300 dark:border-purple-500"
+      mascota-text-class="text-purple-600 dark:text-purple-400" @toggle-theme="toggleTheme"
+      @toggle-results="showResults = !showResults" />
 
     <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 w-full">
 
@@ -549,9 +341,9 @@ const getCapacidadColor = (orden: number): { bg: string; text: string; ring: str
                   class="flex items-center gap-2 p-3 bg-gradient-to-r from-teal-50 to-emerald-50 dark:bg-emerald-900/20 border-2 border-teal-200 dark:border-emerald-800 rounded-xl text-xs">
                   <FileText class="w-5 h-5 text-teal-600 dark:text-emerald-400" />
                   <span class="flex-1 truncate text-slate-700 dark:text-slate-200 font-medium">{{ archivo.filename
-                  }}</span>
+                    }}</span>
                   <span class="text-teal-600 font-bold bg-teal-100 px-2 py-0.5 rounded-full">{{ archivo.palabras
-                  }}p</span>
+                    }}p</span>
                 </div>
                 <button @click="clearFiles"
                   class="text-xs text-red-500 hover:text-red-600 flex items-center gap-1 font-medium">
