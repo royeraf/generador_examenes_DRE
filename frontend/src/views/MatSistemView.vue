@@ -322,6 +322,12 @@ const getCapacidadLabel = (orden: number): string => {
   return palabras.length > 25 ? palabras.substring(0, 25) + '...' : palabras;
 };
 
+// Helper - Obtener nombre completo de capacidad para tooltip
+const getCapacidadTitle = (orden: number): string => {
+  const cap = capacidadesActuales.value.find(c => c.orden === orden);
+  return cap ? cap.nombre : `Capacidad ${orden}`;
+};
+
 const handleFileUpload = async (event: Event) => {
   const input = event.target as HTMLInputElement;
   const files = input.files;
@@ -799,9 +805,9 @@ const getCapacidadColor = (orden: number): { bg: string; text: string; ring: str
                   class="flex items-center gap-2 p-3 bg-gradient-to-r from-teal-50 to-emerald-50 dark:bg-emerald-900/20 border-2 border-teal-200 dark:border-emerald-800 rounded-xl text-xs">
                   <FileText class="w-5 h-5 text-teal-600 dark:text-emerald-400" />
                   <span class="flex-1 truncate text-slate-700 dark:text-slate-200 font-medium">{{ archivo.filename
-                  }}</span>
+                    }}</span>
                   <span class="text-teal-600 font-bold bg-teal-100 px-2 py-0.5 rounded-full">{{ archivo.palabras
-                  }}p</span>
+                    }}p</span>
                 </div>
                 <button @click="clearFiles"
                   class="text-xs text-red-500 hover:text-red-600 flex items-center gap-1 font-medium">

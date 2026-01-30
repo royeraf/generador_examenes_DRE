@@ -1,0 +1,147 @@
+@startuml proceso_generador_examenes_matematica
+!theme cerulean-outline
+
+title **Diagrama de Procesos: Generador de Fichas de Matemática**\n(MatSistem DRE)
+
+|#LightBlue|Usuario/Docente|
+|#LightGreen|Frontend (Vue.js)|
+|#LightYellow|Backend (FastAPI)|
+|#LightPink|Servicios|
+|#LightCoral|IA (Gemini/ChatGPT)|
+|#LightGray|Base de Datos|
+
+|Usuario/Docente|
+start
+:Accede al módulo\n**MatSistem**;
+
+|Frontend (Vue.js)|
+:Cargar página MatSistemView.vue;
+:Solicitar datos iniciales (onMounted);
+
+|Backend (FastAPI)|
+:GET /api/matematica/grados;
+:GET /api/matematica/competencias;
+
+|Base de Datos|
+:Consultar tabla **Grados**;
+:Consultar **Competencias Matemáticas**;
+
+|Backend (FastAPI)|
+:Retornar JSON con grados y competencias;
+
+|Frontend (Vue.js)|
+:Mostrar selector de grados\ny competencias;
+
+|Usuario/Docente|
+:1. Seleccionar **Grado**\n   (Ej: 2° Secundaria);
+:2. Seleccionar **Competencia**\n   (Ej: Resuelve problemas de cantidad);
+
+|Frontend (Vue.js)|
+:Detectar cambios;
+:GET /api/matematica/desempenos?grado_id=...&competencia_id=...;
+
+|Backend (FastAPI)|
+:Invocar MatematicaService;
+
+|Base de Datos|
+:Consultar **Capacidades** y **Desempeños**;
+
+|Backend (FastAPI)|
+:Retornar lista de desempeños\nagrupados por capacidad;
+
+|Frontend (Vue.js)|
+:Organizar Desempeños en **Pestañas de Capacidad**;
+:Mostrar Desempeños con checkboxes;
+
+|Usuario/Docente|
+:3. Seleccionar **Desempeños** a evaluar\n   (Navegando por capacidades);
+:4. Definir **Cantidad de Preguntas** (1-10);
+:5. (Opcional) Activar **"Usar Problema Base"**;
+
+if (¿Usa Problema Base?) then (Sí)
+    if (¿Subir Archivo?) then (Sí)
+        :Subir PDF/Word;
+        |Frontend (Vue.js)|
+        :POST /api/upload-texto;
+        |Backend (FastAPI)|
+        :Extraer texto de archivo;
+    else (No)
+        |Usuario/Docente|
+        :Pegar texto manualmente;
+    endif
+endif
+
+|Usuario/Docente|
+:6. Clic en botón\n**"Generar Examen con IA"**;
+
+|Frontend (Vue.js)|
+:Validar selección (Grado + Competencia\n+ Al menos 1 desempeño);
+:Mostrar indicador "Generando examen mágico...";
+:POST /api/matematica/generar;
+
+|Backend (FastAPI)|
+:Recibir GenerarFichaMatematicaRequest;
+:Invocar MatematicaService.generar_examen();
+
+|Servicios|
+:Agrupar Desempeños por Capacidad;
+:Construir **PROMPT MateJony**;
+note right
+  **Elementos del Prompt:**
+  - Rol: MateJony (Experto MINEDU)
+  - Contexto Curricular (Grado/Competencia)
+  - Situación Base (si existe)
+  - Desempeños por Capacidad
+  - Estructura: Saludo, Título, Situación,
+    Preguntas, Tabla de Respuestas
+end note
+
+|IA (Gemini/ChatGPT)|
+:Procesar solicitud;
+:Generar **Situación Problemática Integradora**;
+:Generar preguntas de opción múltiple;
+:Generar tabla de respuestas con justificación;
+
+|Servicios|
+:Recibir y parsear respuesta JSON;
+:Validar estructura del examen;
+
+|Backend (FastAPI)|
+:Retornar JSON con examen generado;
+
+|Frontend (Vue.js)|
+:Renderizar Vista de Resultados;
+:Mostrar Instrucciones y **Situación Problemática**;
+:Mostrar **Preguntas** con badges de nivel/capacidad;
+:Mostrar **Tabla de Respuestas**;
+
+|Usuario/Docente|
+:Revisar examen generado;
+
+if (¿Conforme?) then (Sí)
+    :Clic en **"Descargar Word"**;
+    
+    |Frontend (Vue.js)|
+    :POST /api/matematica/descargar-word;
+    
+    |Backend (FastAPI)|
+    :Generar documento .docx con formato;
+    
+    |Usuario/Docente|
+    :Recibir archivo descargado;
+else (No)
+    :Regenerar con nuevos ajustes;
+endif
+
+stop
+
+legend right
+  **Características MatSistem:**
+  - Organización por Capacidades (4)
+  - Integración de Situación Problemática
+  - Prompt especializado "MateJony"
+endlegend
+
+footer Lectosistem DRE - Módulo MatSistem | Generado: Enero 2026
+
+@enduml
