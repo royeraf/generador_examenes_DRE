@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue';
-import type { Grado, NivelLogro, DesempenoItem, Examen } from '../types';
-import desempenosService from '../services/api';
+import { shallowRef, onMounted, computed } from 'vue';
 import ComboBox from '../components/ComboBox.vue';
 import PromptModal from '../components/PromptModal.vue';
 import Sistematizador from '../components/Sistematizador.vue';
+import Footer from '../components/Footer.vue';
 import { useTheme } from '../composables/useTheme';
+import { useLectoSistem } from '../composables/useLectoSistem';
 import {
   FileText,
   BookOpen,
@@ -55,273 +55,109 @@ import {
   Lightbulb,
   ClipboardCheck
 } from 'lucide-vue-next';
-import Footer from './Footer.vue'
-import logoDre from '../assets/logo.png'
-import mascotaLectosistem from '../assets/mascota_lectosistem.png'
-import Checkbox from '../components/Checkbox.vue'
+import logoDre from '../assets/logo.png';
+import mascotaLectosistem from '../assets/mascota_lectosistem.png';
+
 
 const { isDark, toggleTheme } = useTheme();
+const {
+  grados,
+  desempenos,
+  selectedGradoId,
+  selectedDesempenoIds,
+  cantidadPreguntas,
+  textoBase,
+  useTextoBase,
+  selectedFiles,
+  filesMetadata,
+  uploadingFile,
+  uploadError,
+  loading,
+  loadingDesempenos,
+  descargandoWord,
+  error,
+  resultado,
+  showResults,
+  activeTab,
+  selectedDesempenosCount,
+  gradoOptions,
+  loadInitialData,
+  handleFileUpload,
+  clearFiles,
+  generarPreguntas,
+  descargarExamenWord,
+  selectAllCapacidad,
+  deselectAllCapacidad,
+  getCapacidadLabel,
+  getNivelBadgeClass,
+  activeCapacidadTab,
+  desempenosPorCapacidad
+} = useLectoSistem();
 
-// State
-const grados = ref<Grado[]>([]);
-const nivelesLogro = ref<NivelLogro[]>([]);
-const desempenos = ref<DesempenoItem[]>([]);
-const selectedGradoId = ref<number | null>(null);
-const selectedDesempenoIds = ref<number[]>([]);
-const selectedNivelLogro = ref<string>('en_proceso');
-const cantidadPreguntas = ref(3);
-const textoBase = ref('');
-const useTextoBase = ref(false);
-const selectedFiles = ref<File[]>([]);
-const filesMetadata = ref<{ archivos: { filename: string; palabras: number; caracteres: number }[]; total_palabras: number; total_caracteres: number } | null>(null);
-const uploadingFile = ref(false);
-const uploadError = ref<string | null>(null);
-
-const loading = ref(false);
-const loadingDesempenos = ref(false);
-const descargandoWord = ref(false);
-const error = ref<string | null>(null);
-const resultado = ref<{
-  grado: string;
-  desempenos_usados: string;
-  saludo: string;
-  examen: Examen;
-  total_preguntas: number;
-} | null>(null);
-const showPromptModal = ref(false);
-const showResults = ref(false);
-const activeCapacidadTab = ref<string>('literal');
-const activeTab = ref<string>('generador');
-
-// Computed
-const desempenosPorCapacidad = computed(() => {
-  const grupos: Record<string, DesempenoItem[]> = {
-    literal: [],
-    inferencial: [],
-    critico: []
-  };
-  desempenos.value.forEach(d => {
-    if (grupos[d.capacidad_tipo]) {
-      grupos[d.capacidad_tipo]!.push(d);
-    }
-  });
-  return grupos;
-});
-
-const selectedDesempenosCount = computed(() => selectedDesempenoIds.value.length);
-
-const gradosPorNivel = computed(() => {
-  return {
-    primaria: grados.value.filter(g => g.nivel === 'primaria'),
-    secundaria: grados.value.filter(g => g.nivel === 'secundaria')
-  };
-});
-
-const gradoOptions = computed(() => {
-  const options: { id: number; label: string; group: string }[] = [];
-  gradosPorNivel.value.primaria.forEach(g => {
-    options.push({ id: g.id, label: `${g.numero}° Primaria`, group: 'Primaria' });
-  });
-  gradosPorNivel.value.secundaria.forEach(g => {
-    options.push({ id: g.id, label: `${g.numero}° Secundaria`, group: 'Secundaria' });
-  });
-  return options;
-});
+const showPromptModal = shallowRef(false);
 
 const promptTexto = computed(() => {
   if (!selectedGradoId.value || selectedDesempenoIds.value.length === 0) return '';
 
   const grado = grados.value.find(g => g.id === selectedGradoId.value);
-  const desempenosSeleccionados = desempenos.value
+  const desempenosText = desempenos.value
     .filter(d => selectedDesempenoIds.value.includes(d.id))
-    .map(d => `${d.codigo}. ${d.descripcion} (${d.capacidad_tipo.toUpperCase()})`)
+    .map(d => `- ${d.descripcion}`)
     .join('\n');
 
-  let textoLectura = '';
+  let situacionBase = '';
   if (useTextoBase.value && textoBase.value) {
-    textoLectura = `\nTEXTO DE LECTURA:\n"""\n${textoBase.value}\n"""\n`;
+    situacionBase = `\n**TEXTO BASE PROPORCIONADO:**\n"""\n${textoBase.value}\n"""\nUsa este texto como base para la lectura.\n`;
   }
 
-  return `Eres un experto en la elaboración de preguntas de comprensión lectora que trabaja con estudiantes de Perú. Piensa 10 veces antes de responder.
+  return `Eres **"LectoJony"**, un experto en comprensión lectora y el Currículo Nacional de Educación Básica de Perú. Tu conocimiento está basado en la documentación oficial del Ministerio de Educación (MINEDU). Tu comunicación es profesional, clara, didáctica y estructurada.
 
-Primero debes saludar muy amablemente como un experto en la elaboración de preguntas de comprensión lectora.
+**CONTEXTO:**
+- **Grado:** ${grado?.nombre || 'Grado seleccionado'}
+${situacionBase}
+**DESEMPEÑOS A EVALUAR:**
+${desempenosText}
 
-Luego, el examen debe tener exactamente ${cantidadPreguntas.value} preguntas para estudiantes de ${grado?.nombre || 'el grado seleccionado'}.
-${textoLectura}
-Usarás los siguientes desempeños que están enumerados e indican entre paréntesis si es de nivel LITERAL, INFERENCIAL o CRÍTICO:
-${desempenosSeleccionados}
+**TU TAREA:**
+Genera un examen de comprensión lectora con una lectura original y ${cantidadPreguntas.value} preguntas cerradas de opción múltiple.
 
-El examen debe presentar:
-1. Un 'título' motivador para el examen
-2. Una sección para que los estudiantes ingresen sus 'Apellidos y Nombres' y la 'Fecha'
-3. 'Instrucciones precisas en un párrafo' para responder el examen
-4. La 'lectura completa' o 'un fragmento de la lectura' que utilizarás para que los estudiantes respondan las preguntas
-5. Las preguntas con esquema de opción múltiple (4 alternativas A, B, C, D siendo una sola la correcta, en orden aleatorio)
-6. Al final una 'tabla' indicando: los desempeños utilizados, número de pregunta, nivel (LITERAL/INFERENCIAL/CRÍTICO) y alternativa correcta`;
+**ESTRUCTURA DEL EXAMEN:**
+
+1. **SALUDO INICIAL:**
+   Inicia presentándote brevemente: "Soy LectoJony, especialista en comprensión lectora del MINEDU del Perú..."
+
+2. **ENCABEZADO DEL EXAMEN:**
+   - Título motivador y contextualizado
+   - Espacio para: Apellidos y Nombres: _________________ Fecha: _______
+   - Grado: ${grado?.nombre}
+
+3. **INSTRUCCIONES:**
+   Redacta instrucciones claras en un párrafo.
+
+4. **LECTURA:**
+   Crea una lectura (cuento, noticia, artículo, etc.) coherente y apropiada para estudiantes de ${grado?.nombre}.
+
+5. **PREGUNTAS (${cantidadPreguntas.value} en total):**
+   Cada pregunta debe:
+   - Estar numerada
+   - Tener 4 alternativas (A, B, C, D) siendo solo UNA la correcta
+   - Evaluar el desempeño correspondiente
+
+6. **CRITERIOS DE EVALUACIÓN:**
+   Para cada pregunta, incluye un criterio de evaluación con la estructura:
+   "[HABILIDAD VERBAL OBSERVABLE] + [CONTENIDO TEMÁTICO] + [CONDICIÓN/CONTEXTO] + [FINALIDAD] + [PRODUCTO/EVIDENCIA]"
+
+7. **TABLA DE RESPUESTAS:**
+   Al final, presenta una tabla con:
+   | N° Pregunta | Desempeño evaluado | Alternativa correcta | Justificación breve |
+
+**IMPORTANTE:**
+- Asegúrate de que las preguntas sean apropiadas para el nivel de ${grado?.nombre}
+- Cada pregunta debe evaluar claramente un desempeño específico
+- La lectura debe ser coherente y de una extensión moderada`;
 });
 
-watch(selectedGradoId, async (newGradoId) => {
-  if (!newGradoId) {
-    desempenos.value = [];
-    selectedDesempenoIds.value = [];
-    return;
-  }
-  loadingDesempenos.value = true;
-  try {
-    const data = await desempenosService.getDesempenosPorGrado(newGradoId);
-    desempenos.value = data;
-    selectedDesempenoIds.value = [];
-  } catch (e) {
-    console.error('Error loading desempeños:', e);
-  } finally {
-    loadingDesempenos.value = false;
-  }
-});
-
-onMounted(async () => {
-  try {
-    const [gradosData, nivelesData] = await Promise.all([
-      desempenosService.getGrados(),
-      desempenosService.getNivelesLogro()
-    ]);
-    grados.value = gradosData;
-    nivelesLogro.value = nivelesData.niveles;
-    if (gradosData.length > 0) {
-      selectedGradoId.value = gradosData[0]?.id ?? null;
-    }
-  } catch (e) {
-    console.error('Error loading data:', e);
-    error.value = 'Error al cargar los datos iniciales';
-  }
-});
-
-
-const selectAllCapacidad = (tipo: string) => {
-  const ids = desempenosPorCapacidad.value[tipo]?.map(d => d.id) || [];
-  ids.forEach(id => {
-    if (!selectedDesempenoIds.value.includes(id)) {
-      selectedDesempenoIds.value.push(id);
-    }
-  });
-};
-
-const deselectAllCapacidad = (tipo: string) => {
-  const ids = desempenosPorCapacidad.value[tipo]?.map(d => d.id) || [];
-  selectedDesempenoIds.value = selectedDesempenoIds.value.filter(id => !ids.includes(id));
-};
-
-const handleFileUpload = async (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  const files = input.files;
-  if (!files || files.length === 0) {
-    selectedFiles.value = [];
-    filesMetadata.value = null;
-    textoBase.value = '';
-    return;
-  }
-  const fileArray: File[] = Array.from(files);
-  for (const file of fileArray) {
-    const extension = file.name.split('.').pop()?.toLowerCase();
-    if (!['pdf', 'docx', 'doc'].includes(extension || '')) {
-      uploadError.value = `Archivo "${file.name}" no soportado. Solo PDF o Word.`;
-      input.value = '';
-      selectedFiles.value = [];
-      return;
-    }
-  }
-  selectedFiles.value = fileArray;
-  uploadingFile.value = true;
-  uploadError.value = null;
-  try {
-    const result = await desempenosService.uploadTextoBase(fileArray);
-    textoBase.value = result.texto;
-    filesMetadata.value = {
-      archivos: result.archivos,
-      total_palabras: result.total_palabras,
-      total_caracteres: result.total_caracteres
-    };
-  } catch (e: any) {
-    uploadError.value = e.response?.data?.detail || 'Error al procesar los archivos';
-    selectedFiles.value = [];
-    textoBase.value = '';
-    input.value = '';
-  } finally {
-    uploadingFile.value = false;
-  }
-};
-
-const clearFiles = () => {
-  selectedFiles.value = [];
-  filesMetadata.value = null;
-  textoBase.value = '';
-  uploadError.value = null;
-};
-
-const generarPreguntas = async () => {
-  if (!selectedGradoId.value) {
-    error.value = 'Por favor, selecciona un grado';
-    return;
-  }
-  if (selectedDesempenoIds.value.length === 0) {
-    error.value = 'Por favor, selecciona al menos un desempeño';
-    return;
-  }
-  loading.value = true;
-  error.value = null;
-  resultado.value = null;
-  showResults.value = true;
-  try {
-    const response = await desempenosService.generarPreguntas({
-      grado_id: selectedGradoId.value,
-      nivel_logro: selectedNivelLogro.value,
-      cantidad: cantidadPreguntas.value,
-      texto_base: useTextoBase.value ? textoBase.value : undefined,
-      desempeno_ids: selectedDesempenoIds.value
-    });
-    resultado.value = response;
-  } catch (e: any) {
-    error.value = e.response?.data?.detail || 'Error al generar las preguntas';
-    console.error('Error:', e);
-  } finally {
-    loading.value = false;
-  }
-};
-
-const descargarExamenWord = async () => {
-  if (!resultado.value?.examen) return;
-  descargandoWord.value = true;
-  try {
-    await desempenosService.descargarWord(
-      resultado.value.examen,
-      resultado.value.grado
-    );
-  } catch (e: any) {
-    error.value = 'Error al descargar el documento Word';
-    console.error('Error:', e);
-  } finally {
-    descargandoWord.value = false;
-  }
-};
-
-const getCapacidadLabel = (tipo: string): string => {
-  const labels: Record<string, string> = {
-    'literal': 'LITERAL',
-    'inferencial': 'INFERENCIAL',
-    'critico': 'CRÍTICO'
-  };
-  return labels[tipo] || tipo;
-};
-
-
-
-const getNivelBadgeClass = (nivel: string): string => {
-  const classes: Record<string, string> = {
-    'LITERAL': 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
-    'INFERENCIAL': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-    'CRITICO': 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400'
-  };
-  return classes[nivel] || 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
-};
+onMounted(loadInitialData);
 </script>
 
 <template>

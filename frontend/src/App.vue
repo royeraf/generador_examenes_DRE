@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { shallowRef } from 'vue';
 import HomeView from './views/HomeView.vue';
 import LectoSistemView from './views/LectoSistemView.vue';
 import MatSistemView from './views/MatSistemView.vue';
@@ -8,7 +8,7 @@ import AdminMatView from './views/AdminMatView.vue';
 import { Home } from 'lucide-vue-next';
 
 // Simple state management for routing
-const currentModule = ref<'home' | 'lectosistem' | 'matsistem' | 'admin' | 'adminmat'>('home');
+const currentModule = shallowRef<'home' | 'lectosistem' | 'matsistem' | 'admin' | 'adminmat'>('home');
 
 const handleModuleSelection = (module: 'lectosistem' | 'matsistem' | 'admin' | 'adminmat') => {
     currentModule.value = module;

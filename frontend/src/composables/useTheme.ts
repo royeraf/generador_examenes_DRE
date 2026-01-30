@@ -1,9 +1,9 @@
-import { ref, watch } from 'vue';
+import { shallowRef, watch } from 'vue';
 
 // Check if we should be in dark mode
 const getInitialTheme = (): boolean => {
   if (typeof window === 'undefined') return true;
-  
+
   const savedTheme = localStorage.getItem('theme');
   if (savedTheme) {
     return savedTheme === 'dark';
@@ -12,7 +12,7 @@ const getInitialTheme = (): boolean => {
   return window.matchMedia('(prefers-color-scheme: dark)').matches || true;
 };
 
-const isDark = ref(getInitialTheme());
+const isDark = shallowRef(getInitialTheme());
 
 // Apply theme class to document
 const applyThemeClass = () => {
