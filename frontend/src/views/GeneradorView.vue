@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue';
+import { ref, shallowRef, onMounted, watch, computed } from 'vue';
 import type { Grado, NivelLogro, DesempenoItem, Examen } from '../types';
 import desempenosService from '../services/api';
 import ComboBox from '../components/ComboBox.vue';
@@ -66,21 +66,21 @@ const { isDark, toggleTheme } = useTheme();
 const grados = ref<Grado[]>([]);
 const nivelesLogro = ref<NivelLogro[]>([]);
 const desempenos = ref<DesempenoItem[]>([]);
-const selectedGradoId = ref<number | null>(null);
+const selectedGradoId = shallowRef<number | null>(null);
 const selectedDesempenoIds = ref<number[]>([]);
-const selectedNivelLogro = ref<string>('en_proceso');
-const cantidadPreguntas = ref(3);
-const textoBase = ref('');
-const useTextoBase = ref(false);
+const selectedNivelLogro = shallowRef<string>('en_proceso');
+const cantidadPreguntas = shallowRef(3);
+const textoBase = shallowRef('');
+const useTextoBase = shallowRef(false);
 const selectedFiles = ref<File[]>([]);
 const filesMetadata = ref<{ archivos: { filename: string; palabras: number; caracteres: number }[]; total_palabras: number; total_caracteres: number } | null>(null);
-const uploadingFile = ref(false);
-const uploadError = ref<string | null>(null);
+const uploadingFile = shallowRef(false);
+const uploadError = shallowRef<string | null>(null);
 
-const loading = ref(false);
-const loadingDesempenos = ref(false);
-const descargandoWord = ref(false);
-const error = ref<string | null>(null);
+const loading = shallowRef(false);
+const loadingDesempenos = shallowRef(false);
+const descargandoWord = shallowRef(false);
+const error = shallowRef<string | null>(null);
 const resultado = ref<{
   grado: string;
   desempenos_usados: string;
@@ -88,10 +88,10 @@ const resultado = ref<{
   examen: Examen;
   total_preguntas: number;
 } | null>(null);
-const showPromptModal = ref(false);
-const showResults = ref(false);
-const activeCapacidadTab = ref<string>('literal');
-const activeTab = ref<string>('generador');
+const showPromptModal = shallowRef(false);
+const showResults = shallowRef(false);
+const activeCapacidadTab = shallowRef<string>('literal');
+const activeTab = shallowRef<string>('generador');
 
 // Computed
 const desempenosPorCapacidad = computed(() => {

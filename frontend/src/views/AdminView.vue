@@ -1,24 +1,24 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, shallowRef, onMounted } from 'vue';
 import { adminService } from '../services/api';
 import type { Grado, Capacidad, DesempenoItem } from '../types';
 import { Trash2, Edit, Plus, Save, X, Database } from 'lucide-vue-next';
 
 // State
-const activeTab = ref<'grados' | 'capacidades' | 'desempenos'>('desempenos');
-const loading = ref(false);
+const activeTab = shallowRef<'grados' | 'capacidades' | 'desempenos'>('desempenos');
+const loading = shallowRef(false);
 
 const grados = ref<Grado[]>([]);
 const capacidades = ref<Capacidad[]>([]);
 const desempenos = ref<DesempenoItem[]>([]);
 
 // Filter for Desempeños
-const selectedGradoId = ref<number | null>(null);
+const selectedGradoId = shallowRef<number | null>(null);
 
 // Forms State
-const isEditing = ref(false);
+const isEditing = shallowRef(false);
 const editItem = ref<any>(null); // Holds the item being edited or created
-const showModal = ref(false);
+const showModal = shallowRef(false);
 
 // Fetch Data
 const fetchData = async () => {

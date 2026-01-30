@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { shallowRef, onMounted, computed } from 'vue';
 import ComboBox from '../components/ComboBox.vue';
 import PromptModal from '../components/PromptModal.vue';
 import Sistematizador from '../components/Sistematizador.vue';
@@ -96,7 +96,7 @@ const {
   descargarExamenWord
 } = useMatSistem();
 
-const showPromptModal = ref(false);
+const showPromptModal = shallowRef(false);
 
 // Computed - Prompt para generar examen de matemática (siguiendo formato MINEDU/Math_Jony)
 const promptTexto = computed(() => {

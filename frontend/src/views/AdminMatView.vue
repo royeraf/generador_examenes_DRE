@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, shallowRef, onMounted, computed, watch } from 'vue';
 import { matematicaService } from '../services/api';
 import type {
     CompetenciaMatematica,
@@ -11,9 +11,9 @@ import { Trash2, Edit, Plus, Save, X, Calculator, Eye, Target, Layers, BookOpen 
 import Swal from 'sweetalert2';
 
 // State
-const activeTab = ref<'competencias' | 'capacidades' | 'desempenos'>('desempenos');
-const loading = ref(false);
-const saving = ref(false);
+const activeTab = shallowRef<'competencias' | 'capacidades' | 'desempenos'>('desempenos');
+const loading = shallowRef(false);
+const saving = shallowRef(false);
 
 const grados = ref<GradoMatematica[]>([]);
 const competencias = ref<CompetenciaMatematica[]>([]);
@@ -21,13 +21,13 @@ const capacidades = ref<CapacidadMatConCompetencia[]>([]);
 const desempenos = ref<DesempenoMatCompleto[]>([]);
 
 // Filters
-const selectedGradoId = ref<number | null>(null);
-const selectedCompetenciaId = ref<number | null>(null);
+const selectedGradoId = shallowRef<number | null>(null);
+const selectedCompetenciaId = shallowRef<number | null>(null);
 
 // Forms State
-const isEditing = ref(false);
+const isEditing = shallowRef(false);
 const editItem = ref<any>(null);
-const showModal = ref(false);
+const showModal = shallowRef(false);
 
 // Stats
 const stats = computed(() => ({
