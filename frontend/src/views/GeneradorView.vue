@@ -55,6 +55,7 @@ import {
   Lightbulb,
   ClipboardCheck
 } from 'lucide-vue-next';
+import ThinkingLoader from '../components/ThinkingLoader.vue';
 import Footer from './Footer.vue'
 import logoDre from '../assets/logo.png'
 import mascotaLectosistem from '../assets/mascota_lectosistem.png'
@@ -274,6 +275,7 @@ const generarPreguntas = async () => {
     const response = await desempenosService.generarPreguntas({
       grado_id: selectedGradoId.value,
       nivel_logro: selectedNivelLogro.value,
+      nivel_dificultad: 'intermedio',
       cantidad: cantidadPreguntas.value,
       texto_base: useTextoBase.value ? textoBase.value : undefined,
       desempeno_ids: selectedDesempenoIds.value
@@ -625,9 +627,9 @@ const getNivelBadgeClass = (nivel: string): string => {
                   class="flex items-center gap-2 p-3 bg-gradient-to-r from-teal-50 to-emerald-50 dark:bg-emerald-900/20 border-2 border-teal-200 dark:border-emerald-800 rounded-xl text-xs">
                   <FileText class="w-5 h-5 text-teal-600 dark:text-emerald-400" />
                   <span class="flex-1 truncate text-slate-700 dark:text-slate-200 font-medium">{{ archivo.filename
-                  }}</span>
+                    }}</span>
                   <span class="text-teal-600 font-bold bg-teal-100 px-2 py-0.5 rounded-full">{{ archivo.palabras
-                  }}p</span>
+                    }}p</span>
                 </div>
                 <button @click="clearFiles"
                   class="text-xs text-red-500 hover:text-red-600 flex items-center gap-1 font-medium">
@@ -847,19 +849,41 @@ const getNivelBadgeClass = (nivel: string): string => {
               class="h-[300px] sm:h-[580px] lg:h-[650px] bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 text-center flex flex-col items-center justify-center shadow-sm p-6">
               <Zap class="w-10 h-10 sm:w-12 sm:h-12 text-gray-300 dark:text-slate-600 mb-4" />
               <h3 class="text-base sm:text-lg font-semibold text-slate-800 dark:text-white mb-2">Listo para generar</h3>
-              <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm max-w-xs">
+              <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm max-w-xs mb-4">
                 Selecciona los desempeños y genera tu examen con IA.
               </p>
+              <!-- Advertencia de riesgos de IA -->
+              <div
+                class="max-w-sm mx-auto flex items-start gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50">
+                <AlertTriangle class="w-4 h-4 text-amber-500 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                <p class="text-[11px] sm:text-xs text-amber-700 dark:text-amber-300/90 text-left leading-relaxed">
+                  <strong>Riesgos del uso de IA:</strong> El contenido generado puede contener errores, imprecisiones o
+                  información incompleta. Revisa y valida siempre antes de usar con estudiantes.
+                </p>
+              </div>
             </div>
 
             <!-- Loading State -->
             <div v-if="loading"
-              class="h-[400px] sm:h-[580px] lg:h-[650px] bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 text-center flex flex-col items-center justify-center shadow-sm p-6">
-              <div
-                class="w-10 h-10 sm:w-14 sm:h-14 border-4 border-gray-200 dark:border-slate-600 border-t-indigo-600 dark:border-t-indigo-400 rounded-full animate-spin mb-4">
+              class="h-[400px] sm:h-[580px] lg:h-[650px] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl border border-slate-700/50 text-center flex flex-col items-center justify-center shadow-lg p-6 relative overflow-hidden">
+              <div class="absolute inset-0 opacity-20">
+                <div class="absolute top-1/4 left-1/4 w-32 h-32 bg-violet-500/30 rounded-full blur-3xl animate-pulse">
+                </div>
+                <div class="absolute bottom-1/3 right-1/4 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl animate-pulse"
+                  style="animation-delay: 1s;"></div>
               </div>
-              <h3 class="text-base sm:text-lg font-semibold text-slate-800 dark:text-white mb-2">Generando Examen</h3>
-              <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm">Esto puede tomar unos segundos...</p>
+              <div class="relative z-10 flex flex-col items-center">
+                <ThinkingLoader text="Generando examen" variant="purple" />
+                <p class="text-slate-400 text-xs sm:text-sm mt-4">Esto puede tomar unos segundos...</p>
+                <div
+                  class="mt-6 max-w-sm mx-auto flex items-start gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                  <AlertTriangle class="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                  <p class="text-[11px] sm:text-xs text-amber-300/90 text-left leading-relaxed">
+                    El contenido generado por IA puede contener errores. Revisa y valida siempre el examen antes de
+                    utilizarlo.
+                  </p>
+                </div>
+              </div>
             </div>
 
             <!-- Results -->

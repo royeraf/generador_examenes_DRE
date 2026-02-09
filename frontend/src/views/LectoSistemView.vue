@@ -28,10 +28,18 @@ import {
   Rocket,
   Award,
   Lightbulb,
-  ClipboardCheck
+  ClipboardCheck,
+  Signal,
+  Sprout,
+  Leaf,
+  TreeDeciduous,
+  FileSearch
 } from 'lucide-vue-next';
 import Header from '../components/Header.vue';
 import EduBackground from '../components/EduBackground.vue';
+import Checkbox from '../components/Checkbox.vue';
+import ThinkingLoader from '../components/ThinkingLoader.vue';
+import Tooltip from '../components/Tooltip.vue';
 
 
 const { isDark, toggleTheme } = useTheme();
@@ -40,6 +48,8 @@ const {
   desempenos,
   selectedGradoId,
   selectedDesempenoIds,
+  selectedNivelDificultad,
+  nivelesDificultad,
   cantidadPreguntas,
   textoBase,
   useTextoBase,
@@ -177,6 +187,61 @@ onMounted(loadInitialData);
       <!-- Generator Tab Content -->
       <div v-show="activeTab === 'generador'">
         <!-- Configuration Row - Diseño Educativo -->
+        <!-- Nivel de Dificultad Selector -->
+        <div class="mb-6">
+          <div
+            class="bg-white dark:bg-slate-800 rounded-2xl p-5 border-2 border-violet-100 dark:border-slate-700 shadow-sm">
+            <label class="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300 mb-4">
+              <div
+                class="w-8 h-8 bg-gradient-to-br from-violet-400 to-purple-600 rounded-lg flex items-center justify-center">
+                <Signal class="w-4 h-4 text-white" />
+              </div>
+              Nivel de Dificultad
+            </label>
+            <div class="grid grid-cols-3 gap-3">
+              <button v-for="nivel in nivelesDificultad" :key="nivel.id" @click="selectedNivelDificultad = nivel.id"
+                class="relative p-4 rounded-xl border-2 transition-all duration-300 text-center" :class="selectedNivelDificultad === nivel.id
+                  ? nivel.id === 'basico'
+                    ? 'bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/30 dark:to-green-900/20 border-emerald-400 dark:border-emerald-600 ring-2 ring-emerald-200 dark:ring-emerald-800'
+                    : nivel.id === 'intermedio'
+                      ? 'bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/20 border-amber-400 dark:border-amber-600 ring-2 ring-amber-200 dark:ring-amber-800'
+                      : 'bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-900/30 dark:to-rose-900/20 border-red-400 dark:border-red-600 ring-2 ring-red-200 dark:ring-red-800'
+                  : 'bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:hover:border-slate-600'
+                  ">
+                <div class="mb-2 flex justify-center">
+                  <Sprout v-if="nivel.icono === 'Sprout'" class="w-8 h-8"
+                    :class="selectedNivelDificultad === nivel.id ? 'text-emerald-500' : 'text-slate-400'" />
+                  <Leaf v-else-if="nivel.icono === 'Leaf'" class="w-8 h-8"
+                    :class="selectedNivelDificultad === nivel.id ? 'text-amber-500' : 'text-slate-400'" />
+                  <TreeDeciduous v-else class="w-8 h-8"
+                    :class="selectedNivelDificultad === nivel.id ? 'text-red-500' : 'text-slate-400'" />
+                </div>
+                <span class="font-bold text-sm block" :class="selectedNivelDificultad === nivel.id
+                  ? nivel.id === 'basico'
+                    ? 'text-emerald-700 dark:text-emerald-400'
+                    : nivel.id === 'intermedio'
+                      ? 'text-amber-700 dark:text-amber-400'
+                      : 'text-red-700 dark:text-red-400'
+                  : 'text-slate-600 dark:text-slate-400'
+                  ">
+                  {{ nivel.nombre }}
+                </span>
+                <span class="text-xs text-slate-500 dark:text-slate-500 mt-1 block">
+                  {{ nivel.descripcion }}
+                </span>
+                <div v-if="selectedNivelDificultad === nivel.id"
+                  class="absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center" :class="nivel.id === 'basico'
+                    ? 'bg-emerald-500'
+                    : nivel.id === 'intermedio'
+                      ? 'bg-amber-500'
+                      : 'bg-red-500'
+                    ">
+                  <Check class="w-3 h-3 text-white" />
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
         <div class="grid md:grid-cols-3 gap-4 mb-6">
 
           <!-- Grade Selection -->
@@ -328,23 +393,25 @@ onMounted(loadInitialData);
 
                 <!-- Tab Navigation - Niveles de Comprensión -->
                 <div class="flex overflow-x-auto scrollbar-hide bg-gray-50 dark:bg-slate-900 p-1.5 gap-1 min-w-full">
-                  <button v-for="tipo in ['literal', 'inferencial', 'critico']" :key="tipo"
-                    @click="activeCapacidadTab = tipo"
-                    class="flex-1 min-w-[100px] relative px-2 sm:px-4 py-2 sm:py-2.5 text-[10px] sm:text-xs font-bold uppercase tracking-wide transition-all duration-300 rounded-lg whitespace-nowrap"
-                    :class="activeCapacidadTab === tipo
-                      ? {
-                        'bg-teal-500 text-white shadow-lg shadow-teal-500/30': tipo === 'literal',
-                        'bg-amber-500 text-white shadow-lg shadow-amber-500/30': tipo === 'inferencial',
-                        'bg-violet-500 text-white shadow-lg shadow-violet-500/30': tipo === 'critico'
-                      }
-                      : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800'">
-                    <div class="flex items-center justify-center gap-1.5 sm:gap-2">
-                      <BookOpen v-if="tipo === 'literal'" class="w-3 h-3 sm:w-4 h-4" />
-                      <FileSearch v-else-if="tipo === 'inferencial'" class="w-3 h-3 sm:w-4 h-4" />
-                      <Lightbulb v-else class="w-3 h-3 sm:w-4 h-4" />
-                      <span>{{ getCapacidadLabel(tipo) }}</span>
-                    </div>
-                  </button>
+                  <Tooltip v-for="tipo in ['literal', 'inferencial', 'critico']" :key="tipo"
+                    :text="getCapacidadLabel(tipo)" position="bottom">
+                    <button @click="activeCapacidadTab = tipo"
+                      class="flex-1 min-w-[100px] relative px-2 sm:px-4 py-2 sm:py-2.5 text-[10px] sm:text-xs font-bold uppercase tracking-wide transition-all duration-300 rounded-lg whitespace-nowrap"
+                      :class="activeCapacidadTab === tipo
+                        ? {
+                          'bg-teal-500 text-white shadow-lg shadow-teal-500/30': tipo === 'literal',
+                          'bg-amber-500 text-white shadow-lg shadow-amber-500/30': tipo === 'inferencial',
+                          'bg-violet-500 text-white shadow-lg shadow-violet-500/30': tipo === 'critico'
+                        }
+                        : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800'">
+                      <div class="flex items-center justify-center gap-1.5 sm:gap-2">
+                        <BookOpen v-if="tipo === 'literal'" class="w-3 h-3 sm:w-4 h-4" />
+                        <FileSearch v-else-if="tipo === 'inferencial'" class="w-3 h-3 sm:w-4 h-4" />
+                        <Lightbulb v-else class="w-3 h-3 sm:w-4 h-4" />
+                        <span>{{ getCapacidadLabel(tipo) }}</span>
+                      </div>
+                    </button>
+                  </Tooltip>
                 </div>
 
                 <!-- Tab Content -->
@@ -373,34 +440,36 @@ onMounted(loadInitialData);
                   <!-- Items Grid -->
                   <div class="flex-1 overflow-y-auto space-y-1.5 pr-1">
                     <template v-if="desempenosPorCapacidad[activeCapacidadTab]?.length">
-                      <Checkbox v-for="des in desempenosPorCapacidad[activeCapacidadTab]" :key="des.id"
-                        v-model="selectedDesempenoIds" :value="des.id"
-                        class="group flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-all duration-150 border"
-                        :class="selectedDesempenoIds.includes(des.id)
-                          ? {
-                            'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 ring-1 ring-emerald-300 dark:ring-emerald-700': activeCapacidadTab === 'literal',
-                            'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 ring-1 ring-amber-300 dark:ring-amber-700': activeCapacidadTab === 'inferencial',
-                            'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800 ring-1 ring-purple-300 dark:ring-purple-700': activeCapacidadTab === 'critico'
-                          }
-                          : 'border-gray-100 dark:border-slate-700 hover:border-gray-200 dark:hover:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-800/50'"
-                        :color="activeCapacidadTab === 'literal'
-                          ? 'checked:bg-emerald-600 checked:border-emerald-600 dark:checked:bg-emerald-500 dark:checked:border-emerald-500 focus:ring-emerald-500/50'
-                          : (activeCapacidadTab === 'inferencial'
-                            ? 'checked:bg-amber-600 checked:border-amber-600 dark:checked:bg-amber-500 dark:checked:border-amber-500 focus:ring-amber-500/50'
-                            : 'checked:bg-purple-600 checked:border-purple-600 dark:checked:bg-purple-500 dark:checked:border-purple-500 focus:ring-purple-500/50')">
-                        <div class="flex items-center gap-2 mb-1">
-                          <span class="text-[10px] px-2 py-0.5 rounded-md font-mono font-bold" :class="{
-                            'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400': activeCapacidadTab === 'literal',
-                            'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400': activeCapacidadTab === 'inferencial',
-                            'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400': activeCapacidadTab === 'critico'
-                          }">
-                            {{ des.codigo }}
-                          </span>
-                        </div>
-                        <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                          {{ des.descripcion }}
-                        </p>
-                      </Checkbox>
+                      <Tooltip v-for="des in desempenosPorCapacidad[activeCapacidadTab]" :key="des.id"
+                        :text="des.descripcion" position="top">
+                        <Checkbox v-model="selectedDesempenoIds" :value="des.id"
+                          class="group flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-all duration-150 border"
+                          :class="selectedDesempenoIds.includes(des.id)
+                            ? {
+                              'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 ring-1 ring-emerald-300 dark:ring-emerald-700': activeCapacidadTab === 'literal',
+                              'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 ring-1 ring-amber-300 dark:ring-amber-700': activeCapacidadTab === 'inferencial',
+                              'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800 ring-1 ring-purple-300 dark:ring-purple-700': activeCapacidadTab === 'critico'
+                            }
+                            : 'border-gray-100 dark:border-slate-700 hover:border-gray-200 dark:hover:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-800/50'"
+                          :color="activeCapacidadTab === 'literal'
+                            ? 'checked:bg-emerald-600 checked:border-emerald-600 dark:checked:bg-emerald-500 dark:checked:border-emerald-500 focus:ring-emerald-500/50'
+                            : (activeCapacidadTab === 'inferencial'
+                              ? 'checked:bg-amber-600 checked:border-amber-600 dark:checked:bg-amber-500 dark:checked:border-amber-500 focus:ring-amber-500/50'
+                              : 'checked:bg-purple-600 checked:border-purple-600 dark:checked:bg-purple-500 dark:checked:border-purple-500 focus:ring-purple-500/50')">
+                          <div class="flex items-center gap-2 mb-1">
+                            <span class="text-[10px] px-2 py-0.5 rounded-md font-mono font-bold" :class="{
+                              'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400': activeCapacidadTab === 'literal',
+                              'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400': activeCapacidadTab === 'inferencial',
+                              'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400': activeCapacidadTab === 'critico'
+                            }">
+                              {{ des.codigo }}
+                            </span>
+                          </div>
+                          <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                            {{ des.descripcion }}
+                          </p>
+                        </Checkbox>
+                      </Tooltip>
                     </template>
 
                     <!-- Empty Tab -->
@@ -428,13 +497,15 @@ onMounted(loadInitialData);
             <!-- Generate Button - Educativo -->
             <button @click="generarPreguntas"
               :disabled="loading || !selectedGradoId || selectedDesempenoIds.length === 0"
-              class="w-full px-4 py-4 sm:px-6 sm:py-5 bg-gradient-to-r from-teal-500 via-teal-600 to-sky-500 hover:from-teal-600 hover:via-teal-700 hover:to-sky-600 text-white font-bold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 shadow-xl shadow-teal-500/30 hover:shadow-2xl hover:shadow-teal-500/40 hover:-translate-y-1 text-base sm:text-lg">
-              <Loader2 v-if="loading" class="w-5 h-5 sm:w-6 sm:h-6 animate-spin" />
+              class="w-full px-4 py-4 sm:px-6 sm:py-5 text-white font-bold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 shadow-xl hover:shadow-2xl hover:-translate-y-1 text-base sm:text-lg"
+              :class="loading
+                ? 'bg-slate-900 dark:bg-slate-950 shadow-slate-500/20'
+                : 'bg-gradient-to-r from-teal-500 via-teal-600 to-sky-500 hover:from-teal-600 hover:via-teal-700 hover:to-sky-600 shadow-teal-500/30 hover:shadow-teal-500/40'">
+              <ThinkingLoader v-if="loading" text="Generando" variant="teal" />
               <template v-else>
                 <Rocket class="w-5 h-5 sm:w-6 sm:h-6" />
-                <span>{{ loading ? 'Generando...' : 'Generar Examen con IA' }}</span>
+                <span>Generar Examen con IA</span>
               </template>
-              <span v-if="loading" class="hidden sm:inline">Generando examen mágico...</span>
             </button>
 
             <!-- Error -->
@@ -471,19 +542,42 @@ onMounted(loadInitialData);
               class="h-[300px] sm:h-[580px] lg:h-[650px] bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 text-center flex flex-col items-center justify-center shadow-sm p-6">
               <Zap class="w-10 h-10 sm:w-12 sm:h-12 text-gray-300 dark:text-slate-600 mb-4" />
               <h3 class="text-base sm:text-lg font-semibold text-slate-800 dark:text-white mb-2">Listo para generar</h3>
-              <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm max-w-xs">
+              <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm max-w-xs mb-4">
                 Selecciona los desempeños y genera tu examen con IA.
               </p>
+              <!-- Advertencia de riesgos de IA -->
+              <div
+                class="max-w-sm mx-auto flex items-start gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50">
+                <AlertTriangle class="w-4 h-4 text-amber-500 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                <p class="text-[11px] sm:text-xs text-amber-700 dark:text-amber-300/90 text-left leading-relaxed">
+                  <strong>Riesgos del uso de IA:</strong> El contenido generado puede contener errores, imprecisiones o
+                  información incompleta. Revisa y valida siempre antes de usar con estudiantes.
+                </p>
+              </div>
             </div>
 
             <!-- Loading State -->
             <div v-if="loading"
-              class="h-[400px] sm:h-[580px] lg:h-[650px] bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 text-center flex flex-col items-center justify-center shadow-sm p-6">
-              <div
-                class="w-10 h-10 sm:w-14 sm:h-14 border-4 border-gray-200 dark:border-slate-600 border-t-indigo-600 dark:border-t-indigo-400 rounded-full animate-spin mb-4">
+              class="h-[400px] sm:h-[580px] lg:h-[650px] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl border border-slate-700/50 text-center flex flex-col items-center justify-center shadow-lg p-6 relative overflow-hidden">
+              <div class="absolute inset-0 opacity-20">
+                <div class="absolute top-1/4 left-1/4 w-32 h-32 bg-teal-500/30 rounded-full blur-3xl animate-pulse">
+                </div>
+                <div
+                  class="absolute bottom-1/3 right-1/4 w-40 h-40 bg-indigo-500/20 rounded-full blur-3xl animate-pulse"
+                  style="animation-delay: 1s;"></div>
               </div>
-              <h3 class="text-base sm:text-lg font-semibold text-slate-800 dark:text-white mb-2">Generando Examen</h3>
-              <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm">Esto puede tomar unos segundos...</p>
+              <div class="relative z-10 flex flex-col items-center">
+                <ThinkingLoader text="Generando examen" variant="teal" />
+                <p class="text-slate-400 text-xs sm:text-sm mt-4">Esto puede tomar unos segundos...</p>
+                <div
+                  class="mt-6 max-w-sm mx-auto flex items-start gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                  <AlertTriangle class="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                  <p class="text-[11px] sm:text-xs text-amber-300/90 text-left leading-relaxed">
+                    El contenido generado por IA puede contener errores. Revisa y valida siempre el examen antes de
+                    utilizarlo.
+                  </p>
+                </div>
+              </div>
             </div>
 
             <!-- Results -->

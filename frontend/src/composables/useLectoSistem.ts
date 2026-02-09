@@ -2,6 +2,37 @@ import { ref, shallowRef, watch, computed } from 'vue';
 import type { Examen, DesempenoItem, Grado, NivelLogro } from '../types';
 import desempenosService from '../services/api';
 
+// Tipo para niveles de dificultad
+export type NivelDificultad = 'basico' | 'intermedio' | 'avanzado';
+
+export interface NivelDificultadOption {
+  id: NivelDificultad;
+  nombre: string;
+  descripcion: string;
+  icono: string;
+}
+
+export const NIVELES_DIFICULTAD: NivelDificultadOption[] = [
+  {
+    id: 'basico',
+    nombre: 'Básico',
+    descripcion: 'Preguntas simples y sencillas',
+    icono: 'Sprout'
+  },
+  {
+    id: 'intermedio',
+    nombre: 'Intermedio',
+    descripcion: 'Demanda cognitiva media',
+    icono: 'Leaf'
+  },
+  {
+    id: 'avanzado',
+    nombre: 'Avanzado',
+    descripcion: 'Alta demanda cognitiva',
+    icono: 'TreeDeciduous'
+  }
+];
+
 export function useLectoSistem() {
   const grados = ref<Grado[]>([]);
   const desempenos = ref<DesempenoItem[]>([]);
@@ -10,6 +41,7 @@ export function useLectoSistem() {
   const selectedGradoId = shallowRef<number | null>(null);
   const selectedDesempenoIds = ref<number[]>([]);
   const selectedNivelLogro = shallowRef<string>('en_proceso');
+  const selectedNivelDificultad = shallowRef<NivelDificultad>('intermedio');
   const cantidadPreguntas = shallowRef(3);
   const textoBase = shallowRef('');
   const useTextoBase = shallowRef(false);
@@ -189,6 +221,7 @@ export function useLectoSistem() {
         desempeno_ids: selectedDesempenoIds.value,
         cantidad: cantidadPreguntas.value,
         nivel_logro: selectedNivelLogro.value,
+        nivel_dificultad: selectedNivelDificultad.value,
         texto_base: useTextoBase.value ? textoBase.value : undefined
       });
     } catch (e: any) {
@@ -237,6 +270,8 @@ export function useLectoSistem() {
     selectedGradoId,
     selectedDesempenoIds,
     selectedNivelLogro,
+    selectedNivelDificultad,
+    nivelesDificultad: NIVELES_DIFICULTAD,
     cantidadPreguntas,
     textoBase,
     useTextoBase,

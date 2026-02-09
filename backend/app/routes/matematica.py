@@ -514,6 +514,7 @@ class GenerarExamenMatRequest(BaseModel):
     cantidad: int = 3
     situacion_base: Optional[str] = None
     modelo: str = "gemini"
+    nivel_dificultad: str = "intermedio"  # basico, intermedio, avanzado
 
 
 @router.post("/generar")
@@ -540,7 +541,8 @@ async def generar_examen_matematica(
             desempeno_ids=request.desempeno_ids,
             cantidad=request.cantidad,
             situacion_base=request.situacion_base,
-            modelo=request.modelo
+            modelo=request.modelo,
+            nivel_dificultad=request.nivel_dificultad
         )
         return resultado
     except ValueError as e:

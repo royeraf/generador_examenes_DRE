@@ -31,11 +31,15 @@ class MatematicaService:
         competencia_nombre: str,
         capacidades_desempenos: dict,
         cantidad: int,
-        situacion_base: Optional[str] = None
+        situacion_base: Optional[str] = None,
+        nivel_dificultad: str = "intermedio"
     ) -> str:
         """
         Construye el prompt para generar un examen de matemática
         siguiendo el formato oficial del MINEDU (MateJony).
+        
+        Args:
+            nivel_dificultad: 'basico', 'intermedio', o 'avanzado'
         """
         
         # Formatear desempeños por capacidad
@@ -55,6 +59,45 @@ class MatematicaService:
 Usa esta situación como base para el problema.
 """
         
+        # Instrucciones según nivel de dificultad para matemática
+        dificultad_instrucciones = {
+            "basico": """
+**NIVEL DE DIFICULTAD: BÁSICO (Simple y sencillo)**
+- Crear una situación problemática SENCILLA y fácil de comprender
+- Usar NÚMEROS PEQUEÑOS y operaciones directas
+- Los problemas deben resolverse en 1-2 pasos como máximo
+- Evitar múltiples operaciones o procesos complejos
+- Las alternativas incorrectas deben ser claramente distinguibles
+- Usar contextos cotidianos y familiares para el estudiante
+- Los datos deben estar explícitos y fáciles de identificar
+- Priorizar ejercicios de aplicación directa de conceptos""",
+            "intermedio": """
+**NIVEL DE DIFICULTAD: INTERMEDIO (Demanda cognitiva media)**
+- La situación problemática debe tener complejidad moderada
+- Pueden requerirse 2-3 pasos para resolver los problemas
+- Incluir problemas que requieran identificar datos relevantes
+- Las alternativas incorrectas deben ser plausibles
+- Combinar diferentes operaciones o conceptos relacionados
+- Requerir que el estudiante organice información antes de resolver
+- Equilibrar problemas de diferentes niveles de complejidad""",
+            "avanzado": """
+**NIVEL DE DIFICULTAD: AVANZADO (Alta demanda cognitiva)**
+- La situación problemática debe ser COMPLEJA y desafiante
+- Los problemas pueden requerir MÚLTIPLES PASOS (3 o más)
+- Incluir problemas que requieran RAZONAMIENTO y ESTRATEGIA
+- Las alternativas incorrectas deben ser MUY PLAUSIBLES (distractores bien elaborados)
+- Requerir análisis de datos, identificación de patrones o relaciones
+- Incluir problemas no rutinarios que desafíen al estudiante
+- Pueden requerirse conceptos combinados de diferentes capacidades
+- Incluir problemas que admitan diferentes estrategias de solución
+- Requerir que el estudiante justifique o argumente su respuesta"""
+        }
+        
+        instruccion_dificultad = dificultad_instrucciones.get(
+            nivel_dificultad.lower(), 
+            dificultad_instrucciones["intermedio"]
+        )
+        
         prompt = f"""Eres **"MateJony"**, un experto en evaluación de aprendizajes y programación curricular en Matemática del Ministerio de Educación de Perú. Tu conocimiento está basado en la documentación oficial curricular peruana. Tu comunicación es profesional, clara, didáctica y estructurada.
 
 **CONTEXTO CURRICULAR:**
@@ -63,6 +106,8 @@ Usa esta situación como base para el problema.
 {situacion_texto}
 **DESEMPEÑOS SELECCIONADOS POR CAPACIDAD:**
 {desempenos_formateados}
+
+{instruccion_dificultad}
 
 **TU TAREA:**
 Genera una **SITUACIÓN PROBLEMÁTICA INTEGRADORA** con exactamente {cantidad} preguntas cerradas de opción múltiple.
@@ -147,10 +192,14 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
         desempeno_ids: List[int],
         cantidad: int = 3,
         situacion_base: Optional[str] = None,
-        modelo: str = "gemini"
+        modelo: str = "gemini",
+        nivel_dificultad: str = "intermedio"
     ) -> dict:
         """
         Genera un examen de matemática basado en desempeños específicos.
+        
+        Args:
+            nivel_dificultad: 'basico' (simple), 'intermedio' (demanda media), 'avanzado' (alta demanda cognitiva)
         """
         ai_service = ai_factory.get_service(modelo)
         
@@ -200,7 +249,8 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
             competencia_nombre=competencia.nombre,
             capacidades_desempenos=capacidades_desempenos,
             cantidad=cantidad,
-            situacion_base=situacion_base
+            situacion_base=situacion_base,
+            nivel_dificultad=nivel_dificultad
         )
         
         try:

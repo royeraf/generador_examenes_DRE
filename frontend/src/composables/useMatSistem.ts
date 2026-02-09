@@ -9,6 +9,37 @@ import type {
 } from '../types/matematica';
 import desempenosService, { matematicaService } from '../services/api';
 
+// Tipo para niveles de dificultad (compartido con useLectoSistem)
+export type NivelDificultad = 'basico' | 'intermedio' | 'avanzado';
+
+export interface NivelDificultadOption {
+  id: NivelDificultad;
+  nombre: string;
+  descripcion: string;
+  icono: string;
+}
+
+export const NIVELES_DIFICULTAD: NivelDificultadOption[] = [
+  {
+    id: 'basico',
+    nombre: 'Básico',
+    descripcion: 'Problemas simples y directos',
+    icono: 'Sprout'
+  },
+  {
+    id: 'intermedio',
+    nombre: 'Intermedio',
+    descripcion: 'Demanda cognitiva media',
+    icono: 'Leaf'
+  },
+  {
+    id: 'avanzado',
+    nombre: 'Avanzado',
+    descripcion: 'Alta demanda cognitiva',
+    icono: 'TreeDeciduous'
+  }
+];
+
 export function useMatSistem() {
   // State - Matemática
   const grados = ref<GradoMatematica[]>([]);
@@ -20,6 +51,7 @@ export function useMatSistem() {
   const selectedGradoId = shallowRef<number | null>(null);
   const selectedCompetenciaId = shallowRef<number | null>(null);
   const selectedDesempenoIds = ref<number[]>([]);
+  const selectedNivelDificultad = shallowRef<NivelDificultad>('intermedio');
   const cantidadPreguntas = shallowRef(3);
   const textoBase = shallowRef('');
   const useTextoBase = shallowRef(false);
@@ -227,7 +259,8 @@ export function useMatSistem() {
         desempeno_ids: selectedDesempenoIds.value,
         cantidad: cantidadPreguntas.value,
         situacion_base: useTextoBase.value ? textoBase.value : undefined,
-        modelo: 'gemini'
+        modelo: 'gemini',
+        nivel_dificultad: selectedNivelDificultad.value
       });
 
       resultado.value = {
@@ -288,6 +321,8 @@ export function useMatSistem() {
     selectedGradoId,
     selectedCompetenciaId,
     selectedDesempenoIds,
+    selectedNivelDificultad,
+    nivelesDificultad: NIVELES_DIFICULTAD,
     cantidadPreguntas,
     textoBase,
     useTextoBase,

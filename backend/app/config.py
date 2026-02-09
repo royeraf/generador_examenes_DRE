@@ -18,7 +18,15 @@ class Settings(BaseSettings):
     debug: bool = True
     
     # CORS settings
-    cors_origins: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173", "https://generador-examenes-dre.onrender.com"]
+    cors_origins: list[str] = [
+        "http://localhost:5173", 
+        "http://127.0.0.1:5173", 
+        "http://localhost:5174", 
+        "http://127.0.0.1:5174",
+        "http://localhost:5175", 
+        "http://127.0.0.1:5175",
+        "https://generador-examenes-dre.onrender.com"
+    ]
     
     class Config:
         env_file = ".env"

@@ -350,6 +350,7 @@ export const matematicaService = {
     cantidad: number;
     situacion_base?: string;
     modelo?: string;
+    nivel_dificultad?: 'basico' | 'intermedio' | 'avanzado';
   }): Promise<{
     grado: string;
     competencia: string;

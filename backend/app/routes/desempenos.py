@@ -49,6 +49,10 @@ class GenerarPreguntasRequest(BaseModel):
         default="en_proceso", 
         description="Nivel de logro: pre_inicio, inicio, en_proceso, logro_esperado, logro_destacado"
     )
+    nivel_dificultad: str = Field(
+        default="intermedio",
+        description="Nivel de dificultad: basico (simple, sencillo), intermedio (demanda cognitiva media), avanzado (complejo, alta demanda cognitiva)"
+    )
     cantidad: int = Field(default=3, ge=1, le=10, description="Cantidad de preguntas a generar")
     texto_base: Optional[str] = Field(None, description="Texto de lectura para basar las preguntas")
     desempeno_ids: Optional[list[int]] = Field(None, description="IDs de desempeños seleccionados")
@@ -146,7 +150,8 @@ async def generar_preguntas_lectura(
             desempeno_ids=request.desempeno_ids or [],
             cantidad=request.cantidad,
             texto_base=request.texto_base,
-            modelo=request.modelo
+            modelo=request.modelo,
+            nivel_dificultad=request.nivel_dificultad
         )
         return result
     except ValueError as e:

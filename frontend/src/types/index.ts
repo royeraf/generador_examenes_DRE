@@ -32,6 +32,7 @@ export interface NivelLogro {
 export interface GenerarPreguntasRequest {
   grado_id: number;
   nivel_logro: string;
+  nivel_dificultad: 'basico' | 'intermedio' | 'avanzado';
   cantidad: number;
   texto_base?: string;
   desempeno_ids?: number[];

@@ -212,10 +212,14 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
         desempeno_ids: list[int],
         cantidad: int = 3,
         texto_base: Optional[str] = None,
-        modelo: str = "gemini"
+        modelo: str = "gemini",
+        nivel_dificultad: str = "intermedio"
     ) -> dict:
         """
         Genera un examen completo basado en desempeños específicos seleccionados.
+        
+        Args:
+            nivel_dificultad: 'basico' (simple), 'intermedio' (demanda media), 'avanzado' (alta demanda cognitiva)
         """
         ai_service = ai_factory.get_service(modelo)
         
@@ -241,6 +245,42 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
             for d in desempenos
         ])
         
+        # Configurar instrucciones según nivel de dificultad
+        dificultad_instrucciones = {
+            "basico": """
+**NIVEL DE DIFICULTAD: BÁSICO (Simple y sencillo)**
+- Las preguntas deben ser DIRECTAS y de fácil comprensión
+- Usar vocabulario simple y accesible para el grado
+- Las alternativas incorrectas deben ser claramente distinguibles
+- Enfocarse en la comprensión LITERAL del texto
+- Evitar preguntas que requieran inferencias complejas
+- La lectura debe ser corta y con estructura clara
+- Las preguntas deben extraer información EXPLÍCITA del texto""",
+            "intermedio": """
+**NIVEL DE DIFICULTAD: INTERMEDIO (Demanda cognitiva media)**
+- Las preguntas deben requerir comprensión y algo de análisis
+- Incluir algunas preguntas inferenciales además de las literales
+- Las alternativas incorrectas deben ser plausibles pero distinguibles
+- La lectura puede tener complejidad moderada
+- Algunas preguntas pueden requerir relacionar información del texto
+- Equilibrar preguntas de diferentes niveles de complejidad""",
+            "avanzado": """
+**NIVEL DE DIFICULTAD: AVANZADO (Alta demanda cognitiva)**
+- Las preguntas deben ser COMPLEJAS y desafiantes
+- Priorizar preguntas INFERENCIALES y CRÍTICAS
+- Incluir preguntas de reflexión y evaluación del contenido
+- Las alternativas incorrectas deben ser PLAUSIBLES (distractores bien elaborados)
+- La lectura puede tener mayor complejidad y extensión
+- Requerir que el estudiante analice, sintetice y evalúe información
+- Incluir preguntas que requieran establecer relaciones entre partes del texto
+- Algunas preguntas pueden requerir conocimientos previos para contextualizare"""
+        }
+        
+        instruccion_dificultad = dificultad_instrucciones.get(
+            nivel_dificultad.lower(), 
+            dificultad_instrucciones["intermedio"]
+        )
+        
         # Texto de lectura
         texto_lectura = ""
         if texto_base:
@@ -260,6 +300,8 @@ El examen debe tener exactamente {cantidad} preguntas para estudiantes de {grado
 {texto_lectura}
 Usarás los siguientes desempeños que están enumerados e indican entre paréntesis si es de nivel LITERAL, INFERENCIAL o CRÍTICO:
 {desempenos_texto}
+
+{instruccion_dificultad}
 
 El examen debe presentar:
 1. Un 'título' motivador para el examen
