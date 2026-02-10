@@ -4,9 +4,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 import os
 
-from app.config import get_settings
+from app.core.config import get_settings
 from app.routes import api_router
-from app.database import init_db
+from app.core.database import init_db
 
 settings = get_settings()
 
@@ -32,7 +32,7 @@ app.add_middleware(
 # Initialize database on startup
 @app.on_event("startup")
 async def startup_event():
-    init_db()
+    await init_db()
 
 # ==========================================
 # API ROUTES - Usando router central

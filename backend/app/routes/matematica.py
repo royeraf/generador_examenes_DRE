@@ -4,11 +4,13 @@ Provee endpoints para consultar competencias, capacidades, estándares y desempe
 """
 
 from fastapi import APIRouter, HTTPException, Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload, joinedload
 from pydantic import BaseModel
 from typing import List, Optional
 
-from app.database import get_db
+from app.core.database import get_db
 from app.models.db_models import (
     Grado,
     CompetenciaMatematica,
@@ -121,12 +123,13 @@ class CurriculoMatematica(BaseModel):
 # =============================================================================
 
 @router.get("/grados", response_model=List[GradoMatResponse])
-def get_grados_matematica(db: Session = Depends(get_db)):
+async def get_grados_matematica(db: AsyncSession = Depends(get_db)):
     """
     Obtiene todos los grados disponibles para Matemática.
     Incluye Inicial de 5 años, Primaria y Secundaria.
     """
-    return db.query(Grado).order_by(Grado.orden).all()
+    result = await db.execute(select(Grado).order_by(Grado.orden))
+    return result.scalars().all()
 
 
 # =============================================================================
@@ -134,21 +137,23 @@ def get_grados_matematica(db: Session = Depends(get_db)):
 # =============================================================================
 
 @router.get("/competencias", response_model=List[CompetenciaMatResponse])
-def get_competencias(db: Session = Depends(get_db)):
+async def get_competencias(db: AsyncSession = Depends(get_db)):
     """
     Obtiene las 4 competencias matemáticas.
     """
-    return db.query(CompetenciaMatematica).order_by(CompetenciaMatematica.codigo).all()
+    result = await db.execute(select(CompetenciaMatematica).order_by(CompetenciaMatematica.codigo))
+    return result.scalars().all()
 
 
 @router.get("/competencias/{competencia_id}", response_model=CompetenciaMatResponse)
-def get_competencia(competencia_id: int, db: Session = Depends(get_db)):
+async def get_competencia(competencia_id: int, db: AsyncSession = Depends(get_db)):
     """
     Obtiene una competencia específica por ID.
     """
-    competencia = db.query(CompetenciaMatematica).filter(
+    result = await db.execute(select(CompetenciaMatematica).where(
         CompetenciaMatematica.id == competencia_id
-    ).first()
+    ))
+    competencia = result.scalars().first()
     
     if not competencia:
         raise HTTPException(status_code=404, detail="Competencia no encontrada")
@@ -161,27 +166,32 @@ def get_competencia(competencia_id: int, db: Session = Depends(get_db)):
 # =============================================================================
 
 @router.get("/capacidades", response_model=List[CapacidadMatConCompetencia])
-def get_capacidades(
+async def get_capacidades(
     competencia_id: Optional[int] = None,
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
     """
     Obtiene las capacidades matemáticas.
     Opcionalmente filtra por competencia.
     """
-    query = db.query(CapacidadMatematica).join(CompetenciaMatematica)
+    query = select(CapacidadMatematica).join(CompetenciaMatematica).options(
+        selectinload(CapacidadMatematica.competencia)
+    )
     
     if competencia_id:
-        query = query.filter(CapacidadMatematica.competencia_id == competencia_id)
+        query = query.where(CapacidadMatematica.competencia_id == competencia_id)
     
-    capacidades = query.order_by(
+    query = query.order_by(
         CompetenciaMatematica.codigo,
         CapacidadMatematica.orden
-    ).all()
+    )
     
-    result = []
+    result = await db.execute(query)
+    capacidades = result.scalars().all()
+    
+    result_list = []
     for cap in capacidades:
-        result.append({
+        result_list.append({
             "id": cap.id,
             "orden": cap.orden,
             "nombre": cap.nombre,
@@ -191,19 +201,21 @@ def get_capacidades(
             "competencia_nombre": cap.competencia.nombre
         })
     
-    return result
+    return result_list
 
 
 @router.get("/competencias/{competencia_id}/capacidades", response_model=List[CapacidadMatResponse])
-def get_capacidades_por_competencia(competencia_id: int, db: Session = Depends(get_db)):
+async def get_capacidades_por_competencia(competencia_id: int, db: AsyncSession = Depends(get_db)):
     """
     Obtiene las 4 capacidades de una competencia específica.
     """
-    capacidades = db.query(CapacidadMatematica).filter(
-        CapacidadMatematica.competencia_id == competencia_id
-    ).order_by(CapacidadMatematica.orden).all()
+    result = await db.execute(
+        select(CapacidadMatematica)
+        .where(CapacidadMatematica.competencia_id == competencia_id)
+        .order_by(CapacidadMatematica.orden)
+    )
     
-    return capacidades
+    return result.scalars().all()
 
 
 # =============================================================================
@@ -211,36 +223,37 @@ def get_capacidades_por_competencia(competencia_id: int, db: Session = Depends(g
 # =============================================================================
 
 @router.get("/estandares", response_model=List[EstandarMatResponse])
-def get_estandares(
+async def get_estandares(
     grado_id: Optional[int] = None,
     competencia_id: Optional[int] = None,
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
     """
     Obtiene los estándares matemáticos.
     Opcionalmente filtra por grado y/o competencia.
     """
-    query = db.query(EstandarMatematica)
+    query = select(EstandarMatematica)
     
     if grado_id:
-        query = query.filter(EstandarMatematica.grado_id == grado_id)
+        query = query.where(EstandarMatematica.grado_id == grado_id)
     if competencia_id:
-        query = query.filter(EstandarMatematica.competencia_id == competencia_id)
+        query = query.where(EstandarMatematica.competencia_id == competencia_id)
     
-    return query.all()
+    result = await db.execute(query)
+    return result.scalars().all()
 
 
 @router.get("/grados/{grado_id}/competencias/{competencia_id}/estandar", response_model=Optional[EstandarMatResponse])
-def get_estandar_especifico(grado_id: int, competencia_id: int, db: Session = Depends(get_db)):
+async def get_estandar_especifico(grado_id: int, competencia_id: int, db: AsyncSession = Depends(get_db)):
     """
     Obtiene el estándar específico para un grado y competencia.
     """
-    estandar = db.query(EstandarMatematica).filter(
+    result = await db.execute(select(EstandarMatematica).where(
         EstandarMatematica.grado_id == grado_id,
         EstandarMatematica.competencia_id == competencia_id
-    ).first()
+    ))
     
-    return estandar
+    return result.scalars().first()
 
 
 # =============================================================================
@@ -248,40 +261,48 @@ def get_estandar_especifico(grado_id: int, competencia_id: int, db: Session = De
 # =============================================================================
 
 @router.get("/desempenos", response_model=List[DesempenoMatCompleto])
-def get_desempenos(
+async def get_desempenos(
     grado_id: Optional[int] = None,
     competencia_id: Optional[int] = None,
     capacidad_id: Optional[int] = None,
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
     """
     Obtiene los desempeños matemáticos con información completa.
     Opcionalmente filtra por grado, competencia y/o capacidad.
     """
-    query = db.query(DesempenoMatematica).join(
+    # Necesitamos cargar relaciones para construir la respuesta completa
+    query = select(DesempenoMatematica).join(
         CapacidadMatematica
     ).join(
-        CompetenciaMatematica
+        CompetenciaMatematica, CapacidadMatematica.competencia
+    ).options(
+        selectinload(DesempenoMatematica.capacidad).selectinload(CapacidadMatematica.competencia)
     )
     
     if grado_id:
-        query = query.filter(DesempenoMatematica.grado_id == grado_id)
+        query = query.where(DesempenoMatematica.grado_id == grado_id)
     if competencia_id:
-        query = query.filter(CapacidadMatematica.competencia_id == competencia_id)
+        # Aquí el filtro es sobre CapacidadMatematica porque Desempeno no tiene FK directa a competencia
+        query = query.where(CapacidadMatematica.competencia_id == competencia_id)
     if capacidad_id:
-        query = query.filter(DesempenoMatematica.capacidad_id == capacidad_id)
+        query = query.where(DesempenoMatematica.capacidad_id == capacidad_id)
     
-    desempenos = query.order_by(
+    query = query.order_by(
         CompetenciaMatematica.codigo,
         CapacidadMatematica.orden,
         DesempenoMatematica.codigo
-    ).all()
+    )
     
-    result = []
+    result = await db.execute(query)
+    desempenos = result.scalars().all()
+    
+    result_list = []
     for des in desempenos:
+        # Con selectinload, estas propiedades están disponibles sin I/O adicional
         cap = des.capacidad
         comp = cap.competencia
-        result.append({
+        result_list.append({
             "id": des.id,
             "codigo": des.codigo,
             "descripcion": des.descripcion,
@@ -294,32 +315,32 @@ def get_desempenos(
             "competencia_nombre": comp.nombre
         })
     
-    return result
+    return result_list
 
 
 @router.get("/grados/{grado_id}/desempenos", response_model=List[DesempenoMatCompleto])
-def get_desempenos_por_grado(
+async def get_desempenos_por_grado(
     grado_id: int,
     competencia_id: Optional[int] = None,
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
     """
     Obtiene los desempeños de un grado específico.
     Opcionalmente filtra por competencia.
     """
-    return get_desempenos(grado_id=grado_id, competencia_id=competencia_id, db=db)
+    return await get_desempenos(grado_id=grado_id, competencia_id=competencia_id, db=db)
 
 
 @router.get("/grados/{grado_id}/competencias/{competencia_id}/desempenos", response_model=List[DesempenoMatCompleto])
-def get_desempenos_por_grado_y_competencia(
+async def get_desempenos_por_grado_y_competencia(
     grado_id: int,
     competencia_id: int,
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
     """
     Obtiene los desempeños de un grado y competencia específicos.
     """
-    return get_desempenos(grado_id=grado_id, competencia_id=competencia_id, db=db)
+    return await get_desempenos(grado_id=grado_id, competencia_id=competencia_id, db=db)
 
 
 # =============================================================================
@@ -341,37 +362,40 @@ class DesempenoMatUpdate(BaseModel):
 
 
 @router.post("/desempenos", response_model=DesempenoMatResponse)
-def create_desempeno(desempeno: DesempenoMatCreate, db: Session = Depends(get_db)):
+async def create_desempeno(desempeno: DesempenoMatCreate, db: AsyncSession = Depends(get_db)):
     """
     Crea un nuevo desempeño matemático.
     """
     # Verificar si ya existe el código en ese grado (opcional, pero recomendado)
-    existing = db.query(DesempenoMatematica).filter(
+    result = await db.execute(select(DesempenoMatematica).where(
         DesempenoMatematica.codigo == desempeno.codigo,
         DesempenoMatematica.grado_id == desempeno.grado_id,
         DesempenoMatematica.capacidad_id == desempeno.capacidad_id
-    ).first()
+    ))
+    existing = result.scalars().first()
     
     if existing:
         raise HTTPException(status_code=400, detail="Ya existe un desempeño con este código para el grado y capacidad seleccionados")
 
     db_desempeno = DesempenoMatematica(**desempeno.dict())
     db.add(db_desempeno)
-    db.commit()
-    db.refresh(db_desempeno)
+    await db.commit()
+    await db.refresh(db_desempeno)
     return db_desempeno
 
 
 @router.put("/desempenos/{desempeno_id}", response_model=DesempenoMatResponse)
-def update_desempeno(
+async def update_desempeno(
     desempeno_id: int, 
     desempeno: DesempenoMatUpdate, 
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
     """
     Actualiza un desempeño existente.
     """
-    db_desempeno = db.query(DesempenoMatematica).filter(DesempenoMatematica.id == desempeno_id).first()
+    result = await db.execute(select(DesempenoMatematica).where(DesempenoMatematica.id == desempeno_id))
+    db_desempeno = result.scalars().first()
+    
     if not db_desempeno:
         raise HTTPException(status_code=404, detail="Desempeño no encontrado")
     
@@ -379,22 +403,24 @@ def update_desempeno(
     for key, value in update_data.items():
         setattr(db_desempeno, key, value)
     
-    db.commit()
-    db.refresh(db_desempeno)
+    await db.commit()
+    await db.refresh(db_desempeno)
     return db_desempeno
 
 
 @router.delete("/desempenos/{desempeno_id}")
-def delete_desempeno(desempeno_id: int, db: Session = Depends(get_db)):
+async def delete_desempeno(desempeno_id: int, db: AsyncSession = Depends(get_db)):
     """
     Elimina un desempeño.
     """
-    db_desempeno = db.query(DesempenoMatematica).filter(DesempenoMatematica.id == desempeno_id).first()
+    result = await db.execute(select(DesempenoMatematica).where(DesempenoMatematica.id == desempeno_id))
+    db_desempeno = result.scalars().first()
+    
     if not db_desempeno:
         raise HTTPException(status_code=404, detail="Desempeño no encontrado")
     
-    db.delete(db_desempeno)
-    db.commit()
+    await db.delete(db_desempeno)
+    await db.commit()
     return {"message": "Desempeño eliminado correctamente"}
 
 
@@ -403,10 +429,10 @@ def delete_desempeno(desempeno_id: int, db: Session = Depends(get_db)):
 # =============================================================================
 
 @router.get("/grados/{grado_id}/competencias/{competencia_id}/curriculo", response_model=CurriculoMatematica)
-def get_curriculo_completo(
+async def get_curriculo_completo(
     grado_id: int,
     competencia_id: int,
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
     """
     Obtiene el currículo completo para un grado y competencia:
@@ -417,30 +443,36 @@ def get_curriculo_completo(
     - Todos los desempeños
     """
     # Obtener grado
-    grado = db.query(Grado).filter(Grado.id == grado_id).first()
+    result_grado = await db.execute(select(Grado).where(Grado.id == grado_id))
+    grado = result_grado.scalars().first()
     if not grado:
         raise HTTPException(status_code=404, detail="Grado no encontrado")
     
     # Obtener competencia
-    competencia = db.query(CompetenciaMatematica).filter(
+    result_comp = await db.execute(select(CompetenciaMatematica).where(
         CompetenciaMatematica.id == competencia_id
-    ).first()
+    ))
+    competencia = result_comp.scalars().first()
     if not competencia:
         raise HTTPException(status_code=404, detail="Competencia no encontrada")
     
     # Obtener estándar
-    estandar = db.query(EstandarMatematica).filter(
+    result_est = await db.execute(select(EstandarMatematica).where(
         EstandarMatematica.grado_id == grado_id,
         EstandarMatematica.competencia_id == competencia_id
-    ).first()
+    ))
+    estandar = result_est.scalars().first()
     
     # Obtener capacidades
-    capacidades = db.query(CapacidadMatematica).filter(
-        CapacidadMatematica.competencia_id == competencia_id
-    ).order_by(CapacidadMatematica.orden).all()
+    result_cap = await db.execute(
+        select(CapacidadMatematica)
+        .where(CapacidadMatematica.competencia_id == competencia_id)
+        .order_by(CapacidadMatematica.orden)
+    )
+    capacidades = result_cap.scalars().all()
     
     # Obtener desempeños
-    desempenos_raw = get_desempenos(grado_id=grado_id, competencia_id=competencia_id, db=db)
+    desempenos_raw = await get_desempenos(grado_id=grado_id, competencia_id=competencia_id, db=db)
     
     return {
         "grado": grado,
@@ -456,7 +488,7 @@ def get_curriculo_completo(
 # =============================================================================
 
 @router.get("/niveles-logro")
-def get_niveles_logro_matematica():
+async def get_niveles_logro_matematica():
     """
     Obtiene los niveles de logro para evaluación de matemáticas.
     Basado en el prompt de Matemática del MINEDU.
@@ -468,35 +500,35 @@ def get_niveles_logro_matematica():
                 "nombre": "Pre-Inicio",
                 "descripcion": "El estudiante no logra demostrar los aprendizajes esperados",
                 "valor": 0,
-                "color": "#ef4444"  # red-500
+                "color": "#ef4444"
             },
             {
                 "id": "inicio",
                 "nombre": "Inicio",
                 "descripcion": "El estudiante está empezando a desarrollar los aprendizajes previstos",
                 "valor": 1,
-                "color": "#f97316"  # orange-500
+                "color": "#f97316"
             },
             {
                 "id": "proceso",
                 "nombre": "En Proceso",
                 "descripcion": "El estudiante está en camino de lograr los aprendizajes previstos",
                 "valor": 2,
-                "color": "#eab308"  # yellow-500
+                "color": "#eab308"
             },
             {
                 "id": "logro_esperado",
                 "nombre": "Logro Esperado",
                 "descripcion": "El estudiante evidencia el logro de los aprendizajes previstos",
                 "valor": 3,
-                "color": "#22c55e"  # green-500
+                "color": "#22c55e"
             },
             {
                 "id": "logro_destacado",
                 "nombre": "Logro Destacado",
                 "descripcion": "El estudiante evidencia un nivel superior a lo esperado",
                 "valor": 4,
-                "color": "#3b82f6"  # blue-500
+                "color": "#3b82f6"
             }
         ]
     }
@@ -520,16 +552,10 @@ class GenerarExamenMatRequest(BaseModel):
 @router.post("/generar")
 async def generar_examen_matematica(
     request: GenerarExamenMatRequest,
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
     """
     Genera un examen de matemática con situación problemática integradora.
-    
-    A diferencia del generador de comprensión lectora, este crea:
-    - Una SITUACIÓN PROBLEMÁTICA (no texto de lectura)
-    - Preguntas que requieren razonamiento matemático
-    - Criterios de evaluación por capacidad
-    - Formato según el modelo MateJony del MINEDU
     """
     from app.services.matematica_service import matematica_service
     
@@ -549,4 +575,3 @@ async def generar_examen_matematica(
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al generar examen: {str(e)}")
-

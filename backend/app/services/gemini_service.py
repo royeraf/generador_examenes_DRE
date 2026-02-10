@@ -2,7 +2,7 @@ import google.generativeai as genai
 import json
 from typing import Optional
 
-from app.config import get_settings
+from app.core.config import get_settings
 from app.models.pregunta import Pregunta, TipoPregunta, OpcionMultiple
 from app.services.ai_base import AIService
 
@@ -29,7 +29,7 @@ class GeminiService(AIService):
             raise ValueError("Google API key no configurada")
             
         try:
-            response = self.model.generate_content(prompt)
+            response = await self.model.generate_content_async(prompt)
             return response.text
         except Exception as e:
             raise ValueError(f"Error al generar contenido con Gemini: {e}")

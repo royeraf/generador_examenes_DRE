@@ -3,7 +3,9 @@ Servicio para gestionar evaluaciones de Matemática (MatSistem).
 Genera situaciones problemáticas y preguntas siguiendo el modelo MINEDU.
 """
 from typing import Optional, List
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 import json
 
 from app.models.db_models import (
@@ -13,7 +15,7 @@ from app.models.db_models import (
     DesempenoMatematica,
     EstandarMatematica
 )
-from app.config import get_settings
+from app.core.config import get_settings
 from app.services.ai_factory import ai_factory
 
 settings = get_settings()
@@ -186,7 +188,7 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
 
     async def generar_examen_matematica(
         self,
-        db: Session,
+        db: AsyncSession,
         grado_id: int,
         competencia_id: int,
         desempeno_ids: List[int],
@@ -210,21 +212,24 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
             raise ValueError("Debe seleccionar al menos un desempeño")
         
         # Obtener grado
-        grado = db.query(Grado).filter(Grado.id == grado_id).first()
+        result_grado = await db.execute(select(Grado).where(Grado.id == grado_id))
+        grado = result_grado.scalars().first()
         if not grado:
             raise ValueError(f"Grado con id {grado_id} no encontrado")
         
         # Obtener competencia
-        competencia = db.query(CompetenciaMatematica).filter(
-            CompetenciaMatematica.id == competencia_id
-        ).first()
+        result_comp = await db.execute(select(CompetenciaMatematica).where(CompetenciaMatematica.id == competencia_id))
+        competencia = result_comp.scalars().first()
         if not competencia:
             raise ValueError(f"Competencia con id {competencia_id} no encontrada")
         
         # Obtener desempeños seleccionados con sus capacidades
-        desempenos = db.query(DesempenoMatematica).filter(
-            DesempenoMatematica.id.in_(desempeno_ids)
-        ).all()
+        result_desempenos = await db.execute(
+            select(DesempenoMatematica)
+            .where(DesempenoMatematica.id.in_(desempeno_ids))
+            .options(selectinload(DesempenoMatematica.capacidad))
+        )
+        desempenos = result_desempenos.scalars().all()
         
         if not desempenos:
             raise ValueError("No se encontraron los desempeños seleccionados")
@@ -260,6 +265,7 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
             data = json.loads(response_text)
             
             # Construir texto de desempeños usados
+            # d.capacidad ya está cargado gracias a selectinload
             desempenos_texto = "\n".join([
                 f"{d.codigo}. {d.descripcion} (Cap: {d.capacidad.nombre})"
                 for d in desempenos

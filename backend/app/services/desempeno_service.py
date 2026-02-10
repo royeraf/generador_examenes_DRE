@@ -2,11 +2,14 @@
 Servicio para gestionar desempeños y generar preguntas de comprensión lectora.
 """
 from typing import Optional
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 import json
+import random
 
 from app.models.db_models import Grado, Capacidad, Desempeno
-from app.config import get_settings
+from app.core.config import get_settings
 from app.services.ai_factory import ai_factory
 
 settings = get_settings()
@@ -18,47 +21,55 @@ class DesempenoService:
     def __init__(self):
         pass
     
-    def get_grados(self, db: Session) -> list:
+    async def get_grados(self, db: AsyncSession) -> list:
         """Obtiene todos los grados ordenados."""
-        return db.query(Grado).order_by(Grado.orden).all()
+        result = await db.execute(select(Grado).order_by(Grado.orden))
+        return result.scalars().all()
     
-    def get_desempenos_por_grado(self, db: Session, grado_id: int) -> list:
+    async def get_desempenos_por_grado(self, db: AsyncSession, grado_id: int) -> list:
         """Obtiene desempeños de un grado específico."""
-        return db.query(Desempeno).filter(
-            Desempeno.grado_id == grado_id
-        ).all()
+        result = await db.execute(
+            select(Desempeno)
+            .where(Desempeno.grado_id == grado_id)
+            .options(selectinload(Desempeno.capacidad))
+        )
+        return result.scalars().all()
     
-    def get_desempenos_por_capacidad(
+    async def get_desempenos_por_capacidad(
         self, 
-        db: Session, 
+        db: AsyncSession, 
         grado_id: int, 
         tipo_capacidad: str
     ) -> list:
         """Obtiene desempeños de un grado y tipo de capacidad específicos."""
-        return db.query(Desempeno).join(Capacidad).filter(
-            Desempeno.grado_id == grado_id,
-            Capacidad.tipo == tipo_capacidad
-        ).all()
+        result = await db.execute(
+            select(Desempeno)
+            .join(Capacidad)
+            .where(
+                Desempeno.grado_id == grado_id,
+                Capacidad.tipo == tipo_capacidad
+            )
+            .options(selectinload(Desempeno.capacidad))
+        )
+        return result.scalars().all()
     
-    def get_grado_adyacente(
+    async def get_grado_adyacente(
         self, 
-        db: Session, 
+        db: AsyncSession, 
         grado_id: int, 
         direccion: str = "inferior"
     ) -> Optional[Grado]:
         """Obtiene el grado inferior o superior al dado."""
-        grado_actual = db.query(Grado).filter(Grado.id == grado_id).first()
+        result = await db.execute(select(Grado).where(Grado.id == grado_id))
+        grado_actual = result.scalars().first()
+        
         if not grado_actual:
             return None
         
-        if direccion == "inferior":
-            return db.query(Grado).filter(
-                Grado.orden == grado_actual.orden - 1
-            ).first()
-        else:
-            return db.query(Grado).filter(
-                Grado.orden == grado_actual.orden + 1
-            ).first()
+        target_orden = grado_actual.orden - 1 if direccion == "inferior" else grado_actual.orden + 1
+        
+        result = await db.execute(select(Grado).where(Grado.orden == target_orden))
+        return result.scalars().first()
     
     def _build_prompt(
         self,
@@ -120,7 +131,7 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
 
     async def generar_preguntas_por_nivel(
         self,
-        db: Session,
+        db: AsyncSession,
         grado_id: int,
         nivel_logro: str,
         cantidad: int = 3,
@@ -135,7 +146,9 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
         if not ai_service.is_configured():
             raise ValueError(f"Configuración de API para {modelo} incompleta")
         
-        grado = db.query(Grado).filter(Grado.id == grado_id).first()
+        result = await db.execute(select(Grado).where(Grado.id == grado_id))
+        grado = result.scalars().first()
+        
         if not grado:
             raise ValueError(f"Grado con id {grado_id} no encontrado")
         
@@ -152,7 +165,7 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
         
         # Obtener grado objetivo
         if direccion:
-            grado_objetivo = self.get_grado_adyacente(db, grado_id, direccion)
+            grado_objetivo = await self.get_grado_adyacente(db, grado_id, direccion)
             if not grado_objetivo:
                 # Si no hay grado adyacente, usar el actual
                 grado_objetivo = grado
@@ -161,20 +174,35 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
         
         # Obtener desempeños
         if tipo_capacidad:
-            desempenos = self.get_desempenos_por_capacidad(db, grado_objetivo.id, tipo_capacidad)
+            desempenos = await self.get_desempenos_por_capacidad(db, grado_objetivo.id, tipo_capacidad)
         else:
-            desempenos = self.get_desempenos_por_grado(db, grado_objetivo.id)
+            desempenos = await self.get_desempenos_por_grado(db, grado_objetivo.id)
         
         if not desempenos:
             raise ValueError(f"No se encontraron desempeños para el nivel {nivel_logro}")
         
         # Usar el primer desempeño o uno aleatorio
-        import random
         desempeno = random.choice(desempenos)
         
         # Obtener nombre de capacidad
-        capacidad_nombre = desempeno.capacidad.nombre if desempeno.capacidad else "Comprensión lectora"
+        # Cargar la relación si no está cargada (lazy loading en async puede fallar, pero si usamos join arriba debería estar)
+        # SQLAlchemy Async requiere cargar relaciones explícitamente o usar lazy='subquery' / 'selectin'.
+        # Para evitar líos con lazy loading, asumiremos que se cargó o haremos una query separada si es necesario.
+        # En este caso, accessing .capacidad direct might fail if not eager loaded.
+        # Mejor opción simple: re-query o eager load en los métodos get.
+        # Vamos a confiar en que la sesión está abierta y ver. SI falla, añadiremos selectinload.
+        # Pero el objeto desempeño viene de un query.
         
+        # CORRECCIÓN: Para evitar "Missing Greenlet" errors, vamos a cargar la capacidad explícitamente si es necesario
+        # O mejor, en las queries de arriba usar joinedload.
+        # Por ahora, usaré una lógica segura:
+        capacidad_nombre = "Comprensión lectora"
+        if desempeno.capacidad_id:
+             result_cap = await db.execute(select(Capacidad).where(Capacidad.id == desempeno.capacidad_id))
+             cap = result_cap.scalars().first()
+             if cap:
+                 capacidad_nombre = cap.nombre
+
         # Construir y enviar prompt
         prompt = self._build_prompt(
             desempeno=desempeno.descripcion,
@@ -207,7 +235,7 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
     
     async def generar_preguntas_por_desempenos(
         self,
-        db: Session,
+        db: AsyncSession,
         grado_id: int,
         desempeno_ids: list[int],
         cantidad: int = 3,
@@ -217,9 +245,6 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
     ) -> dict:
         """
         Genera un examen completo basado en desempeños específicos seleccionados.
-        
-        Args:
-            nivel_dificultad: 'basico' (simple), 'intermedio' (demanda media), 'avanzado' (alta demanda cognitiva)
         """
         ai_service = ai_factory.get_service(modelo)
         
@@ -229,12 +254,21 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
         if not desempeno_ids:
             raise ValueError("Debe seleccionar al menos un desempeño")
         
-        grado = db.query(Grado).filter(Grado.id == grado_id).first()
+        result_grado = await db.execute(select(Grado).where(Grado.id == grado_id))
+        grado = result_grado.scalars().first()
+        
         if not grado:
             raise ValueError(f"Grado con id {grado_id} no encontrado")
         
         # Obtener desempeños seleccionados
-        desempenos = db.query(Desempeno).filter(Desempeno.id.in_(desempeno_ids)).all()
+        # Necesitamos cargar la capacidad también para el prompt
+        from sqlalchemy.orm import selectinload
+        result_desempenos = await db.execute(
+            select(Desempeno)
+            .where(Desempeno.id.in_(desempeno_ids))
+            .options(selectinload(Desempeno.capacidad))
+        )
+        desempenos = result_desempenos.scalars().all()
         
         if not desempenos:
             raise ValueError("No se encontraron los desempeños seleccionados")
@@ -367,4 +401,3 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
 
 # Singleton instance
 desempeno_service = DesempenoService()
-

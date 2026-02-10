@@ -1,9 +1,10 @@
 from fastapi import APIRouter, HTTPException, Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 from pydantic import BaseModel
 from typing import List, Optional
 
-from app.database import get_db
+from app.core.database import get_db
 from app.models.db_models import Grado, Capacidad, Desempeno
 
 router = APIRouter()
@@ -70,110 +71,122 @@ class DesempenoResponse(DesempenoSchema):
 # --- Grado Endpoints ---
 
 @router.post("/grados", response_model=GradoResponse)
-def create_grado(grado: GradoCreate, db: Session = Depends(get_db)):
+async def create_grado(grado: GradoCreate, db: AsyncSession = Depends(get_db)):
     db_grado = Grado(**grado.dict())
     db.add(db_grado)
-    db.commit()
-    db.refresh(db_grado)
-    db.refresh(db_grado)
+    await db.commit()
+    await db.refresh(db_grado)
     return db_grado
 
 @router.get("/grados", response_model=List[GradoResponse])
-def get_grados(db: Session = Depends(get_db)):
-    return db.query(Grado).order_by(Grado.orden).all()
+async def get_grados(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Grado).order_by(Grado.orden))
+    return result.scalars().all()
 
 @router.put("/grados/{grado_id}", response_model=GradoResponse)
-def update_grado(grado_id: int, grado: GradoUpdate, db: Session = Depends(get_db)):
-    db_grado = db.query(Grado).filter(Grado.id == grado_id).first()
+async def update_grado(grado_id: int, grado: GradoUpdate, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Grado).where(Grado.id == grado_id))
+    db_grado = result.scalars().first()
+    
     if not db_grado:
         raise HTTPException(status_code=404, detail="Grado not found")
     
     for key, value in grado.dict().items():
         setattr(db_grado, key, value)
     
-    db.commit()
-    db.refresh(db_grado)
+    await db.commit()
+    await db.refresh(db_grado)
     return db_grado
 
 @router.delete("/grados/{grado_id}")
-def delete_grado(grado_id: int, db: Session = Depends(get_db)):
-    db_grado = db.query(Grado).filter(Grado.id == grado_id).first()
+async def delete_grado(grado_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Grado).where(Grado.id == grado_id))
+    db_grado = result.scalars().first()
+    
     if not db_grado:
         raise HTTPException(status_code=404, detail="Grado not found")
     
-    db.delete(db_grado)
-    db.commit()
+    await db.delete(db_grado)
+    await db.commit()
     return {"message": "Grado deleted successfully"}
 
 
 # --- Capacidad Endpoints ---
 
 @router.post("/capacidades", response_model=CapacidadResponse)
-def create_capacidad(capacidad: CapacidadCreate, db: Session = Depends(get_db)):
+async def create_capacidad(capacidad: CapacidadCreate, db: AsyncSession = Depends(get_db)):
     db_capacidad = Capacidad(**capacidad.dict())
     db.add(db_capacidad)
-    db.commit()
-    db.refresh(db_capacidad)
-    db.refresh(db_capacidad)
+    await db.commit()
+    await db.refresh(db_capacidad)
     return db_capacidad
 
 @router.get("/capacidades", response_model=List[CapacidadResponse])
-def get_capacidades(db: Session = Depends(get_db)):
-    return db.query(Capacidad).all()
+async def get_capacidades(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Capacidad))
+    return result.scalars().all()
 
 @router.put("/capacidades/{capacidad_id}", response_model=CapacidadResponse)
-def update_capacidad(capacidad_id: int, capacidad: CapacidadUpdate, db: Session = Depends(get_db)):
-    db_capacidad = db.query(Capacidad).filter(Capacidad.id == capacidad_id).first()
+async def update_capacidad(capacidad_id: int, capacidad: CapacidadUpdate, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Capacidad).where(Capacidad.id == capacidad_id))
+    db_capacidad = result.scalars().first()
+    
     if not db_capacidad:
         raise HTTPException(status_code=404, detail="Capacidad not found")
     
     for key, value in capacidad.dict().items():
         setattr(db_capacidad, key, value)
     
-    db.commit()
-    db.refresh(db_capacidad)
+    await db.commit()
+    await db.refresh(db_capacidad)
     return db_capacidad
 
 @router.delete("/capacidades/{capacidad_id}")
-def delete_capacidad(capacidad_id: int, db: Session = Depends(get_db)):
-    db_capacidad = db.query(Capacidad).filter(Capacidad.id == capacidad_id).first()
+async def delete_capacidad(capacidad_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Capacidad).where(Capacidad.id == capacidad_id))
+    db_capacidad = result.scalars().first()
+    
     if not db_capacidad:
         raise HTTPException(status_code=404, detail="Capacidad not found")
     
-    db.delete(db_capacidad)
-    db.commit()
+    await db.delete(db_capacidad)
+    await db.commit()
     return {"message": "Capacidad deleted successfully"}
 
 
 # --- Desempeno Endpoints ---
 
 @router.post("/desempenos", response_model=DesempenoResponse)
-def create_desempeno(desempeno: DesempenoCreate, db: Session = Depends(get_db)):
+async def create_desempeno(desempeno: DesempenoCreate, db: AsyncSession = Depends(get_db)):
     db_desempeno = Desempeno(**desempeno.dict())
     db.add(db_desempeno)
-    db.commit()
-    db.refresh(db_desempeno)
+    await db.commit()
+    await db.refresh(db_desempeno)
     return db_desempeno
 
 @router.put("/desempenos/{desempeno_id}", response_model=DesempenoResponse)
-def update_desempeno(desempeno_id: int, desempeno: DesempenoUpdate, db: Session = Depends(get_db)):
-    db_desempeno = db.query(Desempeno).filter(Desempeno.id == desempeno_id).first()
+async def update_desempeno(desempeno_id: int, desempeno: DesempenoUpdate, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Desempeno).where(Desempeno.id == desempeno_id))
+    db_desempeno = result.scalars().first()
+    
     if not db_desempeno:
         raise HTTPException(status_code=404, detail="Desempeno not found")
     
     for key, value in desempeno.dict().items():
         setattr(db_desempeno, key, value)
     
-    db.commit()
-    db.refresh(db_desempeno)
+    await db.commit()
+    await db.refresh(db_desempeno)
     return db_desempeno
 
 @router.delete("/desempenos/{desempeno_id}")
-def delete_desempeno(desempeno_id: int, db: Session = Depends(get_db)):
-    db_desempeno = db.query(Desempeno).filter(Desempeno.id == desempeno_id).first()
+async def delete_desempeno(desempeno_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Desempeno).where(Desempeno.id == desempeno_id))
+    db_desempeno = result.scalars().first()
+    
     if not db_desempeno:
         raise HTTPException(status_code=404, detail="Desempeno not found")
     
-    db.delete(db_desempeno)
-    db.commit()
+    await db.delete(db_desempeno)
+    await db.commit()
     return {"message": "Desempeno deleted successfully"}

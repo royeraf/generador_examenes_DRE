@@ -1,8 +1,8 @@
-from openai import OpenAI
+from openai import AsyncOpenAI
 import json
 from typing import Optional
 
-from app.config import get_settings
+from app.core.config import get_settings
 from app.models.pregunta import Pregunta, TipoPregunta, OpcionMultiple
 from app.services.ai_base import AIService
 
@@ -14,7 +14,7 @@ class ChatGPTService(AIService):
     
     def __init__(self):
         if settings.openai_api_key:
-            self.client = OpenAI(api_key=settings.openai_api_key)
+            self.client = AsyncOpenAI(api_key=settings.openai_api_key)
         else:
             self.client = None
             
@@ -27,7 +27,7 @@ class ChatGPTService(AIService):
             raise ValueError("OpenAI API key no configurada")
             
         try:
-            response = self.client.chat.completions.create(
+            response = await self.client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
                     {

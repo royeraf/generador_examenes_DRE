@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
 from fastapi.responses import StreamingResponse
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 from pydantic import BaseModel, Field
 
-from app.database import get_db
+from app.core.database import get_db
 from app.models.db_models import Grado, Capacidad, Desempeno
 from app.services.desempeno_service import desempeno_service
 from app.services import file_service
@@ -61,9 +61,9 @@ class GenerarPreguntasRequest(BaseModel):
 
 # Endpoints
 @router.get("/grados", response_model=list[GradoResponse])
-async def listar_grados(db: Session = Depends(get_db)):
+async def listar_grados(db: AsyncSession = Depends(get_db)):
     """Lista todos los grados escolares disponibles."""
-    grados = desempeno_service.get_grados(db)
+    grados = await desempeno_service.get_grados(db)
     return grados
 
 
@@ -71,7 +71,7 @@ async def listar_grados(db: Session = Depends(get_db)):
 async def listar_desempenos_por_grado(
     grado_id: int,
     tipo_capacidad: Optional[str] = None,
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
     """
     Lista los desempeños de un grado específico.
@@ -80,9 +80,9 @@ async def listar_desempenos_por_grado(
     - **tipo_capacidad**: Filtrar por tipo (literal, inferencial, critico)
     """
     if tipo_capacidad:
-        desempenos = desempeno_service.get_desempenos_por_capacidad(db, grado_id, tipo_capacidad)
+        desempenos = await desempeno_service.get_desempenos_por_capacidad(db, grado_id, tipo_capacidad)
     else:
-        desempenos = desempeno_service.get_desempenos_por_grado(db, grado_id)
+        desempenos = await desempeno_service.get_desempenos_por_grado(db, grado_id)
     
     return [
         {
@@ -138,7 +138,7 @@ async def listar_niveles_logro():
 @router.post("/generar")
 async def generar_preguntas_lectura(
     request: GenerarPreguntasRequest,
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
     """
     Genera preguntas de comprensión lectora basadas en desempeños seleccionados.
@@ -161,9 +161,12 @@ async def generar_preguntas_lectura(
 
 
 @router.get("/capacidades")
-async def listar_capacidades(db: Session = Depends(get_db)):
+async def listar_capacidades(db: AsyncSession = Depends(get_db)):
     """Lista todas las capacidades disponibles."""
-    capacidades = db.query(Capacidad).all()
+    from sqlalchemy import select
+    result = await db.execute(select(Capacidad))
+    capacidades = result.scalars().all()
+    
     return [
         {
             "id": c.id,
