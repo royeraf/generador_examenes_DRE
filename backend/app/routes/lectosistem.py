@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 
 from app.core.database import get_db
 from app.models.db_models import Grado, Capacidad, Desempeno
-from app.services.desempeno_service import desempeno_service
+from app.services.lectosistem_service import lectosistem_service
 from app.services import file_service
 from app.services.word_generator import generar_examen_word
 
@@ -63,7 +63,7 @@ class GenerarPreguntasRequest(BaseModel):
 @router.get("/grados", response_model=list[GradoResponse])
 async def listar_grados(db: AsyncSession = Depends(get_db)):
     """Lista todos los grados escolares disponibles."""
-    grados = await desempeno_service.get_grados(db)
+    grados = await lectosistem_service.get_grados(db)
     return grados
 
 
@@ -80,9 +80,9 @@ async def listar_desempenos_por_grado(
     - **tipo_capacidad**: Filtrar por tipo (literal, inferencial, critico)
     """
     if tipo_capacidad:
-        desempenos = await desempeno_service.get_desempenos_por_capacidad(db, grado_id, tipo_capacidad)
+        desempenos = await lectosistem_service.get_desempenos_por_capacidad(db, grado_id, tipo_capacidad)
     else:
-        desempenos = await desempeno_service.get_desempenos_por_grado(db, grado_id)
+        desempenos = await lectosistem_service.get_desempenos_por_grado(db, grado_id)
     
     return [
         {
@@ -144,7 +144,7 @@ async def generar_preguntas_lectura(
     Genera preguntas de comprensión lectora basadas en desempeños seleccionados.
     """
     try:
-        result = await desempeno_service.generar_preguntas_por_desempenos(
+        result = await lectosistem_service.generar_preguntas_por_desempenos(
             db=db,
             grado_id=request.grado_id,
             desempeno_ids=request.desempeno_ids or [],

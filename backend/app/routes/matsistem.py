@@ -557,10 +557,10 @@ async def generar_examen_matematica(
     """
     Genera un examen de matemática con situación problemática integradora.
     """
-    from app.services.matematica_service import matematica_service
+    from app.services.matsistem_service import matsistem_service
     
     try:
-        resultado = await matematica_service.generar_examen_matematica(
+        resultado = await matsistem_service.generar_examen_matematica(
             db=db,
             grado_id=request.grado_id,
             competencia_id=request.competencia_id,

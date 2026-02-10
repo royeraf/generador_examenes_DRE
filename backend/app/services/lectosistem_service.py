@@ -15,7 +15,7 @@ from app.services.ai_factory import ai_factory
 settings = get_settings()
 
 
-class DesempenoService:
+class LectoSistemService:
     """Servicio para consultar desempeños y generar preguntas."""
     
     def __init__(self):
@@ -93,38 +93,65 @@ TEXTO BASE PARA LAS PREGUNTAS:
 Las preguntas deben basarse en este texto.
 """
         
-        prompt = f"""Eres un experto en evaluación educativa y comprensión lectora del Perú.
-Genera exactamente {cantidad} preguntas de comprensión lectora para estudiantes de {grado_nombre}.
+        prompt = f"""Eres un experto pedagogo peruano, especialista en Comprensión Lectora y Evaluación Formativa según el Currículo Nacional de Educación Básica (CNEB).
+Tu misión es crear un instrumento de evaluación de alta calidad para estudiantes de **{grado_nombre}**.
 
-DESEMPEÑO A EVALUAR:
-{desempeno}
+**CONTEXTO EDUCATIVO:**
+- Grado: {grado_nombre}
+- Área: Comunicación / Comprensión Lectora
+- Enfoque: Comunicativo y Textual
+- Contexto: Regional Peruano (usa nombres, lugares y situaciones culturalmente relevantes)
 
-CAPACIDAD: {capacidad}
-NIVEL DE LOGRO: {nivel_logro}
-{texto_instruccion}
-INSTRUCCIONES:
-1. Las preguntas deben evaluar específicamente el desempeño indicado
-2. El nivel de dificultad debe corresponder al nivel de logro ({nivel_logro})
-3. Genera preguntas de opción múltiple (4 alternativas A, B, C, D)
-4. Incluye la respuesta correcta y una breve explicación
+**ESPECIFICACIONES DEL CONTENIDO:**
+1. **TEXTO BASE:**
+   {f'Usa el siguiente texto proporcionado:' if texto_base else 'GENERA UN TEXTO NUEVO.'}
+   {texto_instruccion if texto_base else 'El texto debe ser original, creativo, motivador y adecuado para la edad de estudiantes, con una extensión de 250-400 palabras. Temas sugeridos: Tradiciones peruanas, cuidado del medio ambiente, tecnología en la escuela, convivencia escolar.'}
 
-IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
+2. **COMPETENCIA Y DESEMPEÑO A EVALUAR:**
+   - Capacidad: {capacidad}
+   - Desempeño Seleccionado: "{desempeno}"
+   - Nivel de Logro Esperado: {nivel_logro}
+
+3. **DISEÑO DE PREGUNTAS ({cantidad} preguntas):**
+   - Todas las preguntas deben evaluar DIRECTAMENTE el desempeño indicado anteriormente.
+   - Nivel de Dificultad: **{nivel_logro.upper()}**.
+   - Tipo: Opción Múltiple con 4 alternativas (A, B, C, D).
+   - Las alternativas deben ser plausibles. La respuesta correcta debe ser INEQUÍVOCA.
+   
+**FORMATO DE SALIDA (JSON ESTRICTO):**
+Responde ÚNICAMENTE con un JSON válido que siga esta estructura exacta:
+
 {{
-    "preguntas": [
-        {{
-            "enunciado": "texto de la pregunta",
-            "tipo": "multiple",
-            "opciones": [
-                {{"texto": "opción a", "es_correcta": false}},
-                {{"texto": "opción b", "es_correcta": true}},
-                {{"texto": "opción c", "es_correcta": false}},
-                {{"texto": "opción d", "es_correcta": false}}
-            ],
-            "respuesta_correcta": "texto de la respuesta",
-            "explicacion": "explicación breve",
-            "desempeno_evaluado": "{desempeno[:100]}..."
-        }}
-    ]
+    "saludo": "¡Hola colega maestro! Aquí tienes una propuesta de evaluación contextualizada...",
+    "examen": {{
+        "titulo": "Título creativo y motivador para la lectura",
+        "grado": "{grado_nombre}",
+        "instrucciones": "Lee atentamente el siguiente texto y marca la alternativa correcta.",
+        "lectura": "Texto completo de la lectura...",
+        "preguntas": [
+            {{
+                "numero": 1,
+                "enunciado": "¿Pregunta clara y precisa?",
+                "opciones": [
+                    {{"letra": "A", "texto": "Alternativa 1", "es_correcta": false}},
+                    {{"letra": "B", "texto": "Alternativa 2", "es_correcta": true}},
+                    {{"letra": "C", "texto": "Alternativa 3", "es_correcta": false}},
+                    {{"letra": "D", "texto": "Alternativa 4", "es_correcta": false}}
+                ],
+                "nivel": "Literal/Inferencial/Crítico",
+                "desempeno_codigo": "Código o ID del desempeño (si aplica)"
+            }}
+        ],
+        "tabla_respuestas": [
+            {{
+                "pregunta": 1,
+                "desempeno": "Descripción del desempeño evaluado",
+                "nivel": "Nivel cognitivo",
+                "respuesta_correcta": "B",
+                "justificacion": "Explicación breve de por qué es la respuesta correcta"
+            }}
+        ]
+    }}
 }}
 """
         return prompt
@@ -400,4 +427,4 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
 
 
 # Singleton instance
-desempeno_service = DesempenoService()
+lectosistem_service = LectoSistemService()

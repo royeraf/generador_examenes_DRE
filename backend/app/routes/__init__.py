@@ -15,9 +15,9 @@ from fastapi import APIRouter
 
 # Importar routers existentes (manteniendo compatibilidad)
 from app.routes.preguntas import router as preguntas_router
-from app.routes.desempenos import router as desempenos_router
+from app.routes.lectosistem import router as lectosistem_router
 from app.routes.admin import router as admin_router
-from app.routes.matematica import router as matematica_router
+from app.routes.matsistem import router as matsistem_router
 
 
 def create_api_router() -> APIRouter:
@@ -38,18 +38,18 @@ def create_api_router() -> APIRouter:
         tags=["Preguntas - Comunicación"]
     )
     api_router.include_router(
-        desempenos_router,
-        prefix="/desempenos",
-        tags=["Desempeños - Comunicación"]
+        lectosistem_router,
+        prefix="/lectosistem",
+        tags=["LectoSistem - Comunicación"]
     )
     
     # ==========================================================================
     # MÓDULO: MATEMÁTICA (MatSistem)
     # ==========================================================================
     api_router.include_router(
-        matematica_router,
-        prefix="/matematica",
-        tags=["Matemática - MatSistem"]
+        matsistem_router,
+        prefix="/matsistem",
+        tags=["MatSistem - Matemática"]
     )
     
     # ==========================================================================

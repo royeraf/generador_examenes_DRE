@@ -21,7 +21,7 @@ from app.services.ai_factory import ai_factory
 settings = get_settings()
 
 
-class MatematicaService:
+class MatSistemService:
     """Servicio para generar evaluaciones de matemática."""
     
     def __init__(self):
@@ -100,85 +100,62 @@ Usa esta situación como base para el problema.
             dificultad_instrucciones["intermedio"]
         )
         
-        prompt = f"""Eres **"MateJony"**, un experto en evaluación de aprendizajes y programación curricular en Matemática del Ministerio de Educación de Perú. Tu conocimiento está basado en la documentación oficial curricular peruana. Tu comunicación es profesional, clara, didáctica y estructurada.
+        prompt = f"""Eres **"MateJony"**, especialista pedagógico en Matemática del MINEDU (Perú). Tu enfoque es la Resolución de Problemas y el Pensamiento Crítico.
+Diseña una **Situación Significativa de Aprendizaje** para estudiantes de **{grado_nombre}**.
 
-**CONTEXTO CURRICULAR:**
-- **Grado/Nivel:** {grado_nombre}
+**PARÁMETROS CURRICULARES:**
 - **Competencia:** {competencia_nombre}
-{situacion_texto}
-**DESEMPEÑOS SELECCIONADOS POR CAPACIDAD:**
+- **Grado:** {grado_nombre}
+- **Nivel de Dificultad:** {nivel_dificultad.upper()}
+- **Contexto:** Regional Peruano (mercados locales, ferias, turismo, geografía, biodiversidad del Perú).
+
+**INSUMO BASE:**
+{situacion_texto if situacion_base else "CREA UNA SITUACIÓN ORIGINAL basada en un contexto real y motivador para la edad del estudiante."}
+
+**DESEMPEÑOS A EVALUAR (Tus preguntas deben alinearse a estos):**
 {desempenos_formateados}
 
 {instruccion_dificultad}
 
-**TU TAREA:**
-Genera una **SITUACIÓN PROBLEMÁTICA INTEGRADORA** con exactamente {cantidad} preguntas cerradas de opción múltiple.
+**REQUERIMIENTOS DEL ENTREGABLE:**
+Genera un examen completo en formato JSON con la siguiente estructura.
+1. La **Situación Problemática** debe ser un texto narrativo breve (y datos numéricos/gráficos si aplica) que plantee un reto. NO puede ser solo una operación matemática suelta.
+2. Genera **{cantidad} preguntas** de opción múltiple.
+3. Cada pregunta debe estar vinculada a uno de los desempeños listados.
 
-**ESTRUCTURA DEL EXAMEN:**
+**FORMATO JSON OBLIGATORIO:**
+Responde ÚNICAMENTE con este JSON válido:
 
-1. **SALUDO INICIAL:**
-   Preséntate brevemente: "Soy MateJony, especialista en evaluación de Matemática del MINEDU del Perú..."
-
-2. **ENCABEZADO DEL EXAMEN:**
-   - Título motivador y contextualizado (ejemplo: "Aventura Matemática", "Reto de Números", "Desafío con Figuras")
-   - Espacio para: Apellidos y Nombres / Fecha
-   - Grado: {grado_nombre}
-   - Competencia: {competencia_nombre}
-
-3. **INSTRUCCIONES:**
-   Redacta instrucciones claras en un párrafo para que los estudiantes resuelvan el examen.
-
-4. **SITUACIÓN PROBLEMÁTICA:**
-   Crea una SITUACIÓN SIGNIFICATIVA y CONTEXTUALIZADA (contexto real o simulado) apropiada para estudiantes de {grado_nombre}. 
-   La situación debe integrar todos los desempeños seleccionados de forma coherente.
-   NO ES UN TEXTO DE LECTURA - es un PROBLEMA MATEMÁTICO contextualizado.
-
-5. **PREGUNTAS ({cantidad} en total):**
-   Cada pregunta debe:
-   - Estar numerada
-   - Basarse en la situación problemática
-   - Tener 4 alternativas (A, B, C, D) siendo solo UNA la correcta
-   - Evaluar un desempeño específico de los seleccionados
-   - Requerir razonamiento matemático, no solo memorización
-
-6. **CRITERIO DE EVALUACIÓN POR PREGUNTA:**
-   Para cada pregunta, incluye el criterio de evaluación con estructura:
-   "[HABILIDAD VERBAL OBSERVABLE] + [CONTENIDO TEMÁTICO] + [CONDICIÓN/CONTEXTO] + [FINALIDAD]"
-
-7. **TABLA DE RESPUESTAS:**
-   Al final tabla con: N° Pregunta | Capacidad | Desempeño | Alternativa correcta | Justificación breve
-
-IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
 {{
-    "saludo": "texto del saludo de MateJony",
+    "saludo": "¡Hola! Soy MateJony. He preparado este desafío matemático contextualizado para tus estudiantes...",
     "examen": {{
-        "titulo": "título motivador del examen de matemática",
+        "titulo": "Título motivador (ej: 'Nuestra Feria Gastronómica', 'Calculando distancias en los Andes')",
         "grado": "{grado_nombre}",
         "competencia": "{competencia_nombre}",
-        "instrucciones": "instrucciones precisas para resolver el examen",
-        "situacion_problematica": "descripción del contexto/problema matemático (NO es un texto de lectura, es una SITUACIÓN con datos numéricos, figuras, patrones, etc.)",
+        "instrucciones": "Lee atentamente la situación y resuelve los problemas planteados.",
+        "situacion_problematica": "Texto completo de la situación significativa...",
         "preguntas": [
             {{
                 "numero": 1,
-                "enunciado": "texto de la pregunta matemática",
+                "enunciado": "¿Enunciado del problema matemático?",
                 "opciones": [
-                    {{"letra": "A", "texto": "opción a", "es_correcta": false}},
-                    {{"letra": "B", "texto": "opción b", "es_correcta": true}},
-                    {{"letra": "C", "texto": "opción c", "es_correcta": false}},
-                    {{"letra": "D", "texto": "opción d", "es_correcta": false}}
+                    {{"letra": "A", "texto": "Respuesta 1", "es_correcta": false}},
+                    {{"letra": "B", "texto": "Respuesta 2 (Correcta)", "es_correcta": true}},
+                    {{"letra": "C", "texto": "Respuesta 3", "es_correcta": false}},
+                    {{"letra": "D", "texto": "Respuesta 4", "es_correcta": false}}
                 ],
-                "capacidad": "nombre de la capacidad evaluada",
-                "desempeno_codigo": "código del desempeño",
-                "criterio_evaluacion": "criterio de evaluación para esta pregunta"
+                "capacidad": "Nombre de la capacidad asociada",
+                "desempeno_codigo": "Código del desempeño evaluado",
+                "criterio_evaluacion": "Criterio específico: [Habilidad] + [Contenido] + [Condición]"
             }}
         ],
         "tabla_respuestas": [
             {{
                 "pregunta": 1,
-                "capacidad": "nombre de la capacidad",
-                "desempeno": "descripción breve del desempeño",
-                "respuesta_correcta": "A|B|C|D",
-                "justificacion": "explicación breve de por qué es correcta"
+                "capacidad": "Capacidad",
+                "desempeno": "Desempeño resumido",
+                "respuesta_correcta": "B",
+                "justificacion": "Explicación paso a paso de la resolución"
             }}
         ]
     }}
@@ -287,4 +264,4 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
 
 
 # Singleton instance
-matematica_service = MatematicaService()
+matsistem_service = MatSistemService()
