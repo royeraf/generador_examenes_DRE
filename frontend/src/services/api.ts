@@ -22,7 +22,7 @@ export const desempenosService = {
    * Obtiene todos los grados disponibles
    */
   async getGrados(): Promise<Grado[]> {
-    const response = await apiClient.get<Grado[]>('/desempenos/grados');
+    const response = await apiClient.get<Grado[]>('/lectosistem/grados');
     return response.data;
   },
 
@@ -35,7 +35,7 @@ export const desempenosService = {
   ): Promise<DesempenoItem[]> {
     const params = tipoCapacidad ? { tipo_capacidad: tipoCapacidad } : {};
     const response = await apiClient.get<DesempenoItem[]>(
-      `/desempenos/grados/${gradoId}/desempenos`,
+      `/lectosistem/grados/${gradoId}/desempenos`,
       { params }
     );
     return response.data;
@@ -45,7 +45,7 @@ export const desempenosService = {
    * Obtiene los niveles de logro disponibles
    */
   async getNivelesLogro(): Promise<{ niveles: NivelLogro[] }> {
-    const response = await apiClient.get<{ niveles: NivelLogro[] }>('/desempenos/niveles-logro');
+    const response = await apiClient.get<{ niveles: NivelLogro[] }>('/lectosistem/niveles-logro');
     return response.data;
   },
 
@@ -53,7 +53,7 @@ export const desempenosService = {
    * Obtiene las capacidades disponibles
    */
   async getCapacidades(): Promise<Capacidad[]> {
-    const response = await apiClient.get<Capacidad[]>('/desempenos/capacidades');
+    const response = await apiClient.get<Capacidad[]>('/lectosistem/capacidades');
     return response.data;
   },
 
@@ -73,7 +73,7 @@ export const desempenosService = {
     });
     
     const response = await apiClient.post(
-      '/desempenos/upload-texto',
+      '/lectosistem/upload-texto',
       formData,
       {
         headers: {
@@ -89,7 +89,7 @@ export const desempenosService = {
    */
   async generarPreguntas(request: GenerarPreguntasRequest): Promise<GenerarExamenResponse> {
     const response = await apiClient.post<GenerarExamenResponse>(
-      '/desempenos/generar',
+      '/lectosistem/generar',
       request
     );
     return response.data;
@@ -100,7 +100,7 @@ export const desempenosService = {
    */
   async descargarWord(examen: object, grado: string): Promise<void> {
     const response = await apiClient.post(
-      '/desempenos/descargar-word',
+      '/lectosistem/descargar-word',
       { examen, grado },
       { responseType: 'blob' }
     );
@@ -151,7 +151,7 @@ export const adminService = {
 
   // --- Capacidades ---
   async getCapacidades(): Promise<Capacidad[]> {
-    const response = await apiClient.get<Capacidad[]>('/desempenos/capacidades'); // Reusing existing or could use /admin if implemented there
+    const response = await apiClient.get<Capacidad[]>('/lectosistem/capacidades'); // Reusing existing or could use /admin if implemented there
     return response.data;
   },
   async createCapacidad(capacidad: any): Promise<Capacidad> {
@@ -204,7 +204,7 @@ export const matematicaService = {
    * Obtiene todos los grados disponibles para Matemática
    */
   async getGrados(): Promise<GradoMatematica[]> {
-    const response = await apiClient.get<GradoMatematica[]>('/matematica/grados');
+    const response = await apiClient.get<GradoMatematica[]>('/matsistem/grados');
     return response.data;
   },
 
@@ -212,7 +212,7 @@ export const matematicaService = {
    * Obtiene las 4 competencias matemáticas
    */
   async getCompetencias(): Promise<CompetenciaMatematica[]> {
-    const response = await apiClient.get<CompetenciaMatematica[]>('/matematica/competencias');
+    const response = await apiClient.get<CompetenciaMatematica[]>('/matsistem/competencias');
     return response.data;
   },
 
@@ -220,7 +220,7 @@ export const matematicaService = {
    * Obtiene una competencia específica
    */
   async getCompetencia(competenciaId: number): Promise<CompetenciaMatematica> {
-    const response = await apiClient.get<CompetenciaMatematica>(`/matematica/competencias/${competenciaId}`);
+    const response = await apiClient.get<CompetenciaMatematica>(`/matsistem/competencias/${competenciaId}`);
     return response.data;
   },
 
@@ -229,7 +229,7 @@ export const matematicaService = {
    */
   async getCapacidades(competenciaId?: number): Promise<CapacidadMatConCompetencia[]> {
     const params = competenciaId ? { competencia_id: competenciaId } : {};
-    const response = await apiClient.get<CapacidadMatConCompetencia[]>('/matematica/capacidades', { params });
+    const response = await apiClient.get<CapacidadMatConCompetencia[]>('/matsistem/capacidades', { params });
     return response.data;
   },
 
@@ -238,7 +238,7 @@ export const matematicaService = {
    */
   async getCapacidadesPorCompetencia(competenciaId: number): Promise<CapacidadMatConCompetencia[]> {
     const response = await apiClient.get<CapacidadMatConCompetencia[]>(
-      `/matematica/competencias/${competenciaId}/capacidades`
+      `/matsistem/competencias/${competenciaId}/capacidades`
     );
     return response.data;
   },
@@ -256,7 +256,7 @@ export const matematicaService = {
     if (competenciaId) params.competencia_id = competenciaId;
     if (capacidadId) params.capacidad_id = capacidadId;
     
-    const response = await apiClient.get<DesempenoMatCompleto[]>('/matematica/desempenos', { params });
+    const response = await apiClient.get<DesempenoMatCompleto[]>('/matsistem/desempenos', { params });
     return response.data;
   },
 
@@ -269,7 +269,7 @@ export const matematicaService = {
   ): Promise<DesempenoMatCompleto[]> {
     const params = competenciaId ? { competencia_id: competenciaId } : {};
     const response = await apiClient.get<DesempenoMatCompleto[]>(
-      `/matematica/grados/${gradoId}/desempenos`,
+      `/matsistem/grados/${gradoId}/desempenos`,
       { params }
     );
     return response.data;
@@ -283,7 +283,7 @@ export const matematicaService = {
     competenciaId: number
   ): Promise<DesempenoMatCompleto[]> {
     const response = await apiClient.get<DesempenoMatCompleto[]>(
-      `/matematica/grados/${gradoId}/competencias/${competenciaId}/desempenos`
+      `/matsistem/grados/${gradoId}/competencias/${competenciaId}/desempenos`
     );
     return response.data;
   },
@@ -293,7 +293,7 @@ export const matematicaService = {
    */
   async getEstandar(gradoId: number, competenciaId: number): Promise<EstandarMatematica | null> {
     const response = await apiClient.get<EstandarMatematica | null>(
-      `/matematica/grados/${gradoId}/competencias/${competenciaId}/estandar`
+      `/matsistem/grados/${gradoId}/competencias/${competenciaId}/estandar`
     );
     return response.data;
   },
@@ -303,7 +303,7 @@ export const matematicaService = {
    */
   async getCurriculo(gradoId: number, competenciaId: number): Promise<CurriculoMatematica> {
     const response = await apiClient.get<CurriculoMatematica>(
-      `/matematica/grados/${gradoId}/competencias/${competenciaId}/curriculo`
+      `/matsistem/grados/${gradoId}/competencias/${competenciaId}/curriculo`
     );
     return response.data;
   },
@@ -312,7 +312,7 @@ export const matematicaService = {
    * Crea un nuevo desempeño matemático
    */
   async createDesempeno(data: { codigo: string; descripcion: string; grado_id: number; capacidad_id: number }) {
-    const response = await apiClient.post('/matematica/desempenos', data);
+    const response = await apiClient.post('/matsistem/desempenos', data);
     return response.data;
   },
 
@@ -320,7 +320,7 @@ export const matematicaService = {
    * Actualiza un desempeño matemático
    */
   async updateDesempeno(id: number, data: Partial<{ codigo: string; descripcion: string; grado_id: number; capacidad_id: number }>) {
-    const response = await apiClient.put(`/matematica/desempenos/${id}`, data);
+    const response = await apiClient.put(`/matsistem/desempenos/${id}`, data);
     return response.data;
   },
 
@@ -328,7 +328,7 @@ export const matematicaService = {
    * Elimina un desempeño matemático
    */
   async deleteDesempeno(id: number) {
-    const response = await apiClient.delete(`/matematica/desempenos/${id}`);
+    const response = await apiClient.delete(`/matsistem/desempenos/${id}`);
     return response.data;
   },
 
@@ -336,7 +336,7 @@ export const matematicaService = {
    * Obtiene los niveles de logro para evaluación
    */
   async getNivelesLogro(): Promise<{ niveles: NivelLogroMatematica[] }> {
-    const response = await apiClient.get<{ niveles: NivelLogroMatematica[] }>('/matematica/niveles-logro');
+    const response = await apiClient.get<{ niveles: NivelLogroMatematica[] }>('/matsistem/niveles-logro');
     return response.data;
   },
 
@@ -380,7 +380,7 @@ export const matematicaService = {
     };
     total_preguntas: number;
   }> {
-    const response = await apiClient.post('/matematica/generar', request);
+    const response = await apiClient.post('/matsistem/generar', request);
     return response.data;
   },
 };
