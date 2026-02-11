@@ -10,8 +10,15 @@ import re
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import pandas as pd
-from app.database import engine, SessionLocal, Base
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from app.core.database import Base
 from app.models.db_models import Grado, Capacidad, Desempeno
+
+# Motor síncrono para el script de carga
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./desempenos.db")
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+SessionLocal = sessionmaker(bind=engine)
 
 
 # Ruta al archivo Excel

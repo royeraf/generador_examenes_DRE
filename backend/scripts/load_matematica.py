@@ -20,14 +20,21 @@ import xml.etree.ElementTree as ET
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.database import engine, SessionLocal, Base
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from app.core.database import Base
 from app.models.db_models import (
-    Grado, 
-    CompetenciaMatematica, 
-    CapacidadMatematica, 
-    EstandarMatematica, 
+    Grado,
+    CompetenciaMatematica,
+    CapacidadMatematica,
+    EstandarMatematica,
     DesempenoMatematica
 )
+
+# Motor síncrono para el script de carga
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./desempenos.db")
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+SessionLocal = sessionmaker(bind=engine)
 
 
 # Ruta a la carpeta con los archivos Word
