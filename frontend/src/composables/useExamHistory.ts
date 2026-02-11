@@ -82,11 +82,14 @@ export function mapExamToNiveles(
 
         const matched = availableDesempenos.find(d => d.codigo === fila.desempeno);
 
-        result[targetLevel].push({
-            descripcion: matched?.descripcion || fila.desempeno,
-            desempenoId: matched?.id ?? null,
-            clave: fila.respuesta_correcta,
-        });
+        const container = result[targetLevel];
+        if (container) {
+            container.push({
+                descripcion: matched?.descripcion || fila.desempeno,
+                desempenoId: matched?.id ?? null,
+                clave: fila.respuesta_correcta,
+            });
+        }
     }
 
     return result;

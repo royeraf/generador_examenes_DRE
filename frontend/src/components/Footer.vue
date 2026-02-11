@@ -42,6 +42,12 @@
                             <Heart class="w-3 h-3 sm:w-4 sm:h-4 inline text-red-400 fill-red-400" /> para la educación
                         </span>
                     </div>
+                    <!-- AI Model Info -->
+                    <div
+                        class="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/5 shrink-0">
+                        <img src="/icons/gemini.svg" alt="Gemini" class="w-4 h-4 object-contain" />
+                        <span class="text-sky-100 font-semibold tracking-wide">Gemini 3 Flash Preview</span>
+                    </div>
                 </div>
             </div>
         </div>

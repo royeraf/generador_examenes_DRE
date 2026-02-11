@@ -124,7 +124,7 @@ Genera un examen completo en formato JSON con la siguiente estructura.
 3. Cada pregunta debe estar vinculada a uno de los desempeños listados.
 
 **FORMATO JSON OBLIGATORIO:**
-Responde ÚNICAMENTE con este JSON válido:
+Responde ÚNICAMENTE con un JSON válido que siga esta estructura EXACTA, sin comentarios ni texto adicional:
 
 {{
     "saludo": "¡Hola! Soy MateJony. He preparado este desafío matemático contextualizado para tus estudiantes...",
@@ -239,7 +239,11 @@ Responde ÚNICAMENTE con este JSON válido:
             response_text = await ai_service.generate_content(prompt)
             response_text = ai_service.clean_json_response(response_text)
             
-            data = json.loads(response_text)
+            try:
+                data = json.loads(response_text)
+            except json.JSONDecodeError as je:
+                print(f"FAILED MATSISTEM JSON: {response_text}")
+                raise ValueError(f"Error al parsear respuesta JSON de matemática: {je}")
             
             # Construir texto de desempeños usados
             # d.capacidad ya está cargado gracias a selectinload

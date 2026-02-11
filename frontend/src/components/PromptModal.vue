@@ -6,8 +6,6 @@ import {
     Check,
     ExternalLink,
     Sparkles,
-    MessageSquare,
-    Bot,
     Lightbulb,
     Globe,
     FileText,
@@ -44,22 +42,22 @@ const copyPrompt = async () => {
 const platforms = [
     {
         name: 'ChatGPT',
-        icon: MessageSquare,
-        color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+        logo: '/icons/chatgpt.svg',
+        color: 'bg-[#10a37f]/10 text-[#10a37f] dark:bg-[#10a37f]/20',
         url: 'https://chat.openai.com',
         instructions: 'Abre ChatGPT, pega el prompt en el chat y presiona Enter.'
     },
     {
         name: 'Google Gemini',
-        icon: Sparkles,
-        color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+        logo: '/icons/gemini.svg',
+        color: 'bg-[#8E75FF]/10 text-[#8E75FF] dark:bg-[#8E75FF]/20',
         url: 'https://gemini.google.com',
         instructions: 'Accede a Gemini, pega el prompt y envía el mensaje.'
     },
     {
         name: 'Claude',
-        icon: Bot,
-        color: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
+        logo: '/icons/claude.svg',
+        color: 'bg-[#D97757]/10 text-[#D97757] dark:bg-[#D97757]/20',
         url: 'https://claude.ai',
         instructions: 'Ingresa a Claude, pega el prompt en la conversación.'
     }
@@ -88,7 +86,7 @@ const platforms = [
                                 </div>
                                 <div>
                                     <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                                        📋 Prompt Generado
+                                        Prompt Generado
                                     </h2>
                                     <p class="text-sm text-teal-100 dark:text-slate-400 font-medium">Úsalo en tu
                                         plataforma de IA
@@ -138,9 +136,10 @@ const platforms = [
                                     <a v-for="platform in platforms" :key="platform.name" :href="platform.url"
                                         target="_blank" rel="noopener noreferrer"
                                         class="flex items-center gap-4 p-4 bg-white dark:bg-slate-900 rounded-xl border-2 border-gray-100 dark:border-slate-700 hover:border-teal-300 dark:hover:border-teal-700 transition-all duration-300 group hover:-translate-y-0.5 hover:shadow-lg">
-                                        <div class="w-12 h-12 rounded-xl flex items-center justify-center"
+                                        <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
                                             :class="platform.color">
-                                            <component :is="platform.icon" class="w-6 h-6" />
+                                            <img :src="platform.logo" :alt="platform.name"
+                                                class="w-7 h-7 object-contain" />
                                         </div>
                                         <div class="flex-1">
                                             <div class="flex items-center gap-2">
@@ -218,7 +217,7 @@ const platforms = [
                                             : 'bg-gradient-to-r from-teal-500 to-sky-500 hover:from-teal-600 hover:to-sky-600 text-white shadow-teal-500/30'">
                                         <Check v-if="copied" class="w-5 h-5" />
                                         <Copy v-else class="w-5 h-5" />
-                                        {{ copied ? '¡Copiado! 🎉' : 'Copiar Prompt' }}
+                                        {{ copied ? '¡Copiado!' : 'Copiar Prompt' }}
                                     </button>
                                 </div>
                             </div>

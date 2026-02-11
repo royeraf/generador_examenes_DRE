@@ -119,7 +119,7 @@ Tu misión es crear un instrumento de evaluación de alta calidad para estudiant
    - Las alternativas deben ser plausibles. La respuesta correcta debe ser INEQUÍVOCA.
    
 **FORMATO DE SALIDA (JSON ESTRICTO):**
-Responde ÚNICAMENTE con un JSON válido que siga esta estructura exacta:
+Responde ÚNICAMENTE con un JSON válido que siga esta estructura exacta, sin comentarios ni texto adicional:
 
 {{
     "saludo": "¡Hola colega maestro! Aquí tienes una propuesta de evaluación contextualizada...",
@@ -244,7 +244,11 @@ Responde ÚNICAMENTE con un JSON válido que siga esta estructura exacta:
             response_text = await ai_service.generate_content(prompt)
             response_text = ai_service.clean_json_response(response_text)
             
-            data = json.loads(response_text)
+            try:
+                data = json.loads(response_text)
+            except json.JSONDecodeError as je:
+                print(f"FAILED LECTOSISTEM (NIVEL) JSON: {response_text}")
+                raise ValueError(f"Error al parsear respuesta JSON: {je}")
             
             return {
                 "grado": grado.nombre,
@@ -447,7 +451,11 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
             response_text = await ai_service.generate_content(prompt)
             response_text = ai_service.clean_json_response(response_text)
             
-            data = json.loads(response_text)
+            try:
+                data = json.loads(response_text)
+            except json.JSONDecodeError as je:
+                print(f"FAILED LECTOSISTEM (DESEMPEÑOS) JSON: {response_text}")
+                raise ValueError(f"Error al parsear respuesta JSON de la IA: {je}")
             
             return {
                 "grado": grado.nombre,

@@ -13,7 +13,7 @@ class GeminiService(AIService):
     """Service for generating questions using Google Gemini API."""
     
     def __init__(self):
-        self.model_name = 'gemini-2.5-flash'
+        self.model_name = 'gemini-3-flash-preview'
         if settings.google_api_key:
             genai.configure(api_key=settings.google_api_key)
             self.model = genai.GenerativeModel(self.model_name)
@@ -33,6 +33,7 @@ class GeminiService(AIService):
                 prompt,
                 generation_config=genai.types.GenerationConfig(
                     response_mime_type="application/json",
+                    max_output_tokens=8192,
                 ),
             )
 
@@ -108,7 +109,12 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con la siguiente estructura
         try:
             response_text = self.clean_json_response(response_text)
             
-            data = json.loads(response_text)
+            try:
+                data = json.loads(response_text)
+            except json.JSONDecodeError as je:
+                print(f"FAILED JSON: {response_text}")
+                raise ValueError(f"Error al parsear respuesta JSON de Gemini: {je}")
+
             preguntas = []
             
             for p in data.get("preguntas", []):
