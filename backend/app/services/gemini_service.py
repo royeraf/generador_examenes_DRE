@@ -27,10 +27,27 @@ class GeminiService(AIService):
         """Generate content implementation for Gemini."""
         if not self.model:
             raise ValueError("Google API key no configurada")
-            
+
         try:
-            response = await self.model.generate_content_async(prompt)
-            return response.text
+            response = await self.model.generate_content_async(
+                prompt,
+                generation_config=genai.types.GenerationConfig(
+                    response_mime_type="application/json",
+                ),
+            )
+
+            # Handle blocked or empty responses
+            if not response.candidates:
+                block_reason = getattr(response.prompt_feedback, 'block_reason', 'desconocido')
+                raise ValueError(f"Respuesta bloqueada por filtros de seguridad: {block_reason}")
+
+            text = response.text
+            if not text or not text.strip():
+                raise ValueError("Gemini devolvió una respuesta vacía")
+
+            return text
+        except ValueError:
+            raise
         except Exception as e:
             raise ValueError(f"Error al generar contenido con Gemini: {e}")
     

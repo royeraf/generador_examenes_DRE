@@ -42,6 +42,24 @@ export function useLectoSistem() {
   const selectedDesempenoIds = ref<number[]>([]);
   const selectedNivelLogro = shallowRef<string>('en_proceso');
   const selectedNivelDificultad = shallowRef<NivelDificultad>('intermedio');
+  const selectedTipoTextual = shallowRef<string | null>(null);
+  const selectedFormatoTextual = shallowRef<string | null>(null);
+
+  const tipoTextualOptions = [
+    { id: 'narrativo', label: 'Narrativo (Cuento, Noticia)' },
+    { id: 'descriptivo', label: 'Descriptivo (Guía, Artículo)' },
+    { id: 'instructivo', label: 'Instructivo (Receta, Manual)' },
+    { id: 'argumentativo', label: 'Argumentativo (Ensayo, Opinión)' },
+    { id: 'expositivo', label: 'Expositivo (Informe, Divulgación)' }
+  ];
+
+  const formatoTextualOptions = [
+    { id: 'continuo', label: 'Continuo (Párrafos)' },
+    { id: 'discontinuo', label: 'Discontinuo (Tablas, Gráficos)' },
+    { id: 'mixto', label: 'Mixto (Ambos)' },
+    { id: 'multiple', label: 'Múltiple (Varias Fuentes)' }
+  ];
+
   const cantidadPreguntas = shallowRef(3);
   const textoBase = shallowRef('');
   const useTextoBase = shallowRef(false);
@@ -222,6 +240,8 @@ export function useLectoSistem() {
         cantidad: cantidadPreguntas.value,
         nivel_logro: selectedNivelLogro.value,
         nivel_dificultad: selectedNivelDificultad.value,
+        tipo_textual: selectedTipoTextual.value || undefined,
+        formato_textual: selectedFormatoTextual.value || undefined,
         texto_base: useTextoBase.value ? textoBase.value : undefined
       });
     } catch (e: any) {
@@ -279,6 +299,12 @@ export function useLectoSistem() {
     filesMetadata,
     uploadingFile,
     uploadError,
+    // New fields
+    selectedTipoTextual,
+    selectedFormatoTextual,
+    tipoTextualOptions,
+    formatoTextualOptions,
+    
     loading,
     loadingDesempenos,
     descargandoWord,

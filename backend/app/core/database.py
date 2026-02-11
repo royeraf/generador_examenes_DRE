@@ -30,6 +30,10 @@ async def get_db():
     async with AsyncSessionLocal() as session:
         try:
             yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
         finally:
             await session.close()
 
@@ -42,6 +46,7 @@ async def init_db():
         CompetenciaMatematica, CapacidadMatematica, 
         EstandarMatematica, DesempenoMatematica
     )
+    from app.models.docente import Docente
     
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

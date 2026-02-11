@@ -268,7 +268,9 @@ Responde ÚNICAMENTE con un JSON válido que siga esta estructura exacta:
         cantidad: int = 3,
         texto_base: Optional[str] = None,
         modelo: str = "gemini",
-        nivel_dificultad: str = "intermedio"
+        nivel_dificultad: str = "intermedio",
+        tipo_textual: Optional[str] = None,
+        formato_textual: Optional[str] = None
     ) -> dict:
         """
         Genera un examen completo basado en desempeños específicos seleccionados.
@@ -341,6 +343,37 @@ Responde ÚNICAMENTE con un JSON válido que siga esta estructura exacta:
             nivel_dificultad.lower(), 
             dificultad_instrucciones["intermedio"]
         )
+
+        # Instrucciones de Diversidad Textual
+        instruccion_diversidad = ""
+        if tipo_textual or formato_textual:
+            instruccion_diversidad = "\n**ESPECIFICACIONES DE DIVERSIDAD TEXTUAL (Muy Importante):**\n"
+            
+            if tipo_textual:
+                tipos_info = {
+                    "narrativo": "Narrativo: relata una secuencia de hechos (cuento, noticia, biografía, crónica).",
+                    "descriptivo": "Descriptivo: caracteriza a personas, animales, objetos o lugares (guía turística, artículo enciclopédico).",
+                    "instructivo": "Instructivo: brinda procedimientos o recomendaciones (receta, manual, ley).",
+                    "argumentativo": "Argumentativo: defiende una opinión con razones (columna de opinión, ensayo).",
+                    "expositivo": "Expositivo: explica fenómenos o conceptos (artículo de divulgación, informe)."
+                }
+                desc = tipos_info.get(tipo_textual.lower(), tipo_textual)
+                instruccion_diversidad += f"- TIPO TEXTUAL REQUERIDO: {tipo_textual.upper()}. ({desc})\n"
+                
+            if formato_textual:
+                formatos_info = {
+                    "continuo": "Continuo: sucesión de oraciones estructuradas en párrafos.",
+                    "discontinuo": "Discontinuo: organizado visualmente en columnas, tablas, cuadros, gráficos, etc.",
+                    "mixto": "Mixto: presenta secciones continuas y otras discontinuas.",
+                    "multiple": "Múltiple: incluye dos o más textos de fuentes diferentes."
+                }
+                desc = formatos_info.get(formato_textual.lower(), formato_textual)
+                instruccion_diversidad += f"- FORMATO TEXTUAL REQUERIDO: {formato_textual.upper()}. ({desc})\n"
+                
+            if not texto_base:
+                instruccion_diversidad += "Genera el texto de la lectura cumpliendo ESTRICTAMENTE estas características."
+            else:
+                instruccion_diversidad += "Asegúrate de que las preguntas y el análisis respeten estas características del texto base."
         
         # Texto de lectura
         texto_lectura = ""
@@ -351,9 +384,12 @@ TEXTO DE LECTURA:
 {texto_base}
 \"\"\"
 """
+        elif tipo_textual or formato_textual:
+             texto_lectura = "Debes GENERAR un texto original que cumpla con el TIPO y FORMATO especificados arriba."
+
         
         # Prompt basado en el formato del usuario
-        prompt = f"""Eres un experto en la elaboración de preguntas de comprensión lectora que trabaja con estudiantes de Perú. Piensa 10 veces antes de responder.
+        prompt = f"""Eres un experto en la elaboración de preguntas de comprensión lectora que trabaja con estudiantes de Perú. Piensa 10 veces antes de responder. Use el Currículo Nacional de Educación Básica (CNEB).
 
 Primero saluda muy amablemente como un experto en la elaboración de preguntas de comprensión lectora.
 
@@ -363,12 +399,13 @@ Usarás los siguientes desempeños que están enumerados e indican entre parént
 {desempenos_texto}
 
 {instruccion_dificultad}
+{instruccion_diversidad}
 
 El examen debe presentar:
 1. Un 'título' motivador para el examen
 2. Una sección para que los estudiantes ingresen sus 'Apellidos y Nombres' y la 'Fecha'
 3. 'Instrucciones precisas en un párrafo' para responder el examen
-4. La 'lectura completa' o 'un fragmento de la lectura' que utilizarás para que los estudiantes respondan las preguntas
+4. La 'lectura completa' o 'un fragmento de la lectura' que utilizarás para que los estudiantes respondan las preguntas. SI SE ESPECIFICÓ UN FORMATO DISCONTINUO O MIXTO, REPRESENTA LOS ELEMENTOS VISUALES (TABLAS, GRÁFICOS) USANDO MARKDOWN O DESCRIBIÉNDOLOS CLARAMENTE.
 5. Las preguntas con esquema de opción múltiple (4 alternativas A, B, C, D siendo una sola la correcta, en orden aleatorio)
 6. Al final una 'tabla' indicando: los desempeños utilizados, número de pregunta, nivel (LITERAL/INFERENCIAL/CRÍTICO) y alternativa correcta. EN LA TABLA EL DESEMPEÑO DEBE TENER EL FORMATO EXACTO: "(CÓDIGO) DESCRIPCIÓN", por ejemplo: "(01) Obtiene información explícita..."
 

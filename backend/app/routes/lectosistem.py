@@ -57,6 +57,8 @@ class GenerarPreguntasRequest(BaseModel):
     texto_base: Optional[str] = Field(None, description="Texto de lectura para basar las preguntas")
     desempeno_ids: Optional[list[int]] = Field(None, description="IDs de desempeños seleccionados")
     modelo: Optional[str] = Field("gemini", description="Modelo de IA a usar: gemini o chatgpt")
+    tipo_textual: Optional[str] = Field(None, description="Tipo textual: narrativo, descriptivo, instructivo, argumentativo, expositivo")
+    formato_textual: Optional[str] = Field(None, description="Formato textual: continuo, discontinuo, mixto, multiple")
 
 
 # Endpoints
@@ -151,7 +153,9 @@ async def generar_preguntas_lectura(
             cantidad=request.cantidad,
             texto_base=request.texto_base,
             modelo=request.modelo,
-            nivel_dificultad=request.nivel_dificultad
+            nivel_dificultad=request.nivel_dificultad,
+            tipo_textual=request.tipo_textual,
+            formato_textual=request.formato_textual
         )
         return result
     except ValueError as e:

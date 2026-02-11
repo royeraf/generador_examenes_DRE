@@ -6,6 +6,7 @@ import { Trash2, Edit, Plus, Save, X } from 'lucide-vue-next';
 import Header from '../components/Header.vue';
 import EduBackground from '../components/EduBackground.vue';
 import { useTheme } from '../composables/useTheme';
+import { showError, showSuccess, showDeleteConfirm } from '../utils/swal';
 
 const { isDark, toggleTheme } = useTheme();
 
@@ -87,7 +88,7 @@ const saveItem = async () => {
         if (activeTab.value === 'grados') {
             if (isEditing.value) await adminService.updateGrado(editItem.value.id, editItem.value);
             else await adminService.createGrado(editItem.value);
-            await fetchData(); // Refresh all as grades affect others
+            await fetchData();
         } else if (activeTab.value === 'capacidades') {
             if (isEditing.value) await adminService.updateCapacidad(editItem.value.id, editItem.value);
             else await adminService.createCapacidad(editItem.value);
@@ -99,13 +100,15 @@ const saveItem = async () => {
             await fetchDesempenos();
         }
         showModal.value = false;
+        showSuccess('Guardado', 'El registro se guardó correctamente');
     } catch (e) {
-        alert("Error al guardar: " + e);
+        showError('Error al guardar', String(e));
     }
 };
 
 const deleteItem = async (id: number) => {
-    if (!confirm("¿Estás seguro de eliminar este elemento?")) return;
+    const confirmed = await showDeleteConfirm('¿Eliminar este elemento?', 'Esta acción no se puede deshacer');
+    if (!confirmed) return;
     try {
         if (activeTab.value === 'grados') {
             await adminService.deleteGrado(id);
@@ -118,8 +121,9 @@ const deleteItem = async (id: number) => {
             await adminService.deleteDesempeno(id);
             await fetchDesempenos();
         }
+        showSuccess('Eliminado', 'El registro fue eliminado');
     } catch (e) {
-        alert("Error al eliminar: " + e);
+        showError('Error al eliminar', String(e));
     }
 };
 

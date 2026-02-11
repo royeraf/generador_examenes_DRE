@@ -3,13 +3,13 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { ChevronDown, Check } from 'lucide-vue-next';
 
 interface Option {
-    id: number;
+    id: number | string;
     label: string;
     group?: string;
 }
 
 interface Props {
-    modelValue: number | null;
+    modelValue: number | string | null;
     options: Option[];
     placeholder?: string;
 }
@@ -19,7 +19,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-    (e: 'update:modelValue', value: number | null): void;
+    (e: 'update:modelValue', value: number | string | null): void;
 }>();
 
 const isOpen = ref(false);

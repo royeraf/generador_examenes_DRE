@@ -18,6 +18,7 @@ from app.routes.preguntas import router as preguntas_router
 from app.routes.lectosistem import router as lectosistem_router
 from app.routes.admin import router as admin_router
 from app.routes.matsistem import router as matsistem_router
+from app.routes.auth import router as auth_router
 
 
 def create_api_router() -> APIRouter:
@@ -60,6 +61,16 @@ def create_api_router() -> APIRouter:
         prefix="/admin",
         tags=["Administración"]
     )
+
+    # ==========================================================================
+    # MÓDULO: AUTENTICACIÓN
+    # ==========================================================================
+    api_router.include_router(
+        auth_router,
+        prefix="/auth",
+        tags=["Autenticación"]
+    )
+
     
     return api_router
 

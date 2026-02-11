@@ -1,7 +1,9 @@
 import { ref, shallowRef, reactive, computed, watch } from 'vue';
-import type { Grado, DesempenoItem } from '../types';
+import type { Grado, DesempenoItem, NivelConfig, Estudiante, Stats } from '../types';
 import desempenosService from '../services/api';
 import * as d3 from 'd3';
+import * as XLSX from 'xlsx';
+import { Toast, showError, showWarning } from '../utils/swal';
 
 export function useSistematizador() {
     const grados = ref<Grado[]>([]);
@@ -15,21 +17,6 @@ export function useSistematizador() {
     const activeTab = shallowRef<'config' | 'registro' | 'resultados'>('config');
 
     // Configuración de Desempeños
-    interface PreguntaConfig {
-        descripcion: string;
-        desempenoId: number | null;
-        clave: string;
-    }
-
-    interface NivelConfig {
-        nombre: string;
-        descripcion: string;
-        preguntas: PreguntaConfig[];
-        color: string;
-        bg: string;
-        key: string;
-    }
-
     const niveles = reactive<Record<string, NivelConfig>>({
         'pre-inicio': {
             nombre: 'PRE INICIO',
@@ -76,13 +63,6 @@ export function useSistematizador() {
     const competencia = shallowRef('Lee diversos tipos de textos escritos en su lengua materna');
 
     // Students Data
-    interface Estudiante {
-        nombre: string;
-        respuestas: Record<string, string[]>;
-        puntajes?: Record<string, { correctas: number, total: number, porcentaje: number }>;
-        nivelFinal?: string | null;
-    }
-
     const estudiantes = ref<Estudiante[]>([]);
     const chartContainer = ref<HTMLDivElement | null>(null);
 
@@ -112,7 +92,7 @@ export function useSistematizador() {
         }));
     });
 
-    const stats = computed(() => {
+    const stats = computed<Stats>(() => {
         const s = {
             total: estudiantes.value.length,
             'pre-inicio': 0,
@@ -331,6 +311,10 @@ export function useSistematizador() {
     };
 
     const calcularResultados = () => {
+        if (estudiantes.value.length === 0) {
+            showWarning('Sin estudiantes', 'Agrega estudiantes antes de calcular');
+            return;
+        }
         const nivelesKeys = ['pre-inicio', 'inicio', 'proceso', 'satisfactorio', 'destacado'];
 
         estudiantes.value.forEach(est => {
@@ -363,6 +347,7 @@ export function useSistematizador() {
             est.nivelFinal = determinarNivelFinal(est);
         });
         updateChart();
+        Toast.fire({ icon: 'success', title: 'Resultados calculados' });
     };
 
     const exportarExcel = () => {
@@ -413,6 +398,141 @@ export function useSistematizador() {
         URL.revokeObjectURL(link.href);
     };
 
+    const nivelesKeys = ['pre-inicio', 'inicio', 'proceso', 'satisfactorio', 'destacado'];
+
+    const descargarPlantillaExcel = () => {
+        // Build column headers based on current niveles configuration
+        const headerRow1: string[] = ['N°', 'Apellidos y Nombres'];
+        const headerRow2: string[] = ['', ''];
+        const claveRow: string[] = ['', 'CLAVE'];
+
+        nivelesKeys.forEach(key => {
+            const nivel = niveles[key];
+            if (nivel && nivel.preguntas.length > 0) {
+                nivel.preguntas.forEach((preg, idx) => {
+                    headerRow1.push(idx === 0 ? nivel.nombre : '');
+                    headerRow2.push(`P${idx + 1}`);
+                    claveRow.push(preg.clave || '');
+                });
+            }
+        });
+
+        // Create worksheet data
+        const wsData: string[][] = [headerRow1, headerRow2, claveRow];
+
+        // Add 30 empty student rows
+        for (let i = 1; i <= 30; i++) {
+            const row: string[] = [String(i), ''];
+            nivelesKeys.forEach(key => {
+                const nivel = niveles[key];
+                if (nivel) {
+                    for (let j = 0; j < nivel.preguntas.length; j++) {
+                        row.push('');
+                    }
+                }
+            });
+            wsData.push(row);
+        }
+
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+        // Set column widths
+        ws['!cols'] = [
+            { wch: 5 },  // N°
+            { wch: 35 }, // Nombre
+            ...headerRow2.slice(2).map(() => ({ wch: 6 })),
+        ];
+
+        // Merge nivel header cells
+        const merges: XLSX.Range[] = [];
+        let col = 2;
+        nivelesKeys.forEach(key => {
+            const nivel = niveles[key];
+            if (nivel && nivel.preguntas.length > 0) {
+                if (nivel.preguntas.length > 1) {
+                    merges.push({ s: { r: 0, c: col }, e: { r: 0, c: col + nivel.preguntas.length - 1 } });
+                }
+                col += nivel.preguntas.length;
+            }
+        });
+        ws['!merges'] = merges;
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Registro');
+        XLSX.writeFile(wb, `plantilla_sistematizador_${new Date().toISOString().split('T')[0]}.xlsx`);
+    };
+
+    const importarExcel = (file: File) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = new Uint8Array(e.target?.result as ArrayBuffer);
+                const wb = XLSX.read(data, { type: 'array' });
+                const sheetName = wb.SheetNames[0];
+                if (!sheetName) return;
+                const ws = wb.Sheets[sheetName];
+                if (!ws) return;
+
+                const rows: string[][] = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+                // Row 0: nivel names, Row 1: P1/P2..., Row 2: CLAVE, Row 3+: students
+                const dataStartRow = 3;
+                if (rows.length < 4) return;
+
+                // Build column mapping: which columns correspond to which nivel
+                const columnMap: { nivelKey: string; pregIndex: number }[] = [];
+                nivelesKeys.forEach(key => {
+                    const nivel = niveles[key];
+                    if (nivel) {
+                        for (let j = 0; j < nivel.preguntas.length; j++) {
+                            columnMap.push({ nivelKey: key, pregIndex: j });
+                        }
+                    }
+                });
+
+                // Parse student rows
+                const newEstudiantes: Estudiante[] = [];
+                for (let r = dataStartRow; r < rows.length; r++) {
+                    const row = rows[r] as string[] | undefined;
+                    if (!row) continue;
+                    const nombre = String(row[1] ?? '').trim();
+                    if (!nombre) continue;
+
+                    const respuestas: Record<string, string[]> = {};
+
+                    columnMap.forEach((mapping, colIdx) => {
+                        const cellValue = String(row[colIdx + 2] ?? '').trim().toUpperCase();
+                        if (!respuestas[mapping.nivelKey]) {
+                            respuestas[mapping.nivelKey] = [];
+                        }
+                        const arr = respuestas[mapping.nivelKey];
+                        if (arr) {
+                            arr[mapping.pregIndex] = ['A', 'B', 'C', 'D'].includes(cellValue) ? cellValue : '';
+                        }
+                    });
+
+                    newEstudiantes.push({
+                        nombre,
+                        respuestas,
+                        puntajes: {},
+                        nivelFinal: null,
+                    });
+                }
+
+                if (newEstudiantes.length > 0) {
+                    estudiantes.value = newEstudiantes;
+                    Toast.fire({ icon: 'success', title: `${newEstudiantes.length} estudiantes importados` });
+                } else {
+                    showWarning('Sin datos', 'No se encontraron estudiantes en el archivo');
+                }
+            } catch (err) {
+                console.error('Error al importar Excel:', err);
+                showError('Error al importar', 'El archivo no tiene el formato esperado');
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    };
+
     return {
         grados,
         selectedGradoId,
@@ -436,6 +556,8 @@ export function useSistematizador() {
         removeEstudiante,
         calcularResultados,
         exportarExcel,
+        descargarPlantillaExcel,
+        importarExcel,
         updateChart
     };
 }

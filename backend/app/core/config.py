@@ -31,6 +31,11 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
 
+    # Security
+    secret_key: str = os.getenv("SECRET_KEY", "your-secret-key-here")
+    algorithm: str = "HS256"
+    access_token_expire_minutes: int = 60 * 24 * 7  # 7 days
+
 
 @lru_cache()
 def get_settings() -> Settings:

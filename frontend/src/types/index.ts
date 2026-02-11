@@ -36,6 +36,8 @@ export interface GenerarPreguntasRequest {
   cantidad: number;
   texto_base?: string;
   desempeno_ids?: number[];
+  tipo_textual?: string;
+  formato_textual?: string;
 }
 
 // Nueva estructura para opciones de pregunta
@@ -98,4 +100,44 @@ export interface GenerarPreguntasResponse {
   capacidad: string;
   preguntas: PreguntaGenerada[];
   total: number;
+}
+
+// Exam History Types
+export interface ExamenHistoryEntry {
+  id: string;
+  fechaCreacion: string;
+  gradoLabel: string;
+  resultado: GenerarExamenResponse;
+}
+
+// Sistematizador Types
+export interface PreguntaConfig {
+  descripcion: string;
+  desempenoId: number | null;
+  clave: string;
+}
+
+export interface NivelConfig {
+  nombre: string;
+  descripcion: string;
+  preguntas: PreguntaConfig[];
+  color: string;
+  bg: string;
+  key: string;
+}
+
+export interface Estudiante {
+  nombre: string;
+  respuestas: Record<string, string[]>;
+  puntajes?: Record<string, { correctas: number, total: number, porcentaje: number }>;
+  nivelFinal?: string | null;
+}
+
+export interface Stats {
+  total: number;
+  'pre-inicio': number;
+  'inicio': number;
+  'proceso': number;
+  'satisfactorio': number;
+  'destacado': number;
 }
