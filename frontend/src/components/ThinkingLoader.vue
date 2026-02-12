@@ -187,10 +187,10 @@ const cellColors = [
     align-items: center;
     gap: 10px;
     padding: 10px 18px 10px 12px;
-    background: linear-gradient(135deg, #0f172a, #1e293b);
+    background: transparent;
     border-radius: 9999px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    border: none;
+    box-shadow: none;
 }
 
 /* ========== SPARK ICON ========== */
@@ -324,23 +324,18 @@ const cellColors = [
 /* Variant-specific accent colors */
 .pill.teal .spark-icon { color: #2dd4bf; }
 .pill.teal .cursor::after { color: #2dd4bf; }
-.pill.teal { border-color: rgba(45, 212, 191, 0.15); }
 
 .pill.blue .spark-icon { color: #60a5fa; }
 .pill.blue .cursor::after { color: #60a5fa; }
-.pill.blue { border-color: rgba(96, 165, 250, 0.15); }
 
 .pill.indigo .spark-icon { color: #818cf8; }
 .pill.indigo .cursor::after { color: #818cf8; }
-.pill.indigo { border-color: rgba(129, 140, 248, 0.15); }
 
 .pill.purple .spark-icon { color: #c084fc; }
 .pill.purple .cursor::after { color: #c084fc; }
-.pill.purple { border-color: rgba(192, 132, 252, 0.15); }
 
 .pill.rainbow .spark-icon { animation: rainbow-color 4s linear infinite; }
 .pill.rainbow .cursor::after { color: #a78bfa; }
-.pill.rainbow { border-color: rgba(139, 92, 246, 0.12); }
 
 @keyframes rainbow-color {
     0%, 100% { color: #22d3ee; }
