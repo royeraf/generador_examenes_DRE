@@ -18,6 +18,7 @@ const props = defineProps<{
     error: string | null;
     promptTexto: string;
     showPromptModal: boolean;
+    isBreakdownValid?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -198,11 +199,13 @@ const getCapacidadLabel = (tipo: string): string => {
 
         <!-- Generate Button - Educativo -->
         <button @click="emit('generar-preguntas')"
-            :disabled="loading || !selectedGradoId || selectedDesempenoIds.length === 0"
-            class="w-full px-4 py-4 sm:px-6 sm:py-5 text-white font-bold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 shadow-xl hover:shadow-2xl hover:-translate-y-1 text-base sm:text-lg"
+            :disabled="loading || !selectedGradoId || selectedDesempenoIds.length === 0 || isBreakdownValid === false"
+            class="w-full px-4 py-4 sm:px-6 sm:py-5 font-bold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 shadow-xl hover:shadow-2xl hover:-translate-y-1 text-base sm:text-lg"
             :class="loading
-                ? 'bg-slate-900 dark:bg-slate-950 shadow-slate-500/20'
-                : 'bg-gradient-to-r from-teal-500 via-teal-600 to-sky-500 hover:from-teal-600 hover:via-teal-700 hover:to-sky-600 shadow-teal-500/30 hover:shadow-teal-500/40'">
+                ? 'bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 shadow-lg cursor-wait'
+                : (isBreakdownValid === false || !selectedGradoId || selectedDesempenoIds.length === 0
+                    ? 'bg-slate-400 text-white cursor-not-allowed'
+                    : 'bg-gradient-to-r from-teal-500 via-teal-600 to-sky-500 hover:from-teal-600 hover:via-teal-700 hover:to-sky-600 shadow-teal-500/30 hover:shadow-teal-500/40 text-white')">
             <ThinkingLoader v-if="loading" text="Generando" variant="teal" />
             <template v-else>
                 <Rocket class="w-5 h-5 sm:w-6 sm:h-6" />

@@ -151,7 +151,7 @@ const getCapacidadColor = (orden: number): { bg: string; text: string; ring: str
                                 <Shapes v-else-if="orden === 3" class="w-3 h-3 sm:w-4 h-4" />
                                 <Target v-else class="w-3 h-3 sm:w-4 h-4" />
                                 <span class="hidden sm:inline truncate max-w-[80px]">{{ getCapacidadLabel(orden)
-                                    }}</span>
+                                }}</span>
                                 <span class="sm:hidden">Cap. {{ orden }}</span>
                             </div>
                         </button>
@@ -227,10 +227,10 @@ const getCapacidadColor = (orden: number): { bg: string; text: string; ring: str
         <!-- Generate Button - Educativo -->
         <button @click="emit('generarPreguntas')"
             :disabled="loading || !selectedGradoId || selectedDesempenoIds.length === 0"
-            class="w-full px-4 py-4 sm:px-6 sm:py-5 text-white font-bold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 shadow-xl hover:shadow-2xl hover:-translate-y-1 text-base sm:text-lg"
+            class="w-full px-4 py-4 sm:px-6 sm:py-5 font-bold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 shadow-xl hover:shadow-2xl hover:-translate-y-1 text-base sm:text-lg"
             :class="loading
-                ? 'bg-slate-900 dark:bg-slate-950 shadow-slate-500/20'
-                : 'bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-500 hover:from-indigo-600 hover:via-indigo-700 hover:to-purple-600 shadow-indigo-500/30 hover:shadow-indigo-500/40'">
+                ? 'bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 shadow-lg cursor-wait'
+                : 'bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-500 hover:from-indigo-600 hover:via-indigo-700 hover:to-purple-600 shadow-indigo-500/30 hover:shadow-indigo-500/40 text-white'">
             <ThinkingLoader v-if="loading" text="Generando" variant="indigo" />
             <template v-else>
                 <Rocket class="w-5 h-5 sm:w-6 sm:h-6" />

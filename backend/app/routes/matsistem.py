@@ -272,27 +272,20 @@ async def get_desempenos(
     Opcionalmente filtra por grado, competencia y/o capacidad.
     """
     # Necesitamos cargar relaciones para construir la respuesta completa
-    query = select(DesempenoMatematica).join(
-        CapacidadMatematica
-    ).join(
-        CompetenciaMatematica, CapacidadMatematica.competencia
-    ).options(
+    query = select(DesempenoMatematica).options(
         selectinload(DesempenoMatematica.capacidad).selectinload(CapacidadMatematica.competencia)
     )
-    
+
     if grado_id:
         query = query.where(DesempenoMatematica.grado_id == grado_id)
     if competencia_id:
-        # Aquí el filtro es sobre CapacidadMatematica porque Desempeno no tiene FK directa a competencia
-        query = query.where(CapacidadMatematica.competencia_id == competencia_id)
+        # Filtrar por competencia a través de la capacidad
+        query = query.join(CapacidadMatematica).where(CapacidadMatematica.competencia_id == competencia_id)
     if capacidad_id:
         query = query.where(DesempenoMatematica.capacidad_id == capacidad_id)
-    
-    query = query.order_by(
-        CompetenciaMatematica.codigo,
-        CapacidadMatematica.orden,
-        DesempenoMatematica.codigo
-    )
+
+    # Ordenar por competencia, capacidad y desempeño
+    query = query.order_by(DesempenoMatematica.codigo)
     
     result = await db.execute(query)
     desempenos = result.scalars().all()

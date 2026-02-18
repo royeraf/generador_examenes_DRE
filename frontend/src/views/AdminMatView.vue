@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, shallowRef, onMounted, computed, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { matematicaService } from '../services/api';
 import type {
     CompetenciaMatematica,
@@ -7,7 +8,9 @@ import type {
     DesempenoMatCompleto,
     GradoMatematica
 } from '../types/matematica';
-import { Trash2, Edit, Plus, Save, X, Calculator, Eye, Target, Layers, BookOpen } from 'lucide-vue-next';
+import { Trash2, Edit, Plus, Save, X, Calculator, Eye, Target, Layers, BookOpen, Home } from 'lucide-vue-next';
+
+const router = useRouter();
 import Swal from 'sweetalert2';
 import Header from '../components/Header.vue';
 import EduBackground from '../components/EduBackground.vue';
@@ -208,7 +211,15 @@ const deleteItem = async (id: number) => {
                 version-badge-class="bg-violet-400 text-violet-900" subtitle-class="text-violet-100 dark:text-slate-400"
                 mascota-bubble-class="border-violet-300 dark:border-violet-500"
                 mascota-text-class="text-violet-600 dark:text-violet-400" class="rounded-2xl mb-8 sticky top-0"
-                @toggle-theme="toggleTheme" />
+                @toggle-theme="toggleTheme">
+              <template #actions-before>
+                <button @click="router.push('/')"
+                  class="p-2.5 rounded-xl bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600 transition-all duration-300"
+                  title="Inicio">
+                  <Home class="w-5 h-5" />
+                </button>
+              </template>
+            </Header>
 
             <!-- Tab Navigation & Stats -->
             <div class="space-y-6 mb-8">

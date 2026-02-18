@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { shallowRef, onMounted, computed, watch, provide } from 'vue';
+import { useRouter } from 'vue-router';
 import PromptModal from '../components/PromptModal.vue';
 import Sistematizador from '../components/Sistematizador.vue';
 import { useTheme } from '../composables/useTheme';
@@ -26,8 +27,11 @@ import {
   Link,
   Clock,
   GraduationCap,
-  FileText
+  FileText,
+  Home,
 } from 'lucide-vue-next';
+
+const router = useRouter();
 
 const { isDark, toggleTheme } = useTheme();
 const {
@@ -193,7 +197,7 @@ const promptTexto = computed(() => {
     situacionBase = `\n**SITUACIÓN PROBLEMÁTICA PROPORCIONADA:**\n"""\n${textoBase.value}\n"""\nUsa esta situación como base para el problema.\n`;
   }
 
-  return `Eres **"MateJony"**, un experto en evaluación de aprendizajes y programación curricular en Matemática del Ministerio de Educación de Perú. Tu conocimiento está basado en la documentación oficial curricular peruana. Tu comunicación es profesional, clara, didáctica y estructurada.
+  return `Eres **"Especialista MINEDU"**, un experto en evaluación de aprendizajes y programación curricular en Matemática del Ministerio de Educación de Perú. Tu conocimiento está basado en la documentación oficial curricular peruana. Tu comunicación es profesional, clara, didáctica y estructurada.
 
 **CONTEXTO CURRICULAR:**
 - **Grado/Nivel:** ${grado?.nombre || 'Grado seleccionado'}
@@ -208,7 +212,7 @@ Genera una **SITUACIÓN PROBLEMÁTICA INTEGRADORA** con ${cantidadPreguntas.valu
 **ESTRUCTURA DEL EXAMEN:**
 
 1. **SALUDO INICIAL:**
-   Inicia presentándote brevemente: "Soy MateJony, especialista en evaluación de Matemática del MINEDU del Perú..."
+   Inicia presentándote brevemente: "Soy Especialista MINEDU, experto en evaluación de Matemática del Ministerio de Educación del Perú..."
 
 2. **ENCABEZADO DEL EXAMEN:**
    - Título motivador y contextualizado (ejemplo: "Aventura Matemática", "Reto de Números")
@@ -260,7 +264,15 @@ onMounted(loadInitialData);
       version-badge-class="bg-purple-400 text-purple-900" subtitle-class="text-indigo-100 dark:text-slate-400"
       mascota-bubble-class="border-purple-300 dark:border-purple-500"
       mascota-text-class="text-purple-600 dark:text-purple-400" @toggle-theme="toggleTheme"
-      @toggle-results="showResults = !showResults" />
+      @toggle-results="showResults = !showResults">
+      <template #actions-before>
+        <button @click="router.push('/')"
+          class="p-2.5 rounded-xl bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600 transition-all duration-300"
+          title="Inicio">
+          <Home class="w-5 h-5" />
+        </button>
+      </template>
+    </Header>
 
     <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 w-full">
 

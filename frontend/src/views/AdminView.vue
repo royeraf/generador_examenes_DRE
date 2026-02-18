@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, shallowRef, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { adminService } from '../services/api';
 import type { Grado, Capacidad, DesempenoItem } from '../types';
-import { Trash2, Edit, Plus, Save, X } from 'lucide-vue-next';
+import { Trash2, Edit, Plus, Save, X, Home } from 'lucide-vue-next';
+
+const router = useRouter();
 import Header from '../components/Header.vue';
 import EduBackground from '../components/EduBackground.vue';
 import { useTheme } from '../composables/useTheme';
@@ -136,7 +139,15 @@ const deleteItem = async (id: number) => {
         <div class="max-w-6xl mx-auto relative z-10">
             <Header title="Admin" subtitle="Gestión de Comunicación" :is-dark="isDark"
                 gradient-class="from-teal-600 via-teal-500 to-emerald-600 shadow-teal-500/20"
-                class="rounded-xl sm:rounded-2xl mb-6 sticky top-0" @toggle-theme="toggleTheme" />
+                class="rounded-xl sm:rounded-2xl mb-6 sticky top-0" @toggle-theme="toggleTheme">
+              <template #actions-before>
+                <button @click="router.push('/')"
+                  class="p-2.5 rounded-xl bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600 transition-all duration-300"
+                  title="Inicio">
+                  <Home class="w-5 h-5" />
+                </button>
+              </template>
+            </Header>
 
             <!-- Tab Navigation -->
             <div class="mb-8 flex justify-center">

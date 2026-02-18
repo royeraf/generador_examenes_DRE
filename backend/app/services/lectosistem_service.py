@@ -274,7 +274,10 @@ Responde ÚNICAMENTE con un JSON válido que siga esta estructura exacta, sin co
         modelo: str = "gemini",
         nivel_dificultad: str = "intermedio",
         tipo_textual: Optional[str] = None,
-        formato_textual: Optional[str] = None
+        formato_textual: Optional[str] = None,
+        cantidad_literal: Optional[int] = None,
+        cantidad_inferencial: Optional[int] = None,
+        cantidad_critico: Optional[int] = None
     ) -> dict:
         """
         Genera un examen completo basado en desempeños específicos seleccionados.
@@ -379,6 +382,19 @@ Responde ÚNICAMENTE con un JSON válido que siga esta estructura exacta, sin co
             else:
                 instruccion_diversidad += "Asegúrate de que las preguntas y el análisis respeten estas características del texto base."
         
+        # Instrucciones de distribución de preguntas
+        instruccion_distribucion = ""
+        if cantidad_literal is not None and cantidad_inferencial is not None and cantidad_critico is not None:
+             instruccion_distribucion = f"""
+**DISTRIBUCIÓN OBLIGATORIA DE PREGUNTAS (TOTAL {cantidad}):**
+Debes generar EXACTAMENTE:
+- {cantidad_literal} preguntas de nivel LITERAL.
+- {cantidad_inferencial} preguntas de nivel INFERENCIAL.
+- {cantidad_critico} preguntas de nivel CRÍTICO.
+
+Selecciona de la lista de desempeños proporcionada aquellos que mejor se ajusten a cada nivel solicitado. Si no hay un desempeño explícito para un nivel, ADAPTA el enfoque de la pregunta para cumplir con el nivel exigido, pero manteniendo la coherencia con el grado.
+"""
+        
         # Texto de lectura
         texto_lectura = ""
         if texto_base:
@@ -393,7 +409,7 @@ TEXTO DE LECTURA:
 
         
         # Prompt basado en el formato del usuario
-        prompt = f"""Eres un experto en la elaboración de preguntas de comprensión lectora que trabaja con estudiantes de Perú. Piensa 10 veces antes de responder. Use el Currículo Nacional de Educación Básica (CNEB).
+        prompt = f"""Eres un experto en la elaboración de preguntas de comprensión lectora que trabaja con estudiantes de Perú. Utiliza el Currículo Nacional de Educación Básica (CNEB).
 
 Primero saluda muy amablemente como un experto en la elaboración de preguntas de comprensión lectora.
 
@@ -404,6 +420,7 @@ Usarás los siguientes desempeños que están enumerados e indican entre parént
 
 {instruccion_dificultad}
 {instruccion_diversidad}
+{instruccion_distribucion}
 
 El examen debe presentar:
 1. Un 'título' motivador para el examen

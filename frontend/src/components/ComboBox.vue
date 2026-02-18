@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { ChevronDown, Check } from 'lucide-vue-next';
+import { ChevronDown, Check, School, BookOpen } from 'lucide-vue-next';
 
 interface Option {
     id: number | string;
@@ -106,13 +106,14 @@ onUnmounted(() => {
                         <div v-for="(groupOptions, groupName) in groupedOptions" :key="groupName"
                             class="mb-2 last:mb-0">
                             <div
-                                class="px-3 py-2 text-xs font-bold text-teal-600 dark:text-teal-400 uppercase tracking-wider bg-teal-50 dark:bg-teal-900/20 rounded-lg mb-1">
-                                🏫 {{ groupName }}
+                                class="px-3 py-2 text-xs font-bold text-teal-600 dark:text-teal-400 uppercase tracking-wider bg-teal-50 dark:bg-teal-900/20 rounded-lg mb-1 flex items-center gap-2">
+                                <School class="w-3.5 h-3.5" />
+                                {{ groupName }}
                             </div>
                             <div v-for="option in groupOptions" :key="option.id" @click="selectOption(option)" class="flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-200
                         text-sm text-slate-700 dark:text-slate-200 font-medium
                         hover:bg-teal-50 dark:hover:bg-slate-700"
-                                :class="{ 'bg-gradient-to-r from-teal-50 to-sky-50 dark:bg-teal-500/20 text-teal-700 dark:text-teal-300 border-l-4 border-teal-500': option.id === modelValue }">
+                                :class="{ 'bg-gradient-to-r from-teal-50 to-sky-50 dark:bg-none dark:bg-teal-500/20 text-teal-700 dark:text-teal-300 border-l-4 border-teal-500': option.id === modelValue }">
                                 <span>{{ option.label }}</span>
                                 <Check v-if="option.id === modelValue"
                                     class="w-5 h-5 text-teal-600 dark:text-teal-400" />
@@ -125,7 +126,7 @@ onUnmounted(() => {
                         <div v-for="option in props.options" :key="option.id" @click="selectOption(option)" class="flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-200
                      text-sm text-slate-700 dark:text-slate-200 font-medium
                      hover:bg-teal-50 dark:hover:bg-slate-700"
-                            :class="{ 'bg-gradient-to-r from-teal-50 to-sky-50 dark:bg-teal-500/20 text-teal-700 dark:text-teal-300 border-l-4 border-teal-500': option.id === modelValue }">
+                            :class="{ 'bg-gradient-to-r from-teal-50 to-sky-50 dark:bg-none dark:bg-teal-500/20 text-teal-700 dark:text-teal-300 border-l-4 border-teal-500': option.id === modelValue }">
                             <span>{{ option.label }}</span>
                             <Check v-if="option.id === modelValue" class="w-5 h-5 text-teal-600 dark:text-teal-400" />
                         </div>
@@ -135,7 +136,7 @@ onUnmounted(() => {
                     <div v-if="props.options.length === 0" class="px-4 py-6 text-center">
                         <div
                             class="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center mx-auto mb-2">
-                            <span class="text-2xl">📚</span>
+                            <BookOpen class="w-6 h-6 text-amber-500 dark:text-amber-400" />
                         </div>
                         <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">No se encontraron resultados
                         </p>

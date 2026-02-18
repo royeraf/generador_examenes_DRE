@@ -61,6 +61,9 @@ export function useLectoSistem() {
   ];
 
   const cantidadPreguntas = shallowRef(3);
+  const cantidadLiteral = shallowRef(1);
+  const cantidadInferencial = shallowRef(1);
+  const cantidadCritico = shallowRef(1);
   const textoBase = shallowRef('');
   const useTextoBase = shallowRef(false);
   const selectedFiles = ref<File[]>([]);
@@ -84,6 +87,9 @@ export function useLectoSistem() {
   const activeTab = shallowRef<string>('generador');
 
   const selectedDesempenosCount = computed(() => selectedDesempenoIds.value.length);
+  
+  const totalBreakdown = computed(() => cantidadLiteral.value + cantidadInferencial.value + cantidadCritico.value);
+  const isBreakdownValid = computed(() => totalBreakdown.value === Number(cantidadPreguntas.value));
 
   const desempenosPorCapacidad = computed(() => {
     const grupos: Record<string, DesempenoItem[]> = {
@@ -238,6 +244,9 @@ export function useLectoSistem() {
         grado_id: selectedGradoId.value,
         desempeno_ids: selectedDesempenoIds.value,
         cantidad: cantidadPreguntas.value,
+        cantidad_literal: cantidadLiteral.value,
+        cantidad_inferencial: cantidadInferencial.value,
+        cantidad_critico: cantidadCritico.value,
         nivel_logro: selectedNivelLogro.value,
         nivel_dificultad: selectedNivelDificultad.value,
         tipo_textual: selectedTipoTextual.value || undefined,
@@ -278,7 +287,8 @@ export function useLectoSistem() {
     const classes: Record<string, string> = {
       'LITERAL': 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
       'INFERENCIAL': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-      'CRITICO': 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400'
+      'CRITICO': 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400',
+      'CRÍTICO': 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400'
     };
     return classes[nivel] || 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
   };
@@ -293,6 +303,11 @@ export function useLectoSistem() {
     selectedNivelDificultad,
     nivelesDificultad: NIVELES_DIFICULTAD,
     cantidadPreguntas,
+    cantidadLiteral,
+    cantidadInferencial,
+    cantidadCritico,
+    isBreakdownValid,
+    totalBreakdown,
     textoBase,
     useTextoBase,
     selectedFiles,

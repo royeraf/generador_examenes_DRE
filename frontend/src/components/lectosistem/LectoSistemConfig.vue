@@ -28,6 +28,13 @@ const props = defineProps<{
     modeloTipoTextual?: string | null;
     formatoTextualOptions?: { id: string; label: string }[];
     modeloFormatoTextual?: string | null;
+
+    // New props for question breakdown
+    modeloCantidadLiteral: number;
+    modeloCantidadInferencial: number;
+    modeloCantidadCritico: number;
+    isBreakdownValid: boolean;
+    totalBreakdown: number;
 }>();
 
 // Define Emits
@@ -40,6 +47,9 @@ const emit = defineEmits<{
     (e: 'clear-files'): void;
     (e: 'update:modeloTipoTextual', value: string | null): void;
     (e: 'update:modeloFormatoTextual', value: string | null): void;
+    (e: 'update:modeloCantidadLiteral', value: number): void;
+    (e: 'update:modeloCantidadInferencial', value: number): void;
+    (e: 'update:modeloCantidadCritico', value: number): void;
 }>();
 
 // Computed for v-models
@@ -72,6 +82,22 @@ const selectedFormatoTextual = computed({
     get: () => props.modeloFormatoTextual ?? null,
     set: (val) => emit('update:modeloFormatoTextual', val)
 });
+
+const qLiteral = computed({
+    get: () => props.modeloCantidadLiteral,
+    set: (val) => emit('update:modeloCantidadLiteral', val)
+});
+
+const qInferencial = computed({
+    get: () => props.modeloCantidadInferencial,
+    set: (val) => emit('update:modeloCantidadInferencial', val)
+});
+
+const qCritico = computed({
+    get: () => props.modeloCantidadCritico,
+    set: (val) => emit('update:modeloCantidadCritico', val)
+});
+
 </script>
 
 <template>
@@ -192,13 +218,55 @@ const selectedFormatoTextual = computed({
                     </div>
                     Cantidad de Preguntas
                 </label>
-                <div class="flex items-center gap-4">
-                    <input type="range" v-model="quantity" min="1" max="10"
+                <div class="flex items-center gap-4 mb-4">
+                    <input type="range" v-model.number="quantity" min="3" max="10"
                         class="flex-1 h-3 bg-gradient-to-r from-teal-100 to-amber-100 dark:bg-slate-700 rounded-full appearance-none cursor-pointer accent-teal-600" />
                     <span
                         class="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center text-xl font-bold text-white shadow-lg shadow-teal-500/30">
                         {{ quantity }}
                     </span>
+                </div>
+
+                <!-- Breakdown -->
+                <div class="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-700">
+                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">Distribución por Nivel:</p>
+
+                    <div class="grid grid-cols-3 gap-2">
+                        <!-- Literal -->
+                        <div class="flex flex-col gap-1">
+                            <label
+                                class="text-[10px] uppercase font-bold text-teal-600 dark:text-teal-400">Literal</label>
+                            <input type="number" v-model="qLiteral" min="0" :max="quantity"
+                                class="w-full px-2 py-1.5 text-center text-sm font-bold rounded-lg border-2 border-slate-200 dark:border-slate-600 focus:border-teal-400 focus:outline-none dark:bg-slate-700 dark:text-white" />
+                        </div>
+
+                        <!-- Inferencial -->
+                        <div class="flex flex-col gap-1">
+                            <label
+                                class="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400">Inferencial</label>
+                            <input type="number" v-model="qInferencial" min="0" :max="quantity"
+                                class="w-full px-2 py-1.5 text-center text-sm font-bold rounded-lg border-2 border-slate-200 dark:border-slate-600 focus:border-amber-400 focus:outline-none dark:bg-slate-700 dark:text-white" />
+                        </div>
+
+                        <!-- Crítico -->
+                        <div class="flex flex-col gap-1">
+                            <label
+                                class="text-[10px] uppercase font-bold text-violet-600 dark:text-violet-400">Crítico</label>
+                            <input type="number" v-model="qCritico" min="0" :max="quantity"
+                                class="w-full px-2 py-1.5 text-center text-sm font-bold rounded-lg border-2 border-slate-200 dark:border-slate-600 focus:border-violet-400 focus:outline-none dark:bg-slate-700 dark:text-white" />
+                        </div>
+                    </div>
+
+                    <!-- Validation Message -->
+                    <div v-if="!isBreakdownValid"
+                        class="flex items-center gap-1.5 text-xs text-red-500 font-medium animate-pulse">
+                        <AlertTriangle class="w-3 h-3" />
+                        <span>Suma actual: {{ totalBreakdown }} (Debe ser {{ quantity }})</span>
+                    </div>
+                    <div v-else class="flex items-center gap-1.5 text-xs text-emerald-500 font-medium">
+                        <Check class="w-3 h-3" />
+                        <span>Distribución correcta: {{ totalBreakdown }} de {{ quantity }}</span>
+                    </div>
                 </div>
             </div>
 

@@ -74,7 +74,7 @@ const getNivelBadgeClass = (nivel: string): string => {
 
         <!-- Loading State -->
         <div v-if="loading"
-            class="h-[400px] sm:h-[580px] lg:h-[650px] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl border border-slate-700/50 text-center flex flex-col items-center justify-center shadow-lg p-6 relative overflow-hidden">
+            class="h-[400px] sm:h-[580px] lg:h-[650px] bg-gradient-to-br from-white via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 rounded-xl border border-indigo-200 dark:border-slate-700/50 text-center flex flex-col items-center justify-center shadow-lg p-6 relative overflow-hidden">
             <div class="absolute inset-0 opacity-20">
                 <div class="absolute top-1/4 left-1/4 w-32 h-32 bg-indigo-500/30 rounded-full blur-3xl animate-pulse">
                 </div>
@@ -83,11 +83,12 @@ const getNivelBadgeClass = (nivel: string): string => {
             </div>
             <div class="relative z-10 flex flex-col items-center">
                 <ThinkingLoader text="Generando examen" variant="indigo" />
-                <p class="text-slate-400 text-xs sm:text-sm mt-4">Esto puede tomar unos segundos...</p>
+                <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-4">Esto puede tomar unos segundos...
+                </p>
                 <div
-                    class="mt-6 max-w-sm mx-auto flex items-start gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                    <AlertTriangle class="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
-                    <p class="text-[11px] sm:text-xs text-amber-300/90 text-left leading-relaxed">
+                    class="mt-6 max-w-sm mx-auto flex items-start gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20">
+                    <AlertTriangle class="w-4 h-4 text-amber-500 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                    <p class="text-[11px] sm:text-xs text-amber-700 dark:text-amber-300/90 text-left leading-relaxed">
                         El contenido generado por IA puede contener errores. Revisa y valida siempre el examen antes de
                         utilizarlo.
                     </p>
@@ -191,7 +192,7 @@ const getNivelBadgeClass = (nivel: string): string => {
                                     {{ pregunta.nivel }}
                                 </span>
                                 <p class="text-slate-800 dark:text-slate-200 font-semibold mb-4">{{ pregunta.enunciado
-                                    }}</p>
+                                }}</p>
 
                                 <div class="space-y-2">
                                     <div v-for="opcion in pregunta.opciones" :key="opcion.letra"
@@ -202,7 +203,7 @@ const getNivelBadgeClass = (nivel: string): string => {
                                         <span
                                             class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm"
                                             :class="opcion.es_correcta ? 'bg-teal-500 text-white' : 'bg-gray-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'">{{
-                                            opcion.letra }}</span>
+                                                opcion.letra }}</span>
                                         <span class="flex-1">{{ opcion.texto }}</span>
                                         <Check v-if="opcion.es_correcta" class="w-5 h-5 text-teal-500" />
                                     </div>
@@ -247,10 +248,10 @@ const getNivelBadgeClass = (nivel: string): string => {
                                 <tr v-for="fila in resultado.examen.tabla_respuestas" :key="fila.pregunta"
                                     class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
                                     <td class="py-3 px-4 text-slate-800 dark:text-slate-200 font-bold">{{ fila.pregunta
-                                        }}
+                                    }}
                                     </td>
                                     <td class="py-3 px-4 text-slate-600 dark:text-slate-400 text-xs">{{ fila.desempeno
-                                        }}</td>
+                                    }}</td>
                                     <td class="py-3 px-4">
                                         <span
                                             class="px-2.5 py-1 text-[10px] font-bold rounded-full inline-flex items-center gap-1"

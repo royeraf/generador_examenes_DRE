@@ -1,5 +1,17 @@
 // Types for desempeños-based question generation
 
+export interface Docente {
+  id: number
+  dni: string
+  nombres: string | null
+  apellidos: string | null
+  profesion: string | null
+  institucion_educativa: string | null
+  nivel_educativo: string | null
+  is_active: boolean
+  is_superuser: boolean
+}
+
 export interface Grado {
   id: number;
   nombre: string;
@@ -38,6 +50,9 @@ export interface GenerarPreguntasRequest {
   desempeno_ids?: number[];
   tipo_textual?: string;
   formato_textual?: string;
+  cantidad_literal?: number;
+  cantidad_inferencial?: number;
+  cantidad_critico?: number;
 }
 
 // Nueva estructura para opciones de pregunta

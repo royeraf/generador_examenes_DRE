@@ -78,17 +78,17 @@ const platforms = [
                         class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col border-2 border-teal-100 dark:border-slate-700">
                         <!-- Header -->
                         <div
-                            class="flex items-center justify-between px-6 py-5 bg-gradient-to-r from-teal-500 via-teal-600 to-sky-500 dark:from-slate-700 dark:via-slate-700 dark:to-slate-700">
+                            class="flex items-center justify-between px-6 py-5 bg-gradient-to-r from-teal-500 via-teal-600 to-sky-500 dark:from-slate-800 dark:to-slate-900 border-b dark:border-slate-700">
                             <div class="flex items-center gap-4">
                                 <div
-                                    class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
+                                    class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg border border-white/20">
                                     <Copy class="w-6 h-6 text-white" />
                                 </div>
                                 <div>
                                     <h2 class="text-lg font-bold text-white flex items-center gap-2">
                                         Prompt Generado
                                     </h2>
-                                    <p class="text-sm text-teal-100 dark:text-slate-400 font-medium">Úsalo en tu
+                                    <p class="text-sm text-teal-100 dark:text-slate-300 font-medium">Úsalo en tu
                                         plataforma de IA
                                         favorita</p>
                                 </div>
@@ -104,20 +104,20 @@ const platforms = [
 
                             <!-- Instructions Section -->
                             <div
-                                class="bg-gradient-to-r from-amber-50 to-orange-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800 rounded-xl p-5">
+                                class="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30 border-2 border-amber-200 dark:border-amber-700 rounded-xl p-5">
                                 <div class="flex items-start gap-4">
                                     <div
-                                        class="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                                        class="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 dark:from-amber-500 dark:to-orange-600 rounded-xl flex items-center justify-center flex-shrink-0">
                                         <Lightbulb class="w-6 h-6 text-white" />
                                     </div>
                                     <div>
                                         <h3
-                                            class="font-bold text-amber-800 dark:text-amber-300 mb-2 text-lg flex items-center gap-2">
+                                            class="font-bold text-amber-800 dark:text-amber-200 mb-2 text-lg flex items-center gap-2">
                                             <Lightbulb class="w-5 h-5" /> ¿Cómo
                                             usar este
                                             prompt?
                                         </h3>
-                                        <p class="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
+                                        <p class="text-sm text-amber-700 dark:text-amber-300 leading-relaxed">
                                             Copia el prompt y pégalo en cualquier plataforma de Inteligencia Artificial.
                                             El prompt está diseñado para generar preguntas de comprensión lectora de
                                             alta calidad para tus estudiantes.
@@ -129,8 +129,8 @@ const platforms = [
                             <!-- Platforms -->
                             <div>
                                 <h3
-                                    class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">
-                                    <Globe class="w-4 h-4" /> Plataformas recomendadas
+                                    class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2">
+                                    <Globe class="w-4 h-4 text-teal-500 dark:text-teal-400" /> Plataformas recomendadas
                                 </h3>
                                 <div class="grid gap-3">
                                     <a v-for="platform in platforms" :key="platform.name" :href="platform.url"
@@ -158,23 +158,23 @@ const platforms = [
                             <!-- Prompt Preview -->
                             <div>
                                 <h3
-                                    class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">
+                                    class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2">
                                     <FileText class="w-4 h-4" /> Vista previa del prompt
                                 </h3>
                                 <div
-                                    class="bg-gradient-to-br from-slate-50 to-gray-50 dark:bg-slate-900 rounded-xl p-5 border-2 border-gray-200 dark:border-slate-700 max-h-48 overflow-y-auto">
+                                    class="bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-800 dark:to-slate-900 rounded-xl p-5 border-2 border-gray-200 dark:border-slate-600 max-h-48 overflow-y-auto">
                                     <pre
-                                        class="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap font-mono leading-relaxed">{{ promptText }}</pre>
+                                        class="text-sm text-slate-600 dark:text-slate-200 whitespace-pre-wrap font-mono leading-relaxed">{{ promptText }}</pre>
                                 </div>
                             </div>
 
                             <!-- Tips -->
                             <div
-                                class="bg-gradient-to-r from-teal-50 to-sky-50 dark:bg-teal-900/20 border-2 border-teal-200 dark:border-teal-800 rounded-xl p-5">
-                                <h3 class="font-bold text-teal-800 dark:text-teal-300 mb-3 flex items-center gap-2">
+                                class="bg-gradient-to-r from-teal-50 to-sky-50 dark:from-teal-900/30 dark:to-sky-900/30 border-2 border-teal-200 dark:border-teal-700 rounded-xl p-5">
+                                <h3 class="font-bold text-teal-800 dark:text-teal-200 mb-3 flex items-center gap-2">
                                     <Sparkles class="w-5 h-5" /> Consejos para mejores resultados
                                 </h3>
-                                <ul class="text-sm text-teal-700 dark:text-teal-400 space-y-2">
+                                <ul class="text-sm text-teal-700 dark:text-teal-300 space-y-2">
                                     <li class="flex items-start gap-2">
                                         <RefreshCw class="w-4 h-4 mt-0.5 flex-shrink-0" />Si la respuesta no es
                                         satisfactoria, pide a la IA que "regenere" o "mejore" el
@@ -207,7 +207,7 @@ const platforms = [
                                 </p>
                                 <div class="flex gap-3">
                                     <button @click="emit('close')"
-                                        class="px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-700 transition-all duration-300 border-2 border-gray-200 dark:border-slate-600">
+                                        class="px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-700 transition-all duration-300 border-2 border-gray-200 dark:border-slate-700">
                                         Cerrar
                                     </button>
                                     <button @click="copyPrompt"

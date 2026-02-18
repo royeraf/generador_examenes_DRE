@@ -160,7 +160,8 @@ const cellColors = [
             </div>
 
             <!-- Text with cursor -->
-            <span class="label">{{ text || 'Generando' }}<span class="cursor" /></span>
+            <span class="label text-slate-600 dark:text-slate-300">{{ text || 'Generando' }}<span
+                    class="cursor" /></span>
         </div>
     </div>
 </template>
@@ -200,8 +201,17 @@ const cellColors = [
 }
 
 @keyframes spark-pulse {
-    0%, 100% { opacity: 0.6; transform: scale(0.9); }
-    50% { opacity: 1; transform: scale(1.15); }
+
+    0%,
+    100% {
+        opacity: 0.6;
+        transform: scale(0.9);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.15);
+    }
 }
 
 /* ========== GRID ========== */
@@ -236,10 +246,30 @@ const cellColors = [
 }
 
 @keyframes stream {
-    0% { opacity: 0.05; transform: scale(0.5); filter: brightness(0.2); }
-    25%, 35% { opacity: 1; transform: scale(1.15); filter: brightness(2.5); }
-    60% { opacity: 0.3; transform: scale(0.85); filter: brightness(0.6); }
-    100% { opacity: 0.05; transform: scale(0.5); filter: brightness(0.2); }
+    0% {
+        opacity: 0.05;
+        transform: scale(0.5);
+        filter: brightness(0.2);
+    }
+
+    25%,
+    35% {
+        opacity: 1;
+        transform: scale(1.15);
+        filter: brightness(2.5);
+    }
+
+    60% {
+        opacity: 0.3;
+        transform: scale(0.85);
+        filter: brightness(0.6);
+    }
+
+    100% {
+        opacity: 0.05;
+        transform: scale(0.5);
+        filter: brightness(0.2);
+    }
 }
 
 /* ========== PULSE-OUT: radiates from center ========== */
@@ -248,10 +278,30 @@ const cellColors = [
 }
 
 @keyframes pulse-out {
-    0% { opacity: 0.05; transform: scale(0.4); filter: brightness(0.2); }
-    30%, 40% { opacity: 1; transform: scale(1.2); filter: brightness(2.4); }
-    70% { opacity: 0.2; transform: scale(0.9); filter: brightness(0.5); }
-    100% { opacity: 0.05; transform: scale(0.4); filter: brightness(0.2); }
+    0% {
+        opacity: 0.05;
+        transform: scale(0.4);
+        filter: brightness(0.2);
+    }
+
+    30%,
+    40% {
+        opacity: 1;
+        transform: scale(1.2);
+        filter: brightness(2.4);
+    }
+
+    70% {
+        opacity: 0.2;
+        transform: scale(0.9);
+        filter: brightness(0.5);
+    }
+
+    100% {
+        opacity: 0.05;
+        transform: scale(0.4);
+        filter: brightness(0.2);
+    }
 }
 
 /* ========== SCAN: horizontal processing line ========== */
@@ -260,10 +310,30 @@ const cellColors = [
 }
 
 @keyframes scan {
-    0% { opacity: 0.05; transform: scaleX(0.3); filter: brightness(0.2); }
-    20%, 40% { opacity: 1; transform: scaleX(1.1); filter: brightness(2.2); }
-    60% { opacity: 0.4; transform: scaleX(0.9); filter: brightness(0.8); }
-    100% { opacity: 0.05; transform: scaleX(0.3); filter: brightness(0.2); }
+    0% {
+        opacity: 0.05;
+        transform: scaleX(0.3);
+        filter: brightness(0.2);
+    }
+
+    20%,
+    40% {
+        opacity: 1;
+        transform: scaleX(1.1);
+        filter: brightness(2.2);
+    }
+
+    60% {
+        opacity: 0.4;
+        transform: scaleX(0.9);
+        filter: brightness(0.8);
+    }
+
+    100% {
+        opacity: 0.05;
+        transform: scaleX(0.3);
+        filter: brightness(0.2);
+    }
 }
 
 /* ========== CONVERGE: assembling from corners ========== */
@@ -272,10 +342,30 @@ const cellColors = [
 }
 
 @keyframes converge {
-    0% { opacity: 0; transform: scale(0.3); filter: brightness(0.1); }
-    30%, 45% { opacity: 1; transform: scale(1.15); filter: brightness(2.6); }
-    70% { opacity: 0.3; transform: scale(0.85); filter: brightness(0.5); }
-    100% { opacity: 0; transform: scale(0.3); filter: brightness(0.1); }
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+        filter: brightness(0.1);
+    }
+
+    30%,
+    45% {
+        opacity: 1;
+        transform: scale(1.15);
+        filter: brightness(2.6);
+    }
+
+    70% {
+        opacity: 0.3;
+        transform: scale(0.85);
+        filter: brightness(0.5);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(0.3);
+        filter: brightness(0.1);
+    }
 }
 
 /* ========== CURSOR ========== */
@@ -287,60 +377,141 @@ const cellColors = [
 }
 
 @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
 }
 
 /* ========== TEXT ========== */
 .label {
     font-size: 0.9rem;
     font-weight: 500;
-    color: #e2e8f0;
     letter-spacing: 0.01em;
     white-space: nowrap;
 }
 
 /* ========== RAINBOW COLORS ========== */
-.grid-container.rainbow .color-0 { background: #22d3ee; }
-.grid-container.rainbow .color-1 { background: #3b82f6; }
-.grid-container.rainbow .color-2 { background: #6366f1; }
-.grid-container.rainbow .color-3 { background: #8b5cf6; }
-.grid-container.rainbow .color-4 { background: #ec4899; }
-.grid-container.rainbow .color-5 { background: #f43f5e; }
-.grid-container.rainbow .color-6 { background: #f97316; }
-.grid-container.rainbow .color-7 { background: #eab308; }
-.grid-container.rainbow .color-8 { background: #22c55e; }
+.grid-container.rainbow .color-0 {
+    background: #22d3ee;
+}
+
+.grid-container.rainbow .color-1 {
+    background: #3b82f6;
+}
+
+.grid-container.rainbow .color-2 {
+    background: #6366f1;
+}
+
+.grid-container.rainbow .color-3 {
+    background: #8b5cf6;
+}
+
+.grid-container.rainbow .color-4 {
+    background: #ec4899;
+}
+
+.grid-container.rainbow .color-5 {
+    background: #f43f5e;
+}
+
+.grid-container.rainbow .color-6 {
+    background: #f97316;
+}
+
+.grid-container.rainbow .color-7 {
+    background: #eab308;
+}
+
+.grid-container.rainbow .color-8 {
+    background: #22c55e;
+}
 
 /* ========== SINGLE COLOR VARIANTS ========== */
 .grid-container.blue .cell,
-.grid-container.blue .cell-glow { background: linear-gradient(135deg, #60a5fa, #38bdf8) !important; }
+.grid-container.blue .cell-glow {
+    background: linear-gradient(135deg, #60a5fa, #38bdf8) !important;
+}
+
 .grid-container.teal .cell,
-.grid-container.teal .cell-glow { background: linear-gradient(135deg, #2dd4bf, #14b8a6) !important; }
+.grid-container.teal .cell-glow {
+    background: linear-gradient(135deg, #2dd4bf, #14b8a6) !important;
+}
+
 .grid-container.indigo .cell,
-.grid-container.indigo .cell-glow { background: linear-gradient(135deg, #818cf8, #6366f1) !important; }
+.grid-container.indigo .cell-glow {
+    background: linear-gradient(135deg, #818cf8, #6366f1) !important;
+}
+
 .grid-container.purple .cell,
-.grid-container.purple .cell-glow { background: linear-gradient(135deg, #c084fc, #a855f7) !important; }
+.grid-container.purple .cell-glow {
+    background: linear-gradient(135deg, #c084fc, #a855f7) !important;
+}
 
 /* Variant-specific accent colors */
-.pill.teal .spark-icon { color: #2dd4bf; }
-.pill.teal .cursor::after { color: #2dd4bf; }
+.pill.teal .spark-icon {
+    color: #2dd4bf;
+}
 
-.pill.blue .spark-icon { color: #60a5fa; }
-.pill.blue .cursor::after { color: #60a5fa; }
+.pill.teal .cursor::after {
+    color: #2dd4bf;
+}
 
-.pill.indigo .spark-icon { color: #818cf8; }
-.pill.indigo .cursor::after { color: #818cf8; }
+.pill.blue .spark-icon {
+    color: #60a5fa;
+}
 
-.pill.purple .spark-icon { color: #c084fc; }
-.pill.purple .cursor::after { color: #c084fc; }
+.pill.blue .cursor::after {
+    color: #60a5fa;
+}
 
-.pill.rainbow .spark-icon { animation: rainbow-color 4s linear infinite; }
-.pill.rainbow .cursor::after { color: #a78bfa; }
+.pill.indigo .spark-icon {
+    color: #818cf8;
+}
+
+.pill.indigo .cursor::after {
+    color: #818cf8;
+}
+
+.pill.purple .spark-icon {
+    color: #c084fc;
+}
+
+.pill.purple .cursor::after {
+    color: #c084fc;
+}
+
+.pill.rainbow .spark-icon {
+    animation: rainbow-color 4s linear infinite;
+}
+
+.pill.rainbow .cursor::after {
+    color: #a78bfa;
+}
 
 @keyframes rainbow-color {
-    0%, 100% { color: #22d3ee; }
-    25% { color: #8b5cf6; }
-    50% { color: #ec4899; }
-    75% { color: #f97316; }
+
+    0%,
+    100% {
+        color: #22d3ee;
+    }
+
+    25% {
+        color: #8b5cf6;
+    }
+
+    50% {
+        color: #ec4899;
+    }
+
+    75% {
+        color: #f97316;
+    }
 }
 </style>

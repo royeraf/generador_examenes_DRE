@@ -59,6 +59,10 @@ class GenerarPreguntasRequest(BaseModel):
     modelo: Optional[str] = Field("gemini", description="Modelo de IA a usar: gemini o chatgpt")
     tipo_textual: Optional[str] = Field(None, description="Tipo textual: narrativo, descriptivo, instructivo, argumentativo, expositivo")
     formato_textual: Optional[str] = Field(None, description="Formato textual: continuo, discontinuo, mixto, multiple")
+    cantidad_literal: Optional[int] = Field(None, ge=0, description="Cantidad de preguntas literales")
+    cantidad_inferencial: Optional[int] = Field(None, ge=0, description="Cantidad de preguntas inferenciales")
+    cantidad_critico: Optional[int] = Field(None, ge=0, description="Cantidad de preguntas críticas")
+
 
 
 # Endpoints
@@ -155,7 +159,10 @@ async def generar_preguntas_lectura(
             modelo=request.modelo,
             nivel_dificultad=request.nivel_dificultad,
             tipo_textual=request.tipo_textual,
-            formato_textual=request.formato_textual
+            formato_textual=request.formato_textual,
+            cantidad_literal=request.cantidad_literal,
+            cantidad_inferencial=request.cantidad_inferencial,
+            cantidad_critico=request.cantidad_critico
         )
         return result
     except ValueError as e:

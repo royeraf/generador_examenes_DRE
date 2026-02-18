@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { shallowRef, onMounted, computed, watch, provide } from 'vue';
+import { useRouter } from 'vue-router';
 import PromptModal from '../components/PromptModal.vue';
 import Sistematizador from '../components/Sistematizador.vue';
 import Footer from '../components/Footer.vue';
@@ -19,7 +20,10 @@ import {
   Clock,
   GraduationCap,
   FileText,
+  Home,
 } from 'lucide-vue-next';
+
+const router = useRouter();
 import Header from '../components/Header.vue';
 import EduBackground from '../components/EduBackground.vue';
 import LectoSistemConfig from '../components/lectosistem/LectoSistemConfig.vue';
@@ -65,7 +69,12 @@ const {
   selectedTipoTextual,
   selectedFormatoTextual,
   tipoTextualOptions,
-  formatoTextualOptions
+  formatoTextualOptions,
+  cantidadLiteral,
+  cantidadInferencial,
+  cantidadCritico,
+  isBreakdownValid,
+  totalBreakdown
 } = useLectoSistem();
 
 const { history, saveExam, removeExam, clearHistory } = useExamHistory();
@@ -170,7 +179,7 @@ const promptTexto = computed(() => {
     situacionBase = `\n**TEXTO BASE PROPORCIONADO:**\n"""\n${textoBase.value}\n"""\nUsa este texto como base para la lectura.\n`;
   }
 
-  return `Eres **"LectoJony"**, un experto en comprensión lectora y el Currículo Nacional de Educación Básica de Perú. Tu conocimiento está basado en la documentación oficial del Ministerio de Educación (MINEDU). Tu comunicación es profesional, clara, didáctica y estructurada.
+  return `Eres **"Especialista MINEDU"**, un experto en comprensión lectora y el Currículo Nacional de Educación Básica de Perú. Tu conocimiento está basado en la documentación oficial del Ministerio de Educación (MINEDU). Tu comunicación es profesional, clara, didáctica y estructurada.
 
 **CONTEXTO:**
 - **Grado:** ${grado?.nombre || 'Grado seleccionado'}
@@ -184,7 +193,7 @@ Genera un examen de comprensión lectora con una lectura original y ${cantidadPr
 **ESTRUCTURA DEL EXAMEN:**
 
 1. **SALUDO INICIAL:**
-   Inicia presentándote brevemente: "Soy LectoJony, especialista en comprensión lectora del MINEDU del Perú..."
+   Inicia presentándote brevemente: "Soy Especialista MINEDU, experto en evaluación de comprensión lectora del Ministerio de Educación del Perú..."
 
 2. **ENCABEZADO DEL EXAMEN:**
    - Título motivador y contextualizado
@@ -229,7 +238,15 @@ onMounted(loadInitialData);
 
     <Header title="LectoSistem" subtitle="Lectura inteligente" :is-dark="isDark" :has-resultado="!!resultado"
       :loading="loading" :show-results="showResults" :active-tab="activeTab" @toggle-theme="toggleTheme"
-      @toggle-results="showResults = !showResults" />
+      @toggle-results="showResults = !showResults">
+      <template #actions-before>
+        <button @click="router.push('/')"
+          class="p-2.5 rounded-xl bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600 transition-all duration-300"
+          title="Inicio">
+          <Home class="w-5 h-5" />
+        </button>
+      </template>
+    </Header>
 
     <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 w-full">
 
@@ -254,8 +271,7 @@ onMounted(loadInitialData);
               : 'text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-slate-700'">
             <History class="w-4 h-4 sm:w-5 sm:h-5" />
             <span>Historial</span>
-            <span v-if="history.length > 0"
-              class="ml-1 px-1.5 py-0.5 text-[10px] font-bold rounded-full"
+            <span v-if="history.length > 0" class="ml-1 px-1.5 py-0.5 text-[10px] font-bold rounded-full"
               :class="activeTab === 'historial' ? 'bg-white/20 text-white' : 'bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400'">
               {{ history.length }}
             </span>
@@ -284,7 +300,9 @@ onMounted(loadInitialData);
           :uploading-file="uploadingFile" :upload-error="uploadError" @file-upload="handleFileUpload"
           @clear-files="clearFiles" :tipo-textual-options="tipoTextualOptions"
           v-model:modelo-tipo-textual="selectedTipoTextual" :formato-textual-options="formatoTextualOptions"
-          v-model:modelo-formato-textual="selectedFormatoTextual" />
+          v-model:modelo-formato-textual="selectedFormatoTextual" v-model:modelo-cantidad-literal="cantidadLiteral"
+          v-model:modelo-cantidad-inferencial="cantidadInferencial" v-model:modelo-cantidad-critico="cantidadCritico"
+          :is-breakdown-valid="isBreakdownValid" :total-breakdown="totalBreakdown" />
 
         <!-- Main Content -->
         <div class="grid lg:grid-cols-2 gap-4 sm:gap-6">
@@ -296,7 +314,7 @@ onMounted(loadInitialData);
             v-model:selected-desempeno-ids="selectedDesempenoIds" :loading="loading" :error="error"
             :prompt-texto="promptTexto" v-model:show-prompt-modal="showPromptModal"
             @select-all-capacidad="selectAllCapacidad" @deselect-all-capacidad="deselectAllCapacidad"
-            @generar-preguntas="generarPreguntas" />
+            @generar-preguntas="generarPreguntas" :is-breakdown-valid="isBreakdownValid" />
 
           <!-- Right: Results -->
           <LectoSistemResults :resultado="resultado" :loading="loading" :show-results="showResults"
@@ -313,7 +331,8 @@ onMounted(loadInitialData);
           <History class="w-12 h-12 text-gray-300 dark:text-slate-600 mx-auto mb-4" />
           <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-2">Sin exámenes guardados</h3>
           <p class="text-slate-500 dark:text-slate-400 text-sm max-w-md mx-auto">
-            Los exámenes que generes se guardarán automáticamente aquí para que puedas consultarlos o vincularlos con el sistematizador.
+            Los exámenes que generes se guardarán automáticamente aquí para que puedas consultarlos o vincularlos con el
+            sistematizador.
           </p>
         </div>
 
@@ -338,7 +357,8 @@ onMounted(loadInitialData);
             <div v-for="(entry, index) in history" :key="entry.id"
               class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group">
               <!-- Card Header -->
-              <div class="bg-gradient-to-r from-sky-50 to-teal-50 dark:from-sky-900/20 dark:to-teal-900/20 px-4 py-3 border-b border-gray-100 dark:border-slate-700">
+              <div
+                class="bg-gradient-to-r from-sky-50 to-teal-50 dark:from-sky-900/20 dark:to-teal-900/20 px-4 py-3 border-b border-gray-100 dark:border-slate-700">
                 <h4 class="text-sm font-bold text-slate-800 dark:text-white truncate">
                   {{ entry.resultado.examen.titulo }}
                 </h4>

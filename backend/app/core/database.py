@@ -43,10 +43,24 @@ async def init_db():
     # Importar modelos aquí para asegurar que se registren en Base.metadata
     from app.models.db_models import (
         Grado, Capacidad, Desempeno,
-        CompetenciaMatematica, CapacidadMatematica, 
+        CompetenciaMatematica, CapacidadMatematica,
         EstandarMatematica, DesempenoMatematica
     )
     from app.models.docente import Docente
-    
+
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+        # Migración suave: agregar columnas nuevas si no existen
+        from sqlalchemy import text
+        new_columns = [
+            ("apellidos", "VARCHAR(100)"),
+            ("profesion", "VARCHAR(100)"),
+            ("institucion_educativa", "VARCHAR(200)"),
+            ("nivel_educativo", "VARCHAR(50)"),
+        ]
+        for col, typedef in new_columns:
+            try:
+                await conn.execute(text(f"ALTER TABLE docentes ADD COLUMN {col} {typedef}"))
+            except Exception:
+                pass

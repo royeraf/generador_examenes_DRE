@@ -1,17 +1,15 @@
 <script setup lang="ts">
-import { BookOpen, Calculator, Sparkles, GraduationCap } from 'lucide-vue-next';
+import { BookOpen, Calculator, Sparkles, GraduationCap, ShieldCheck, Settings, Users } from 'lucide-vue-next';
 import { useTheme } from '../composables/useTheme';
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '../stores/auth';
+import UserBadge from '../components/UserBadge.vue';
 import logoDre from '../assets/logo.png';
 
-useTheme(); // Initialize theme but we don't need isDark ref here since valid classes handle it
+useTheme();
 
-const emit = defineEmits<{
-    (e: 'select-module', module: 'lectosistem' | 'matsistem' | 'admin' | 'adminmat'): void
-}>();
-
-const selectModule = (module: 'lectosistem' | 'matsistem' | 'admin' | 'adminmat') => {
-    emit('select-module', module);
-};
+const router = useRouter();
+const auth = useAuthStore();
 </script>
 
 <template>
@@ -29,6 +27,11 @@ const selectModule = (module: 'lectosistem' | 'matsistem' | 'admin' | 'adminmat'
             <div
                 class="absolute top-[20%] right-[20%] w-72 h-72 bg-amber-200/20 dark:bg-amber-500/10 rounded-full blur-3xl animate-blob animation-delay-4000">
             </div>
+        </div>
+
+        <!-- User Badge (top right) -->
+        <div class="fixed top-6 right-6 z-[100]">
+            <UserBadge />
         </div>
 
         <!-- Content -->
@@ -55,7 +58,6 @@ const selectModule = (module: 'lectosistem' | 'matsistem' | 'admin' | 'adminmat'
                         <div
                             class="relative flex items-center justify-center p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-xl dark:shadow-none border border-slate-100 dark:border-slate-700">
                             <div class="logo-gradient-display-static" :style="{
-                                '--logo-url': `url(${logoDre})`,
                                 'mask-image': `url(${logoDre})`,
                                 '-webkit-mask-image': `url(${logoDre})`
                             }">
@@ -87,7 +89,7 @@ const selectModule = (module: 'lectosistem' | 'matsistem' | 'admin' | 'adminmat'
             <div class="grid md:grid-cols-2 gap-6 md:gap-10 px-4">
 
                 <!-- LectoSistem Card -->
-                <button @click="selectModule('lectosistem')"
+                <button @click="router.push('/lectosistem')"
                     class="group relative bg-white dark:bg-slate-800 rounded-3xl p-8 transition-all duration-300 hover:shadow-2xl hover:shadow-teal-500/20 hover:-translate-y-2 border-2 border-transparent hover:border-teal-400 dark:hover:border-teal-500 text-left animate-fade-in-up delay-300 flex flex-col h-full">
                     <div class="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
                         <BookOpen class="w-32 h-32 text-teal-600 dark:text-teal-400 transform rotate-12" />
@@ -114,7 +116,7 @@ const selectModule = (module: 'lectosistem' | 'matsistem' | 'admin' | 'adminmat'
                 </button>
 
                 <!-- MatSistem Card -->
-                <button @click="selectModule('matsistem')"
+                <button @click="router.push('/matsistem')"
                     class="group relative bg-white dark:bg-slate-800 rounded-3xl p-8 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/20 hover:-translate-y-2 border-2 border-transparent hover:border-indigo-400 dark:hover:border-indigo-500 text-left animate-fade-in-up delay-400 flex flex-col h-full">
                     <div class="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
                         <Calculator class="w-32 h-32 text-indigo-600 dark:text-indigo-400 transform -rotate-12" />
@@ -141,22 +143,35 @@ const selectModule = (module: 'lectosistem' | 'matsistem' | 'admin' | 'adminmat'
 
             </div>
 
-            <div class="mt-12 text-center">
+            <!-- Admin Links (solo para admins) -->
+            <div v-if="auth.isAdmin" class="mt-12 text-center">
                 <p
                     class="text-sm text-slate-400 dark:text-slate-600 flex items-center justify-center gap-2 animate-fade-in delay-500">
                     <Sparkles class="w-4 h-4" /> Desarrollado para la Dirección Regional de Educación Huanuco
                 </p>
                 <div class="flex items-center justify-center gap-4 flex-wrap">
-                    <button @click="selectModule('admin')"
-                        class="mt-4 text-xs text-slate-500 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-300 font-medium transition-colors underline decoration-slate-300 dark:decoration-slate-600 underline-offset-4 animate-fade-in delay-500">
-                        📚 Admin Comunicación
+                    <button @click="router.push('/admin')"
+                        class="mt-4 text-xs text-slate-500 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-300 font-medium transition-colors underline decoration-slate-300 dark:decoration-slate-600 underline-offset-4 animate-fade-in delay-500 flex items-center gap-1.5">
+                        <ShieldCheck class="w-3.5 h-3.5" /> Admin Comunicación
                     </button>
                     <span class="mt-4 text-slate-300 dark:text-slate-600">|</span>
-                    <button @click="selectModule('adminmat')"
-                        class="mt-4 text-xs text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 font-medium transition-colors underline decoration-slate-300 dark:decoration-slate-600 underline-offset-4 animate-fade-in delay-500">
-                        🔢 Admin Matemática
+                    <button @click="router.push('/admin/mat')"
+                        class="mt-4 text-xs text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 font-medium transition-colors underline decoration-slate-300 dark:decoration-slate-600 underline-offset-4 animate-fade-in delay-500 flex items-center gap-1.5">
+                        <Settings class="w-3.5 h-3.5" /> Admin Matemática
+                    </button>
+                    <span class="mt-4 text-slate-300 dark:text-slate-600">|</span>
+                    <button @click="router.push('/admin/usuarios')"
+                        class="mt-4 text-xs text-slate-500 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-300 font-medium transition-colors underline decoration-slate-300 dark:decoration-slate-600 underline-offset-4 animate-fade-in delay-500 flex items-center gap-1.5">
+                        <Users class="w-3.5 h-3.5" /> Gestión de Usuarios
                     </button>
                 </div>
+            </div>
+
+            <div v-else class="mt-12 text-center">
+                <p
+                    class="text-sm text-slate-400 dark:text-slate-600 flex items-center justify-center gap-2 animate-fade-in delay-500">
+                    <Sparkles class="w-4 h-4" /> Desarrollado para la Dirección Regional de Educación Huanuco
+                </p>
             </div>
 
         </div>
@@ -191,102 +206,34 @@ const selectModule = (module: 'lectosistem' | 'matsistem' | 'admin' | 'adminmat'
     opacity: 0;
 }
 
-.delay-100 {
-    animation-delay: 0.1s;
-}
-
-.delay-200 {
-    animation-delay: 0.2s;
-}
-
-.delay-300 {
-    animation-delay: 0.3s;
-}
-
-.delay-400 {
-    animation-delay: 0.4s;
-}
-
-.delay-500 {
-    animation-delay: 0.5s;
-}
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
 
 @keyframes blob {
-    0% {
-        transform: translate(0px, 0px) scale(1);
-    }
-
-    33% {
-        transform: translate(30px, -50px) scale(1.1);
-    }
-
-    66% {
-        transform: translate(-20px, 20px) scale(0.9);
-    }
-
-    100% {
-        transform: translate(0px, 0px) scale(1);
-    }
+    0% { transform: translate(0px, 0px) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+    100% { transform: translate(0px, 0px) scale(1); }
 }
 
 @keyframes fadeInDown {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
-.logo-gradient-display {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, #14b8a6, #4f46e5);
-    mask-size: contain;
-    -webkit-mask-size: contain;
-    mask-repeat: no-repeat;
-    -webkit-mask-repeat: no-repeat;
-    mask-position: center;
-    -webkit-mask-position: center;
-    transition: all 0.3s ease;
-}
-
-.dark .logo-gradient-display {
-    background: linear-gradient(135deg, #5eead4, #818cf8);
-    filter: drop-shadow(0 0 8px rgba(94, 234, 212, 0.3));
-}
-
-.group:hover .logo-gradient-display {
-    transform: scale(1.1);
-    filter: drop-shadow(0 0 12px rgba(94, 234, 212, 0.5));
-}
-
-/* Versión estática sin animaciones */
 .logo-gradient-display-static {
     width: 40px;
     height: 40px;

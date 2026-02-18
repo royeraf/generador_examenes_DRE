@@ -1,11 +1,12 @@
 import axios from 'axios';
-import type { 
-  Grado, 
-  DesempenoItem, 
-  NivelLogro, 
-  GenerarPreguntasRequest, 
+import type {
+  Grado,
+  DesempenoItem,
+  NivelLogro,
+  GenerarPreguntasRequest,
   GenerarExamenResponse,
-  Capacidad
+  Capacidad,
+  Docente
 } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:8000/api');
@@ -15,6 +16,7 @@ export const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 120000, // 2 minutes
 });
 
 // Add auth interceptor
@@ -395,4 +397,57 @@ export const matematicaService = {
 };
 
 export default desempenosService;
+
+// =============================================================================
+// ADMIN USUARIOS SERVICE
+// =============================================================================
+
+export interface DocenteCreatePayload {
+  dni: string
+  nombres?: string
+  apellidos?: string
+  profesion?: string
+  institucion_educativa?: string
+  nivel_educativo?: string
+  is_active?: boolean
+  is_superuser?: boolean
+  password: string
+}
+
+export interface DocenteUpdatePayload {
+  nombres?: string
+  apellidos?: string
+  profesion?: string
+  institucion_educativa?: string
+  nivel_educativo?: string
+  is_active?: boolean
+  is_superuser?: boolean
+  password?: string
+}
+
+export const adminUsuariosService = {
+  async getAll(): Promise<Docente[]> {
+    const response = await apiClient.get<Docente[]>('/admin/docentes')
+    return response.data
+  },
+
+  async create(data: DocenteCreatePayload): Promise<Docente> {
+    const response = await apiClient.post<Docente>('/admin/docentes', data)
+    return response.data
+  },
+
+  async update(id: number, data: DocenteUpdatePayload): Promise<Docente> {
+    const response = await apiClient.put<Docente>(`/admin/docentes/${id}`, data)
+    return response.data
+  },
+
+  async delete(id: number): Promise<void> {
+    await apiClient.delete(`/admin/docentes/${id}`)
+  },
+
+  async toggleActive(id: number): Promise<Docente> {
+    const response = await apiClient.patch<Docente>(`/admin/docentes/${id}/toggle-active`)
+    return response.data
+  },
+}
 
