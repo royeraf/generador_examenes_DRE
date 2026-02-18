@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { BookOpen, Calculator, Sparkles, GraduationCap, ShieldCheck, Settings, Users } from 'lucide-vue-next';
-import { useTheme } from '../composables/useTheme';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import UserBadge from '../components/UserBadge.vue';
+import ThemeToggle from '../components/ThemeToggle.vue';
 import logoDre from '../assets/logo.png';
-
-useTheme();
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -29,8 +27,9 @@ const auth = useAuthStore();
             </div>
         </div>
 
-        <!-- User Badge (top right) -->
-        <div class="fixed top-6 right-6 z-[100]">
+        <!-- Controles fijos superiores -->
+        <div class="fixed top-6 right-6 z-[100] flex items-center gap-2">
+            <ThemeToggle />
             <UserBadge />
         </div>
 

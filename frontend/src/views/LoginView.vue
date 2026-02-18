@@ -6,6 +6,7 @@ import { LogIn, User, Lock, Loader2, AlertCircle } from 'lucide-vue-next';
 import { useForm, useField } from 'vee-validate';
 import * as yup from 'yup';
 import logoDre from '../assets/logo.png';
+import ThemeToggle from '../components/ThemeToggle.vue';
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -63,6 +64,11 @@ const handleDniInput = (e: Event) => {
 <template>
     <div
         class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-gray-200 dark:from-slate-900 dark:to-slate-950 p-4 relative overflow-hidden">
+
+        <!-- Theme Toggle (top right) -->
+        <div class="fixed top-5 right-5 z-[100]">
+            <ThemeToggle />
+        </div>
 
         <!-- Background Decoration -->
         <div class="absolute inset-0 overflow-hidden pointer-events-none">
@@ -123,8 +129,7 @@ const handleDniInput = (e: Event) => {
                                 class="w-full bg-slate-50 dark:bg-slate-800/50 border rounded-xl py-3 pl-10 pr-4 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all text-slate-700 dark:text-slate-200"
                                 :class="dniError ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'" />
                         </div>
-                        <p v-if="dniError"
-                            class="text-red-500 text-[10px] font-medium ml-1 flex items-center gap-1">
+                        <p v-if="dniError" class="text-red-500 text-[10px] font-medium ml-1 flex items-center gap-1">
                             <AlertCircle class="w-3 h-3" /> {{ dniError }}
                         </p>
                     </div>
@@ -136,8 +141,7 @@ const handleDniInput = (e: Event) => {
                                 class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
                                 <Lock class="w-5 h-5" />
                             </div>
-                            <input v-model="passwordValue" type="password"
-                                placeholder="Ingresa tu contraseña"
+                            <input v-model="passwordValue" type="password" placeholder="Ingresa tu contraseña"
                                 class="w-full bg-slate-50 dark:bg-slate-800/50 border rounded-xl py-3 pl-10 pr-4 outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all text-slate-700 dark:text-slate-200"
                                 :class="passwordError ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'" />
                         </div>
@@ -159,7 +163,7 @@ const handleDniInput = (e: Event) => {
             </div>
 
             <p class="text-center text-slate-400 dark:text-slate-500 text-xs mt-6">
-                © 2024 Dirección Regional de Educación Huánuco
+                © 2026 Dirección Regional de Educación Huánuco
             </p>
         </div>
     </div>
@@ -175,16 +179,44 @@ const handleDniInput = (e: Event) => {
 }
 
 @keyframes blob {
-    0% { transform: translate(0px, 0px) scale(1); }
-    33% { transform: translate(30px, -50px) scale(1.1); }
-    66% { transform: translate(-20px, 20px) scale(0.9); }
-    100% { transform: translate(0px, 0px) scale(1); }
+    0% {
+        transform: translate(0px, 0px) scale(1);
+    }
+
+    33% {
+        transform: translate(30px, -50px) scale(1.1);
+    }
+
+    66% {
+        transform: translate(-20px, 20px) scale(0.9);
+    }
+
+    100% {
+        transform: translate(0px, 0px) scale(1);
+    }
 }
 
 @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
-    20%, 40%, 60%, 80% { transform: translateX(4px); }
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+        transform: translateX(-4px);
+    }
+
+    20%,
+    40%,
+    60%,
+    80% {
+        transform: translateX(4px);
+    }
 }
 
 .animate-shake {

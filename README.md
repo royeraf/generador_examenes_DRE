@@ -93,4 +93,4 @@ GOOGLE_API_KEY=tu_api_key_de_google
 
 ## 📝 Licencia
 
-DREHCO © 2024
+DREHCO © 2026
