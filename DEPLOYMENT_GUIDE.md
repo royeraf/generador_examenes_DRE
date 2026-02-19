@@ -12,28 +12,29 @@
 
 ### Pasos para configurar en Render:
 
-#### Opción 1: Mediante Build Command (Recomendado)
+Puesto que el proyecto tiene un **frontend (Vue)** y un **backend (FastAPI)**, y el backend sirve los archivos estáticos del frontend, la configuración recomendada es:
 
-1. Ve al dashboard de Render
-2. Selecciona tu servicio backend
-3. Edita las configuraciones
-4. En **Build Command**, agrega la carga de datos:
-   ```bash
-   pip install -r requirements.txt && cd backend && python init_data.py && cd ..
-   ```
+#### Configuración del Web Service (Backend)
 
-5. En **Start Command**, deja tu comando actual (ej: `gunicorn app.main:app`)
+1.  **Environment Variables**:
+    *   `DATABASE_URL`: `postgresql+asyncpg://usuario:password@host:puerto/nombre_db` (Obtenlo de Render PostgreSQL)
+    *   `GOOGLE_API_KEY`: Tu clave de Google AI.
+    *   `SECRET_KEY`: Una cadena aleatoria larga para JWT.
+    *   `PYTHON_VERSION`: `3.10` o superior (Render usa 3.7 por defecto si no se especifica).
 
-#### Opción 2: Mediante Scripts en el Procfile
+2.  **Build Command**:
+    ```bash
+    pip install -r backend/requirements.txt && npm install --prefix frontend && npm run build --prefix frontend && cd backend && python init_data.py
+    ```
+    *Este comando instala dependencias, construye el frontend y carga los datos iniciales en PostgreSQL.*
 
-Si usas un Procfile, agrega:
-```procfile
-web: cd backend && python init_data.py && gunicorn app.main:app
-```
+3.  **Start Command**:
+    ```bash
+    cd backend && gunicorn -k uvicorn.workers.UvicornWorker app.main:app
+    ```
 
-#### Opción 3: Ejecutar manualmente después del deploy
-
-Después de que se haya desplegado, ejecuta manualmente:
+#### Opción 2: Si ya tienes el deploy y solo quieres cargar datos manualmente
+Si el sistema ya está arriba pero la base de datos está vacía, puedes ejecutar el script desde el **Shell** de Render:
 ```bash
 cd backend
 python init_data.py

@@ -17,7 +17,13 @@ from app.models.db_models import Grado, Capacidad, Desempeno
 
 # Motor síncrono para el script de carga
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./desempenos.db")
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+if DATABASE_URL.startswith("postgresql+asyncpg://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql+asyncpg://", "postgresql://")
+
+if DATABASE_URL.startswith("postgresql"):
+    engine = create_engine(DATABASE_URL)
+else:
+    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(bind=engine)
 
 
