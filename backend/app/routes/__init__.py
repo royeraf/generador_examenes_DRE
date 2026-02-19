@@ -19,6 +19,7 @@ from app.routes.lectosistem import router as lectosistem_router
 from app.routes.admin import router as admin_router
 from app.routes.matsistem import router as matsistem_router
 from app.routes.auth import router as auth_router
+from app.routes.examenes import router as examenes_router
 
 
 def create_api_router() -> APIRouter:
@@ -71,7 +72,15 @@ def create_api_router() -> APIRouter:
         tags=["Autenticación"]
     )
 
-    
+    # ==========================================================================
+    # MÓDULO: EXÁMENES GUARDADOS
+    # ==========================================================================
+    api_router.include_router(
+        examenes_router,
+        prefix="/examenes",
+        tags=["Exámenes Guardados"]
+    )
+
     return api_router
 
 

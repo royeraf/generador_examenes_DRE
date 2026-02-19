@@ -3,7 +3,7 @@ Rutas API para el módulo de Matemática (MatSistem).
 Provee endpoints para consultar competencias, capacidades, estándares y desempeños.
 """
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload, joinedload
@@ -16,7 +16,8 @@ from app.models.db_models import (
     CompetenciaMatematica,
     CapacidadMatematica,
     EstandarMatematica,
-    DesempenoMatematica
+    DesempenoMatematica,
+    ExamenMatematica
 )
 
 
@@ -545,13 +546,15 @@ class GenerarExamenMatRequest(BaseModel):
 @router.post("/generar")
 async def generar_examen_matematica(
     request: GenerarExamenMatRequest,
+    req: Request,
     db: AsyncSession = Depends(get_db)
 ):
     """
     Genera un examen de matemática con situación problemática integradora.
+    Si el request incluye un token JWT válido, el exámen se guarda automáticamente.
     """
     from app.services.matsistem_service import matsistem_service
-    
+
     try:
         resultado = await matsistem_service.generar_examen_matematica(
             db=db,
@@ -563,6 +566,7 @@ async def generar_examen_matematica(
             modelo=request.modelo,
             nivel_dificultad=request.nivel_dificultad
         )
+
         return resultado
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

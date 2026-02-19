@@ -10,6 +10,8 @@ export interface Docente {
   nivel_educativo: string | null
   is_active: boolean
   is_superuser: boolean
+  creado_por_id: number | null
+  fecha_creacion: string | null
 }
 
 export interface Grado {

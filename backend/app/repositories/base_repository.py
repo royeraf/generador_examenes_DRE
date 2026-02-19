@@ -33,6 +33,12 @@ class BaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         )
         return result.scalars().all()
 
+    async def count(self, db: AsyncSession) -> int:
+        """Get total count of records."""
+        from sqlalchemy import func
+        result = await db.execute(select(func.count()).select_from(self.model))
+        return result.scalar() or 0
+
     async def create(
         self,
         db: AsyncSession,

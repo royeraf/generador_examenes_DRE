@@ -260,24 +260,38 @@ async def delete_desempeno(
 
 # --- Docentes (Usuarios) Endpoints ---
 
-@router.get("/docentes", response_model=List[Docente])
+from app.schemas.pagination import PaginatedResponse
+import math
+
+@router.get("/docentes", response_model=PaginatedResponse[Docente])
 async def list_docentes(
+    page: int = 1,
+    size: int = 10,
     db: AsyncSession = Depends(get_db),
     current_user: DocenteModel = Depends(get_current_superuser)
 ):
-    """Listar todos los usuarios."""
-    return await docente_service.get_all_docentes(db)
+    """Listar usuarios con paginación."""
+    skip = (page - 1) * size
+    items, total = await docente_service.get_paginated_docentes(db, skip=skip, limit=size)
+    
+    return PaginatedResponse(
+        items=items,
+        total=total,
+        page=page,
+        size=size,
+        pages=math.ceil(total / size) if total > 0 else 0
+    )
 
 
 @router.post("/docentes", response_model=Docente, status_code=201)
 async def create_docente(
     docente_in: DocenteAdminCreate,
     db: AsyncSession = Depends(get_db),
-    _: DocenteModel = Depends(get_current_superuser)
+    current_user: DocenteModel = Depends(get_current_superuser)
 ):
     """Crear un nuevo usuario (solo admin)."""
     try:
-        return await docente_service.create_docente(db, docente_in)
+        return await docente_service.create_docente(db, docente_in, creado_por_id=current_user.id)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

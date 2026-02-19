@@ -15,7 +15,8 @@ class DocenteService:
     async def create_docente(
         self,
         db: AsyncSession,
-        docente_in: DocenteCreate
+        docente_in: DocenteCreate,
+        creado_por_id: Optional[int] = None
     ) -> Docente:
         """Create new docente with hashed password."""
         existing = await self.repository.get_by_dni(db, docente_in.dni)
@@ -26,6 +27,7 @@ class DocenteService:
         password = obj_in_data.pop("password")
         hashed_password = get_password_hash(password)
         obj_in_data["password_hash"] = hashed_password
+        obj_in_data["creado_por_id"] = creado_por_id
 
         db_obj = Docente(**obj_in_data)
         db.add(db_obj)
@@ -78,12 +80,16 @@ class DocenteService:
         await db.flush()
         return True
 
-    async def get_all_docentes(
+    async def get_paginated_docentes(
         self,
-        db: AsyncSession
-    ) -> List[Docente]:
-        """Get all docentes ordered by id."""
-        return await self.repository.get_all(db)
+        db: AsyncSession,
+        skip: int = 0,
+        limit: int = 10
+    ) -> tuple[List[Docente], int]:
+        """Get paginated docentes and total count."""
+        items = await self.repository.get_multi(db, skip=skip, limit=limit)
+        total = await self.repository.count(db)
+        return items, total
 
 
 docente_service = DocenteService()

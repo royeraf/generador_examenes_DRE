@@ -425,9 +425,19 @@ export interface DocenteUpdatePayload {
   password?: string
 }
 
+export interface PaginatedResponse<T> {
+  items: T[]
+  total: number
+  page: number
+  size: number
+  pages: number
+}
+
 export const adminUsuariosService = {
-  async getAll(): Promise<Docente[]> {
-    const response = await apiClient.get<Docente[]>('/admin/docentes')
+  async getAll(page: number = 1, size: number = 10): Promise<PaginatedResponse<Docente>> {
+    const response = await apiClient.get<PaginatedResponse<Docente>>('/admin/docentes', {
+      params: { page, size }
+    })
     return response.data
   },
 
@@ -450,4 +460,44 @@ export const adminUsuariosService = {
     return response.data
   },
 }
+
+// =============================================================================
+// SERVICIO DE EXÁMENES GUARDADOS
+// =============================================================================
+
+export const examenesService = {
+  // --- Lectura ---
+  async saveExamenLectura(data: any): Promise<any> {
+    const response = await apiClient.post('/examenes/lectura', data);
+    return response.data;
+  },
+  async getExamenesLectura(): Promise<any[]> {
+    const response = await apiClient.get('/examenes/lectura');
+    return response.data;
+  },
+  async getExamenLectura(id: number): Promise<any> {
+    const response = await apiClient.get(`/examenes/lectura/${id}`);
+    return response.data;
+  },
+  async deleteExamenLectura(id: number): Promise<void> {
+    await apiClient.delete(`/examenes/lectura/${id}`);
+  },
+
+  // --- Matemática ---
+  async saveExamenMatematica(data: any): Promise<any> {
+    const response = await apiClient.post('/examenes/matematica', data);
+    return response.data;
+  },
+  async getExamenesMatematica(): Promise<any[]> {
+    const response = await apiClient.get('/examenes/matematica');
+    return response.data;
+  },
+  async getExamenMatematica(id: number): Promise<any> {
+    const response = await apiClient.get(`/examenes/matematica/${id}`);
+    return response.data;
+  },
+  async deleteExamenMatematica(id: number): Promise<void> {
+    await apiClient.delete(`/examenes/matematica/${id}`);
+  },
+};
 

@@ -27,14 +27,21 @@ class Settings(BaseSettings):
         "http://127.0.0.1:5175",
         "https://generador-examenes-dre.onrender.com"
     ]
-    
-    class Config:
-        env_file = ".env"
+
+    # Base de datos
+    database_url: str = os.getenv(
+        "DATABASE_URL",
+        "postgresql+asyncpg://postgres:postgres@localhost:5432/lectosistem_dre"
+    )
 
     # Security
     secret_key: str = os.getenv("SECRET_KEY", "your-secret-key-here")
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24 * 7  # 7 days
+
+    class Config:
+        env_file = ".env"
+        extra = "ignore"  # Ignorar variables de entorno no declaradas
 
 
 @lru_cache()

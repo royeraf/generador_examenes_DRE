@@ -1,55 +1,104 @@
 import { ref } from 'vue';
 import type { ExamenHistoryEntry, GenerarExamenResponse } from '../types';
-
-const STORAGE_KEY = 'matsistem_examHistory';
-const MAX_ENTRIES = 20;
+import { examenesService } from '../services/api';
 
 // Module-level shared state (singleton)
-const history = ref<ExamenHistoryEntry[]>(loadFromStorage());
-
-function loadFromStorage(): ExamenHistoryEntry[] {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : [];
-    } catch {
-        return [];
-    }
-}
-
-function persist() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(history.value));
-}
+const history = ref<ExamenHistoryEntry[]>([]);
+const loadingHistory = ref(false);
+const loadingDelete = ref<string | null>(null);
 
 export function useMatSistemHistory() {
 
-    function saveExam(resultado: GenerarExamenResponse, gradoLabel: string): ExamenHistoryEntry {
-        const entry: ExamenHistoryEntry = {
-            id: Date.now().toString(),
-            fechaCreacion: new Date().toISOString(),
-            gradoLabel,
-            resultado,
-        };
-
-        history.value.unshift(entry);
-
-        // Keep max entries
-        if (history.value.length > MAX_ENTRIES) {
-            history.value = history.value.slice(0, MAX_ENTRIES);
+    async function fetchHistory() {
+        loadingHistory.value = true;
+        try {
+            const data = await examenesService.getExamenesMatematica();
+            history.value = data.map((ex: any) => ({
+                id: ex.id.toString(),
+                fechaCreacion: ex.fecha_creacion,
+                gradoLabel: ex.grado_nombre || 'Grado no especificado',
+                resultado: {
+                    grado: ex.grado_nombre,
+                    total_preguntas: ex.total_preguntas,
+                    examen: {
+                        titulo: ex.titulo,
+                        grado: ex.grado_nombre,
+                    }
+                } as any
+            }));
+        } catch (error) {
+            console.error('Error fetching math history:', error);
+        } finally {
+            loadingHistory.value = false;
         }
-
-        persist();
-        return entry;
     }
 
-    function removeExam(id: string) {
-        history.value = history.value.filter(e => e.id !== id);
-        persist();
+    async function saveExam(resultado: GenerarExamenResponse, gradoLabel: string, params?: any): Promise<void> {
+        try {
+            const payload = {
+                grado_id: params?.grado_id || null,
+                competencia_id: params?.competencia_id || null,
+                titulo: resultado.examen.titulo,
+                grado_nombre: gradoLabel,
+                nivel_dificultad: params?.nivel_dificultad || 'intermedio',
+                modelo_ia: params?.modelo || 'gemini',
+                saludo: resultado.saludo,
+                situacion_problematica: (resultado.examen as any).situacion_problematica,
+                preguntas: resultado.examen.preguntas,
+                tabla_respuestas: resultado.examen.tabla_respuestas,
+                desempenos_usados: resultado.desempenos_usados
+            };
+
+            await examenesService.saveExamenMatematica(payload);
+            await fetchHistory();
+        } catch (error) {
+            console.error('Error saving math exam:', error);
+        }
+    }
+
+    async function getFullExam(id: string): Promise<ExamenHistoryEntry | null> {
+        try {
+            const ex = await examenesService.getExamenMatematica(parseInt(id));
+            return {
+                id: ex.id.toString(),
+                fechaCreacion: ex.fecha_creacion,
+                gradoLabel: ex.grado_nombre,
+                resultado: {
+                    grado: ex.grado_nombre,
+                    desempenos_usados: ex.desempenos_usados,
+                    saludo: ex.saludo,
+                    total_preguntas: ex.preguntas?.length || 0,
+                    examen: {
+                        titulo: ex.titulo,
+                        grado: ex.grado_nombre,
+                        instrucciones: ex.instrucciones,
+                        situacion_problematica: ex.situacion_problematica,
+                        preguntas: ex.preguntas,
+                        tabla_respuestas: ex.tabla_respuestas
+                    } as any
+                }
+            };
+        } catch (error) {
+            console.error('Error fetching full math exam:', error);
+            return null;
+        }
+    }
+
+    async function removeExam(id: string) {
+        loadingDelete.value = id;
+        try {
+            await examenesService.deleteExamenMatematica(parseInt(id));
+            history.value = history.value.filter(e => e.id !== id);
+        } catch (error) {
+            console.error('Error removing math exam:', error);
+        } finally {
+            loadingDelete.value = null;
+        }
     }
 
     function clearHistory() {
         history.value = [];
-        persist();
     }
 
-    return { history, saveExam, removeExam, clearHistory };
+    return { history, loadingHistory, loadingDelete, fetchHistory, saveExam, getFullExam, removeExam, clearHistory };
 }

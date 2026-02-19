@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, Enum, DateTime, JSON
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 import enum
 
 from app.core.database import Base
@@ -195,3 +196,76 @@ class DesempenoMatematica(Base):
     
     def __repr__(self):
         return f"<DesempenoMat {self.codigo}: {self.descripcion[:50]}>"
+
+
+# =============================================================================
+# MODELOS DE EXÁMENES GENERADOS
+# =============================================================================
+
+class ExamenLectura(Base):
+    """
+    Modelo para persistir los exámenes de comprensión lectora generados.
+    Cada exámen queda vinculado al docente que lo generó.
+    """
+    __tablename__ = "examenes_lectura"
+
+    id = Column(Integer, primary_key=True, index=True)
+    docente_id = Column(Integer, ForeignKey("docentes.id"), nullable=False)
+    grado_id = Column(Integer, ForeignKey("grados.id"), nullable=True)
+    fecha_creacion = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    # Metadatos del exámen
+    titulo = Column(String(300), nullable=True)
+    grado_nombre = Column(String(100), nullable=True)
+    nivel_dificultad = Column(String(50), nullable=True)  # basico, intermedio, avanzado
+    modelo_ia = Column(String(50), nullable=True)          # gemini, chatgpt
+
+    # Contenido del exámen
+    saludo = Column(Text, nullable=True)
+    instrucciones = Column(Text, nullable=True)
+    lectura = Column(Text, nullable=True)
+    preguntas = Column(JSON, nullable=True)          # lista de preguntas con opciones
+    tabla_respuestas = Column(JSON, nullable=True)   # tabla de respuestas correctas
+    desempenos_usados = Column(Text, nullable=True)  # texto descriptivo de desempeños
+
+    # Relationships
+    docente = relationship("Docente", back_populates="examenes_lectura")
+    grado = relationship("Grado")
+
+    def __repr__(self):
+        return f"<ExamenLectura id={self.id} docente={self.docente_id} grado={self.grado_nombre}>"
+
+
+class ExamenMatematica(Base):
+    """
+    Modelo para persistir los exámenes de matemática generados.
+    Cada exámen queda vinculado al docente que lo generó.
+    """
+    __tablename__ = "examenes_matematica"
+
+    id = Column(Integer, primary_key=True, index=True)
+    docente_id = Column(Integer, ForeignKey("docentes.id"), nullable=False)
+    grado_id = Column(Integer, ForeignKey("grados.id"), nullable=True)
+    competencia_id = Column(Integer, ForeignKey("competencias_matematica.id"), nullable=True)
+    fecha_creacion = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    # Metadatos del exámen
+    titulo = Column(String(300), nullable=True)
+    grado_nombre = Column(String(100), nullable=True)
+    nivel_dificultad = Column(String(50), nullable=True)  # basico, intermedio, avanzado
+    modelo_ia = Column(String(50), nullable=True)          # gemini, chatgpt
+
+    # Contenido del exámen
+    saludo = Column(Text, nullable=True)
+    situacion_problematica = Column(Text, nullable=True)
+    preguntas = Column(JSON, nullable=True)          # lista de preguntas con opciones
+    tabla_respuestas = Column(JSON, nullable=True)   # tabla de respuestas correctas
+    desempenos_usados = Column(Text, nullable=True)  # texto descriptivo de desempeños
+
+    # Relationships
+    docente = relationship("Docente", back_populates="examenes_matematica")
+    grado = relationship("Grado")
+    competencia = relationship("CompetenciaMatematica")
+
+    def __repr__(self):
+        return f"<ExamenMatematica id={self.id} docente={self.docente_id} grado={self.grado_nombre}>"

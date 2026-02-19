@@ -2,15 +2,25 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, declarative_base
 import os
 
-# Database URL - SQLite file
-# Usamos aiosqlite para soporte asíncrono
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./desempenos.db")
+# Database URL - PostgreSQL
+# Usa asyncpg como driver asíncrono para PostgreSQL
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql+asyncpg://postgres:postgres@localhost:5432/lectosistem_dre"
+)
 
 # Create async engine
+connect_args = {}
+if "render.com" in DATABASE_URL:
+    connect_args["ssl"] = "require"
+
 engine = create_async_engine(
     DATABASE_URL,
     echo=False,  # Set to True for SQL debugging
-    connect_args={"check_same_thread": False}  # Needed for SQLite
+    pool_pre_ping=True,  # Verifica conexiones antes de usarlas
+    pool_size=10,
+    max_overflow=20,
+    connect_args=connect_args
 )
 
 # Async Session factory
@@ -44,23 +54,10 @@ async def init_db():
     from app.models.db_models import (
         Grado, Capacidad, Desempeno,
         CompetenciaMatematica, CapacidadMatematica,
-        EstandarMatematica, DesempenoMatematica
+        EstandarMatematica, DesempenoMatematica,
+        ExamenLectura, ExamenMatematica
     )
     from app.models.docente import Docente
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-
-        # Migración suave: agregar columnas nuevas si no existen
-        from sqlalchemy import text
-        new_columns = [
-            ("apellidos", "VARCHAR(100)"),
-            ("profesion", "VARCHAR(100)"),
-            ("institucion_educativa", "VARCHAR(200)"),
-            ("nivel_educativo", "VARCHAR(50)"),
-        ]
-        for col, typedef in new_columns:
-            try:
-                await conn.execute(text(f"ALTER TABLE docentes ADD COLUMN {col} {typedef}"))
-            except Exception:
-                pass

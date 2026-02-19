@@ -1,4 +1,5 @@
 from typing import Optional
+from datetime import datetime
 from pydantic import BaseModel, Field
 
 
@@ -42,7 +43,8 @@ class DocenteInDBBase(DocenteBase):
 
 
 class Docente(DocenteInDBBase):
-    pass
+    creado_por_id: Optional[int] = None
+    fecha_creacion: Optional[datetime] = None
 
 
 class DocenteInDB(DocenteInDBBase):

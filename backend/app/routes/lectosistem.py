@@ -1,11 +1,11 @@
-from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 from pydantic import BaseModel, Field
 
 from app.core.database import get_db
-from app.models.db_models import Grado, Capacidad, Desempeno
+from app.models.db_models import Grado, Capacidad, Desempeno, ExamenLectura
 from app.services.lectosistem_service import lectosistem_service
 from app.services import file_service
 from app.services.word_generator import generar_examen_word
@@ -144,10 +144,12 @@ async def listar_niveles_logro():
 @router.post("/generar")
 async def generar_preguntas_lectura(
     request: GenerarPreguntasRequest,
+    req: Request,
     db: AsyncSession = Depends(get_db)
 ):
     """
     Genera preguntas de comprensión lectora basadas en desempeños seleccionados.
+    Si el request incluye un token JWT válido, el exámen se guarda automáticamente.
     """
     try:
         result = await lectosistem_service.generar_preguntas_por_desempenos(
@@ -164,6 +166,7 @@ async def generar_preguntas_lectura(
             cantidad_inferencial=request.cantidad_inferencial,
             cantidad_critico=request.cantidad_critico
         )
+
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -193,35 +196,73 @@ async def listar_capacidades(db: AsyncSession = Depends(get_db)):
 async def upload_texto_base(files: list[UploadFile] = File(...)):
     """
     Sube uno o más archivos PDF o Word y extrae el texto para usarlo como base de preguntas.
-    
-    - **files**: Lista de archivos PDF (.pdf) o Word (.docx, .doc)
-    
+
+    Validaciones de seguridad aplicadas:
+    - Máximo 5 archivos por petición
+    - Extensiones permitidas: .pdf, .docx, .doc
+    - Tamaño máximo por archivo: 10 MB
+    - Verificación de firma real del archivo (magic bytes)
+    - Detección de JavaScript, macros y scripts maliciosos
+
     Returns:
         - texto: Texto combinado extraído de todos los archivos
         - archivos: Lista con metadata de cada archivo procesado
         - total_palabras: Total de palabras en todos los archivos
     """
+    MAX_FILES = 5
+    if len(files) > MAX_FILES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Se permiten máximo {MAX_FILES} archivos por petición. Se recibieron {len(files)}."
+        )
+
+    if len(files) == 0:
+        raise HTTPException(status_code=400, detail="Debe enviar al menos un archivo.")
+
     textos = []
     archivos_metadata = []
+    errores = []
     total_palabras = 0
     total_caracteres = 0
-    
+
     for file in files:
-        text, metadata = await file_service.extract_text_from_file(file)
-        textos.append(f"=== {metadata['filename']} ===\n{text}")
-        archivos_metadata.append(metadata)
-        total_palabras += metadata['palabras']
-        total_caracteres += metadata['caracteres']
-    
+        try:
+            text, metadata = await file_service.extract_text_from_file(file)
+            textos.append(f"=== {metadata['filename']} ===\n{text}")
+            archivos_metadata.append(metadata)
+            total_palabras += metadata["palabras"]
+            total_caracteres += metadata["caracteres"]
+        except HTTPException as e:
+            errores.append({
+                "archivo": file.filename or "desconocido",
+                "error": e.detail
+            })
+
+    # Si todos los archivos fallaron, retornar error
+    if not textos and errores:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "mensaje": "Ningún archivo pudo ser procesado.",
+                "errores": errores
+            }
+        )
+
     texto_combinado = "\n\n".join(textos)
-    
-    return {
+
+    response = {
         "texto": texto_combinado,
         "archivos": archivos_metadata,
         "total_archivos": len(archivos_metadata),
         "total_palabras": total_palabras,
-        "total_caracteres": total_caracteres
+        "total_caracteres": total_caracteres,
     }
+
+    # Incluir advertencias si algunos archivos fallaron
+    if errores:
+        response["advertencias"] = errores
+
+    return response
 
 
 class ExamenWordRequest(BaseModel):

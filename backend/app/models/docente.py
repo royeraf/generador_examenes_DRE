@@ -1,4 +1,6 @@
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 from app.core.database import Base
 
 class Docente(Base):
@@ -15,6 +17,15 @@ class Docente(Base):
     password_hash = Column(String(200), nullable=False)
     is_active = Column(Boolean, default=True)
     is_superuser = Column(Boolean, default=False)
+
+    # Rastreo de creación
+    creado_por_id = Column(Integer, ForeignKey("docentes.id", ondelete="SET NULL"), nullable=True)
+    fecha_creacion = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    # Relationships
+    examenes_lectura = relationship("ExamenLectura", back_populates="docente", cascade="all, delete-orphan")
+    examenes_matematica = relationship("ExamenMatematica", back_populates="docente", cascade="all, delete-orphan")
+    creado_por = relationship("Docente", remote_side=[id], foreign_keys=[creado_por_id])
 
     def __repr__(self):
         return f"<Docente {self.dni}: {self.nombres}>"

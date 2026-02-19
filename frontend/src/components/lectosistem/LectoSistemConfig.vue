@@ -234,17 +234,19 @@ const qCritico = computed({
                     <div class="grid grid-cols-3 gap-2">
                         <!-- Literal -->
                         <div class="flex flex-col gap-1.5">
-                            <label class="text-[10px] uppercase font-bold text-teal-600 dark:text-teal-400 text-center tracking-wide">Literal</label>
-                            <div class="flex items-center rounded-xl border-2 border-teal-200 dark:border-teal-700 bg-teal-50 dark:bg-teal-900/20 overflow-hidden">
-                                <button type="button"
-                                    @click="qLiteral = Math.max(0, qLiteral - 1)"
+                            <label
+                                class="text-[10px] uppercase font-bold text-teal-600 dark:text-teal-400 text-center tracking-wide">Literal</label>
+                            <div
+                                class="flex items-center rounded-xl border-2 border-teal-200 dark:border-teal-700 bg-teal-50 dark:bg-teal-900/20 overflow-hidden">
+                                <button type="button" @click="qLiteral = Math.max(0, qLiteral - 1)"
                                     :disabled="qLiteral <= 0"
                                     class="flex items-center justify-center w-8 h-9 text-teal-600 dark:text-teal-400 hover:bg-teal-100 dark:hover:bg-teal-800/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-lg font-bold leading-none select-none shrink-0">
                                     −
                                 </button>
-                                <span class="flex-1 text-center text-sm font-extrabold text-teal-700 dark:text-teal-300 tabular-nums">{{ qLiteral }}</span>
-                                <button type="button"
-                                    @click="qLiteral = Math.min(quantity, qLiteral + 1)"
+                                <span
+                                    class="flex-1 text-center text-sm font-extrabold text-teal-700 dark:text-teal-300 tabular-nums">{{
+                                    qLiteral }}</span>
+                                <button type="button" @click="qLiteral = Math.min(quantity, qLiteral + 1)"
                                     :disabled="qLiteral >= quantity"
                                     class="flex items-center justify-center w-8 h-9 text-teal-600 dark:text-teal-400 hover:bg-teal-100 dark:hover:bg-teal-800/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-lg font-bold leading-none select-none shrink-0">
                                     +
@@ -254,17 +256,19 @@ const qCritico = computed({
 
                         <!-- Inferencial -->
                         <div class="flex flex-col gap-1.5">
-                            <label class="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 text-center tracking-wide">Inferencial</label>
-                            <div class="flex items-center rounded-xl border-2 border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 overflow-hidden">
-                                <button type="button"
-                                    @click="qInferencial = Math.max(0, qInferencial - 1)"
+                            <label
+                                class="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 text-center tracking-wide">Inferencial</label>
+                            <div
+                                class="flex items-center rounded-xl border-2 border-amber-200 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 overflow-hidden">
+                                <button type="button" @click="qInferencial = Math.max(0, qInferencial - 1)"
                                     :disabled="qInferencial <= 0"
                                     class="flex items-center justify-center w-8 h-9 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-800/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-lg font-bold leading-none select-none shrink-0">
                                     −
                                 </button>
-                                <span class="flex-1 text-center text-sm font-extrabold text-amber-700 dark:text-amber-300 tabular-nums">{{ qInferencial }}</span>
-                                <button type="button"
-                                    @click="qInferencial = Math.min(quantity, qInferencial + 1)"
+                                <span
+                                    class="flex-1 text-center text-sm font-extrabold text-amber-700 dark:text-amber-300 tabular-nums">{{
+                                    qInferencial }}</span>
+                                <button type="button" @click="qInferencial = Math.min(quantity, qInferencial + 1)"
                                     :disabled="qInferencial >= quantity"
                                     class="flex items-center justify-center w-8 h-9 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-800/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-lg font-bold leading-none select-none shrink-0">
                                     +
@@ -274,17 +278,19 @@ const qCritico = computed({
 
                         <!-- Crítico -->
                         <div class="flex flex-col gap-1.5">
-                            <label class="text-[10px] uppercase font-bold text-violet-600 dark:text-violet-400 text-center tracking-wide">Crítico</label>
-                            <div class="flex items-center rounded-xl border-2 border-violet-200 dark:border-violet-700 bg-violet-50 dark:bg-violet-900/20 overflow-hidden">
-                                <button type="button"
-                                    @click="qCritico = Math.max(0, qCritico - 1)"
+                            <label
+                                class="text-[10px] uppercase font-bold text-violet-600 dark:text-violet-400 text-center tracking-wide">Crítico</label>
+                            <div
+                                class="flex items-center rounded-xl border-2 border-violet-200 dark:border-violet-700 bg-violet-50 dark:bg-violet-900/20 overflow-hidden">
+                                <button type="button" @click="qCritico = Math.max(0, qCritico - 1)"
                                     :disabled="qCritico <= 0"
                                     class="flex items-center justify-center w-8 h-9 text-violet-600 dark:text-violet-400 hover:bg-violet-100 dark:hover:bg-violet-800/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-lg font-bold leading-none select-none shrink-0">
                                     −
                                 </button>
-                                <span class="flex-1 text-center text-sm font-extrabold text-violet-700 dark:text-violet-300 tabular-nums">{{ qCritico }}</span>
-                                <button type="button"
-                                    @click="qCritico = Math.min(quantity, qCritico + 1)"
+                                <span
+                                    class="flex-1 text-center text-sm font-extrabold text-violet-700 dark:text-violet-300 tabular-nums">{{
+                                    qCritico }}</span>
+                                <button type="button" @click="qCritico = Math.min(quantity, qCritico + 1)"
                                     :disabled="qCritico >= quantity"
                                     class="flex items-center justify-center w-8 h-9 text-violet-600 dark:text-violet-400 hover:bg-violet-100 dark:hover:bg-violet-800/50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-lg font-bold leading-none select-none shrink-0">
                                     +
@@ -324,7 +330,7 @@ const qCritico = computed({
                         <input type="file" accept=".pdf,.docx,.doc" multiple @change="(e) => emit('file-upload', e)"
                             class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                         <div
-                            class="flex items-center justify-center py-4 px-3 bg-gradient-to-br from-sky-50 to-teal-50 dark:bg-slate-900 border-2 border-dashed border-sky-300 dark:border-slate-600 rounded-xl hover:border-teal-400 hover:bg-teal-50 transition-all duration-300">
+                            class="flex items-center justify-center py-4 px-3 bg-gradient-to-br from-sky-50 to-teal-50 dark:from-slate-900 dark:to-slate-950 border-2 border-dashed border-sky-300 dark:border-slate-600 rounded-xl hover:border-teal-400 hover:from-teal-50 hover:to-teal-100 dark:hover:from-slate-800 dark:hover:to-slate-900 transition-all duration-300">
                             <div class="text-center">
                                 <CloudUpload class="w-6 h-6 text-teal-500 mx-auto mb-1" />
                                 <span class="text-teal-600 dark:text-slate-400 text-xs font-medium">📄 PDF o Word</span>

@@ -140,13 +140,13 @@ const deleteItem = async (id: number) => {
             <Header title="Admin" subtitle="Gestión de Comunicación" :is-dark="isDark"
                 gradient-class="from-teal-600 via-teal-500 to-emerald-600 shadow-teal-500/20"
                 class="rounded-xl sm:rounded-2xl mb-6 sticky top-0" @toggle-theme="toggleTheme">
-              <template #actions-before>
-                <button @click="router.push('/')"
-                  class="p-2.5 rounded-xl bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600 transition-all duration-300"
-                  title="Inicio">
-                  <Home class="w-5 h-5" />
-                </button>
-              </template>
+                <template #actions-before>
+                    <button @click="router.push('/')"
+                        class="p-2.5 rounded-xl bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600 transition-all duration-300"
+                        title="Inicio">
+                        <Home class="w-5 h-5" />
+                    </button>
+                </template>
             </Header>
 
             <!-- Tab Navigation -->
@@ -212,53 +212,106 @@ const deleteItem = async (id: number) => {
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-                            <tr v-for="item in (activeTab === 'grados' ? grados : activeTab === 'capacidades' ? capacidades : desempenos)"
-                                :key="item.id" class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                                <td class="p-4 text-sm text-slate-400 font-mono">#{{ item.id }}</td>
-
-                                <!-- Dynamic Body -->
-                                <template v-if="activeTab === 'grados'">
-                                    <td class="p-4 text-sm font-medium text-slate-800 dark:text-slate-200">{{ (item as
-                                        Grado).nombre }}</td>
-                                    <td class="p-4 text-sm text-slate-600 dark:text-slate-400">{{ (item as Grado).numero
-                                        }}</td>
-                                    <td class="p-4 text-sm capitalize"><span
-                                            class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">{{
-                                                (item as Grado).nivel }}</span></td>
-                                </template>
-
-                                <template v-else-if="activeTab === 'capacidades'">
-                                    <td class="p-4 text-sm font-medium text-slate-800 dark:text-slate-200">{{ (item as
-                                        Capacidad).nombre }}</td>
-                                    <td class="p-4 text-sm capitalize">
-                                        <span
-                                            class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-bold">{{
-                                                (item as Capacidad).tipo }}</span>
+                            <template v-if="loading">
+                                <tr v-for="n in 5" :key="n" class="animate-pulse">
+                                    <td class="p-4">
+                                        <div class="h-4 w-8 bg-slate-200 dark:bg-slate-700 rounded"></div>
                                     </td>
-                                </template>
+                                    <template v-if="activeTab === 'grados'">
+                                        <td class="p-4">
+                                            <div class="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                        </td>
+                                        <td class="p-4">
+                                            <div class="h-4 w-8 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                        </td>
+                                        <td class="p-4">
+                                            <div class="h-6 w-16 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                        </td>
+                                    </template>
+                                    <template v-else-if="activeTab === 'capacidades'">
+                                        <td class="p-4">
+                                            <div class="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                        </td>
+                                        <td class="p-4">
+                                            <div class="h-6 w-16 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                        </td>
+                                    </template>
+                                    <template v-else>
+                                        <td class="p-4">
+                                            <div class="h-4 w-12 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                        </td>
+                                        <td class="p-4">
+                                            <div class="h-4 w-64 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                        </td>
+                                        <td class="p-4">
+                                            <div class="h-4 w-24 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                        </td>
+                                    </template>
+                                    <td class="p-4 text-right">
+                                        <div class="h-8 w-16 bg-slate-200 dark:bg-slate-700 rounded ml-auto"></div>
+                                    </td>
+                                </tr>
+                            </template>
+                            <template
+                                v-else-if="(activeTab === 'grados' ? grados : activeTab === 'capacidades' ? capacidades : desempenos).length > 0">
+                                <tr v-for="item in (activeTab === 'grados' ? grados : activeTab === 'capacidades' ? capacidades : desempenos)"
+                                    :key="item.id"
+                                    class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                                    <td class="p-4 text-sm text-slate-400 font-mono">#{{ item.id }}</td>
 
-                                <template v-else>
-                                    <td class="p-4 text-sm font-mono font-bold text-teal-600">{{ (item as
-                                        DesempenoItem).codigo }}</td>
-                                    <td class="p-4 text-sm text-slate-600 dark:text-slate-300 max-w-md">{{ (item as
-                                        DesempenoItem).descripcion }}</td>
-                                    <td class="p-4 text-sm text-slate-500">{{ (item as DesempenoItem).capacidad_nombre
-                                        || (item as DesempenoItem).capacidad_tipo }}</td>
-                                </template>
+                                    <!-- Dynamic Body -->
+                                    <template v-if="activeTab === 'grados'">
+                                        <td class="p-4 text-sm font-medium text-slate-800 dark:text-slate-200">
+                                            {{ (item as Grado).nombre }}
+                                        </td>
+                                        <td class="p-4 text-sm text-slate-600 dark:text-slate-400">
+                                            {{ (item as Grado).numero }}
+                                        </td>
+                                        <td class="p-4 text-sm capitalize">
+                                            <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">
+                                                {{ (item as Grado).nivel }}
+                                            </span>
+                                        </td>
+                                    </template>
 
-                                <td class="p-4 text-right space-x-2">
-                                    <button @click="openModal(item)"
-                                        class="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                                        <Edit class="w-4 h-4" />
-                                    </button>
-                                    <button @click="deleteItem(item.id)"
-                                        class="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                                        <Trash2 class="w-4 h-4" />
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr
-                                v-if="!loading && (activeTab === 'grados' ? grados : activeTab === 'capacidades' ? capacidades : desempenos).length === 0">
+                                    <template v-else-if="activeTab === 'capacidades'">
+                                        <td class="p-4 text-sm font-medium text-slate-800 dark:text-slate-200">
+                                            {{ (item as Capacidad).nombre }}
+                                        </td>
+                                        <td class="p-4 text-sm capitalize">
+                                            <span
+                                                class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-bold">
+                                                {{ (item as Capacidad).tipo }}
+                                            </span>
+                                        </td>
+                                    </template>
+
+                                    <template v-else>
+                                        <td class="p-4 text-sm font-mono font-bold text-teal-600">
+                                            {{ (item as DesempenoItem).codigo }}
+                                        </td>
+                                        <td class="p-4 text-sm text-slate-600 dark:text-slate-300 max-w-md">
+                                            {{ (item as DesempenoItem).descripcion }}
+                                        </td>
+                                        <td class="p-4 text-sm text-slate-500">
+                                            {{ (item as DesempenoItem).capacidad_nombre || (item as
+                                                DesempenoItem).capacidad_tipo }}
+                                        </td>
+                                    </template>
+
+                                    <td class="p-4 text-right space-x-2">
+                                        <button @click="openModal(item)"
+                                            class="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                            <Edit class="w-4 h-4" />
+                                        </button>
+                                        <button @click="deleteItem(item.id)"
+                                            class="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                                            <Trash2 class="w-4 h-4" />
+                                        </button>
+                                    </td>
+                                </tr>
+                            </template>
+                            <tr v-else>
                                 <td colspan="100" class="p-8 text-center text-slate-400">
                                     No hay registros encontrados
                                 </td>

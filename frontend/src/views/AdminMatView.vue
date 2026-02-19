@@ -212,13 +212,13 @@ const deleteItem = async (id: number) => {
                 mascota-bubble-class="border-violet-300 dark:border-violet-500"
                 mascota-text-class="text-violet-600 dark:text-violet-400" class="rounded-2xl mb-8 sticky top-0"
                 @toggle-theme="toggleTheme">
-              <template #actions-before>
-                <button @click="router.push('/')"
-                  class="p-2.5 rounded-xl bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600 transition-all duration-300"
-                  title="Inicio">
-                  <Home class="w-5 h-5" />
-                </button>
-              </template>
+                <template #actions-before>
+                    <button @click="router.push('/')"
+                        class="p-2.5 rounded-xl bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600 transition-all duration-300"
+                        title="Inicio">
+                        <Home class="w-5 h-5" />
+                    </button>
+                </template>
             </Header>
 
             <!-- Tab Navigation & Stats -->
@@ -328,91 +328,148 @@ const deleteItem = async (id: number) => {
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
 
-                            <!-- Competencias Rows -->
-                            <template v-if="activeTab === 'competencias'">
-                                <tr v-for="item in competencias" :key="item.id"
-                                    class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                                    <td class="p-4 text-sm text-slate-400 font-mono">#{{ item.id }}</td>
+                            <!-- Loading State -->
+                            <template v-if="loading">
+                                <tr v-for="n in 5" :key="n" class="animate-pulse">
                                     <td class="p-4">
-                                        <span
-                                            class="px-3 py-1 bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400 rounded-full text-sm font-bold">
-                                            {{ item.codigo }}
-                                        </span>
+                                        <div class="h-4 w-8 bg-slate-200 dark:bg-slate-700 rounded"></div>
                                     </td>
-                                    <td class="p-4 text-sm font-medium text-slate-800 dark:text-slate-200">{{
-                                        item.nombre }}</td>
-                                    <td class="p-4 text-sm text-slate-600 dark:text-slate-400 max-w-md truncate">{{
-                                        item.descripcion?.slice(0, 100) }}...</td>
-                                    <td class="p-4 text-right space-x-2">
-                                        <button @click="openModal(item)"
-                                            class="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                                            <Eye class="w-4 h-4" />
-                                        </button>
+                                    <template v-if="activeTab === 'competencias'">
+                                        <td class="p-4">
+                                            <div class="h-6 w-12 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+                                        </td>
+                                        <td class="p-4">
+                                            <div class="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                        </td>
+                                        <td class="p-4">
+                                            <div class="h-4 w-64 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                        </td>
+                                    </template>
+                                    <template v-else-if="activeTab === 'capacidades'">
+                                        <td class="p-4">
+                                            <div class="h-6 w-8 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+                                        </td>
+                                        <td class="p-4">
+                                            <div class="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                        </td>
+                                        <td class="p-4">
+                                            <div class="h-6 w-24 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                        </td>
+                                    </template>
+                                    <template v-else>
+                                        <td class="p-4">
+                                            <div class="h-6 w-12 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                        </td>
+                                        <td class="p-4">
+                                            <div class="h-4 w-72 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                        </td>
+                                        <td class="p-4">
+                                            <div class="flex flex-col gap-2">
+                                                <div class="h-3 w-12 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                                <div class="h-3 w-20 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                            </div>
+                                        </td>
+                                    </template>
+                                    <td class="p-4 text-right">
+                                        <div class="h-8 w-16 bg-slate-200 dark:bg-slate-700 rounded ml-auto"></div>
                                     </td>
                                 </tr>
+                            </template>
+
+                            <!-- Competencias Rows -->
+                            <template v-else-if="activeTab === 'competencias'">
+                                <template v-if="competencias.length > 0">
+                                    <tr v-for="item in competencias" :key="item.id"
+                                        class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                                        <td class="p-4 text-sm text-slate-400 font-mono">#{{ item.id }}</td>
+                                        <td class="p-4">
+                                            <span
+                                                class="px-3 py-1 bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400 rounded-full text-sm font-bold">
+                                                {{ item.codigo }}
+                                            </span>
+                                        </td>
+                                        <td class="p-4 text-sm font-medium text-slate-800 dark:text-slate-200">{{
+                                            item.nombre }}</td>
+                                        <td class="p-4 text-sm text-slate-600 dark:text-slate-400 max-w-md truncate">{{
+                                            item.descripcion?.slice(0, 100) }}...</td>
+                                        <td class="p-4 text-right space-x-2">
+                                            <button @click="openModal(item)"
+                                                class="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                                <Eye class="w-4 h-4" />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
                             </template>
 
                             <!-- Capacidades Rows -->
                             <template v-else-if="activeTab === 'capacidades'">
-                                <tr v-for="item in capacidadesFiltradas" :key="item.id"
-                                    class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                                    <td class="p-4 text-sm text-slate-400 font-mono">#{{ item.id }}</td>
-                                    <td class="p-4">
-                                        <span
-                                            class="px-3 py-1 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 rounded-full text-sm font-bold">
-                                            {{ item.orden }}
-                                        </span>
-                                    </td>
-                                    <td class="p-4 text-sm font-medium text-slate-800 dark:text-slate-200">{{
-                                        item.nombre }}</td>
-                                    <td class="p-4 text-sm text-slate-600 dark:text-slate-400">
-                                        <span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded text-xs">
-                                            {{ item.competencia_nombre }}
-                                        </span>
-                                    </td>
-                                    <td class="p-4 text-right space-x-2">
-                                        <button @click="openModal(item)"
-                                            class="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                                            <Eye class="w-4 h-4" />
-                                        </button>
-                                    </td>
-                                </tr>
+                                <template v-if="capacidadesFiltradas.length > 0">
+                                    <tr v-for="item in capacidadesFiltradas" :key="item.id"
+                                        class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                                        <td class="p-4 text-sm text-slate-400 font-mono">#{{ item.id }}</td>
+                                        <td class="p-4">
+                                            <span
+                                                class="px-3 py-1 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 rounded-full text-sm font-bold">
+                                                {{ item.orden }}
+                                            </span>
+                                        </td>
+                                        <td class="p-4 text-sm font-medium text-slate-800 dark:text-slate-200">{{
+                                            item.nombre }}</td>
+                                        <td class="p-4 text-sm text-slate-600 dark:text-slate-400">
+                                            <span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded text-xs">
+                                                {{ item.competencia_nombre }}
+                                            </span>
+                                        </td>
+                                        <td class="p-4 text-right space-x-2">
+                                            <button @click="openModal(item)"
+                                                class="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                                <Eye class="w-4 h-4" />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
                             </template>
 
                             <!-- Desempeños Rows -->
-                            <template v-else>
-                                <tr v-for="item in desempenos" :key="item.id"
-                                    class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                                    <td class="p-4 text-sm text-slate-400 font-mono">#{{ item.id }}</td>
-                                    <td class="p-4">
-                                        <span
-                                            class="px-2 py-1 bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 rounded font-mono text-sm font-bold">
-                                            {{ item.codigo }}
-                                        </span>
-                                    </td>
-                                    <td class="p-4 text-sm text-slate-600 dark:text-slate-300 max-w-lg">
-                                        {{ item.descripcion.slice(0, 150) }}{{ item.descripcion.length > 150 ? '...' :
-                                            '' }}
-                                    </td>
-                                    <td class="p-4 text-sm text-slate-500">
-                                        <div class="flex flex-col gap-1">
-                                            <span class="text-xs font-medium text-purple-600 dark:text-purple-400">Cap.
-                                                {{ item.capacidad_orden }}</span>
-                                            <span class="text-xs text-slate-400">{{ item.capacidad_nombre.slice(0, 30)
-                                            }}...</span>
-                                        </div>
-                                    </td>
-                                    <td class="p-4 text-right space-x-2">
-                                        <button @click="openModal(item)"
-                                            class="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                                            <Edit class="w-4 h-4" />
-                                        </button>
-                                        <button @click="deleteItem(item.id)"
-                                            class="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                                            <Trash2 class="w-4 h-4" />
-                                        </button>
-                                    </td>
-                                </tr>
+                            <template v-else-if="activeTab === 'desempenos'">
+                                <template v-if="desempenos.length > 0">
+                                    <tr v-for="item in desempenos" :key="item.id"
+                                        class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                                        <td class="p-4 text-sm text-slate-400 font-mono">#{{ item.id }}</td>
+                                        <td class="p-4">
+                                            <span
+                                                class="px-2 py-1 bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 rounded font-mono text-sm font-bold">
+                                                {{ item.codigo }}
+                                            </span>
+                                        </td>
+                                        <td class="p-4 text-sm text-slate-600 dark:text-slate-300 max-w-lg">
+                                            {{ item.descripcion.slice(0, 150) }}{{ item.descripcion.length > 150 ? '...'
+                                                :
+                                                '' }}
+                                        </td>
+                                        <td class="p-4 text-sm text-slate-500">
+                                            <div class="flex flex-col gap-1">
+                                                <span
+                                                    class="text-xs font-medium text-purple-600 dark:text-purple-400">Cap.
+                                                    {{ item.capacidad_orden }}</span>
+                                                <span class="text-xs text-slate-400">{{ item.capacidad_nombre.slice(0,
+                                                    30)
+                                                    }}...</span>
+                                            </div>
+                                        </td>
+                                        <td class="p-4 text-right space-x-2">
+                                            <button @click="openModal(item)"
+                                                class="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                                <Edit class="w-4 h-4" />
+                                            </button>
+                                            <button @click="deleteItem(item.id)"
+                                                class="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                                                <Trash2 class="w-4 h-4" />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
                             </template>
 
                             <!-- Empty State -->
@@ -423,18 +480,6 @@ const deleteItem = async (id: number) => {
                             )">
                                 <td colspan="100" class="p-8 text-center text-slate-400">
                                     No hay registros encontrados
-                                </td>
-                            </tr>
-
-                            <!-- Loading State -->
-                            <tr v-if="loading">
-                                <td colspan="100" class="p-8 text-center text-slate-400">
-                                    <div class="flex items-center justify-center gap-2">
-                                        <div
-                                            class="w-5 h-5 border-2 border-violet-600 border-t-transparent rounded-full animate-spin">
-                                        </div>
-                                        Cargando...
-                                    </div>
                                 </td>
                             </tr>
                         </tbody>

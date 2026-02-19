@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BookOpen, Calculator, Sparkles, GraduationCap, ShieldCheck, Settings, Users } from 'lucide-vue-next';
+import { BookOpen, Calculator, Sparkles, GraduationCap, ShieldCheck, Users } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import UserBadge from '../components/UserBadge.vue';
@@ -89,7 +89,7 @@ const auth = useAuthStore();
 
                 <!-- LectoSistem Card -->
                 <button @click="router.push('/lectosistem')"
-                    class="group relative bg-white dark:bg-slate-800 rounded-3xl p-8 transition-all duration-300 hover:shadow-2xl hover:shadow-teal-500/20 hover:-translate-y-2 border-2 border-transparent hover:border-teal-400 dark:hover:border-teal-500 text-left animate-fade-in-up delay-300 flex flex-col h-full">
+                    class="group relative bg-white dark:bg-slate-800 rounded-3xl p-8 transition-all duration-500 shadow-2xl shadow-slate-900/12 dark:shadow-black/40 hover:shadow-[0_30px_60px_-12px_rgba(20,184,166,0.35)] dark:hover:shadow-[0_30px_60px_-12px_rgba(20,184,166,0.4)] hover:-translate-y-2 border-2 border-transparent hover:border-teal-400 dark:hover:border-teal-500 text-left animate-fade-in-up delay-300 flex flex-col h-full">
                     <div class="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
                         <BookOpen class="w-32 h-32 text-teal-600 dark:text-teal-400 transform rotate-12" />
                     </div>
@@ -116,7 +116,7 @@ const auth = useAuthStore();
 
                 <!-- MatSistem Card -->
                 <button @click="router.push('/matsistem')"
-                    class="group relative bg-white dark:bg-slate-800 rounded-3xl p-8 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/20 hover:-translate-y-2 border-2 border-transparent hover:border-indigo-400 dark:hover:border-indigo-500 text-left animate-fade-in-up delay-400 flex flex-col h-full">
+                    class="group relative bg-white dark:bg-slate-800 rounded-3xl p-8 transition-all duration-500 shadow-2xl shadow-slate-900/12 dark:shadow-black/40 hover:shadow-[0_30px_60px_-12px_rgba(79,70,229,0.35)] dark:hover:shadow-[0_30px_60px_-12px_rgba(79,70,229,0.4)] hover:-translate-y-2 border-2 border-transparent hover:border-indigo-400 dark:hover:border-indigo-500 text-left animate-fade-in-up delay-400 flex flex-col h-full">
                     <div class="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
                         <Calculator class="w-32 h-32 text-indigo-600 dark:text-indigo-400 transform -rotate-12" />
                     </div>
@@ -143,32 +143,73 @@ const auth = useAuthStore();
             </div>
 
             <!-- Admin Links (solo para admins) -->
-            <div v-if="auth.isAdmin" class="mt-12 text-center">
-                <p
-                    class="text-sm text-slate-400 dark:text-slate-600 flex items-center justify-center gap-2 animate-fade-in delay-500">
-                    <Sparkles class="w-4 h-4" /> Desarrollado para la Dirección Regional de Educación Huanuco
-                </p>
-                <div class="flex items-center justify-center gap-4 flex-wrap">
-                    <button @click="router.push('/admin')"
-                        class="mt-4 text-xs text-slate-500 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-300 font-medium transition-colors underline decoration-slate-300 dark:decoration-slate-600 underline-offset-4 animate-fade-in delay-500 flex items-center gap-1.5">
-                        <ShieldCheck class="w-3.5 h-3.5" /> Admin Comunicación
-                    </button>
-                    <span class="mt-4 text-slate-300 dark:text-slate-600">|</span>
-                    <button @click="router.push('/admin/mat')"
-                        class="mt-4 text-xs text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 font-medium transition-colors underline decoration-slate-300 dark:decoration-slate-600 underline-offset-4 animate-fade-in delay-500 flex items-center gap-1.5">
-                        <Settings class="w-3.5 h-3.5" /> Admin Matemática
-                    </button>
-                    <span class="mt-4 text-slate-300 dark:text-slate-600">|</span>
-                    <button @click="router.push('/admin/usuarios')"
-                        class="mt-4 text-xs text-slate-500 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-300 font-medium transition-colors underline decoration-slate-300 dark:decoration-slate-600 underline-offset-4 animate-fade-in delay-500 flex items-center gap-1.5">
-                        <Users class="w-3.5 h-3.5" /> Gestión de Usuarios
-                    </button>
+            <div v-if="auth.isAdmin" class="mt-12 animate-fade-in delay-500">
+
+                <div class="flex items-center justify-center gap-2 mb-5">
+                    <div
+                        class="h-px flex-1 max-w-[80px] bg-gradient-to-r from-transparent to-slate-200 dark:to-slate-700">
+                    </div>
+                    <span
+                        class="flex items-center gap-1.5 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest px-2">
+                        <ShieldCheck class="w-3.5 h-3.5" /> Panel de Administración
+                    </span>
+                    <div
+                        class="h-px flex-1 max-w-[80px] bg-gradient-to-l from-transparent to-slate-200 dark:to-slate-700">
+                    </div>
                 </div>
+
+                <div class="grid grid-cols-3 gap-3 max-w-xl mx-auto px-4">
+
+                    <!-- Admin Comunicación -->
+                    <button @click="router.push('/admin')"
+                        class="group relative bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-2xl p-4 flex flex-col items-center gap-2.5 transition-all duration-300 hover:-translate-y-1 shadow-xl shadow-slate-900/10 dark:shadow-black/20 hover:shadow-2xl hover:shadow-teal-500/25 hover:border-teal-400/60 dark:hover:border-teal-500/60 text-center">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center shadow-md shadow-teal-500/30 group-hover:scale-110 transition-transform duration-300">
+                            <BookOpen class="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-700 dark:text-slate-200 leading-tight">Admin</p>
+                            <p class="text-[10px] text-slate-400 dark:text-slate-500 leading-tight">Comunicación</p>
+                        </div>
+                    </button>
+
+                    <!-- Admin Matemática -->
+                    <button @click="router.push('/admin/mat')"
+                        class="group relative bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-2xl p-4 flex flex-col items-center gap-2.5 transition-all duration-300 hover:-translate-y-1 shadow-xl shadow-slate-900/10 dark:shadow-black/20 hover:shadow-2xl hover:shadow-indigo-500/25 hover:border-indigo-400/60 dark:hover:border-indigo-500/60 text-center">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-md shadow-indigo-500/30 group-hover:scale-110 transition-transform duration-300">
+                            <Calculator class="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-700 dark:text-slate-200 leading-tight">Admin</p>
+                            <p class="text-[10px] text-slate-400 dark:text-slate-500 leading-tight">Matemática</p>
+                        </div>
+                    </button>
+
+                    <!-- Gestión de Usuarios -->
+                    <button @click="router.push('/admin/usuarios')"
+                        class="group relative bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-2xl p-4 flex flex-col items-center gap-2.5 transition-all duration-300 hover:-translate-y-1 shadow-lg shadow-slate-900/5 dark:shadow-black/20 hover:shadow-xl hover:shadow-violet-500/20 hover:border-violet-400/60 dark:hover:border-violet-500/60 text-center">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-400 to-pink-500 flex items-center justify-center shadow-md shadow-violet-500/30 group-hover:scale-110 transition-transform duration-300">
+                            <Users class="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-700 dark:text-slate-200 leading-tight">Gestión de</p>
+                            <p class="text-[10px] text-slate-400 dark:text-slate-500 leading-tight">Usuarios</p>
+                        </div>
+                    </button>
+
+                </div>
+
+                <p
+                    class="text-center text-xs text-slate-400 dark:text-slate-600 flex items-center justify-center gap-1.5 mt-5">
+                    <Sparkles class="w-3.5 h-3.5" /> Desarrollado para la Dirección Regional de Educación Huanuco
+                </p>
             </div>
 
             <div v-else class="mt-12 text-center">
                 <p
-                    class="text-sm text-slate-400 dark:text-slate-600 flex items-center justify-center gap-2 animate-fade-in delay-500">
+                    class="text-sm text-slate-400 dark:text-slate-500 flex items-center justify-center gap-2 animate-fade-in delay-500">
                     <Sparkles class="w-4 h-4" /> Desarrollado para la Dirección Regional de Educación Huanuco
                 </p>
             </div>
@@ -205,32 +246,76 @@ const auth = useAuthStore();
     opacity: 0;
 }
 
-.delay-100 { animation-delay: 0.1s; }
-.delay-200 { animation-delay: 0.2s; }
-.delay-300 { animation-delay: 0.3s; }
-.delay-400 { animation-delay: 0.4s; }
-.delay-500 { animation-delay: 0.5s; }
+.delay-100 {
+    animation-delay: 0.1s;
+}
+
+.delay-200 {
+    animation-delay: 0.2s;
+}
+
+.delay-300 {
+    animation-delay: 0.3s;
+}
+
+.delay-400 {
+    animation-delay: 0.4s;
+}
+
+.delay-500 {
+    animation-delay: 0.5s;
+}
 
 @keyframes blob {
-    0% { transform: translate(0px, 0px) scale(1); }
-    33% { transform: translate(30px, -50px) scale(1.1); }
-    66% { transform: translate(-20px, 20px) scale(0.9); }
-    100% { transform: translate(0px, 0px) scale(1); }
+    0% {
+        transform: translate(0px, 0px) scale(1);
+    }
+
+    33% {
+        transform: translate(30px, -50px) scale(1.1);
+    }
+
+    66% {
+        transform: translate(-20px, 20px) scale(0.9);
+    }
+
+    100% {
+        transform: translate(0px, 0px) scale(1);
+    }
 }
 
 @keyframes fadeInDown {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 .logo-gradient-display-static {
