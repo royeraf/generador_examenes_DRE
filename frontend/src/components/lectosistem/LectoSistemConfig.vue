@@ -17,6 +17,7 @@ const props = defineProps<{
     modeloNivelDificultad: string;
     gradoOptions: { id: number; label: string; group: string }[];
     modeloGradoId: number | null;
+    loadingGrados?: boolean;
     modeloCantidadPreguntas: number;
     modeloUseTextoBase: boolean;
     selectedFiles: File[];
@@ -205,7 +206,11 @@ const qCritico = computed({
                     </div>
                     Grado Escolar
                 </label>
-                <ComboBox v-model="selectedGradoId" :options="gradoOptions" placeholder="Seleccionar grado..." />
+                <div v-if="loadingGrados" class="w-full h-[46px] bg-slate-50 dark:bg-slate-900/50 rounded-xl animate-pulse flex items-center px-4 border-2 border-slate-200/60 dark:border-slate-700/60 transition-all duration-300">
+                    <div class="h-4 w-1/3 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                    <div class="ml-auto w-4 h-4 bg-slate-200 dark:bg-slate-700 rounded-sm"></div>
+                </div>
+                <ComboBox v-else v-model="selectedGradoId" :options="gradoOptions" placeholder="Seleccionar grado..." />
             </div>
 
             <!-- Quantity -->

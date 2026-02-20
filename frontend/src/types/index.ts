@@ -79,6 +79,7 @@ export interface FilaTablaRespuestas {
   desempeno: string;
   nivel: string;
   respuesta_correcta: string;
+  justificacion?: string;
 }
 
 // Estructura del examen generado

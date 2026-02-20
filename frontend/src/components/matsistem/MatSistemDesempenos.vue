@@ -60,30 +60,42 @@ const getCapacidadFullName = (orden: number): string => {
 };
 
 // Helper - Obtener color por orden de capacidad
-const getCapacidadColor = (orden: number): { bg: string; text: string; ring: string } => {
-    const colors: Record<number, { bg: string; text: string; ring: string }> = {
+const getCapacidadColor = (orden: number) => {
+    const colors: Record<number, { bg: string; text: string; ring: string; border: string; bgSelected: string; checkboxClass: string }> = {
         1: {
             bg: 'bg-teal-500',
             text: 'text-teal-600 dark:text-teal-400',
-            ring: 'ring-teal-300 dark:ring-teal-700'
+            ring: 'ring-teal-300 dark:ring-teal-700',
+            border: 'border-teal-200 dark:border-teal-800',
+            bgSelected: 'bg-teal-50 dark:bg-teal-900/20',
+            checkboxClass: 'checked:bg-teal-600 checked:border-teal-600 dark:checked:bg-teal-500 dark:checked:border-teal-500 focus:ring-teal-500/50'
         },
         2: {
             bg: 'bg-amber-500',
             text: 'text-amber-600 dark:text-amber-400',
-            ring: 'ring-amber-300 dark:ring-amber-700'
+            ring: 'ring-amber-300 dark:ring-amber-700',
+            border: 'border-amber-200 dark:border-amber-800',
+            bgSelected: 'bg-amber-50 dark:bg-amber-900/20',
+            checkboxClass: 'checked:bg-amber-600 checked:border-amber-600 dark:checked:bg-amber-500 dark:checked:border-amber-500 focus:ring-amber-500/50'
         },
         3: {
             bg: 'bg-violet-500',
             text: 'text-violet-600 dark:text-violet-400',
-            ring: 'ring-violet-300 dark:ring-violet-700'
+            ring: 'ring-violet-300 dark:ring-violet-700',
+            border: 'border-violet-200 dark:border-violet-800',
+            bgSelected: 'bg-violet-50 dark:bg-violet-900/20',
+            checkboxClass: 'checked:bg-violet-600 checked:border-violet-600 dark:checked:bg-violet-500 dark:checked:border-violet-500 focus:ring-violet-500/50'
         },
         4: {
             bg: 'bg-rose-500',
             text: 'text-rose-600 dark:text-rose-400',
-            ring: 'ring-rose-300 dark:ring-rose-700'
+            ring: 'ring-rose-300 dark:ring-rose-700',
+            border: 'border-rose-200 dark:border-rose-800',
+            bgSelected: 'bg-rose-50 dark:bg-rose-900/20',
+            checkboxClass: 'checked:bg-rose-600 checked:border-rose-600 dark:checked:bg-rose-500 dark:checked:border-rose-500 focus:ring-rose-500/50'
         }
     };
-    return colors[orden] || { bg: 'bg-gray-500', text: 'text-gray-600', ring: 'ring-gray-300' };
+    return colors[orden] || { bg: 'bg-gray-500', text: 'text-gray-600', ring: 'ring-gray-300', border: 'border-gray-200', bgSelected: 'bg-gray-50', checkboxClass: '' };
 };
 </script>
 
@@ -118,16 +130,31 @@ const getCapacidadColor = (orden: number): { bg: string; text: string; ring: str
                 </div>
             </div>
 
-            <!-- Loading -->
-            <div v-if="loadingDesempenos" class="p-4 space-y-3">
-                <div v-for="i in 3" :key="i" class="space-y-2">
-                    <div class="h-4 w-24 bg-gray-200 dark:bg-slate-700 rounded animate-pulse"></div>
-                    <div v-for="j in 2" :key="j"
-                        class="flex items-start gap-2 p-2 bg-gray-50 dark:bg-slate-900 rounded-lg">
-                        <div class="w-4 h-4 bg-gray-200 dark:bg-slate-700 rounded animate-pulse"></div>
-                        <div class="flex-1 space-y-1.5">
-                            <div class="h-2.5 w-full bg-gray-200 dark:bg-slate-700 rounded animate-pulse"></div>
-                            <div class="h-2.5 w-2/3 bg-gray-200 dark:bg-slate-700 rounded animate-pulse"></div>
+            <!-- Loading Skeleton -->
+            <div v-if="loadingDesempenos" class="flex-1 flex flex-col p-4 space-y-4 overflow-hidden">
+                <!-- Skeleton for Tabs -->
+                <div class="flex gap-2 mb-2">
+                    <div v-for="i in 3" :key="i" class="h-10 flex-1 bg-slate-100 dark:bg-slate-800/80 rounded-lg animate-pulse border border-slate-200/50 dark:border-slate-700"></div>
+                </div>
+                <!-- Skeleton for Actions -->
+                <div class="flex justify-between items-center mb-2 px-1">
+                    <div class="h-3 w-48 bg-slate-200/70 dark:bg-slate-800 rounded-full animate-pulse"></div>
+                    <div class="flex gap-2">
+                        <div class="h-6 w-24 bg-slate-200/70 dark:bg-slate-800 rounded-full animate-pulse"></div>
+                        <div class="h-6 w-16 bg-slate-200/70 dark:bg-slate-800 rounded-full animate-pulse"></div>
+                    </div>
+                </div>
+                <!-- Skeleton for List Items -->
+                <div class="space-y-3">
+                    <div v-for="i in 4" :key="i" class="flex items-start gap-4 p-4 rounded-xl border border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/30 animate-pulse">
+                        <div class="w-5 h-5 rounded border-2 border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 mt-0.5"></div>
+                        <div class="flex-1 space-y-3">
+                            <div class="h-5 w-16 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
+                            <div class="space-y-2.5">
+                                <div class="h-3 w-full bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                <div class="h-3 w-5/6 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                                <div class="h-3 w-2/3 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -186,8 +213,9 @@ const getCapacidadColor = (orden: number): { bg: string; text: string; ring: str
                                 <Checkbox v-model="localSelectedDesempenoIds" :value="des.id"
                                     class="group flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-all duration-150 border"
                                     :class="localSelectedDesempenoIds.includes(des.id)
-                                        ? `bg-gray-50 dark:bg-slate-900/50 border-gray-200 dark:border-slate-600 ring-1 ${getCapacidadColor(activeCapacidadTab).ring}`
-                                        : 'border-gray-100 dark:border-slate-700 hover:border-gray-200 dark:hover:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-800/50'">
+                                        ? `${getCapacidadColor(activeCapacidadTab).bgSelected} ${getCapacidadColor(activeCapacidadTab).border} ring-1 ${getCapacidadColor(activeCapacidadTab).ring}`
+                                        : 'border-gray-100 dark:border-slate-700 hover:border-gray-200 dark:hover:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-800/50'"
+                                    :color="getCapacidadColor(activeCapacidadTab).checkboxClass">
                                     <div class="flex items-center gap-2 mb-1">
                                         <span
                                             class="text-[10px] px-2 py-0.5 rounded-md font-mono font-bold bg-gray-100 dark:bg-slate-800"

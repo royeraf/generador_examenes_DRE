@@ -32,6 +32,7 @@ const props = defineProps<{
     nivelesDificultad: NivelDificultadOption[];
     selectedGradoId: number | null;
     gradoOptions: { id: number; label: string; group: string }[];
+    loadingGrados?: boolean;
     selectedCompetenciaId: number | null;
     competenciaOptions: { id: number; label: string; group: string }[];
     cantidadPreguntas: number;
@@ -149,7 +150,11 @@ const localUseTextoBase = computed({
                     </div>
                     Grado Escolar
                 </label>
-                <ComboBox v-model="localSelectedGradoId" :options="gradoOptions" placeholder="Seleccionar grado..." />
+                <div v-if="loadingGrados" class="w-full h-[46px] bg-slate-50 dark:bg-slate-900/50 rounded-xl animate-pulse flex items-center px-4 border-2 border-slate-200/60 dark:border-slate-700/60 transition-all duration-300">
+                    <div class="h-4 w-1/3 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                    <div class="ml-auto w-4 h-4 bg-slate-200 dark:bg-slate-700 rounded-sm"></div>
+                </div>
+                <ComboBox v-else v-model="localSelectedGradoId" :options="gradoOptions" placeholder="Seleccionar grado..." />
             </div>
 
             <!-- Competencia Selection -->

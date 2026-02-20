@@ -51,6 +51,7 @@ const {
   uploadError,
   loading,
   loadingDesempenos,
+  loadingGrados,
   descargandoWord,
   error,
   resultado,
@@ -329,7 +330,7 @@ onMounted(async () => {
         <!-- Configuration Row -->
         <LectoSistemConfig :niveles-dificultad="nivelesDificultad"
           v-model:modelo-nivel-dificultad="selectedNivelDificultad" :grado-options="gradoOptions"
-          v-model:modelo-grado-id="selectedGradoId" v-model:modelo-cantidad-preguntas="cantidadPreguntas"
+          v-model:modelo-grado-id="selectedGradoId" :loading-grados="loadingGrados" v-model:modelo-cantidad-preguntas="cantidadPreguntas"
           v-model:modelo-use-texto-base="useTextoBase" :selected-files="selectedFiles" :files-metadata="filesMetadata"
           :uploading-file="uploadingFile" :upload-error="uploadError" @file-upload="handleFileUpload"
           @clear-files="clearFiles" :tipo-textual-options="tipoTextualOptions"

@@ -39,6 +39,10 @@ const emit = defineEmits<{
     (e: 'vincularSistematizador'): void;
 }>();
 
+const getJustificacion = (numeroPregunta: number): string | undefined => {
+    return props.resultado?.examen.tabla_respuestas.find(t => t.pregunta === numeroPregunta)?.justificacion;
+};
+
 const getNivelBadgeClass = (nivel: string): string => {
     const classes: Record<string, string> = {
         'LITERAL': 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
@@ -208,6 +212,14 @@ const getNivelBadgeClass = (nivel: string): string => {
                                         <Check v-if="opcion.es_correcta" class="w-5 h-5 text-teal-500" />
                                     </div>
                                 </div>
+                                
+                                <div v-if="getJustificacion(pregunta.numero)" class="mt-4 p-4 rounded-xl bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30">
+                                    <h5 class="flex items-center gap-2 text-xs font-bold text-indigo-700 dark:text-indigo-400 mb-1.5">
+                                        <Lightbulb class="w-3.5 h-3.5" />
+                                        Justificación
+                                    </h5>
+                                    <p class="text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed">{{ getJustificacion(pregunta.numero) }}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -242,6 +254,10 @@ const getNivelBadgeClass = (nivel: string): string => {
                                         class="text-center py-3 px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
                                         Rpta.
                                     </th>
+                                    <th
+                                        class="text-left py-3 px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
+                                        Justificación
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
@@ -267,6 +283,9 @@ const getNivelBadgeClass = (nivel: string): string => {
                                             class="w-8 h-8 bg-gradient-to-br from-teal-400 to-teal-600 text-white rounded-lg inline-flex items-center justify-center font-bold text-sm shadow-lg shadow-teal-500/20">
                                             {{ fila.respuesta_correcta }}
                                         </span>
+                                    </td>
+                                    <td class="py-3 px-4 text-slate-600 dark:text-slate-400 text-xs italic">
+                                        {{ fila.justificacion || 'No disponible' }}
                                     </td>
                                 </tr>
                             </tbody>

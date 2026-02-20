@@ -148,7 +148,7 @@ Responde ÚNICAMENTE con un JSON válido que siga esta estructura exacta, sin co
                 "desempeno": "Descripción del desempeño evaluado",
                 "nivel": "Nivel cognitivo",
                 "respuesta_correcta": "B",
-                "justificacion": "Explicación breve de por qué es la respuesta correcta"
+                "justificacion": "Explicación breve de por qué es la respuesta correcta y por qué las demás son incorrectas"
             }}
         ]
     }}
@@ -428,7 +428,7 @@ El examen debe presentar:
 3. 'Instrucciones precisas en un párrafo' para responder el examen
 4. La 'lectura completa' o 'un fragmento de la lectura' que utilizarás para que los estudiantes respondan las preguntas. SI SE ESPECIFICÓ UN FORMATO DISCONTINUO O MIXTO, REPRESENTA LOS ELEMENTOS VISUALES (TABLAS, GRÁFICOS) USANDO MARKDOWN O DESCRIBIÉNDOLOS CLARAMENTE.
 5. Las preguntas con esquema de opción múltiple (4 alternativas A, B, C, D siendo una sola la correcta, en orden aleatorio)
-6. Al final una 'tabla' indicando: los desempeños utilizados, número de pregunta, nivel (LITERAL/INFERENCIAL/CRÍTICO) y alternativa correcta. EN LA TABLA EL DESEMPEÑO DEBE TENER EL FORMATO EXACTO: "(CÓDIGO) DESCRIPCIÓN", por ejemplo: "(01) Obtiene información explícita..."
+6. Al final una 'tabla' indicando: los desempeños utilizados, número de pregunta, nivel (LITERAL/INFERENCIAL/CRÍTICO), alternativa correcta y una justificación breve indicando por qué es correcta. EN LA TABLA EL DESEMPEÑO DEBE TENER EL FORMATO EXACTO: "(CÓDIGO) DESCRIPCIÓN", por ejemplo: "(01) Obtiene información explícita...".
 
 IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
 {{
@@ -457,7 +457,8 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
                 "pregunta": 1,
                 "desempeno": "(01) Descripción o texto del desempeño...",
                 "nivel": "LITERAL|INFERENCIAL|CRITICO",
-                "respuesta_correcta": "A|B|C|D"
+                "respuesta_correcta": "A|B|C|D",
+                "justificacion": "Breve explicación"
             }}
         ]
     }}

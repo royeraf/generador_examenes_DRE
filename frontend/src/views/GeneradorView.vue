@@ -78,6 +78,7 @@ const filesMetadata = ref<{ archivos: { filename: string; palabras: number; cara
 const uploadingFile = shallowRef(false);
 const uploadError = shallowRef<string | null>(null);
 
+const loadingGrados = shallowRef(true);
 const loading = shallowRef(false);
 const loadingDesempenos = shallowRef(false);
 const descargandoWord = shallowRef(false);
@@ -181,6 +182,7 @@ watch(selectedGradoId, async (newGradoId) => {
 
 onMounted(async () => {
   try {
+    loadingGrados.value = true;
     const [gradosData, nivelesData] = await Promise.all([
       desempenosService.getGrados(),
       desempenosService.getNivelesLogro()
@@ -193,6 +195,8 @@ onMounted(async () => {
   } catch (e) {
     console.error('Error loading data:', e);
     error.value = 'Error al cargar los datos iniciales';
+  } finally {
+    loadingGrados.value = false;
   }
 });
 
@@ -567,7 +571,11 @@ const getNivelBadgeClass = (nivel: string): string => {
               </div>
               Grado Escolar
             </label>
-            <ComboBox v-model="selectedGradoId" :options="gradoOptions" placeholder="Seleccionar grado..." />
+            <div v-if="loadingGrados" class="w-full h-[46px] bg-slate-50 dark:bg-slate-900/50 rounded-xl animate-pulse flex items-center px-4 border-2 border-slate-200/60 dark:border-slate-700/60 transition-all duration-300">
+              <div class="h-4 w-1/3 bg-slate-200 dark:bg-slate-700 rounded"></div>
+              <div class="ml-auto w-4 h-4 bg-slate-200 dark:bg-slate-700 rounded-sm"></div>
+            </div>
+            <ComboBox v-else v-model="selectedGradoId" :options="gradoOptions" placeholder="Seleccionar grado..." />
           </div>
 
           <!-- Quantity -->
@@ -686,16 +694,31 @@ const getNivelBadgeClass = (nivel: string): string => {
                 </div>
               </div>
 
-              <!-- Loading -->
-              <div v-if="loadingDesempenos" class="p-4 space-y-3">
-                <div v-for="i in 3" :key="i" class="space-y-2">
-                  <div class="h-4 w-24 bg-gray-200 dark:bg-slate-700 rounded animate-pulse"></div>
-                  <div v-for="j in 2" :key="j"
-                    class="flex items-start gap-2 p-2 bg-gray-50 dark:bg-slate-900 rounded-lg">
-                    <div class="w-4 h-4 bg-gray-200 dark:bg-slate-700 rounded animate-pulse"></div>
-                    <div class="flex-1 space-y-1.5">
-                      <div class="h-2.5 w-full bg-gray-200 dark:bg-slate-700 rounded animate-pulse"></div>
-                      <div class="h-2.5 w-2/3 bg-gray-200 dark:bg-slate-700 rounded animate-pulse"></div>
+              <!-- Loading Skeleton -->
+              <div v-if="loadingDesempenos" class="flex-1 flex flex-col p-4 space-y-4 overflow-hidden">
+                <!-- Skeleton for Tabs -->
+                <div class="flex gap-2 mb-2">
+                  <div v-for="i in 3" :key="i" class="h-10 flex-1 bg-slate-100 dark:bg-slate-800/80 rounded-lg animate-pulse border border-slate-200/50 dark:border-slate-700"></div>
+                </div>
+                <!-- Skeleton for Actions -->
+                <div class="flex justify-between items-center mb-2 px-1">
+                  <div class="h-3 w-48 bg-slate-200/70 dark:bg-slate-800 rounded-full animate-pulse"></div>
+                  <div class="flex gap-2">
+                    <div class="h-6 w-24 bg-slate-200/70 dark:bg-slate-800 rounded-full animate-pulse"></div>
+                    <div class="h-6 w-16 bg-slate-200/70 dark:bg-slate-800 rounded-full animate-pulse"></div>
+                  </div>
+                </div>
+                <!-- Skeleton for List Items -->
+                <div class="space-y-3">
+                  <div v-for="i in 4" :key="i" class="flex items-start gap-4 p-4 rounded-xl border border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/30 animate-pulse">
+                    <div class="w-5 h-5 rounded border-2 border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 mt-0.5"></div>
+                    <div class="flex-1 space-y-3">
+                      <div class="h-5 w-16 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
+                      <div class="space-y-2.5">
+                        <div class="h-3 w-full bg-slate-200 dark:bg-slate-700 rounded"></div>
+                        <div class="h-3 w-5/6 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                        <div class="h-3 w-2/3 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                      </div>
                     </div>
                   </div>
                 </div>

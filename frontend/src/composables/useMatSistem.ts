@@ -62,6 +62,7 @@ export function useMatSistem() {
 
   const loading = shallowRef(false);
   const loadingDesempenos = shallowRef(false);
+  const loadingGrados = shallowRef(true);
   const descargandoWord = shallowRef(false);
   const error = shallowRef<string | null>(null);
   const resultado = ref<{
@@ -150,6 +151,7 @@ export function useMatSistem() {
 
   const loadInitialData = async () => {
     try {
+      loadingGrados.value = true;
       const [gradosData, competenciasData, capacidadesData, nivelesData] = await Promise.all([
         matematicaService.getGrados(),
         matematicaService.getCompetencias(),
@@ -171,6 +173,8 @@ export function useMatSistem() {
     } catch (e) {
       console.error('Error loading data:', e);
       error.value = 'Error al cargar los datos iniciales';
+    } finally {
+      loadingGrados.value = false;
     }
   };
 
@@ -283,7 +287,8 @@ export function useMatSistem() {
             pregunta: t.pregunta,
             desempeno: t.desempeno,
             nivel: t.capacidad,
-            respuesta_correcta: t.respuesta_correcta
+            respuesta_correcta: t.respuesta_correcta,
+            justificacion: t.justificacion
           }))
         },
         total_preguntas: response.total_preguntas
@@ -332,6 +337,7 @@ export function useMatSistem() {
     uploadError,
     loading,
     loadingDesempenos,
+    loadingGrados,
     descargandoWord,
     error,
     resultado,

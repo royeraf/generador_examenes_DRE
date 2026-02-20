@@ -111,13 +111,13 @@ def generar_examen_word(data: dict) -> BytesIO:
     
     if tabla_respuestas:
         # Crear tabla
-        table = doc.add_table(rows=len(tabla_respuestas) + 1, cols=4)
+        table = doc.add_table(rows=len(tabla_respuestas) + 1, cols=5)
         table.style = 'Table Grid'
         table.alignment = WD_TABLE_ALIGNMENT.CENTER
         
         # Encabezados
         header_cells = table.rows[0].cells
-        headers = ["# Pregunta", "Desempeño", "Nivel", "Respuesta"]
+        headers = ["# Pregunta", "Desempeño", "Nivel", "Respuesta", "Justificación"]
         for i, header in enumerate(headers):
             header_cells[i].text = header
             header_cells[i].paragraphs[0].runs[0].bold = True
@@ -136,6 +136,8 @@ def generar_examen_word(data: dict) -> BytesIO:
             
             row_cells[3].text = fila.get("respuesta_correcta", "")
             row_cells[3].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+            
+            row_cells[4].text = fila.get("justificacion", "")
     
     # Guardar en buffer
     buffer = BytesIO()

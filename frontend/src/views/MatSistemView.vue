@@ -53,6 +53,7 @@ const {
   uploadError,
   loading,
   loadingDesempenos,
+  loadingGrados,
   descargandoWord,
   error,
   resultado,
@@ -271,7 +272,7 @@ Genera una **SITUACIÓN PROBLEMÁTICA INTEGRADORA** con ${cantidadPreguntas.valu
 
 7. **TABLA DE RESPUESTAS:**
    Al final, presenta una tabla con:
-   | N° Pregunta | Capacidad | Desempeño evaluado | Alternativa correcta | Justificación breve |
+   | N° Pregunta | Capacidad | Desempeño evaluado | Alternativa correcta | Justificación de la respuesta en detalle |
 
 **IMPORTANTE:**
 - Asegúrate de que las preguntas sean apropiadas para el nivel de ${grado?.nombre}
@@ -355,7 +356,7 @@ onMounted(async () => {
 
         <!-- MatSistemConfig -->
         <MatSistemConfig v-model:selectedNivelDificultad="selectedNivelDificultad"
-          :nivelesDificultad="nivelesDificultad" v-model:selectedGradoId="selectedGradoId" :gradoOptions="gradoOptions"
+          :nivelesDificultad="nivelesDificultad" v-model:selectedGradoId="selectedGradoId" :gradoOptions="gradoOptions" :loading-grados="loadingGrados"
           v-model:selectedCompetenciaId="selectedCompetenciaId" :competenciaOptions="competenciaOptions"
           v-model:cantidadPreguntas="cantidadPreguntas" v-model:useTextoBase="useTextoBase"
           :selectedFiles="selectedFiles" :filesMetadata="filesMetadata" :uploadingFile="uploadingFile"

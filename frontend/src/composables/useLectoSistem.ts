@@ -73,6 +73,7 @@ export function useLectoSistem() {
 
   const loading = shallowRef(false);
   const loadingDesempenos = shallowRef(false);
+  const loadingGrados = shallowRef(true);
   const descargandoWord = shallowRef(false);
   const error = shallowRef<string | null>(null);
   const resultado = ref<{
@@ -150,6 +151,7 @@ export function useLectoSistem() {
 
   const loadInitialData = async () => {
     try {
+      loadingGrados.value = true;
       const [gradosData, nivelesData] = await Promise.all([
         desempenosService.getGrados(),
         desempenosService.getNivelesLogro()
@@ -162,6 +164,8 @@ export function useLectoSistem() {
     } catch (e) {
       console.error('Error loading data:', e);
       error.value = 'Error al cargar los datos iniciales';
+    } finally {
+      loadingGrados.value = false;
     }
   };
 
@@ -322,6 +326,7 @@ export function useLectoSistem() {
     
     loading,
     loadingDesempenos,
+    loadingGrados,
     descargandoWord,
     error,
     resultado,

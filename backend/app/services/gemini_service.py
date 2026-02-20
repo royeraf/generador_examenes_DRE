@@ -1,5 +1,6 @@
 import google.generativeai as genai
 import json
+import asyncio
 from typing import Optional
 
 from app.core.config import get_settings
@@ -29,13 +30,14 @@ class GeminiService(AIService):
             raise ValueError("Google API key no configurada")
 
         try:
-            response = await self.model.generate_content_async(
+            coro = self.model.generate_content_async(
                 prompt,
                 generation_config=genai.types.GenerationConfig(
-                    response_mime_type="application/json",
                     max_output_tokens=8192,
                 ),
+                request_options={"retry": None, "timeout": 60.0}
             )
+            response = await asyncio.wait_for(coro, timeout=45.0)
 
             # Handle blocked or empty responses
             if not response.candidates:
@@ -47,9 +49,13 @@ class GeminiService(AIService):
                 raise ValueError("Gemini devolvió una respuesta vacía")
 
             return text
+        except asyncio.TimeoutError:
+            raise ValueError("La API de Google Gemini tardó demasiado en responder (Timeout). Es posible que la cuota gratuita esté al límite por generar tantas justificaciones detalladas o el modelo se quedó esperando. Intenta de nuevo o genera menos preguntas.")
         except ValueError:
             raise
         except Exception as e:
+            if "Quota exceeded" in str(e) or "429" in str(e):
+                raise ValueError("Se excedió la cuota gratuita de peticiones por minuto a la API de Google Gemini (Token limit). Por favor espera un minuto para volver a intentar, o intenta generar menos preguntas.")
             raise ValueError(f"Error al generar contenido con Gemini: {e}")
     
     def _build_prompt(
