@@ -240,29 +240,42 @@ Responde ÚNICAMENTE con un JSON válido que siga esta estructura exacta, sin co
             texto_base=texto_base
         )
         
-        try:
-            response_text = await ai_service.generate_content(prompt)
-            response_text = ai_service.clean_json_response(response_text)
-            
+        max_retries = 2
+        last_error = None
+        
+        for attempt in range(max_retries):
             try:
-                data = json.loads(response_text)
-            except json.JSONDecodeError as je:
-                print(f"FAILED LECTOSISTEM (NIVEL) JSON: {response_text}")
-                raise ValueError(f"Error al parsear respuesta JSON: {je}")
-            
-            return {
-                "grado": grado.nombre,
-                "nivel_logro": nivel_logro,
-                "desempeno_base": desempeno.descripcion,
-                "capacidad": capacidad_nombre,
-                "preguntas": data.get("preguntas", []),
-                "total": len(data.get("preguntas", []))
-            }
-            
-        except json.JSONDecodeError as e:
-            raise ValueError(f"Error al parsear respuesta de {modelo}: {e}")
-        except Exception as e:
-            raise ValueError(f"Error al generar preguntas: {e}")
+                response_text = await ai_service.generate_content(prompt)
+                response_text = ai_service.clean_json_response(response_text)
+                
+                try:
+                    data = json.loads(response_text)
+                except json.JSONDecodeError as je:
+                    print(f"FAILED LECTOSISTEM (NIVEL) JSON (intento {attempt + 1}/{max_retries}): {response_text[:500]}...")
+                    last_error = je
+                    if attempt < max_retries - 1:
+                        print(f"Reintentando generación (intento {attempt + 2}/{max_retries})...")
+                        continue
+                    raise ValueError(f"Error al parsear respuesta JSON después de {max_retries} intentos: {je}")
+                
+                return {
+                    "grado": grado.nombre,
+                    "nivel_logro": nivel_logro,
+                    "desempeno_base": desempeno.descripcion,
+                    "capacidad": capacidad_nombre,
+                    "preguntas": data.get("preguntas", []),
+                    "total": len(data.get("preguntas", []))
+                }
+                
+            except json.JSONDecodeError as e:
+                raise ValueError(f"Error al parsear respuesta de {modelo}: {e}")
+            except ValueError:
+                raise
+            except Exception as e:
+                if attempt < max_retries - 1 and "parsear" not in str(e):
+                    print(f"Error en intento {attempt + 1}/{max_retries}: {e}. Reintentando...")
+                    continue
+                raise ValueError(f"Error al generar preguntas: {e}")
     
     async def generar_preguntas_por_desempenos(
         self,
@@ -465,28 +478,41 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
 }}
 """
         
-        try:
-            response_text = await ai_service.generate_content(prompt)
-            response_text = ai_service.clean_json_response(response_text)
-            
+        max_retries = 2
+        last_error = None
+        
+        for attempt in range(max_retries):
             try:
-                data = json.loads(response_text)
-            except json.JSONDecodeError as je:
-                print(f"FAILED LECTOSISTEM (DESEMPEÑOS) JSON: {response_text}")
-                raise ValueError(f"Error al parsear respuesta JSON de la IA: {je}")
-            
-            return {
-                "grado": grado.nombre,
-                "desempenos_usados": desempenos_texto,
-                "saludo": data.get("saludo", ""),
-                "examen": data.get("examen", {}),
-                "total_preguntas": len(data.get("examen", {}).get("preguntas", []))
-            }
-            
-        except json.JSONDecodeError as e:
-            raise ValueError(f"Error al parsear respuesta de {modelo}: {e}")
-        except Exception as e:
-            raise ValueError(f"Error al generar preguntas: {e}")
+                response_text = await ai_service.generate_content(prompt)
+                response_text = ai_service.clean_json_response(response_text)
+                
+                try:
+                    data = json.loads(response_text)
+                except json.JSONDecodeError as je:
+                    print(f"FAILED LECTOSISTEM (DESEMPEÑOS) JSON (intento {attempt + 1}/{max_retries}): {response_text[:500]}...")
+                    last_error = je
+                    if attempt < max_retries - 1:
+                        print(f"Reintentando generación (intento {attempt + 2}/{max_retries})...")
+                        continue
+                    raise ValueError(f"Error al parsear respuesta JSON de la IA después de {max_retries} intentos: {je}")
+                
+                return {
+                    "grado": grado.nombre,
+                    "desempenos_usados": desempenos_texto,
+                    "saludo": data.get("saludo", ""),
+                    "examen": data.get("examen", {}),
+                    "total_preguntas": len(data.get("examen", {}).get("preguntas", []))
+                }
+                
+            except json.JSONDecodeError as e:
+                raise ValueError(f"Error al parsear respuesta de {modelo}: {e}")
+            except ValueError:
+                raise
+            except Exception as e:
+                if attempt < max_retries - 1 and "parsear" not in str(e):
+                    print(f"Error en intento {attempt + 1}/{max_retries}: {e}. Reintentando...")
+                    continue
+                raise ValueError(f"Error al generar preguntas: {e}")
 
 
 # Singleton instance

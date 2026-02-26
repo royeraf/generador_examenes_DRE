@@ -110,44 +110,57 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con la siguiente estructura
         """Generate questions using Gemini API."""
         
         prompt = self._build_prompt(competencias, cantidad, tipo, dificultad)
-        response_text = await self.generate_content(prompt)
         
-        try:
-            response_text = self.clean_json_response(response_text)
-            
+        max_retries = 2
+        last_error = None
+        
+        for attempt in range(max_retries):
             try:
-                data = json.loads(response_text)
-            except json.JSONDecodeError as je:
-                print(f"FAILED JSON: {response_text}")
-                raise ValueError(f"Error al parsear respuesta JSON de Gemini: {je}")
-
-            preguntas = []
-            
-            for p in data.get("preguntas", []):
-                opciones = None
-                if p.get("opciones"):
-                    opciones = [
-                        OpcionMultiple(texto=o["texto"], es_correcta=o.get("es_correcta", False))
-                        for o in p["opciones"]
-                    ]
+                response_text = await self.generate_content(prompt)
+                response_text = self.clean_json_response(response_text)
                 
-                pregunta = Pregunta(
-                    enunciado=p["enunciado"],
-                    tipo=TipoPregunta(p.get("tipo", "multiple")),
-                    opciones=opciones,
-                    respuesta_correcta=p.get("respuesta_correcta"),
-                    explicacion=p.get("explicacion"),
-                    dificultad=p.get("dificultad", dificultad),
-                    competencia_asociada=p.get("competencia_asociada")
-                )
-                preguntas.append(pregunta)
-            
-            return preguntas
-            
-        except json.JSONDecodeError as e:
-            raise ValueError(f"Error al parsear respuesta de Gemini: {e}")
-        except Exception as e:
-            raise ValueError(f"Error al procesar preguntas con Gemini: {e}")
+                try:
+                    data = json.loads(response_text)
+                except json.JSONDecodeError as je:
+                    print(f"FAILED JSON (intento {attempt + 1}/{max_retries}): {response_text[:500]}...")
+                    last_error = je
+                    if attempt < max_retries - 1:
+                        print(f"Reintentando generación (intento {attempt + 2}/{max_retries})...")
+                        continue
+                    raise ValueError(f"Error al parsear respuesta JSON de Gemini después de {max_retries} intentos: {je}")
+
+                preguntas = []
+                
+                for p in data.get("preguntas", []):
+                    opciones = None
+                    if p.get("opciones"):
+                        opciones = [
+                            OpcionMultiple(texto=o["texto"], es_correcta=o.get("es_correcta", False))
+                            for o in p["opciones"]
+                        ]
+                    
+                    pregunta = Pregunta(
+                        enunciado=p["enunciado"],
+                        tipo=TipoPregunta(p.get("tipo", "multiple")),
+                        opciones=opciones,
+                        respuesta_correcta=p.get("respuesta_correcta"),
+                        explicacion=p.get("explicacion"),
+                        dificultad=p.get("dificultad", dificultad),
+                        competencia_asociada=p.get("competencia_asociada")
+                    )
+                    preguntas.append(pregunta)
+                
+                return preguntas
+                
+            except json.JSONDecodeError as e:
+                raise ValueError(f"Error al parsear respuesta de Gemini: {e}")
+            except ValueError:
+                raise
+            except Exception as e:
+                if attempt < max_retries - 1 and "parsear" not in str(e):
+                    print(f"Error en intento {attempt + 1}/{max_retries}: {e}. Reintentando...")
+                    continue
+                raise ValueError(f"Error al procesar preguntas con Gemini: {e}")
 
 
 # Singleton instance

@@ -235,36 +235,49 @@ Responde ÚNICAMENTE con un JSON válido que siga esta estructura EXACTA, sin co
             nivel_dificultad=nivel_dificultad
         )
         
-        try:
-            response_text = await ai_service.generate_content(prompt)
-            response_text = ai_service.clean_json_response(response_text)
-            
+        max_retries = 2
+        last_error = None
+        
+        for attempt in range(max_retries):
             try:
-                data = json.loads(response_text)
-            except json.JSONDecodeError as je:
-                print(f"FAILED MATSISTEM JSON: {response_text}")
-                raise ValueError(f"Error al parsear respuesta JSON de matemática: {je}")
-            
-            # Construir texto de desempeños usados
-            # d.capacidad ya está cargado gracias a selectinload
-            desempenos_texto = "\n".join([
-                f"{d.codigo}. {d.descripcion} (Cap: {d.capacidad.nombre})"
-                for d in desempenos
-            ])
-            
-            return {
-                "grado": grado.nombre,
-                "competencia": competencia.nombre,
-                "desempenos_usados": desempenos_texto,
-                "saludo": data.get("saludo", ""),
-                "examen": data.get("examen", {}),
-                "total_preguntas": len(data.get("examen", {}).get("preguntas", []))
-            }
-            
-        except json.JSONDecodeError as e:
-            raise ValueError(f"Error al parsear respuesta de {modelo}: {e}")
-        except Exception as e:
-            raise ValueError(f"Error al generar examen de matemática: {e}")
+                response_text = await ai_service.generate_content(prompt)
+                response_text = ai_service.clean_json_response(response_text)
+                
+                try:
+                    data = json.loads(response_text)
+                except json.JSONDecodeError as je:
+                    print(f"FAILED MATSISTEM JSON (intento {attempt + 1}/{max_retries}): {response_text[:500]}...")
+                    last_error = je
+                    if attempt < max_retries - 1:
+                        print(f"Reintentando generación (intento {attempt + 2}/{max_retries})...")
+                        continue
+                    raise ValueError(f"Error al parsear respuesta JSON de matemática después de {max_retries} intentos: {je}")
+                
+                # Construir texto de desempeños usados
+                # d.capacidad ya está cargado gracias a selectinload
+                desempenos_texto = "\n".join([
+                    f"{d.codigo}. {d.descripcion} (Cap: {d.capacidad.nombre})"
+                    for d in desempenos
+                ])
+                
+                return {
+                    "grado": grado.nombre,
+                    "competencia": competencia.nombre,
+                    "desempenos_usados": desempenos_texto,
+                    "saludo": data.get("saludo", ""),
+                    "examen": data.get("examen", {}),
+                    "total_preguntas": len(data.get("examen", {}).get("preguntas", []))
+                }
+                
+            except json.JSONDecodeError as e:
+                raise ValueError(f"Error al parsear respuesta de {modelo}: {e}")
+            except ValueError:
+                raise
+            except Exception as e:
+                if attempt < max_retries - 1 and "parsear" not in str(e):
+                    print(f"Error en intento {attempt + 1}/{max_retries}: {e}. Reintentando...")
+                    continue
+                raise ValueError(f"Error al generar examen de matemática: {e}")
 
 
 # Singleton instance

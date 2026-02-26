@@ -100,10 +100,10 @@ const cellColors = [
                 </svg>
             </div>
 
-            <!-- 3x3 Grid -->
+            <!-- 3x3 Grid with crossfade -->
             <div class="grid-container" :class="variant || 'rainbow'">
-                <!-- Stream pattern -->
-                <template v-if="currentPattern === 'stream'">
+                <!-- Stream pattern (always rendered, crossfade via opacity) -->
+                <div class="pattern-layer" :class="{ active: currentPattern === 'stream' }">
                     <div class="glow-layer">
                         <div v-for="(cell, i) in streamCells" :key="'sg-' + i" class="cell-glow anim-stream"
                             :class="cellColors[cell.colorIndex]"
@@ -114,10 +114,10 @@ const cellColors = [
                             :class="cellColors[cell.colorIndex]"
                             :style="{ gridRow: cell.row + 1, gridColumn: cell.col + 1, animationDelay: cell.delay + 's' }" />
                     </div>
-                </template>
+                </div>
 
                 <!-- Pulse-out pattern -->
-                <template v-else-if="currentPattern === 'pulse-out'">
+                <div class="pattern-layer" :class="{ active: currentPattern === 'pulse-out' }">
                     <div class="glow-layer">
                         <div v-for="(cell, i) in pulseOutCells" :key="'pg-' + i" class="cell-glow anim-pulse-out"
                             :class="cellColors[cell.colorIndex]"
@@ -128,10 +128,10 @@ const cellColors = [
                             :class="cellColors[cell.colorIndex]"
                             :style="{ gridRow: cell.row + 1, gridColumn: cell.col + 1, animationDelay: cell.delay + 's' }" />
                     </div>
-                </template>
+                </div>
 
                 <!-- Scan pattern -->
-                <template v-else-if="currentPattern === 'scan'">
+                <div class="pattern-layer" :class="{ active: currentPattern === 'scan' }">
                     <div class="glow-layer">
                         <div v-for="(cell, i) in scanCells" :key="'scg-' + i" class="cell-glow anim-scan"
                             :class="cellColors[cell.colorIndex]"
@@ -142,10 +142,10 @@ const cellColors = [
                             :class="cellColors[cell.colorIndex]"
                             :style="{ gridRow: cell.row + 1, gridColumn: cell.col + 1, animationDelay: cell.delay + 's' }" />
                     </div>
-                </template>
+                </div>
 
                 <!-- Converge pattern -->
-                <template v-else>
+                <div class="pattern-layer" :class="{ active: currentPattern === 'converge' }">
                     <div class="glow-layer">
                         <div v-for="(cell, i) in convergeCells" :key="'cg-' + i" class="cell-glow anim-converge"
                             :class="cellColors[cell.colorIndex]"
@@ -156,7 +156,7 @@ const cellColors = [
                             :class="cellColors[cell.colorIndex]"
                             :style="{ gridRow: cell.row + 1, gridColumn: cell.col + 1, animationDelay: cell.delay + 's' }" />
                     </div>
-                </template>
+                </div>
             </div>
 
             <!-- Text with cursor -->
@@ -221,6 +221,19 @@ const cellColors = [
     height: 26px;
 }
 
+/* ========== PATTERN LAYER (crossfade) ========== */
+.pattern-layer {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+}
+
+.pattern-layer.active {
+    opacity: 1;
+}
+
 .glow-layer,
 .cells-layer {
     position: absolute;
@@ -247,9 +260,9 @@ const cellColors = [
 
 @keyframes stream {
     0% {
-        opacity: 0.05;
-        transform: scale(0.5);
-        filter: brightness(0.2);
+        opacity: 0.15;
+        transform: scale(0.6);
+        filter: brightness(0.4);
     }
 
     25%,
@@ -260,15 +273,15 @@ const cellColors = [
     }
 
     60% {
-        opacity: 0.3;
+        opacity: 0.4;
         transform: scale(0.85);
-        filter: brightness(0.6);
+        filter: brightness(0.7);
     }
 
     100% {
-        opacity: 0.05;
-        transform: scale(0.5);
-        filter: brightness(0.2);
+        opacity: 0.15;
+        transform: scale(0.6);
+        filter: brightness(0.4);
     }
 }
 
@@ -279,9 +292,9 @@ const cellColors = [
 
 @keyframes pulse-out {
     0% {
-        opacity: 0.05;
-        transform: scale(0.4);
-        filter: brightness(0.2);
+        opacity: 0.15;
+        transform: scale(0.5);
+        filter: brightness(0.4);
     }
 
     30%,
@@ -292,15 +305,15 @@ const cellColors = [
     }
 
     70% {
-        opacity: 0.2;
+        opacity: 0.3;
         transform: scale(0.9);
-        filter: brightness(0.5);
+        filter: brightness(0.6);
     }
 
     100% {
-        opacity: 0.05;
-        transform: scale(0.4);
-        filter: brightness(0.2);
+        opacity: 0.15;
+        transform: scale(0.5);
+        filter: brightness(0.4);
     }
 }
 
@@ -311,9 +324,9 @@ const cellColors = [
 
 @keyframes scan {
     0% {
-        opacity: 0.05;
-        transform: scaleX(0.3);
-        filter: brightness(0.2);
+        opacity: 0.15;
+        transform: scaleX(0.4);
+        filter: brightness(0.4);
     }
 
     20%,
@@ -324,15 +337,15 @@ const cellColors = [
     }
 
     60% {
-        opacity: 0.4;
+        opacity: 0.45;
         transform: scaleX(0.9);
         filter: brightness(0.8);
     }
 
     100% {
-        opacity: 0.05;
-        transform: scaleX(0.3);
-        filter: brightness(0.2);
+        opacity: 0.15;
+        transform: scaleX(0.4);
+        filter: brightness(0.4);
     }
 }
 
@@ -343,9 +356,9 @@ const cellColors = [
 
 @keyframes converge {
     0% {
-        opacity: 0;
-        transform: scale(0.3);
-        filter: brightness(0.1);
+        opacity: 0.1;
+        transform: scale(0.4);
+        filter: brightness(0.3);
     }
 
     30%,
@@ -356,15 +369,15 @@ const cellColors = [
     }
 
     70% {
-        opacity: 0.3;
+        opacity: 0.35;
         transform: scale(0.85);
-        filter: brightness(0.5);
+        filter: brightness(0.6);
     }
 
     100% {
-        opacity: 0;
-        transform: scale(0.3);
-        filter: brightness(0.1);
+        opacity: 0.1;
+        transform: scale(0.4);
+        filter: brightness(0.3);
     }
 }
 
