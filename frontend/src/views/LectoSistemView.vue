@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { shallowRef, onMounted, watch, provide } from 'vue';
+import { shallowRef, ref, onMounted, watch, provide } from 'vue';
 import { useRouter } from 'vue-router';
 
 import Sistematizador from '../components/Sistematizador.vue';
@@ -8,6 +8,7 @@ import { useTheme } from '../composables/useTheme';
 import { useLectoSistem } from '../composables/useLectoSistem';
 import { useExamHistory } from '../composables/useExamHistory';
 import { showDeleteConfirm, Toast } from '../utils/swal';
+import { desempenosService } from '../services/api';
 import {
   Brain,
   Sparkles,
@@ -22,6 +23,7 @@ import {
   FileText,
   Home,
   Loader2,
+  Download,
 } from 'lucide-vue-next';
 
 const router = useRouter();
@@ -97,6 +99,8 @@ provide('examForSistematizador', examForSistematizador);
 const previewEntry = shallowRef<ExamenHistoryEntry | null>(null);
 const loadingPreview = shallowRef<string | null>(null);
 const loadingLink = shallowRef<string | null>(null);
+const loadingWordDownload = shallowRef<string | null>(null);
+const downloadingPreviewWord = ref(false);
 
 // Auto-save exams to history
 watch(resultado, async (newVal) => {
@@ -132,7 +136,7 @@ async function vincularDesdeHistorial(index: number) {
   if (fullEntry?.resultado.examen.tabla_respuestas) {
     examForSistematizador.value = {
       tablaRespuestas: fullEntry.resultado.examen.tabla_respuestas,
-      gradoId: null,
+      gradoId: fullEntry.gradoId,
     };
     activeTab.value = 'sistematizador';
   }
@@ -158,7 +162,7 @@ function onPreviewVincular() {
   if (previewEntry.value?.resultado.examen.tabla_respuestas) {
     examForSistematizador.value = {
       tablaRespuestas: previewEntry.value.resultado.examen.tabla_respuestas,
-      gradoId: null,
+      gradoId: previewEntry.value.gradoId,
     };
     previewEntry.value = null;
     activeTab.value = 'sistematizador';
@@ -194,6 +198,44 @@ async function confirmarLimpiarHistorial() {
 function formatFecha(iso: string): string {
   const d = new Date(iso);
   return d.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+async function descargarWordHistorial(index: number) {
+  const summaryEntry = history.value[index];
+  if (!summaryEntry) return;
+
+  loadingWordDownload.value = summaryEntry.id;
+  try {
+    const fullEntry = await getFullExam(summaryEntry.id);
+    if (fullEntry?.resultado.examen) {
+      await desempenosService.descargarWord(fullEntry.resultado.examen, fullEntry.resultado.grado);
+    }
+  } catch (e) {
+    Toast.fire({ icon: 'error', title: 'Error al descargar Word' });
+    console.error('Error descarga Word historial:', e);
+  } finally {
+    loadingWordDownload.value = null;
+  }
+}
+
+async function descargarWordDesdePreview() {
+  if (!previewEntry.value) return;
+
+  downloadingPreviewWord.value = true;
+  try {
+    let entry = previewEntry.value;
+    // Si no tiene preguntas cargadas, fetch full
+    if (!entry.resultado.examen.preguntas?.length) {
+      const fullEntry = await getFullExam(entry.id);
+      if (fullEntry) entry = fullEntry;
+    }
+    await desempenosService.descargarWord(entry.resultado.examen, entry.resultado.grado);
+  } catch (e) {
+    Toast.fire({ icon: 'error', title: 'Error al descargar Word' });
+    console.error('Error descarga Word preview:', e);
+  } finally {
+    downloadingPreviewWord.value = false;
+  }
 }
 
 
@@ -369,6 +411,12 @@ onMounted(async () => {
                   <Eye class="w-3.5 h-3.5" />
                   Ver
                 </button>
+                <button @click="descargarWordHistorial(index)" :disabled="!!loadingWordDownload"
+                  class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 rounded-lg transition-colors disabled:opacity-50">
+                  <Loader2 v-if="loadingWordDownload === entry.id" class="w-3.5 h-3.5 animate-spin" />
+                  <Download v-else class="w-3.5 h-3.5" />
+                  Word
+                </button>
                 <button @click="vincularDesdeHistorial(index)" :disabled="!!loadingLink"
                   class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/40 rounded-lg transition-colors disabled:opacity-50">
                   <Loader2 v-if="loadingLink === entry.id" class="w-3.5 h-3.5 animate-spin" />
@@ -399,8 +447,8 @@ onMounted(async () => {
 
     <!-- Exam Preview Modal -->
     <ExamPreviewModal :entry="previewEntry" :loading-delete="loadingDelete === previewEntry?.id"
-      :is-loading="!!loadingPreview" @close="previewEntry = null" @vincular="onPreviewVincular"
-      @eliminar="onPreviewEliminar" />
+      :is-loading="!!loadingPreview" :downloading-word="downloadingPreviewWord" @close="previewEntry = null"
+      @vincular="onPreviewVincular" @eliminar="onPreviewEliminar" @descargar-word="descargarWordDesdePreview" />
   </div>
 </template>
 

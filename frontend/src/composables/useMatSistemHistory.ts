@@ -17,6 +17,7 @@ export function useMatSistemHistory() {
                 id: ex.id.toString(),
                 fechaCreacion: ex.fecha_creacion,
                 gradoLabel: ex.grado_nombre || 'Grado no especificado',
+                gradoId: ex.grado_id,
                 resultado: {
                     grado: ex.grado_nombre,
                     total_preguntas: ex.total_preguntas,
@@ -63,6 +64,7 @@ export function useMatSistemHistory() {
                 id: ex.id.toString(),
                 fechaCreacion: ex.fecha_creacion,
                 gradoLabel: ex.grado_nombre,
+                gradoId: ex.grado_id,
                 resultado: {
                     grado: ex.grado_nombre,
                     desempenos_usados: ex.desempenos_usados,

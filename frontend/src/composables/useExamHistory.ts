@@ -18,6 +18,7 @@ export function useExamHistory() {
                 id: ex.id.toString(),
                 fechaCreacion: ex.fecha_creacion,
                 gradoLabel: ex.grado_nombre || 'Grado no especificado',
+                gradoId: ex.grado_id,
                 // For the list we store a partial result, full fetch happens on demand if needed
                 // or we can store what we have.
                 resultado: {
@@ -67,6 +68,7 @@ export function useExamHistory() {
                 id: ex.id.toString(),
                 fechaCreacion: ex.fecha_creacion,
                 gradoLabel: ex.grado_nombre,
+                gradoId: ex.grado_id,
                 resultado: {
                     grado: ex.grado_nombre,
                     desempenos_usados: ex.desempenos_usados,

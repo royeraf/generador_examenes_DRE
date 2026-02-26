@@ -125,6 +125,7 @@ export interface ExamenHistoryEntry {
   id: string;
   fechaCreacion: string;
   gradoLabel: string;
+  gradoId: number | null;
   resultado: GenerarExamenResponse;
 }
 

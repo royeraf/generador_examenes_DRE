@@ -2,7 +2,7 @@
 import {
     X, Award, Clock, GraduationCap, FileText, Link, Trash2,
     ClipboardCheck, BookOpen, HelpCircle,
-    Check, LayoutGrid, Sparkles, Target, Loader2
+    Check, LayoutGrid, Sparkles, Target, Loader2, Download
 } from 'lucide-vue-next';
 import type { ExamenHistoryEntry } from '../../types';
 
@@ -10,12 +10,14 @@ defineProps<{
     entry: ExamenHistoryEntry | null;
     loadingDelete?: boolean;
     isLoading?: boolean;
+    downloadingWord?: boolean;
 }>();
 
 const emit = defineEmits<{
     (e: 'close'): void;
     (e: 'vincular'): void;
     (e: 'eliminar'): void;
+    (e: 'descargar-word'): void;
 }>();
 
 const getCapacidadBadgeClass = (capacidad: string): string => {
@@ -286,6 +288,12 @@ function formatFecha(iso: string): string {
                             {{ loadingDelete ? 'Eliminando...' : 'Eliminar' }}
                         </button>
                         <div class="flex gap-2">
+                            <button @click="emit('descargar-word')" :disabled="downloadingWord || isLoading"
+                                class="px-4 py-2.5 text-teal-600 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/20 rounded-xl text-sm font-bold flex items-center gap-2 transition-colors disabled:opacity-50">
+                                <Loader2 v-if="downloadingWord" class="w-4 h-4 animate-spin" />
+                                <Download v-else class="w-4 h-4" />
+                                {{ downloadingWord ? 'Descargando...' : 'Word' }}
+                            </button>
                             <button @click="emit('close')"
                                 class="px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl text-sm font-semibold transition-colors">
                                 Cerrar
