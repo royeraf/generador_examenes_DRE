@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { shallowRef, onMounted, computed, watch, provide } from 'vue';
+import { shallowRef, onMounted, watch, provide } from 'vue';
 import { useRouter } from 'vue-router';
-import PromptModal from '../components/PromptModal.vue';
+
 import Sistematizador from '../components/Sistematizador.vue';
 import Footer from '../components/Footer.vue';
 import { useTheme } from '../composables/useTheme';
@@ -43,7 +43,6 @@ const {
   selectedNivelDificultad,
   nivelesDificultad,
   cantidadPreguntas,
-  textoBase,
   useTextoBase,
   selectedFiles,
   filesMetadata,
@@ -94,7 +93,7 @@ const {
 const examForSistematizador = shallowRef<{ tablaRespuestas: FilaTablaRespuestas[]; gradoId: number | null } | null>(null);
 provide('examForSistematizador', examForSistematizador);
 
-const showPromptModal = shallowRef(false);
+
 const previewEntry = shallowRef<ExamenHistoryEntry | null>(null);
 const loadingPreview = shallowRef<string | null>(null);
 const loadingLink = shallowRef<string | null>(null);
@@ -197,66 +196,7 @@ function formatFecha(iso: string): string {
   return d.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
-const promptTexto = computed(() => {
-  if (!selectedGradoId.value || selectedDesempenoIds.value.length === 0) return '';
 
-  const grado = grados.value.find(g => g.id === selectedGradoId.value);
-  const desempenosText = desempenos.value
-    .filter(d => selectedDesempenoIds.value.includes(d.id))
-    .map(d => `- ${d.descripcion}`)
-    .join('\n');
-
-  let situacionBase = '';
-  if (useTextoBase.value && textoBase.value) {
-    situacionBase = `\n**TEXTO BASE PROPORCIONADO:**\n"""\n${textoBase.value}\n"""\nUsa este texto como base para la lectura.\n`;
-  }
-
-  return `Eres **"Especialista MINEDU"**, un experto en comprensión lectora y el Currículo Nacional de Educación Básica de Perú. Tu conocimiento está basado en la documentación oficial del Ministerio de Educación (MINEDU). Tu comunicación es profesional, clara, didáctica y estructurada.
-
-**CONTEXTO:**
-- **Grado:** ${grado?.nombre || 'Grado seleccionado'}
-${situacionBase}
-**DESEMPEÑOS A EVALUAR:**
-${desempenosText}
-
-**TU TAREA:**
-Genera un examen de comprensión lectora con una lectura original y ${cantidadPreguntas.value} preguntas cerradas de opción múltiple.
-
-**ESTRUCTURA DEL EXAMEN:**
-
-1. **SALUDO INICIAL:**
-   Inicia presentándote brevemente: "Soy Especialista MINEDU, experto en evaluación de comprensión lectora del Ministerio de Educación del Perú..."
-
-2. **ENCABEZADO DEL EXAMEN:**
-   - Título motivador y contextualizado
-   - Espacio para: Apellidos y Nombres: _________________ Fecha: _______
-   - Grado: ${grado?.nombre}
-
-3. **INSTRUCCIONES:**
-   Redacta instrucciones claras en un párrafo.
-
-4. **LECTURA:**
-   Crea una lectura (cuento, noticia, artículo, etc.) coherente y apropiada para estudiantes de ${grado?.nombre}.
-
-5. **PREGUNTAS (${cantidadPreguntas.value} en total):**
-   Cada pregunta debe:
-   - Estar numerada
-   - Tener 4 alternativas (A, B, C, D) siendo solo UNA la correcta
-   - Evaluar el desempeño correspondiente
-
-6. **CRITERIOS DE EVALUACIÓN:**
-   Para cada pregunta, incluye un criterio de evaluación con la estructura:
-   "[HABILIDAD VERBAL OBSERVABLE] + [CONTENIDO TEMÁTICO] + [CONDICIÓN/CONTEXTO] + [FINALIDAD] + [PRODUCTO/EVIDENCIA]"
-
-7. **TABLA DE RESPUESTAS:**
-   Al final, presenta una tabla con:
-   | N° Pregunta | Desempeño evaluado | Alternativa correcta | Justificación breve |
-
-**IMPORTANTE:**
-- Asegúrate de que las preguntas sean apropiadas para el nivel de ${grado?.nombre}
-- Cada pregunta debe evaluar claramente un desempeño específico
-- La lectura debe ser coherente y de una extensión moderada`;
-});
 
 onMounted(async () => {
   await loadInitialData();
@@ -330,14 +270,15 @@ onMounted(async () => {
         <!-- Configuration Row -->
         <LectoSistemConfig :niveles-dificultad="nivelesDificultad"
           v-model:modelo-nivel-dificultad="selectedNivelDificultad" :grado-options="gradoOptions"
-          v-model:modelo-grado-id="selectedGradoId" :loading-grados="loadingGrados" v-model:modelo-cantidad-preguntas="cantidadPreguntas"
-          v-model:modelo-use-texto-base="useTextoBase" :selected-files="selectedFiles" :files-metadata="filesMetadata"
-          :uploading-file="uploadingFile" :upload-error="uploadError" @file-upload="handleFileUpload"
-          @clear-files="clearFiles" :tipo-textual-options="tipoTextualOptions"
-          v-model:modelo-tipo-textual="selectedTipoTextual" :formato-textual-options="formatoTextualOptions"
-          v-model:modelo-formato-textual="selectedFormatoTextual" v-model:modelo-cantidad-literal="cantidadLiteral"
-          v-model:modelo-cantidad-inferencial="cantidadInferencial" v-model:modelo-cantidad-critico="cantidadCritico"
-          :is-breakdown-valid="isBreakdownValid" :total-breakdown="totalBreakdown" />
+          v-model:modelo-grado-id="selectedGradoId" :loading-grados="loadingGrados"
+          v-model:modelo-cantidad-preguntas="cantidadPreguntas" v-model:modelo-use-texto-base="useTextoBase"
+          :selected-files="selectedFiles" :files-metadata="filesMetadata" :uploading-file="uploadingFile"
+          :upload-error="uploadError" @file-upload="handleFileUpload" @clear-files="clearFiles"
+          :tipo-textual-options="tipoTextualOptions" v-model:modelo-tipo-textual="selectedTipoTextual"
+          :formato-textual-options="formatoTextualOptions" v-model:modelo-formato-textual="selectedFormatoTextual"
+          v-model:modelo-cantidad-literal="cantidadLiteral" v-model:modelo-cantidad-inferencial="cantidadInferencial"
+          v-model:modelo-cantidad-critico="cantidadCritico" :is-breakdown-valid="isBreakdownValid"
+          :total-breakdown="totalBreakdown" />
 
         <!-- Main Content -->
         <div class="grid lg:grid-cols-2 gap-4 sm:gap-6">
@@ -347,7 +288,6 @@ onMounted(async () => {
             :loading-desempenos="loadingDesempenos" :selected-grado-id="selectedGradoId"
             v-model:active-capacidad-tab="activeCapacidadTab" :desempenos-por-capacidad="desempenosPorCapacidad"
             v-model:selected-desempeno-ids="selectedDesempenoIds" :loading="loading" :error="error"
-            :prompt-texto="promptTexto" v-model:show-prompt-modal="showPromptModal"
             @select-all-capacidad="selectAllCapacidad" @deselect-all-capacidad="deselectAllCapacidad"
             @generar-preguntas="generarPreguntas" :is-breakdown-valid="isBreakdownValid" />
 
@@ -455,8 +395,7 @@ onMounted(async () => {
     <!-- Footer -->
     <Footer />
 
-    <!-- Prompt Modal -->
-    <PromptModal :isOpen="showPromptModal" :promptText="promptTexto" @close="showPromptModal = false" />
+
 
     <!-- Exam Preview Modal -->
     <ExamPreviewModal :entry="previewEntry" :loading-delete="loadingDelete === previewEntry?.id"

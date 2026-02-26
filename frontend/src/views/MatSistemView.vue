@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { shallowRef, onMounted, computed, watch, provide } from 'vue';
+import { shallowRef, onMounted, watch, provide } from 'vue';
 import { useRouter } from 'vue-router';
-import PromptModal from '../components/PromptModal.vue';
+
 import Sistematizador from '../components/Sistematizador.vue';
 import { useTheme } from '../composables/useTheme';
 import { useMatSistemHistory } from '../composables/useMatSistemHistory';
@@ -15,7 +15,7 @@ import MatSistemDesempenos from '../components/matsistem/MatSistemDesempenos.vue
 import MatSistemResults from '../components/matsistem/MatSistemResults.vue';
 import MatSistemExamPreviewModal from '../components/matsistem/MatSistemExamPreviewModal.vue';
 import type { ExamenHistoryEntry, FilaTablaRespuestas } from '../types';
-import type { GradoMatematica, CompetenciaMatematica, DesempenoMatCompleto } from '../types/matematica';
+import type { GradoMatematica } from '../types/matematica';
 import {
   Brain,
   LayoutGrid,
@@ -37,7 +37,6 @@ const router = useRouter();
 const { isDark, toggleTheme } = useTheme();
 const {
   grados,
-  competencias,
   desempenos,
   selectedGradoId,
   selectedCompetenciaId,
@@ -45,7 +44,6 @@ const {
   selectedNivelDificultad,
   nivelesDificultad,
   cantidadPreguntas,
-  textoBase,
   useTextoBase,
   selectedFiles,
   filesMetadata,
@@ -89,7 +87,7 @@ const {
 const examForSistematizador = shallowRef<{ tablaRespuestas: FilaTablaRespuestas[]; gradoId: number | null } | null>(null);
 provide('examForSistematizador', examForSistematizador);
 
-const showPromptModal = shallowRef(false);
+
 const previewEntry = shallowRef<ExamenHistoryEntry | null>(null);
 const loadingPreview = shallowRef<string | null>(null);
 const loadingLink = shallowRef<string | null>(null);
@@ -193,93 +191,7 @@ function formatFecha(iso: string): string {
   return d.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
-// Computed - Prompt para generar examen de matemática (siguiendo formato MINEDU/Math_Jony)
-const promptTexto = computed(() => {
-  if (!selectedGradoId.value || selectedDesempenoIds.value.length === 0) return '';
 
-  const grado = (grados.value as GradoMatematica[]).find((g: GradoMatematica) => g.id === selectedGradoId.value);
-  const competencia = (competencias.value as CompetenciaMatematica[]).find((c: CompetenciaMatematica) => c.id === selectedCompetenciaId.value);
-
-  // Agrupar desempeños por capacidad
-  const desempenosPorCap: Record<number, DesempenoMatCompleto[]> = {};
-  (desempenos.value as DesempenoMatCompleto[])
-    .filter((d: DesempenoMatCompleto) => selectedDesempenoIds.value.includes(d.id))
-    .forEach((d: DesempenoMatCompleto) => {
-      if (!desempenosPorCap[d.capacidad_orden]) {
-        desempenosPorCap[d.capacidad_orden] = [];
-      }
-      desempenosPorCap[d.capacidad_orden]!.push(d);
-    });
-
-  // Formatear desempeños con sus capacidades
-  let desempenosFormateados = '';
-  Object.entries(desempenosPorCap).forEach(([orden, desempenosList]) => {
-    if (desempenosList && desempenosList.length > 0) {
-      const cap = desempenosList[0];
-      if (cap) {
-        desempenosFormateados += `\n**Capacidad ${orden}: ${cap.capacidad_nombre}**\n`;
-        desempenosList.forEach(d => {
-          desempenosFormateados += `  - ${d.descripcion}\n`;
-        });
-      }
-    }
-  });
-
-  let situacionBase = '';
-  if (useTextoBase.value && textoBase.value) {
-    situacionBase = `\n**SITUACIÓN PROBLEMÁTICA PROPORCIONADA:**\n"""\n${textoBase.value}\n"""\nUsa esta situación como base para el problema.\n`;
-  }
-
-  return `Eres **"Especialista MINEDU"**, un experto en evaluación de aprendizajes y programación curricular en Matemática del Ministerio de Educación de Perú. Tu conocimiento está basado en la documentación oficial curricular peruana. Tu comunicación es profesional, clara, didáctica y estructurada.
-
-**CONTEXTO CURRICULAR:**
-- **Grado/Nivel:** ${grado?.nombre || 'Grado seleccionado'}
-- **Competencia:** ${competencia?.nombre || 'Competencia seleccionada'}
-${situacionBase}
-**DESEMPEÑOS SELECCIONADOS POR CAPACIDAD:**
-${desempenosFormateados}
-
-**TU TAREA:**
-Genera una **SITUACIÓN PROBLEMÁTICA INTEGRADORA** con ${cantidadPreguntas.value} preguntas cerradas de opción múltiple.
-
-**ESTRUCTURA DEL EXAMEN:**
-
-1. **SALUDO INICIAL:**
-   Inicia presentándote brevemente: "Soy Especialista MINEDU, experto en evaluación de Matemática del Ministerio de Educación del Perú..."
-
-2. **ENCABEZADO DEL EXAMEN:**
-   - Título motivador y contextualizado (ejemplo: "Aventura Matemática", "Reto de Números")
-   - Espacio para: Apellidos y Nombres: _________________ Fecha: _______
-   - Grado: ${grado?.nombre}
-   - Competencia: ${competencia?.nombre}
-
-3. **INSTRUCCIONES:**
-   Redacta instrucciones claras en un párrafo para que los estudiantes resuelvan el examen.
-
-4. **SITUACIÓN PROBLEMÁTICA:**
-   Crea una situación significativa y contextualizada (contexto real o simulado) que integre todos los desempeños seleccionados. El problema debe ser apropiado para estudiantes de ${grado?.nombre}.
-
-5. **PREGUNTAS (${cantidadPreguntas.value} en total):**
-   Cada pregunta debe:
-   - Estar numerada
-   - Basarse en la situación problemática
-   - Tener 4 alternativas (A, B, C, D) siendo solo UNA la correcta
-   - Evaluar el desempeño correspondiente
-
-6. **CRITERIOS DE EVALUACIÓN:**
-   Para cada pregunta, incluye un criterio de evaluación con la estructura:
-   "[HABILIDAD VERBAL OBSERVABLE] + [CONTENIDO TEMÁTICO] + [CONDICIÓN/CONTEXTO] + [FINALIDAD] + [PRODUCTO/EVIDENCIA]"
-
-7. **TABLA DE RESPUESTAS:**
-   Al final, presenta una tabla con:
-   | N° Pregunta | Capacidad | Desempeño evaluado | Alternativa correcta | Justificación de la respuesta en detalle |
-
-**IMPORTANTE:**
-- Asegúrate de que las preguntas sean apropiadas para el nivel de ${grado?.nombre}
-- Cada pregunta debe evaluar claramente un desempeño específico
-- La situación problemática debe ser coherente y conectar todas las preguntas
-- Las alternativas incorrectas (distractores) deben ser plausibles pero claramente distinguibles de la respuesta correcta`;
-});
 
 onMounted(async () => {
   await loadInitialData();
@@ -356,11 +268,12 @@ onMounted(async () => {
 
         <!-- MatSistemConfig -->
         <MatSistemConfig v-model:selectedNivelDificultad="selectedNivelDificultad"
-          :nivelesDificultad="nivelesDificultad" v-model:selectedGradoId="selectedGradoId" :gradoOptions="gradoOptions" :loading-grados="loadingGrados"
-          v-model:selectedCompetenciaId="selectedCompetenciaId" :competenciaOptions="competenciaOptions"
-          v-model:cantidadPreguntas="cantidadPreguntas" v-model:useTextoBase="useTextoBase"
-          :selectedFiles="selectedFiles" :filesMetadata="filesMetadata" :uploadingFile="uploadingFile"
-          :uploadError="uploadError" @handleFileUpload="handleFileUpload" @clearFiles="clearFiles" />
+          :nivelesDificultad="nivelesDificultad" v-model:selectedGradoId="selectedGradoId" :gradoOptions="gradoOptions"
+          :loading-grados="loadingGrados" v-model:selectedCompetenciaId="selectedCompetenciaId"
+          :competenciaOptions="competenciaOptions" v-model:cantidadPreguntas="cantidadPreguntas"
+          v-model:useTextoBase="useTextoBase" :selectedFiles="selectedFiles" :filesMetadata="filesMetadata"
+          :uploadingFile="uploadingFile" :uploadError="uploadError" @handleFileUpload="handleFileUpload"
+          @clearFiles="clearFiles" />
 
         <!-- Main Content -->
         <div class="grid lg:grid-cols-2 gap-4 sm:gap-6">
@@ -370,7 +283,6 @@ onMounted(async () => {
             :loadingDesempenos="loadingDesempenos" :selectedGradoId="selectedGradoId"
             v-model:activeCapacidadTab="activeCapacidadTab" :desempenosPorCapacidad="desempenosPorCapacidad"
             v-model:selectedDesempenoIds="selectedDesempenoIds" :loading="loading" :error="error"
-            :promptTexto="promptTexto" v-model:showPromptModal="showPromptModal"
             :capacidadesActuales="capacidadesActuales" @selectAllCapacidad="selectAllCapacidad"
             @deselectAllCapacidad="deselectAllCapacidad" @generarPreguntas="generarPreguntas" />
 
@@ -478,8 +390,7 @@ onMounted(async () => {
     <!-- Footer -->
     <Footer />
 
-    <!-- Prompt Modal -->
-    <PromptModal :isOpen="showPromptModal" :promptText="promptTexto" @close="showPromptModal = false" />
+
 
     <!-- Exam Preview Modal -->
     <MatSistemExamPreviewModal :entry="previewEntry" :loading-delete="loadingDelete === previewEntry?.id"

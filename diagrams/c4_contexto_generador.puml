@@ -3,22 +3,25 @@
 
 LAYOUT_WITH_LEGEND()
 
-title Diagrama C4 - Nivel 1: Contexto del Sistema\nGenerador de Exámenes de Comprensión Lectora (Lectosistem DRE)
+title Diagrama C4 - Nivel 1: Contexto del Sistema\nSistema Generador de Exámenes DRE (LectoSistem y MatSistem)
 
-Person(docente, "Docente", "Usuario que genera exámenes de comprensión lectora para evaluar estudiantes")
+Person(docente, "Docente", "Usuario que genera exámenes de comunicación y matemática para evaluar estudiantes")
+Person(admin, "Administrador", "Usuario que gestiona accesos, docentes y configuraciones del sistema")
 
-System(lectosistem, "Lectosistem DRE", "Sistema web que permite generar exámenes de comprensión lectora basados en desempeños del currículo nacional peruano, utilizando inteligencia artificial")
+System(sistema_dre, "Sistema DRE\n(LectoSistem / MatSistem)", "Sistema web que permite generar exámenes de comprensión lectora y matemáticas basados en desempeños del currículo nacional peruano, utilizando inteligencia artificial")
 
 System_Ext(gemini, "Google Gemini API", "Servicio de IA generativa que procesa prompts y genera contenido de exámenes estructurado")
 
-System_Ext(chatgpt, "OpenAI ChatGPT API", "Servicio alternativo de IA para generación de preguntas de comprensión lectora")
+System_Ext(chatgpt, "OpenAI ChatGPT API", "Servicio alternativo de IA para generación de preguntas y contenido educativo")
 
-Rel(docente, lectosistem, "Selecciona grado, desempeños y genera exámenes", "HTTPS/Browser")
-Rel(lectosistem, gemini, "Envía prompt con desempeños y recibe examen en JSON", "HTTPS/REST API")
-Rel(lectosistem, chatgpt, "Envía prompt con desempeños y recibe examen en JSON", "HTTPS/REST API")
-Rel(docente, lectosistem, "Descarga examen en formato Word", "HTTPS")
+Rel(docente, sistema_dre, "Selecciona grado, área, desempeños y genera exámenes", "HTTPS/Browser")
+Rel(docente, sistema_dre, "Descarga examen en formato Word o visualiza historial", "HTTPS")
+Rel(admin, sistema_dre, "Gestiona usuarios, módulos y configuraciones del sistema", "HTTPS/Browser")
+
+Rel(sistema_dre, gemini, "Envía prompt con desempeños y recibe examen en JSON", "HTTPS/REST API")
+Rel(sistema_dre, chatgpt, "Envía prompt con desempeños y recibe examen en JSON", "HTTPS/REST API")
 
 SHOW_LEGEND()
 
-footer Lectosistem DRE - Diagrama C4 Contexto | Enero 2026
+footer Sistema DRE - Diagrama C4 Contexto | Febrero 2026
 @enduml

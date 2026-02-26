@@ -7,8 +7,7 @@ import {
     Sigma,
     Shapes,
     Rocket,
-    AlertTriangle,
-    Copy
+    AlertTriangle
 } from 'lucide-vue-next';
 import ThinkingLoader from '../ThinkingLoader.vue';
 import Tooltip from '../Tooltip.vue';
@@ -25,15 +24,12 @@ const props = defineProps<{
     selectedDesempenoIds: number[];
     loading: boolean;
     error: string | null;
-    promptTexto: string;
-    showPromptModal: boolean;
     capacidadesActuales: CapacidadMatConCompetencia[];
 }>();
 
 const emit = defineEmits<{
     (e: 'update:activeCapacidadTab', value: number): void;
     (e: 'update:selectedDesempenoIds', value: number[]): void;
-    (e: 'update:showPromptModal', value: boolean): void;
     (e: 'selectAllCapacidad', orden: number): void;
     (e: 'deselectAllCapacidad', orden: number): void;
     (e: 'generarPreguntas'): void;
@@ -134,7 +130,9 @@ const getCapacidadColor = (orden: number) => {
             <div v-if="loadingDesempenos" class="flex-1 flex flex-col p-4 space-y-4 overflow-hidden">
                 <!-- Skeleton for Tabs -->
                 <div class="flex gap-2 mb-2">
-                    <div v-for="i in 3" :key="i" class="h-10 flex-1 bg-slate-100 dark:bg-slate-800/80 rounded-lg animate-pulse border border-slate-200/50 dark:border-slate-700"></div>
+                    <div v-for="i in 3" :key="i"
+                        class="h-10 flex-1 bg-slate-100 dark:bg-slate-800/80 rounded-lg animate-pulse border border-slate-200/50 dark:border-slate-700">
+                    </div>
                 </div>
                 <!-- Skeleton for Actions -->
                 <div class="flex justify-between items-center mb-2 px-1">
@@ -146,8 +144,11 @@ const getCapacidadColor = (orden: number) => {
                 </div>
                 <!-- Skeleton for List Items -->
                 <div class="space-y-3">
-                    <div v-for="i in 4" :key="i" class="flex items-start gap-4 p-4 rounded-xl border border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/30 animate-pulse">
-                        <div class="w-5 h-5 rounded border-2 border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 mt-0.5"></div>
+                    <div v-for="i in 4" :key="i"
+                        class="flex items-start gap-4 p-4 rounded-xl border border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/30 animate-pulse">
+                        <div
+                            class="w-5 h-5 rounded border-2 border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 mt-0.5">
+                        </div>
                         <div class="flex-1 space-y-3">
                             <div class="h-5 w-16 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
                             <div class="space-y-2.5">
@@ -178,7 +179,7 @@ const getCapacidadColor = (orden: number) => {
                                 <Shapes v-else-if="orden === 3" class="w-3 h-3 sm:w-4 h-4" />
                                 <Target v-else class="w-3 h-3 sm:w-4 h-4" />
                                 <span class="hidden sm:inline truncate max-w-[80px]">{{ getCapacidadLabel(orden)
-                                }}</span>
+                                    }}</span>
                                 <span class="sm:hidden">Cap. {{ orden }}</span>
                             </div>
                         </button>
@@ -276,19 +277,5 @@ const getCapacidadColor = (orden: number) => {
             <p class="font-medium">{{ error }}</p>
         </div>
 
-        <!-- Prompt Button - Educativo -->
-        <button v-if="promptTexto" @click="emit('update:showPromptModal', true)"
-            class="w-full px-5 py-4 bg-white dark:bg-slate-800 rounded-2xl border-2 border-amber-200 dark:border-slate-700 flex items-center justify-between hover:bg-amber-50 dark:hover:bg-slate-700 hover:border-amber-300 transition-all duration-300 group">
-            <span class="text-slate-700 dark:text-slate-300 text-sm font-bold flex items-center gap-3">
-                <div
-                    class="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform">
-                    <Copy class="w-5 h-5 text-white" />
-                </div>
-                Ver Prompt Generado
-            </span>
-            <span
-                class="text-xs text-amber-600 dark:text-slate-500 font-medium bg-amber-100 dark:bg-slate-700 px-3 py-1 rounded-full">Clic
-                para copiar</span>
-        </button>
     </div>
 </template>

@@ -3,7 +3,7 @@ import { ref, shallowRef, onMounted, watch, computed } from 'vue';
 import type { Grado, NivelLogro, DesempenoItem, Examen } from '../types';
 import desempenosService from '../services/api';
 import ComboBox from '../components/ComboBox.vue';
-import PromptModal from '../components/PromptModal.vue';
+
 import Sistematizador from '../components/Sistematizador.vue';
 import { useTheme } from '../composables/useTheme';
 import {
@@ -12,7 +12,6 @@ import {
   Hash,
   CloudUpload,
   Zap,
-  Copy,
   Check,
   AlertTriangle,
   Loader2,
@@ -90,7 +89,7 @@ const resultado = ref<{
   examen: Examen;
   total_preguntas: number;
 } | null>(null);
-const showPromptModal = shallowRef(false);
+
 const showResults = shallowRef(false);
 const activeCapacidadTab = shallowRef<string>('literal');
 const activeTab = shallowRef<string>('generador');
@@ -130,37 +129,7 @@ const gradoOptions = computed(() => {
   return options;
 });
 
-const promptTexto = computed(() => {
-  if (!selectedGradoId.value || selectedDesempenoIds.value.length === 0) return '';
 
-  const grado = grados.value.find(g => g.id === selectedGradoId.value);
-  const desempenosSeleccionados = desempenos.value
-    .filter(d => selectedDesempenoIds.value.includes(d.id))
-    .map(d => `${d.codigo}. ${d.descripcion} (${d.capacidad_tipo.toUpperCase()})`)
-    .join('\n');
-
-  let textoLectura = '';
-  if (useTextoBase.value && textoBase.value) {
-    textoLectura = `\nTEXTO DE LECTURA:\n"""\n${textoBase.value}\n"""\n`;
-  }
-
-  return `Eres un experto en la elaboración de preguntas de comprensión lectora que trabaja con estudiantes de Perú. Piensa 10 veces antes de responder.
-
-Primero debes saludar muy amablemente como un experto en la elaboración de preguntas de comprensión lectora.
-
-Luego, el examen debe tener exactamente ${cantidadPreguntas.value} preguntas para estudiantes de ${grado?.nombre || 'el grado seleccionado'}.
-${textoLectura}
-Usarás los siguientes desempeños que están enumerados e indican entre paréntesis si es de nivel LITERAL, INFERENCIAL o CRÍTICO:
-${desempenosSeleccionados}
-
-El examen debe presentar:
-1. Un 'título' motivador para el examen
-2. Una sección para que los estudiantes ingresen sus 'Apellidos y Nombres' y la 'Fecha'
-3. 'Instrucciones precisas en un párrafo' para responder el examen
-4. La 'lectura completa' o 'un fragmento de la lectura' que utilizarás para que los estudiantes respondan las preguntas
-5. Las preguntas con esquema de opción múltiple (4 alternativas A, B, C, D siendo una sola la correcta, en orden aleatorio)
-6. Al final una 'tabla' indicando: los desempeños utilizados, número de pregunta, nivel (LITERAL/INFERENCIAL/CRÍTICO) y alternativa correcta`;
-});
 
 watch(selectedGradoId, async (newGradoId) => {
   if (!newGradoId) {
@@ -571,7 +540,8 @@ const getNivelBadgeClass = (nivel: string): string => {
               </div>
               Grado Escolar
             </label>
-            <div v-if="loadingGrados" class="w-full h-[46px] bg-slate-50 dark:bg-slate-900/50 rounded-xl animate-pulse flex items-center px-4 border-2 border-slate-200/60 dark:border-slate-700/60 transition-all duration-300">
+            <div v-if="loadingGrados"
+              class="w-full h-[46px] bg-slate-50 dark:bg-slate-900/50 rounded-xl animate-pulse flex items-center px-4 border-2 border-slate-200/60 dark:border-slate-700/60 transition-all duration-300">
               <div class="h-4 w-1/3 bg-slate-200 dark:bg-slate-700 rounded"></div>
               <div class="ml-auto w-4 h-4 bg-slate-200 dark:bg-slate-700 rounded-sm"></div>
             </div>
@@ -698,7 +668,9 @@ const getNivelBadgeClass = (nivel: string): string => {
               <div v-if="loadingDesempenos" class="flex-1 flex flex-col p-4 space-y-4 overflow-hidden">
                 <!-- Skeleton for Tabs -->
                 <div class="flex gap-2 mb-2">
-                  <div v-for="i in 3" :key="i" class="h-10 flex-1 bg-slate-100 dark:bg-slate-800/80 rounded-lg animate-pulse border border-slate-200/50 dark:border-slate-700"></div>
+                  <div v-for="i in 3" :key="i"
+                    class="h-10 flex-1 bg-slate-100 dark:bg-slate-800/80 rounded-lg animate-pulse border border-slate-200/50 dark:border-slate-700">
+                  </div>
                 </div>
                 <!-- Skeleton for Actions -->
                 <div class="flex justify-between items-center mb-2 px-1">
@@ -710,8 +682,11 @@ const getNivelBadgeClass = (nivel: string): string => {
                 </div>
                 <!-- Skeleton for List Items -->
                 <div class="space-y-3">
-                  <div v-for="i in 4" :key="i" class="flex items-start gap-4 p-4 rounded-xl border border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/30 animate-pulse">
-                    <div class="w-5 h-5 rounded border-2 border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 mt-0.5"></div>
+                  <div v-for="i in 4" :key="i"
+                    class="flex items-start gap-4 p-4 rounded-xl border border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/30 animate-pulse">
+                    <div
+                      class="w-5 h-5 rounded border-2 border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 mt-0.5">
+                    </div>
                     <div class="flex-1 space-y-3">
                       <div class="h-5 w-16 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
                       <div class="space-y-2.5">
@@ -848,20 +823,7 @@ const getNivelBadgeClass = (nivel: string): string => {
               <p class="font-medium">{{ error }}</p>
             </div>
 
-            <!-- Prompt Button - Educativo -->
-            <button v-if="promptTexto" @click="showPromptModal = true"
-              class="w-full px-5 py-4 bg-white dark:bg-slate-800 rounded-2xl border-2 border-amber-200 dark:border-slate-700 flex items-center justify-between hover:bg-amber-50 dark:hover:bg-slate-700 hover:border-amber-300 transition-all duration-300 group">
-              <span class="text-slate-700 dark:text-slate-300 text-sm font-bold flex items-center gap-3">
-                <div
-                  class="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform">
-                  <Copy class="w-5 h-5 text-white" />
-                </div>
-                Ver Prompt Generado
-              </span>
-              <span
-                class="text-xs text-amber-600 dark:text-slate-500 font-medium bg-amber-100 dark:bg-slate-700 px-3 py-1 rounded-full">Clic
-                para copiar</span>
-            </button>
+
           </div>
 
           <!-- Right: Results -->
@@ -1091,8 +1053,7 @@ const getNivelBadgeClass = (nivel: string): string => {
     <!-- Footer -->
     <Footer />
 
-    <!-- Prompt Modal -->
-    <PromptModal :isOpen="showPromptModal" :promptText="promptTexto" @close="showPromptModal = false" />
+
   </div>
 </template>
 
