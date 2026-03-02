@@ -20,12 +20,14 @@ const emit = defineEmits<{
     (e: 'descargar-word'): void;
 }>();
 
-const getCapacidadBadgeClass = (capacidad: string): string => {
+const getCapacidadBadgeClass = (capacidad?: string): string => {
+    if (!capacidad) return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
+    const cap = capacidad.toLowerCase();
     // Determine capacity class based on keyword content or just cycle
-    if (capacidad.includes('cantidad')) return 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400';
-    if (capacidad.includes('regularidad')) return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
-    if (capacidad.includes('forma')) return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
-    if (capacidad.includes('datos')) return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
+    if (cap.includes('cantidad')) return 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400';
+    if (cap.includes('regularidad')) return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
+    if (cap.includes('forma')) return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
+    if (cap.includes('datos')) return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
 
     return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400';
 };
@@ -157,7 +159,8 @@ function formatFecha(iso: string): string {
                                 </h4>
                                 <p
                                     class="text-slate-700 dark:text-slate-300 text-sm leading-7 whitespace-pre-line bg-white/50 dark:bg-black/20 p-4 rounded-lg">
-                                    {{ entry.resultado.examen.lectura }}
+                                    {{ (entry.resultado.examen as any).situacion_problematica ||
+                                    entry.resultado.examen.lectura }}
                                 </p>
                             </div>
 
@@ -181,9 +184,9 @@ function formatFecha(iso: string): string {
                                         <div class="flex-1">
                                             <span
                                                 class="inline-flex items-center gap-1 px-3 py-1 text-[10px] font-bold uppercase rounded-full mb-2"
-                                                :class="getCapacidadBadgeClass(pregunta.nivel)">
+                                                :class="getCapacidadBadgeClass((pregunta as any).capacidad || pregunta.nivel)">
                                                 <Target class="w-3 h-3" />
-                                                {{ pregunta.nivel }}
+                                                {{ (pregunta as any).capacidad || pregunta.nivel }}
                                             </span>
                                             <p class="text-slate-800 dark:text-slate-200 font-semibold mb-4">
                                                 {{ pregunta.enunciado }}
@@ -252,9 +255,9 @@ function formatFecha(iso: string): string {
                                                 <td class="py-3 px-4">
                                                     <span
                                                         class="px-2.5 py-1 text-[10px] font-bold rounded-full inline-flex items-center gap-1"
-                                                        :class="getCapacidadBadgeClass(fila.nivel)">
+                                                        :class="getCapacidadBadgeClass((fila as any).capacidad || fila.nivel)">
                                                         <Target class="w-3 h-3" />
-                                                        {{ fila.nivel }}
+                                                        {{ (fila as any).capacidad || fila.nivel }}
                                                     </span>
                                                 </td>
                                                 <td class="py-3 px-4 text-center">

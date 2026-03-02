@@ -8,13 +8,13 @@ import {
     ClipboardCheck,
     BookOpen,
     HelpCircle,
-    FileSearch,
     Lightbulb,
     Check,
     LayoutGrid,
     Sparkles,
     GraduationCap,
-    Link
+    Link,
+    Target
 } from 'lucide-vue-next';
 import ThinkingLoader from '../ThinkingLoader.vue';
 import type { Examen } from '../../types';
@@ -43,13 +43,15 @@ const getJustificacion = (numeroPregunta: number): string | undefined => {
     return props.resultado?.examen.tabla_respuestas.find(t => t.pregunta === numeroPregunta)?.justificacion;
 };
 
-const getNivelBadgeClass = (nivel: string): string => {
-    const classes: Record<string, string> = {
-        'LITERAL': 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
-        'INFERENCIAL': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-        'CRITICO': 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400'
-    };
-    return classes[nivel] || 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
+const getCapacidadBadgeClass = (capacidad?: string): string => {
+    if (!capacidad) return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
+    const cap = capacidad.toLowerCase();
+    if (cap.includes('cantidad')) return 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400';
+    if (cap.includes('regularidad')) return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
+    if (cap.includes('forma')) return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
+    if (cap.includes('datos')) return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
+
+    return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400';
 };
 </script>
 
@@ -165,7 +167,7 @@ const getNivelBadgeClass = (nivel: string): string => {
                     </h4>
                     <p
                         class="text-slate-700 dark:text-slate-300 text-sm leading-7 whitespace-pre-line bg-white/50 dark:bg-black/20 p-4 rounded-lg">
-                        {{ resultado.examen.lectura }}
+                        {{ (resultado.examen as any).situacion_problematica || resultado.examen.lectura }}
                     </p>
                 </div>
 
@@ -189,11 +191,9 @@ const getNivelBadgeClass = (nivel: string): string => {
                             <div class="flex-1">
                                 <span
                                     class="inline-flex items-center gap-1 px-3 py-1 text-[10px] font-bold uppercase rounded-full mb-2"
-                                    :class="getNivelBadgeClass(pregunta.nivel)">
-                                    <BookOpen v-if="pregunta.nivel === 'LITERAL'" class="w-3 h-3" />
-                                    <FileSearch v-else-if="pregunta.nivel === 'INFERENCIAL'" class="w-3 h-3" />
-                                    <Lightbulb v-else class="w-3 h-3" />
-                                    {{ pregunta.nivel }}
+                                    :class="getCapacidadBadgeClass((pregunta as any).capacidad || pregunta.nivel)">
+                                    <Target class="w-3 h-3" />
+                                    {{ (pregunta as any).capacidad || pregunta.nivel }}
                                 </span>
                                 <p class="text-slate-800 dark:text-slate-200 font-semibold mb-4">{{ pregunta.enunciado
                                 }}</p>
@@ -212,13 +212,16 @@ const getNivelBadgeClass = (nivel: string): string => {
                                         <Check v-if="opcion.es_correcta" class="w-5 h-5 text-teal-500" />
                                     </div>
                                 </div>
-                                
-                                <div v-if="getJustificacion(pregunta.numero)" class="mt-4 p-4 rounded-xl bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30">
-                                    <h5 class="flex items-center gap-2 text-xs font-bold text-indigo-700 dark:text-indigo-400 mb-1.5">
+
+                                <div v-if="getJustificacion(pregunta.numero)"
+                                    class="mt-4 p-4 rounded-xl bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30">
+                                    <h5
+                                        class="flex items-center gap-2 text-xs font-bold text-indigo-700 dark:text-indigo-400 mb-1.5">
                                         <Lightbulb class="w-3.5 h-3.5" />
                                         Justificación
                                     </h5>
-                                    <p class="text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed">{{ getJustificacion(pregunta.numero) }}</p>
+                                    <p class="text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed">{{
+                                        getJustificacion(pregunta.numero) }}</p>
                                 </div>
                             </div>
                         </div>
@@ -248,7 +251,7 @@ const getNivelBadgeClass = (nivel: string): string => {
                                     </th>
                                     <th
                                         class="text-left py-3 px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
-                                        Nivel
+                                        Capacidad
                                     </th>
                                     <th
                                         class="text-center py-3 px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
@@ -271,11 +274,9 @@ const getNivelBadgeClass = (nivel: string): string => {
                                     <td class="py-3 px-4">
                                         <span
                                             class="px-2.5 py-1 text-[10px] font-bold rounded-full inline-flex items-center gap-1"
-                                            :class="getNivelBadgeClass(fila.nivel)">
-                                            <BookOpen v-if="fila.nivel === 'LITERAL'" class="w-3 h-3" />
-                                            <FileSearch v-else-if="fila.nivel === 'INFERENCIAL'" class="w-3 h-3" />
-                                            <Lightbulb v-else class="w-3 h-3" />
-                                            {{ fila.nivel }}
+                                            :class="getCapacidadBadgeClass((fila as any).capacidad || fila.nivel)">
+                                            <Target class="w-3 h-3" />
+                                            {{ (fila as any).capacidad || fila.nivel }}
                                         </span>
                                     </td>
                                     <td class="py-3 px-4 text-center">
