@@ -7,7 +7,7 @@ import type { Docente } from '../types'
 import {
   Plus, Edit2, Trash2, ToggleLeft, ToggleRight, Home,
   Shield, X, Eye, EyeOff, AlertCircle, KeyRound, CheckCircle,
-  ChevronLeft, ChevronRight
+  ChevronLeft, ChevronRight, Loader2
 } from 'lucide-vue-next'
 import Swal from 'sweetalert2'
 import { useForm, useField } from 'vee-validate'
@@ -311,120 +311,222 @@ async function saveResetPassword() {
 
     <!-- Header -->
     <div class="max-w-7xl mx-auto">
-      <div class="flex items-center justify-between mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-8">
         <div>
-          <h1 class="text-2xl md:text-3xl font-black text-slate-800 dark:text-white">
+          <h1 class="text-2xl md:text-3xl font-black text-slate-800 dark:text-white leading-tight">
             Gestión de <span
               class="bg-gradient-to-r from-teal-500 to-indigo-600 bg-clip-text text-transparent">Usuarios</span>
           </h1>
           <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Administra los docentes del sistema</p>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 sm:gap-3">
           <button @click="openCreate"
-            class="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-bold px-4 py-2.5 rounded-xl shadow-lg transition-all duration-200 hover:-translate-y-0.5 text-sm">
+            class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-bold px-4 py-2.5 rounded-xl shadow-lg transition-all duration-200 hover:-translate-y-0.5 text-sm">
             <Plus class="w-4 h-4" />
-            Nuevo Usuario
+            <span class="hidden xs:inline">Nuevo Usuario</span>
+            <span class="xs:hidden">Nuevo</span>
           </button>
           <button @click="router.push('/')"
             class="flex items-center gap-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium px-4 py-2.5 rounded-xl shadow border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all text-sm">
             <Home class="w-4 h-4" />
-            Inicio
+            <span class="hidden xs:inline">Inicio</span>
           </button>
         </div>
       </div>
 
       <!-- Stats Cards -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
 
         <!-- Total -->
         <div
-          class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-100 dark:border-slate-700 p-4 flex items-center gap-4">
+          class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-100 dark:border-slate-700 p-3 md:p-4 flex items-center gap-3 md:gap-4">
           <div
-            class="w-11 h-11 rounded-xl bg-gradient-to-br from-teal-400 to-indigo-500 flex items-center justify-center shadow-lg shrink-0">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-gradient-to-br from-teal-400 to-indigo-500 flex items-center justify-center shadow-lg shrink-0">
+            <svg class="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
                 d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
           </div>
-          <div>
-            <p class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Total</p>
-            <p class="text-2xl font-black text-slate-800 dark:text-white leading-none mt-0.5">
+          <div class="min-w-0">
+            <p class="text-[10px] md:text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide truncate">Total</p>
+            <p class="text-xl md:text-2xl font-black text-slate-800 dark:text-white leading-none mt-0.5">
               <span v-if="loading"
-                class="inline-block w-8 h-6 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></span>
+                class="inline-block w-6 md:w-8 h-5 md:h-6 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></span>
               <span v-else>{{ stats.total }}</span>
             </p>
-            <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">usuarios registrados</p>
+            <p class="text-[10px] md:text-xs text-slate-400 dark:text-slate-500 mt-0.5 hidden xs:block truncate">registrados</p>
           </div>
         </div>
 
         <!-- Activos -->
         <div
-          class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-100 dark:border-slate-700 p-4 flex items-center gap-4">
+          class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-100 dark:border-slate-700 p-3 md:p-4 flex items-center gap-3 md:gap-4">
           <div
-            class="w-11 h-11 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg shrink-0">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg shrink-0">
+            <svg class="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <div>
-            <p class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Activos</p>
-            <p class="text-2xl font-black text-slate-800 dark:text-white leading-none mt-0.5">
+          <div class="min-w-0">
+            <p class="text-[10px] md:text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide truncate">Activos</p>
+            <p class="text-xl md:text-2xl font-black text-slate-800 dark:text-white leading-none mt-0.5">
               <span v-if="loading"
-                class="inline-block w-8 h-6 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></span>
+                class="inline-block w-6 md:w-8 h-5 md:h-6 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></span>
               <span v-else>{{ stats.active }}</span>
             </p>
-            <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">con acceso al sistema</p>
+            <p class="text-[10px] md:text-xs text-slate-400 dark:text-slate-500 mt-0.5 hidden xs:block truncate">con acceso</p>
           </div>
         </div>
 
         <!-- Inactivos -->
         <div
-          class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-100 dark:border-slate-700 p-4 flex items-center gap-4">
+          class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-100 dark:border-slate-700 p-3 md:p-4 flex items-center gap-3 md:gap-4">
           <div
-            class="w-11 h-11 rounded-xl bg-gradient-to-br from-red-400 to-rose-500 flex items-center justify-center shadow-lg shrink-0">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-gradient-to-br from-red-400 to-rose-500 flex items-center justify-center shadow-lg shrink-0">
+            <svg class="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
                 d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
             </svg>
           </div>
-          <div>
-            <p class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Inactivos</p>
-            <p class="text-2xl font-black text-slate-800 dark:text-white leading-none mt-0.5">
+          <div class="min-w-0">
+            <p class="text-[10px] md:text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide truncate">Inactivos</p>
+            <p class="text-xl md:text-2xl font-black text-slate-800 dark:text-white leading-none mt-0.5">
               <span v-if="loading"
-                class="inline-block w-8 h-6 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></span>
+                class="inline-block w-6 md:w-8 h-5 md:h-6 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></span>
               <span v-else>{{ stats.inactive }}</span>
             </p>
-            <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">sin acceso activo</p>
+            <p class="text-[10px] md:text-xs text-slate-400 dark:text-slate-500 mt-0.5 hidden xs:block truncate">sin acceso</p>
           </div>
         </div>
 
         <!-- Administradores -->
         <div
-          class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-100 dark:border-slate-700 p-4 flex items-center gap-4">
+          class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-100 dark:border-slate-700 p-3 md:p-4 flex items-center gap-3 md:gap-4">
           <div
-            class="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center shadow-lg shrink-0">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center shadow-lg shrink-0">
+            <svg class="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
                 d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
           </div>
-          <div>
-            <p class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Admins</p>
-            <p class="text-2xl font-black text-slate-800 dark:text-white leading-none mt-0.5">
+          <div class="min-w-0">
+            <p class="text-[10px] md:text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide truncate">Admins</p>
+            <p class="text-xl md:text-2xl font-black text-slate-800 dark:text-white leading-none mt-0.5">
               <span v-if="loading"
-                class="inline-block w-8 h-6 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></span>
+                class="inline-block w-6 md:w-8 h-5 md:h-6 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></span>
               <span v-else>{{ stats.admins }}</span>
             </p>
-            <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">con rol administrador</p>
+            <p class="text-[10px] md:text-xs text-slate-400 dark:text-slate-500 mt-0.5 hidden xs:block truncate">rol admin</p>
           </div>
         </div>
 
       </div>
 
-      <!-- Table -->
-      <div
-        class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden border border-slate-100 dark:border-slate-700">
-        <div class="overflow-x-auto">
+      <!-- User List Container -->
+      <div class="bg-white dark:bg-slate-800 md:rounded-2xl shadow-xl md:border border-slate-100 dark:border-slate-700 -mx-4 md:mx-0">
+        
+        <!-- Mobile Cards View -->
+        <div class="md:hidden divide-y divide-slate-100 dark:divide-slate-700/50">
+          <template v-if="loading">
+            <div v-for="n in 5" :key="n" class="p-4 animate-pulse">
+              <div class="flex justify-between mb-3">
+                <div class="space-y-2 w-1/2">
+                   <div class="h-3 w-16 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                   <div class="h-4 w-full bg-slate-200 dark:bg-slate-700 rounded"></div>
+                </div>
+                <div class="space-y-2 items-end flex flex-col">
+                   <div class="h-4 w-12 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+                   <div class="h-4 w-16 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+                </div>
+              </div>
+              <div class="space-y-2 pt-2 border-t border-slate-50 dark:border-slate-700/30">
+                <div class="h-3 w-3/4 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                <div class="h-3 w-1/2 bg-slate-200 dark:bg-slate-700 rounded"></div>
+              </div>
+              <div class="flex justify-end gap-2 mt-3 pt-3 border-t border-slate-50 dark:border-slate-700/30">
+                 <div class="h-7 w-20 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
+                 <div class="h-7 w-20 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
+                 <div class="h-7 w-10 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
+              </div>
+            </div>
+          </template>
+          
+          <template v-else>
+            <div v-for="docente in docentes" :key="docente.id" 
+              class="p-4 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/30"
+              :class="{ 'opacity-60': !docente.is_active }">
+              
+              <!-- Card Header: DNI & Name + Roles -->
+              <div class="flex justify-between items-start gap-4 mb-3">
+                <div class="min-w-0 flex-1">
+                  <div class="text-[11px] font-mono text-slate-500 dark:text-slate-400 mb-0.5">{{ docente.dni }}</div>
+                  <div class="font-bold text-slate-800 dark:text-white leading-tight">
+                    {{ [docente.nombres, docente.apellidos].filter(Boolean).join(' ') || '—' }}
+                    <span v-if="docente.id === auth.user?.id" 
+                      class="ml-1 align-middle inline-flex text-[10px] text-teal-600 dark:text-teal-400 font-bold bg-teal-50 dark:bg-teal-900/30 px-1.5 py-0.5 rounded-full">tú</span>
+                  </div>
+                </div>
+                <div class="flex flex-col items-end gap-1.5 shrink-0">
+                  <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full" :class="docente.is_superuser
+                    ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
+                    : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'">
+                    <Shield class="w-3 h-3" />
+                    {{ docente.is_superuser ? 'Admin' : 'Docente' }}
+                  </span>
+                  <button @click="toggleActive(docente)" :disabled="docente.id === auth.user?.id"
+                    class="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full transition-colors disabled:cursor-not-allowed"
+                    :class="docente.is_active
+                      ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                      : 'bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400'">
+                    <ToggleRight v-if="docente.is_active" class="w-3 h-3" />
+                    <ToggleLeft v-else class="w-3 h-3" />
+                    {{ docente.is_active ? 'Activo' : 'Inactivo' }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Card Details -->
+              <div class="text-xs text-slate-600 dark:text-slate-400 space-y-1.5 py-2 border-t border-slate-50 dark:border-slate-700/30">
+                <div v-if="docente.profesion" class="flex gap-2 items-start">
+                  <span class="font-semibold w-12 shrink-0 text-slate-500">Prof:</span> 
+                  <span class="truncate">{{ docente.profesion }}</span>
+                </div>
+                <div v-if="docente.institucion_educativa" class="flex gap-2 items-start">
+                  <span class="font-semibold w-12 shrink-0 text-slate-500">I.E:</span> 
+                  <span class="truncate">{{ docente.institucion_educativa }}</span>
+                </div>
+                <div v-if="docente.nivel_educativo" class="flex gap-2 items-start">
+                  <span class="font-semibold w-12 shrink-0 text-slate-500">Nivel:</span> 
+                  <span>{{ levelLabel[docente.nivel_educativo] ?? docente.nivel_educativo }}</span>
+                </div>
+              </div>
+
+              <!-- Card Actions -->
+              <div class="flex items-center justify-end gap-2 pt-3 mt-1 border-t border-slate-50 dark:border-slate-700/30">
+                  <button @click="openEdit(docente)"
+                    class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 rounded-lg transition-colors">
+                    <Edit2 class="w-3.5 h-3.5" /> Editar
+                  </button>
+                  <button @click="openResetPassword(docente)"
+                    class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40 rounded-lg transition-colors">
+                    <KeyRound class="w-3.5 h-3.5" /> Pass
+                  </button>
+                  <button @click="deleteDocente(docente)" :disabled="docente.id === auth.user?.id"
+                    class="flex items-center justify-center w-8 h-8 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                    <Trash2 class="w-3.5 h-3.5" />
+                  </button>
+              </div>
+
+            </div>
+          </template>
+          
+          <div v-if="docentes.length === 0 && !loading" class="text-center py-10 px-4 text-slate-400 dark:text-slate-500 text-sm">
+            No hay usuarios registrados.
+          </div>
+        </div>
+
+        <!-- Desktop Table View -->
+        <div class="hidden md:block overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
               <tr class="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700">
@@ -570,27 +672,27 @@ async function saveResetPassword() {
 
         <!-- Pagination Controls -->
         <div v-if="!loading && totalPages > 1"
-          class="px-6 py-4 bg-slate-50 dark:bg-slate-700/30 border-t border-slate-100 dark:border-slate-700 flex flex-col md:flex-row items-center justify-between gap-4">
+          class="px-4 py-4 bg-slate-50 dark:bg-slate-700/30 border-t border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
 
-          <div class="text-xs text-slate-500 dark:text-slate-400">
+          <div class="text-[11px] md:text-xs text-slate-500 dark:text-slate-400">
             Mostrando <span class="font-bold text-slate-700 dark:text-slate-200">{{ Math.min((currentPage - 1) *
               pageSize + 1, totalCount) }}</span>
             a <span class="font-bold text-slate-700 dark:text-slate-200">{{ Math.min(currentPage * pageSize, totalCount)
             }}</span>
-            de <span class="font-bold text-slate-700 dark:text-slate-200">{{ totalCount }}</span> usuarios
+            de <span class="font-bold text-slate-700 dark:text-slate-200">{{ totalCount }}</span>
           </div>
 
           <div class="flex items-center gap-1">
             <!-- Prev -->
             <button @click="prevPage" :disabled="currentPage === 1"
-              class="p-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+              class="p-1.5 sm:p-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
               <ChevronLeft class="w-4 h-4" />
             </button>
 
             <!-- Pages -->
             <div class="flex items-center gap-1 mx-1">
               <button v-for="p in totalPages" :key="p" @click="setPage(p)" :class="[
-                'w-8 h-8 rounded-lg text-xs font-bold transition-all',
+                'w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-xs font-bold transition-all',
                 currentPage === p
                   ? 'bg-gradient-to-r from-teal-500 to-indigo-600 text-white shadow-md scale-110'
                   : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
@@ -601,7 +703,7 @@ async function saveResetPassword() {
 
             <!-- Next -->
             <button @click="nextPage" :disabled="currentPage === totalPages"
-              class="p-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+              class="p-1.5 sm:p-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
               <ChevronRight class="w-4 h-4" />
             </button>
           </div>
@@ -620,8 +722,8 @@ async function saveResetPassword() {
           <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
 
             <!-- Modal Header -->
-            <div class="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-700">
-              <h2 class="text-lg font-bold text-slate-800 dark:text-white">
+            <div class="flex items-center justify-between p-4 sm:p-6 border-b border-slate-100 dark:border-slate-700">
+              <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
                 {{ editingId ? 'Editar Usuario' : 'Nuevo Usuario' }}
               </h2>
               <button @click="closeModal"
@@ -631,7 +733,7 @@ async function saveResetPassword() {
             </div>
 
             <!-- Modal Body -->
-            <div class="p-6 space-y-4">
+            <div class="p-4 sm:p-6 space-y-4">
 
               <!-- Error del servidor -->
               <div v-if="serverError"
@@ -656,7 +758,7 @@ async function saveResetPassword() {
               </div>
 
               <!-- Nombres + Apellidos -->
-              <div class="grid grid-cols-2 gap-3">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Nombres <span
                       class="text-red-500">*</span></label>
@@ -737,7 +839,7 @@ async function saveResetPassword() {
               </div>
 
               <!-- Roles y estado -->
-              <div class="grid grid-cols-2 gap-3">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <label class="flex items-center gap-2.5 cursor-pointer group">
                   <div class="relative">
                     <input type="checkbox" v-model="is_active" class="sr-only peer" />
@@ -768,7 +870,7 @@ async function saveResetPassword() {
             </div>
 
             <!-- Modal Footer -->
-            <div class="flex justify-end gap-3 px-6 py-4 border-t border-slate-100 dark:border-slate-700">
+            <div class="flex justify-end gap-2 sm:gap-3 p-4 sm:px-6 sm:py-4 border-t border-slate-100 dark:border-slate-700">
               <button @click="closeModal"
                 class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors">
                 Cancelar
@@ -796,8 +898,8 @@ async function saveResetPassword() {
           <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm">
 
             <!-- Header -->
-            <div class="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-700">
-              <div class="flex items-center gap-2.5">
+            <div class="flex items-center justify-between p-4 sm:p-5 border-b border-slate-100 dark:border-slate-700">
+              <div class="flex items-center gap-2.5 max-w-[85%]">
                 <div class="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
                   <KeyRound class="w-4 h-4 text-amber-600 dark:text-amber-400" />
                 </div>
@@ -815,7 +917,7 @@ async function saveResetPassword() {
             </div>
 
             <!-- Body -->
-            <div class="p-5 space-y-4">
+            <div class="p-4 sm:p-5 space-y-4">
 
               <p
                 class="text-xs text-slate-500 dark:text-slate-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/50 rounded-xl p-3">
@@ -857,7 +959,7 @@ async function saveResetPassword() {
             </div>
 
             <!-- Footer -->
-            <div class="flex justify-end gap-2 px-5 py-4 border-t border-slate-100 dark:border-slate-700">
+            <div class="flex items-center justify-end gap-2 p-4 sm:px-5 sm:py-4 border-t border-slate-100 dark:border-slate-700">
               <button @click="showResetModal = false"
                 class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors">
                 Cerrar
