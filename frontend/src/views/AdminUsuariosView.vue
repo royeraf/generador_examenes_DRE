@@ -7,7 +7,7 @@ import type { Docente } from '../types'
 import {
   Plus, Edit2, Trash2, ToggleLeft, ToggleRight, Home,
   Shield, X, Eye, EyeOff, AlertCircle, KeyRound, CheckCircle,
-  ChevronLeft, ChevronRight, Loader2
+  ChevronLeft, ChevronRight, Loader2, MoreVertical
 } from 'lucide-vue-next'
 import Swal from 'sweetalert2'
 import { useForm, useField } from 'vee-validate'
@@ -24,6 +24,7 @@ const showModal = ref(false)
 const editingId = ref<number | null>(null)
 const showPassword = ref(false)
 const serverError = ref('')
+const showDeleteFor = ref<number | null>(null)
 
 // Pagination
 const currentPage = ref(1)
@@ -306,7 +307,7 @@ async function saveResetPassword() {
 </script>
 
 <template>
-  <div
+  <div @click="showDeleteFor = null"
     class="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 dark:from-slate-900 dark:to-slate-950 p-4 md:p-8">
 
     <!-- Header -->
@@ -503,16 +504,21 @@ async function saveResetPassword() {
 
               <!-- Card Actions -->
               <div class="flex items-center justify-end gap-2 pt-3 mt-1 border-t border-slate-50 dark:border-slate-700/30">
-                  <button @click="openEdit(docente)"
+                  <button @click.stop="openEdit(docente)"
                     class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 rounded-lg transition-colors">
                     <Edit2 class="w-3.5 h-3.5" /> Editar
                   </button>
-                  <button @click="openResetPassword(docente)"
+                  <button @click.stop="openResetPassword(docente)"
                     class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40 rounded-lg transition-colors">
                     <KeyRound class="w-3.5 h-3.5" /> Pass
                   </button>
-                  <button @click="deleteDocente(docente)" :disabled="docente.id === auth.user?.id"
-                    class="flex items-center justify-center w-8 h-8 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                  
+                  <button v-if="showDeleteFor !== docente.id" @click.stop="showDeleteFor = docente.id" :disabled="docente.id === auth.user?.id"
+                    class="flex items-center justify-center w-8 h-8 text-slate-400 hover:text-red-500 bg-slate-50 hover:bg-red-50 dark:text-slate-500 dark:bg-slate-700/20 dark:hover:bg-red-900/20 dark:hover:text-red-400 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                    <MoreVertical class="w-3.5 h-3.5" />
+                  </button>
+                  <button v-else @click="deleteDocente(docente)" :disabled="docente.id === auth.user?.id"
+                    class="flex items-center justify-center w-8 h-8 text-white bg-red-500 hover:bg-red-600 rounded-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-red-500/30 animate-[fadeIn_0.2s_ease-out]">
                     <Trash2 class="w-3.5 h-3.5" />
                   </button>
               </div>
@@ -642,19 +648,25 @@ async function saveResetPassword() {
                   </td>
                   <td class="px-4 py-3">
                     <div class="flex items-center justify-end gap-1.5">
-                      <button @click="openEdit(docente)"
+                      <button @click.stop="openEdit(docente)"
                         class="p-1.5 text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/30 rounded-lg transition-colors"
                         title="Editar datos">
                         <Edit2 class="w-4 h-4" />
                       </button>
-                      <button @click="openResetPassword(docente)"
+                      <button @click.stop="openResetPassword(docente)"
                         class="p-1.5 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-lg transition-colors"
                         title="Restablecer contraseña">
                         <KeyRound class="w-4 h-4" />
                       </button>
-                      <button @click="deleteDocente(docente)" :disabled="docente.id === auth.user?.id"
-                        class="p-1.5 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                        title="Eliminar">
+                      
+                      <button v-if="showDeleteFor !== docente.id" @click.stop="showDeleteFor = docente.id" :disabled="docente.id === auth.user?.id"
+                        class="p-1.5 text-slate-300 hover:text-red-500 dark:text-slate-600 dark:hover:text-red-400 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                        title="Más opciones">
+                        <MoreVertical class="w-4 h-4" />
+                      </button>
+                      <button v-else @click="deleteDocente(docente)" :disabled="docente.id === auth.user?.id"
+                        class="p-1.5 text-red-600 hover:text-white dark:text-red-400 hover:bg-red-500 dark:hover:bg-red-500 dark:hover:text-white rounded-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm hover:shadow-md shadow-red-500/30 animate-[fadeIn_0.2s_ease-out]"
+                        title="Confirmar Eliminar">
                         <Trash2 class="w-4 h-4" />
                       </button>
                     </div>

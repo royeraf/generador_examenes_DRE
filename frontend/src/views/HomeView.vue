@@ -61,7 +61,7 @@ const auth = useAuthStore();
         </div>
 
         <!-- Content -->
-        <div class="relative z-10 max-w-5xl w-full">
+        <div class="relative z-10 max-w-5xl w-full mt-16 sm:mt-8">
 
             <!-- Header -->
             <div class="text-center mb-8 md:mb-12 space-y-3 sm:space-y-4 px-2">
