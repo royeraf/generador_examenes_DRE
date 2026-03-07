@@ -84,12 +84,13 @@ class DocenteService:
         self,
         db: AsyncSession,
         skip: int = 0,
-        limit: int = 10
+        limit: int = 10,
+        search_query: Optional[str] = None
     ) -> tuple[List[Docente], int]:
-        """Get paginated docentes and total count."""
-        items = await self.repository.get_multi(db, skip=skip, limit=limit)
-        total = await self.repository.count(db)
-        return items, total
+        """Get paginated docentes and total count, with optional search."""
+        return await self.repository.get_paginated_with_search(
+            db, skip=skip, limit=limit, search_query=search_query
+        )
 
 
 docente_service = DocenteService()

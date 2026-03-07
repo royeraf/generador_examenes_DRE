@@ -27,5 +27,32 @@ class DocenteRepository(BaseRepository[Docente, DocenteCreate, DocenteUpdate]):
         )
         return result.scalars().all()
 
+    async def get_paginated_with_search(
+        self, db: AsyncSession, skip: int = 0, limit: int = 10, search_query: Optional[str] = None
+    ) -> tuple[List[Docente], int]:
+        from sqlalchemy import or_, func
+
+        stmt = select(Docente)
+        
+        if search_query:
+            search_term = f"%{search_query}%"
+            stmt = stmt.where(
+                or_(
+                    Docente.dni.ilike(search_term),
+                    Docente.nombres.ilike(search_term),
+                    Docente.apellidos.ilike(search_term)
+                )
+            )
+            
+        # Get total count
+        count_stmt = select(func.count()).select_from(stmt.subquery())
+        total = (await db.execute(count_stmt)).scalar() or 0
+
+        # Get items
+        items_stmt = stmt.order_by(Docente.id.desc()).offset(skip).limit(limit)
+        items = (await db.execute(items_stmt)).scalars().all()
+
+        return items, total
+
 
 docente_repository = DocenteRepository()

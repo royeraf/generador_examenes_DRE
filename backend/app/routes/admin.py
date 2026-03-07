@@ -267,12 +267,13 @@ import math
 async def list_docentes(
     page: int = 1,
     size: int = 10,
+    q: Optional[str] = None,
     db: AsyncSession = Depends(get_db),
     current_user: DocenteModel = Depends(get_current_superuser)
 ):
-    """Listar usuarios con paginación."""
+    """Listar usuarios con paginación y búsqueda opcional."""
     skip = (page - 1) * size
-    items, total = await docente_service.get_paginated_docentes(db, skip=skip, limit=size)
+    items, total = await docente_service.get_paginated_docentes(db, skip=skip, limit=size, search_query=q)
     
     return PaginatedResponse(
         items=items,

@@ -434,10 +434,12 @@ export interface PaginatedResponse<T> {
 }
 
 export const adminUsuariosService = {
-  async getAll(page: number = 1, size: number = 10): Promise<PaginatedResponse<Docente>> {
-    const response = await apiClient.get<PaginatedResponse<Docente>>('/admin/docentes', {
-      params: { page, size }
-    })
+  async getAll(page: number = 1, size: number = 10, search?: string): Promise<PaginatedResponse<Docente>> {
+    const params: Record<string, any> = { page, size }
+    if (search) {
+      params.q = search;
+    }
+    const response = await apiClient.get<PaginatedResponse<Docente>>('/admin/docentes', { params })
     return response.data
   },
 

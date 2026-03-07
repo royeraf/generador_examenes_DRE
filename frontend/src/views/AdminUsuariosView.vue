@@ -5,9 +5,9 @@ import { useAuthStore } from '../stores/auth'
 import { adminUsuariosService, type DocenteCreatePayload, type DocenteUpdatePayload } from '../services/api'
 import type { Docente } from '../types'
 import {
-  Plus, Edit2, Trash2, ToggleLeft, ToggleRight, Home,
+  Plus, Edit2, Trash2, Home,
   Shield, X, Eye, EyeOff, AlertCircle, KeyRound, CheckCircle,
-  ChevronLeft, ChevronRight, Loader2, MoreVertical
+  ChevronLeft, ChevronRight, Loader2, MoreVertical, Search
 } from 'lucide-vue-next'
 import Swal from 'sweetalert2'
 import { useForm, useField } from 'vee-validate'
@@ -25,6 +25,11 @@ const editingId = ref<number | null>(null)
 const showPassword = ref(false)
 const serverError = ref('')
 const showDeleteFor = ref<number | null>(null)
+const togglingId = ref<number | null>(null)
+const showDetailsModal = ref(false)
+const detailsTarget = ref<Docente | null>(null)
+const searchQuery = ref('')
+let searchTimeout: any = null
 
 // Pagination
 const currentPage = ref(1)
@@ -96,10 +101,11 @@ const { value: is_active } = useField<boolean>('is_active')
 const { value: is_superuser } = useField<boolean>('is_superuser')
 
 // Load
-async function loadDocentes() {
+async function loadDocentes(resetPage = false) {
+  if (resetPage) currentPage.value = 1
   try {
     loading.value = true
-    const response = await adminUsuariosService.getAll(currentPage.value, pageSize.value)
+    const response = await adminUsuariosService.getAll(currentPage.value, pageSize.value, searchQuery.value)
     docentes.value = response.items
     totalPages.value = response.pages
     totalCount.value = response.total
@@ -108,6 +114,13 @@ async function loadDocentes() {
   } finally {
     loading.value = false
   }
+}
+
+function handleSearch() {
+  if (searchTimeout) clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    loadDocentes(true)
+  }, 400) // Debounce 400ms
 }
 
 function setPage(page: number) {
@@ -163,6 +176,11 @@ function closeModal() {
   showModal.value = false
 }
 
+function openDetails(docente: Docente) {
+  detailsTarget.value = docente
+  showDetailsModal.value = true
+}
+
 // Save — vee-validate handleSubmit valida antes de ejecutar
 const saveDocente = handleSubmit(
   async (values) => {
@@ -209,11 +227,47 @@ const saveDocente = handleSubmit(
 // Toggle active
 async function toggleActive(docente: Docente) {
   if (docente.id === auth.user?.id) return
+
+  const isDeactivating = docente.is_active;
+  
+  const result = await Swal.fire({
+    title: isDeactivating ? '¿Desactivar usuario?' : '¿Activar usuario?',
+    html: isDeactivating 
+      ? `El usuario <strong>${docente.nombres ?? docente.dni}</strong> perderá el acceso al sistema.`
+      : `El usuario <strong>${docente.nombres ?? docente.dni}</strong> volverá a tener acceso al sistema.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: isDeactivating ? '#f59e0b' : '#14b8a6', // amber-500 or teal-500
+    cancelButtonColor: '#94a3b8', // slate-400
+    confirmButtonText: isDeactivating ? 'Sí, desactivar' : 'Sí, activar',
+    cancelButtonText: 'Cancelar'
+  })
+
+  if (!result.isConfirmed) {
+    showDeleteFor.value = null; // Cierra las opciones expandidas si cancela
+    return
+  }
+
+  togglingId.value = docente.id
   try {
     await adminUsuariosService.toggleActive(docente.id)
     await loadDocentes()
+    
+    // Success notification
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: isDeactivating ? 'Usuario desactivado' : 'Usuario activado',
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true
+    });
   } catch {
     Swal.fire('Error', 'No se pudo cambiar el estado del usuario', 'error')
+  } finally {
+    togglingId.value = null
+    showDeleteFor.value = null // Oculta barra si todo finalizó
   }
 }
 
@@ -423,6 +477,23 @@ async function saveResetPassword() {
 
       </div>
 
+      <!-- Search Bar -->
+      <div class="mb-6 flex">
+        <div class="relative w-full md:w-96">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search class="h-5 w-5 text-slate-400 dark:text-slate-500" />
+          </div>
+          <input type="text" v-model="searchQuery" @input="handleSearch"
+            class="block w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl leading-5 bg-white dark:bg-slate-800/80 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 dark:focus:ring-teal-400/50 dark:focus:border-teal-400 transition-colors shadow-sm"
+            placeholder="Buscar por DNI, Nombres o Apellidos...">
+          <div class="absolute inset-y-0 right-0 pr-3 flex items-center" v-if="searchQuery">
+            <button @click="searchQuery = ''; handleSearch()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+              <X class="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- User List Container -->
       <div class="bg-white dark:bg-slate-800 md:rounded-2xl shadow-xl md:border border-slate-100 dark:border-slate-700 -mx-4 md:mx-0">
         
@@ -474,53 +545,64 @@ async function saveResetPassword() {
                     <Shield class="w-3 h-3" />
                     {{ docente.is_superuser ? 'Admin' : 'Docente' }}
                   </span>
-                  <button @click="toggleActive(docente)" :disabled="docente.id === auth.user?.id"
-                    class="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full transition-colors disabled:cursor-not-allowed"
-                    :class="docente.is_active
-                      ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                      : 'bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400'">
-                    <ToggleRight v-if="docente.is_active" class="w-3 h-3" />
-                    <ToggleLeft v-else class="w-3 h-3" />
-                    {{ docente.is_active ? 'Activo' : 'Inactivo' }}
-                  </button>
-                </div>
-              </div>
-
-              <!-- Card Details -->
-              <div class="text-xs text-slate-600 dark:text-slate-400 space-y-1.5 py-2 border-t border-slate-50 dark:border-slate-700/30">
-                <div v-if="docente.profesion" class="flex gap-2 items-start">
-                  <span class="font-semibold w-12 shrink-0 text-slate-500">Prof:</span> 
-                  <span class="truncate">{{ docente.profesion }}</span>
-                </div>
-                <div v-if="docente.institucion_educativa" class="flex gap-2 items-start">
-                  <span class="font-semibold w-12 shrink-0 text-slate-500">I.E:</span> 
-                  <span class="truncate">{{ docente.institucion_educativa }}</span>
-                </div>
-                <div v-if="docente.nivel_educativo" class="flex gap-2 items-start">
-                  <span class="font-semibold w-12 shrink-0 text-slate-500">Nivel:</span> 
-                  <span>{{ levelLabel[docente.nivel_educativo] ?? docente.nivel_educativo }}</span>
                 </div>
               </div>
 
               <!-- Card Actions -->
-              <div class="flex items-center justify-end gap-2 pt-3 mt-1 border-t border-slate-50 dark:border-slate-700/30">
-                  <button @click.stop="openEdit(docente)"
-                    class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 rounded-lg transition-colors">
-                    <Edit2 class="w-3.5 h-3.5" /> Editar
-                  </button>
-                  <button @click.stop="openResetPassword(docente)"
-                    class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40 rounded-lg transition-colors">
-                    <KeyRound class="w-3.5 h-3.5" /> Pass
-                  </button>
+              <div class="flex items-center justify-end pt-3 mt-1 border-t border-slate-50 dark:border-slate-700/30 h-[48px] overflow-hidden">
                   
-                  <button v-if="showDeleteFor !== docente.id" @click.stop="showDeleteFor = docente.id" :disabled="docente.id === auth.user?.id"
-                    class="flex items-center justify-center w-8 h-8 text-slate-400 hover:text-red-500 bg-slate-50 hover:bg-red-50 dark:text-slate-500 dark:bg-slate-700/20 dark:hover:bg-red-900/20 dark:hover:text-red-400 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
-                    <MoreVertical class="w-3.5 h-3.5" />
-                  </button>
-                  <button v-else @click="deleteDocente(docente)" :disabled="docente.id === auth.user?.id"
-                    class="flex items-center justify-center w-8 h-8 text-white bg-red-500 hover:bg-red-600 rounded-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-red-500/30 animate-[fadeIn_0.2s_ease-out]">
-                    <Trash2 class="w-3.5 h-3.5" />
-                  </button>
+                  <!-- Default Actions -->
+                  <div v-if="showDeleteFor !== docente.id" class="flex items-center gap-2 w-full h-full">
+                    <button @click.stop="openDetails(docente)"
+                      class="has-tooltip relative flex flex-1 justify-center items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 hover:bg-indigo-100/80 dark:bg-indigo-900/30 dark:hover:bg-indigo-900/50 rounded-xl transition-all duration-200 border border-indigo-100/50 dark:border-indigo-800/60 shadow-sm hover:shadow h-full">
+                      <Eye class="w-4 h-4" /> <span class="hidden sm:inline">Ver</span>
+                      <span class="tooltip-top hidden sm:block">Ver detalles del usuario</span>
+                    </button>
+                    <button @click.stop="openEdit(docente)"
+                      class="has-tooltip relative flex flex-1 justify-center items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-teal-700 dark:text-teal-300 bg-teal-50 hover:bg-teal-100/80 dark:bg-teal-900/30 dark:hover:bg-teal-900/50 rounded-xl transition-all duration-200 border border-teal-100/50 dark:border-teal-800/60 shadow-sm hover:shadow h-full">
+                      <Edit2 class="w-4 h-4" /> <span class="hidden sm:inline">Editar</span>
+                      <span class="tooltip-top hidden sm:block">Modificar información</span>
+                    </button>
+                    <button @click.stop="openResetPassword(docente)"
+                      class="has-tooltip relative flex flex-1 justify-center items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 hover:bg-amber-100/80 dark:bg-amber-900/30 dark:hover:bg-amber-900/50 rounded-xl transition-all duration-200 border border-amber-100/50 dark:border-amber-800/60 shadow-sm hover:shadow h-full">
+                      <KeyRound class="w-4 h-4" /> <span class="hidden sm:inline">Pass</span>
+                      <span class="tooltip-top hidden sm:block">Restablecer la contraseña</span>
+                    </button>
+                    <button @click.stop="showDeleteFor = docente.id" :disabled="docente.id === auth.user?.id"
+                      class="has-tooltip relative flex items-center justify-center w-10 shrink-0 h-full rounded-xl text-slate-500 hover:text-slate-700 bg-slate-50 hover:bg-slate-200 dark:text-slate-400 dark:bg-slate-700/40 dark:hover:bg-slate-700 dark:hover:text-slate-200 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed border border-slate-200/50 dark:border-slate-700 shadow-sm hover:shadow transform hover:scale-105 active:scale-95">
+                      <MoreVertical class="w-5 h-5" />
+                      <span class="tooltip-top hidden sm:block">Acciones</span>
+                    </button>
+                  </div>
+
+                  <!-- Expanded Actions Toolbar -->
+                  <div v-else class="flex items-center gap-2 w-full h-full animate-pop-in">
+                    <button @click.stop="toggleActive(docente)"
+                      class="flex-[1.5] flex justify-center items-center gap-2 h-full bg-slate-50 dark:bg-slate-700/30 rounded-xl border border-slate-200/50 dark:border-slate-700 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors">
+                      <div class="relative w-11 h-6 rounded-full transition-colors flex items-center shrink-0"
+                          :class="docente.is_active ? 'bg-teal-500' : 'bg-slate-300 dark:bg-slate-600'">
+                        <div class="absolute w-5 h-5 bg-white rounded-full transition-transform duration-200 flex flex-col justify-center items-center shadow-sm"
+                            :class="docente.is_active ? 'translate-x-[22px]' : 'translate-x-0.5'">
+                             <Loader2 v-if="togglingId === docente.id" class="w-3.5 h-3.5 text-slate-500 animate-spin" />
+                        </div>
+                      </div>
+                      <span class="text-xs font-semibold" :class="docente.is_active ? 'text-teal-600 dark:text-teal-400' : 'text-slate-500 dark:text-slate-400'">
+                        {{ docente.is_active ? 'Activo' : 'Inactivo' }}
+                      </span>
+                    </button>
+                    
+                    <button @click.stop="deleteDocente(docente)"
+                      class="flex-[2] flex items-center justify-center h-full gap-1.5 px-3 py-1.5 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-xl transition-colors shadow-sm shadow-red-500/20">
+                      <Trash2 class="w-4 h-4 shrink-0" />
+                      <span>Eliminar</span>
+                    </button>
+                    
+                    <button @click.stop="showDeleteFor = null"
+                      class="flex items-center justify-center w-10 shrink-0 h-full rounded-xl text-slate-500 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 dark:text-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 transition-colors"
+                      title="Cancelar">
+                      <X class="w-5 h-5" />
+                    </button>
+                  </div>
               </div>
 
             </div>
@@ -538,19 +620,12 @@ async function saveResetPassword() {
               <tr class="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700">
                 <th class="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300">DNI</th>
                 <th class="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300">Nombre Completo</th>
-                <th class="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 hidden md:table-cell">
-                  Profesión</th>
-                <th class="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 hidden lg:table-cell">IE
-                </th>
-                <th class="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 hidden lg:table-cell">
-                  Nivel</th>
                 <th class="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 hidden xl:table-cell">
                   Creado por</th>
                 <th class="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 hidden xl:table-cell">
                   Fecha</th>
-                <th class="text-center px-4 py-3 font-semibold text-slate-600 dark:text-slate-300">Estado</th>
                 <th class="text-center px-4 py-3 font-semibold text-slate-600 dark:text-slate-300">Rol</th>
-                <th class="text-right px-4 py-3 font-semibold text-slate-600 dark:text-slate-300">Acciones</th>
+                <th class="text-right px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 w-[204px] xl:w-[252px]">Acciones</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
@@ -562,23 +637,11 @@ async function saveResetPassword() {
                   <td class="px-4 py-3">
                     <div class="h-4 w-40 bg-slate-200 dark:bg-slate-700 rounded"></div>
                   </td>
-                  <td class="px-4 py-3 hidden md:table-cell">
-                    <div class="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                  </td>
-                  <td class="px-4 py-3 hidden lg:table-cell">
-                    <div class="h-4 w-24 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                  </td>
-                  <td class="px-4 py-3 hidden lg:table-cell">
-                    <div class="h-6 w-16 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
-                  </td>
                   <td class="px-4 py-3 hidden xl:table-cell">
                     <div class="h-4 w-20 bg-slate-200 dark:bg-slate-700 rounded"></div>
                   </td>
                   <td class="px-4 py-3 hidden xl:table-cell">
                     <div class="h-4 w-24 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                  </td>
-                  <td class="px-4 py-3">
-                    <div class="h-6 w-12 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto"></div>
                   </td>
                   <td class="px-4 py-3">
                     <div class="h-6 w-16 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto"></div>
@@ -600,18 +663,6 @@ async function saveResetPassword() {
                     <span v-if="docente.id === auth.user?.id"
                       class="ml-2 text-[10px] text-teal-600 dark:text-teal-400 font-bold bg-teal-50 dark:bg-teal-900/30 px-1.5 py-0.5 rounded-full">tú</span>
                   </td>
-                  <td class="px-4 py-3 text-slate-500 dark:text-slate-400 hidden md:table-cell">{{ docente.profesion ||
-                    '—' }}</td>
-                  <td class="px-4 py-3 text-slate-500 dark:text-slate-400 hidden lg:table-cell max-w-[180px] truncate">
-                    {{
-                      docente.institucion_educativa || '—' }}</td>
-                  <td class="px-4 py-3 hidden lg:table-cell">
-                    <span v-if="docente.nivel_educativo"
-                      class="text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full">
-                      {{ levelLabel[docente.nivel_educativo] ?? docente.nivel_educativo }}
-                    </span>
-                    <span v-else class="text-slate-400">—</span>
-                  </td>
                   <!-- Creado por -->
                   <td class="px-4 py-3 hidden xl:table-cell">
                     <span v-if="docente.creado_por_id" class="text-xs text-slate-600 dark:text-slate-300">
@@ -627,18 +678,6 @@ async function saveResetPassword() {
                     <span v-else class="text-slate-400 text-xs">—</span>
                   </td>
                   <td class="px-4 py-3 text-center">
-                    <button @click="toggleActive(docente)" :disabled="docente.id === auth.user?.id"
-                      :title="docente.is_active ? 'Desactivar' : 'Activar'"
-                      class="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full transition-colors disabled:cursor-not-allowed"
-                      :class="docente.is_active
-                        ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/50'
-                        : 'bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50'">
-                      <ToggleRight v-if="docente.is_active" class="w-3.5 h-3.5" />
-                      <ToggleLeft v-else class="w-3.5 h-3.5" />
-                      {{ docente.is_active ? 'Activo' : 'Inactivo' }}
-                    </button>
-                  </td>
-                  <td class="px-4 py-3 text-center">
                     <span class="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full" :class="docente.is_superuser
                       ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
                       : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'">
@@ -647,34 +686,71 @@ async function saveResetPassword() {
                     </span>
                   </td>
                   <td class="px-4 py-3">
-                    <div class="flex items-center justify-end gap-1.5">
-                      <button @click.stop="openEdit(docente)"
-                        class="p-1.5 text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/30 rounded-lg transition-colors"
-                        title="Editar datos">
-                        <Edit2 class="w-4 h-4" />
-                      </button>
-                      <button @click.stop="openResetPassword(docente)"
-                        class="p-1.5 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-lg transition-colors"
-                        title="Restablecer contraseña">
-                        <KeyRound class="w-4 h-4" />
-                      </button>
+                    <div class="flex items-center justify-end h-[44px] w-[172px] xl:w-[220px] ml-auto">
                       
-                      <button v-if="showDeleteFor !== docente.id" @click.stop="showDeleteFor = docente.id" :disabled="docente.id === auth.user?.id"
-                        class="p-1.5 text-slate-300 hover:text-red-500 dark:text-slate-600 dark:hover:text-red-400 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                        title="Más opciones">
-                        <MoreVertical class="w-4 h-4" />
-                      </button>
-                      <button v-else @click="deleteDocente(docente)" :disabled="docente.id === auth.user?.id"
-                        class="p-1.5 text-red-600 hover:text-white dark:text-red-400 hover:bg-red-500 dark:hover:bg-red-500 dark:hover:text-white rounded-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm hover:shadow-md shadow-red-500/30 animate-[fadeIn_0.2s_ease-out]"
-                        title="Confirmar Eliminar">
-                        <Trash2 class="w-4 h-4" />
-                      </button>
+                      <!-- Default Actions -->
+                      <div v-if="showDeleteFor !== docente.id" class="flex items-center gap-2">
+                        <button @click.stop="openDetails(docente)"
+                          class="has-tooltip relative flex items-center justify-center w-8 h-8 md:w-9 md:h-9 bg-slate-50 text-slate-400 hover:bg-indigo-500 hover:text-white dark:bg-slate-800/80 dark:text-slate-400 dark:hover:bg-indigo-500 dark:hover:text-white rounded-xl transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-indigo-500/20 transform hover:-translate-y-0.5">
+                          <Eye class="w-4 h-4 md:w-[18px] md:h-[18px]" />
+                          <span class="tooltip-top">Ver detalles del usuario</span>
+                        </button>
+                        <button @click.stop="openEdit(docente)"
+                          class="has-tooltip relative flex items-center justify-center w-8 h-8 md:w-9 md:h-9 bg-slate-50 text-slate-400 hover:bg-teal-500 hover:text-white dark:bg-slate-800/80 dark:text-slate-400 dark:hover:bg-teal-500 dark:hover:text-white rounded-xl transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-teal-500/20 transform hover:-translate-y-0.5">
+                          <Edit2 class="w-4 h-4 md:w-[18px] md:h-[18px]" />
+                          <span class="tooltip-top">Editar información del usuario</span>
+                        </button>
+                        <button @click.stop="openResetPassword(docente)"
+                          class="has-tooltip relative flex items-center justify-center w-8 h-8 md:w-9 md:h-9 bg-slate-50 text-slate-400 hover:bg-amber-500 hover:text-white dark:bg-slate-800/80 dark:text-slate-400 dark:hover:bg-amber-500 dark:hover:text-white rounded-xl transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-amber-500/20 transform hover:-translate-y-0.5">
+                          <KeyRound class="w-4 h-4 md:w-[18px] md:h-[18px]" />
+                          <span class="tooltip-top">Restablecer contraseña mediante PIN</span>
+                        </button>
+                        <button @click.stop="showDeleteFor = docente.id" :disabled="docente.id === auth.user?.id"
+                          class="has-tooltip relative flex items-center justify-center w-8 h-8 md:w-9 md:h-9 bg-slate-50 text-slate-400 hover:bg-slate-700 hover:text-white dark:bg-slate-800/80 dark:text-slate-400 dark:hover:bg-slate-600 dark:hover:text-white rounded-xl transition-all duration-300 shadow-sm hover:shadow-md disabled:opacity-40 disabled:hover:bg-slate-50 disabled:hover:text-slate-400 disabled:hover:-translate-y-0 disabled:hover:shadow-sm transform hover:-translate-y-0.5 active:scale-95">
+                          <MoreVertical class="w-4 h-4 md:w-[18px] md:h-[18px]" />
+                          <span class="tooltip-top">Desplegar opciones avanzadas</span>
+                        </button>
+                      </div>
+
+                      <!-- Expanded Actions Toolbar -->
+                      <div v-else class="flex items-center gap-1 xl:gap-1.5 bg-slate-50 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm animate-pop-in">
+                        <button @click.stop="toggleActive(docente)"
+                          class="flex items-center gap-2 px-2.5 py-1.5 cursor-pointer rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700/50 transition-colors">
+                          <div class="relative w-11 h-6 rounded-full transition-colors flex items-center shrink-0"
+                              :class="docente.is_active ? 'bg-teal-500' : 'bg-slate-300 dark:bg-slate-600'">
+                            <div class="absolute w-5 h-5 bg-white rounded-full transition-transform duration-200 flex justify-center items-center shadow-sm"
+                                :class="docente.is_active ? 'translate-x-5' : 'translate-x-0.5'">
+                                <Loader2 v-if="togglingId === docente.id" class="w-3.5 h-3.5 text-slate-500 animate-spin" />
+                            </div>
+                          </div>
+                          <span class="text-xs font-semibold" :class="docente.is_active ? 'text-teal-600 dark:text-teal-400' : 'text-slate-500 dark:text-slate-400'">
+                            {{ docente.is_active ? 'Activo' : 'Inactivo' }}
+                          </span>
+                        </button>
+                        
+                        <div class="w-px h-4 bg-slate-200 dark:bg-slate-700"></div>
+
+                        <button @click.stop="deleteDocente(docente)"
+                          class="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-red-600 hover:text-white dark:text-red-400 hover:bg-red-500 rounded-lg transition-colors">
+                          <Trash2 class="w-3.5 h-3.5 shrink-0" />
+                          <span class="hidden xl:inline">Eliminar</span>
+                        </button>
+                        
+                        <div class="w-px h-4 bg-slate-200 dark:bg-slate-700"></div>
+
+                        <button @click.stop="showDeleteFor = null"
+                          class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-lg transition-colors"
+                          title="Cancelar">
+                          <X class="w-3.5 h-3.5 shrink-0" />
+                        </button>
+                      </div>
+
                     </div>
                   </td>
                 </tr>
               </template>
               <tr v-if="docentes.length === 0">
-                <td colspan="10" class="text-center py-12 text-slate-400 dark:text-slate-500">
+                <td colspan="6" class="text-center py-12 text-slate-400 dark:text-slate-500">
                   No hay usuarios registrados.
                 </td>
               </tr>
@@ -725,16 +801,23 @@ async function saveResetPassword() {
 
     <!-- Modal -->
     <Teleport to="body">
-      <Transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0"
-        enter-to-class="opacity-100" leave-active-class="transition ease-in duration-150" leave-from-class="opacity-100"
-        leave-to-class="opacity-0">
+      <Transition name="details-modal">
         <div v-if="showModal"
-          class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-          @click.self="closeModal">
-          <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+          class="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:p-4">
+          
+          <!-- Backdrop -->
+          <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="closeModal"></div>
+
+          <!-- Bottom Sheet (Mobile) / Card (Desktop) -->
+          <div class="relative bg-white dark:bg-slate-800 w-full sm:max-w-lg max-h-[92dvh] sm:max-h-[90vh] flex flex-col sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden z-10">
+            
+            <!-- Drag handle (mobile) -->
+            <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0" @click="closeModal">
+                <div class="w-10 h-1 rounded-full bg-slate-200 dark:bg-slate-600"></div>
+            </div>
 
             <!-- Modal Header -->
-            <div class="flex items-center justify-between p-4 sm:p-6 border-b border-slate-100 dark:border-slate-700">
+            <div class="flex items-center justify-between p-4 sm:p-6 sm:pt-6 pt-3 border-b border-slate-100 dark:border-slate-700 shrink-0">
               <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
                 {{ editingId ? 'Editar Usuario' : 'Nuevo Usuario' }}
               </h2>
@@ -745,7 +828,7 @@ async function saveResetPassword() {
             </div>
 
             <!-- Modal Body -->
-            <div class="p-4 sm:p-6 space-y-4">
+            <div class="p-4 sm:p-6 space-y-4 overflow-y-auto">
 
               <!-- Error del servidor -->
               <div v-if="serverError"
@@ -882,7 +965,7 @@ async function saveResetPassword() {
             </div>
 
             <!-- Modal Footer -->
-            <div class="flex justify-end gap-2 sm:gap-3 p-4 sm:px-6 sm:py-4 border-t border-slate-100 dark:border-slate-700">
+            <div class="flex justify-end gap-2 sm:gap-3 p-4 sm:px-6 sm:py-4 border-t border-slate-100 dark:border-slate-700 shrink-0 bg-slate-50 dark:bg-slate-800/50">
               <button @click="closeModal"
                 class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors">
                 Cancelar
@@ -901,16 +984,23 @@ async function saveResetPassword() {
 
     <!-- Modal: Restablecer contraseña -->
     <Teleport to="body">
-      <Transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0"
-        enter-to-class="opacity-100" leave-active-class="transition ease-in duration-150" leave-from-class="opacity-100"
-        leave-to-class="opacity-0">
+      <Transition name="details-modal">
         <div v-if="showResetModal"
-          class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-          @click.self="showResetModal = false">
-          <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm">
+          class="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:p-4">
+          
+          <!-- Backdrop -->
+          <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showResetModal = false"></div>
+
+          <!-- Bottom Sheet (Mobile) / Card (Desktop) -->
+          <div class="relative bg-white dark:bg-slate-800 w-full sm:max-w-sm max-h-[92dvh] sm:max-h-[90vh] flex flex-col sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden z-10">
+
+            <!-- Drag handle (mobile) -->
+            <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0" @click="showResetModal = false">
+                <div class="w-10 h-1 rounded-full bg-slate-200 dark:bg-slate-600"></div>
+            </div>
 
             <!-- Header -->
-            <div class="flex items-center justify-between p-4 sm:p-5 border-b border-slate-100 dark:border-slate-700">
+            <div class="flex items-center justify-between p-4 sm:p-5 sm:pt-5 pt-3 border-b border-slate-100 dark:border-slate-700 shrink-0">
               <div class="flex items-center gap-2.5 max-w-[85%]">
                 <div class="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
                   <KeyRound class="w-4 h-4 text-amber-600 dark:text-amber-400" />
@@ -929,7 +1019,7 @@ async function saveResetPassword() {
             </div>
 
             <!-- Body -->
-            <div class="p-4 sm:p-5 space-y-4">
+            <div class="p-4 sm:p-5 space-y-4 overflow-y-auto">
 
               <p
                 class="text-xs text-slate-500 dark:text-slate-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/50 rounded-xl p-3">
@@ -971,7 +1061,7 @@ async function saveResetPassword() {
             </div>
 
             <!-- Footer -->
-            <div class="flex items-center justify-end gap-2 p-4 sm:px-5 sm:py-4 border-t border-slate-100 dark:border-slate-700">
+            <div class="flex items-center justify-end gap-2 p-4 sm:px-5 sm:py-4 border-t border-slate-100 dark:border-slate-700 shrink-0 bg-slate-50 dark:bg-slate-800/50">
               <button @click="showResetModal = false"
                 class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors">
                 Cerrar
@@ -989,12 +1079,204 @@ async function saveResetPassword() {
       </Transition>
     </Teleport>
 
-    <!-- Botón Inicio (móvil/fixed) -->
-    <button @click="router.push('/')"
-      class="fixed bottom-6 left-6 z-[100] bg-white/90 dark:bg-slate-800/90 backdrop-blur-md text-slate-700 dark:text-slate-200 px-5 py-3 rounded-full shadow-2xl border-2 border-slate-100 dark:border-slate-600 font-bold text-sm hover:scale-105 hover:bg-white dark:hover:bg-slate-700 transition-all duration-300 flex items-center gap-2 md:hidden">
-      <Home class="w-4 h-4" />
-      Inicio
-    </button>
+    <Teleport to="body">
+      <Transition name="details-modal">
+        <div v-if="showDetailsModal && detailsTarget"
+          class="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:p-4">
+          
+          <!-- Backdrop -->
+          <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showDetailsModal = false"></div>
+
+          <!-- Bottom Sheet (Mobile) / Card (Desktop) -->
+          <div class="relative bg-white dark:bg-slate-800 w-full sm:max-w-lg max-h-[92dvh] sm:max-h-[90vh] flex flex-col sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden z-10">
+            
+            <!-- Drag handle (mobile) -->
+            <div class="sm:hidden absolute top-0 inset-x-0 h-4 flex justify-center items-center z-20" @click="showDetailsModal = false">
+                <div class="w-10 h-1 rounded-full bg-white/40"></div>
+            </div>
+
+            <div class="bg-gradient-to-r from-teal-500 to-indigo-600 pt-7 pb-5 px-5 sm:p-6 flex items-center gap-3 sm:gap-4 text-white relative shrink-0">
+               <button @click="showDetailsModal = false"
+                  class="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-colors">
+                  <X class="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+               <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center font-bold text-xl sm:text-2xl border border-white/20 shadow-inner">
+                 {{ detailsTarget.nombres ? detailsTarget.nombres.charAt(0) : (detailsTarget.dni?.charAt(0) || 'U') }}
+               </div>
+               <div class="min-w-0 pr-6">
+                  <h2 class="text-lg sm:text-xl font-bold leading-tight truncate">{{ [detailsTarget.nombres, detailsTarget.apellidos].filter(Boolean).join(' ') || 'Sin Nombre' }}</h2>
+                  <p class="text-indigo-100 text-xs sm:text-sm opacity-90 font-mono mt-0.5 truncate">{{ detailsTarget.dni }}</p>
+               </div>
+            </div>
+
+            <div class="p-4 sm:p-6 overflow-y-auto">
+                <!-- Data Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
+                    <div>
+                        <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-1">DNI</p>
+                        <p class="font-medium text-slate-700 dark:text-slate-200">{{ detailsTarget.dni }}</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-1">Nombres</p>
+                        <p class="font-medium text-slate-700 dark:text-slate-200">{{ detailsTarget.nombres || '—' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-1">Apellidos</p>
+                        <p class="font-medium text-slate-700 dark:text-slate-200">{{ detailsTarget.apellidos || '—' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-1">Profesión</p>
+                        <p class="font-medium text-slate-700 dark:text-slate-200">{{ detailsTarget.profesion || '—' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-1">Inst. Educativa</p>
+                        <p class="font-medium text-slate-700 dark:text-slate-200">{{ detailsTarget.institucion_educativa || '—' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-1">Nivel Educativo</p>
+                        <p class="font-medium text-slate-700 dark:text-slate-200">
+                          <span v-if="detailsTarget.nivel_educativo" class="inline-flex bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full text-xs">
+                             {{ levelLabel[detailsTarget.nivel_educativo] ?? detailsTarget.nivel_educativo }}
+                          </span>
+                          <span v-else>—</span>
+                        </p>
+                    </div>
+                    
+                    <div class="col-span-1 sm:col-span-2 pt-3 mt-3 border-t border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row gap-4">
+                        <div class="flex-1">
+                           <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-1">Estado</p>
+                           <div class="flex items-center gap-1.5">
+                             <div class="w-2.5 h-2.5 rounded-full" :class="detailsTarget.is_active ? 'bg-green-500' : 'bg-red-500'"></div>
+                             <span class="font-medium text-slate-700 dark:text-slate-200 text-sm">{{ detailsTarget.is_active ? 'Activo' : 'Inactivo' }}</span>
+                           </div>
+                        </div>
+                        <div class="flex-1">
+                           <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-1">Rol</p>
+                           <div class="flex items-center gap-1.5">
+                             <Shield class="w-3.5 h-3.5" :class="detailsTarget.is_superuser ? 'text-indigo-500' : 'text-slate-500'" />
+                             <span class="font-medium text-slate-700 dark:text-slate-200 text-sm">{{ detailsTarget.is_superuser ? 'Administrador' : 'Docente regular' }}</span>
+                           </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-span-1 sm:col-span-2 pt-3 mt-1 border-t border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row gap-4">
+                        <div class="flex-1">
+                           <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-1">Creado por</p>
+                           <p class="font-medium text-slate-700 dark:text-slate-200 text-sm">
+                             {{ detailsTarget.creado_por_id ? creadorNombre(detailsTarget.creado_por_id) : 'Sistema / Desconocido' }}
+                           </p>
+                        </div>
+                        <div class="flex-1">
+                           <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-1">Fecha de Creación</p>
+                           <p class="font-medium text-slate-700 dark:text-slate-200 text-sm">
+                             {{ detailsTarget.fecha_creacion ? formatFecha(detailsTarget.fecha_creacion) : '—' }}
+                           </p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            
+            <div class="bg-slate-50 dark:bg-slate-800/50 p-4 border-t border-slate-100 dark:border-slate-700 flex justify-end shrink-0">
+               <button @click="showDetailsModal = false"
+                  class="w-full sm:w-auto px-5 py-2.5 sm:py-2 text-sm font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-xl transition-all shadow-sm">
+                  Cerrar
+                </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
 
   </div>
 </template>
+
+<style scoped>
+/* Bottom Sheet / Modal Animations */
+.details-modal-enter-active,
+.details-modal-leave-active {
+    transition: opacity 0.25s ease;
+}
+.details-modal-enter-active .relative,
+.details-modal-leave-active .relative {
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.details-modal-enter-from,
+.details-modal-leave-to {
+    opacity: 0;
+}
+/* Mobile slides from bottom */
+.details-modal-enter-from .relative,
+.details-modal-leave-to .relative {
+    transform: translateY(100%);
+}
+/* Desktop scales from center */
+@media (min-width: 640px) {
+    .details-modal-enter-from .relative,
+    .details-modal-leave-to .relative {
+        transform: translateY(0) scale(0.95);
+    }
+}
+
+/* Tooltips */
+.has-tooltip {
+  position: relative;
+}
+.tooltip-top {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  transform: translateY(4px);
+  background-color: #1e293b; /* slate-800 */
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  z-index: 50;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.tooltip-top::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  right: 12px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #1e293b transparent transparent transparent;
+}
+.has-tooltip:hover .tooltip-top {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.dark .tooltip-top {
+  background-color: #f8fafc; /* slate-50 */
+  color: #0f172a; /* slate-900 */
+  border-color: rgba(0, 0, 0, 0.1);
+}
+.dark .tooltip-top::after {
+  border-color: #f8fafc transparent transparent transparent;
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateX(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+  }
+}
+.animate-pop-in {
+  animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+</style>
+
