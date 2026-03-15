@@ -52,7 +52,9 @@ import {
   Infinity,
   FileSearch,
   Lightbulb,
-  ClipboardCheck
+  ClipboardCheck,
+  Hand,
+  CheckCircle2
 } from 'lucide-vue-next';
 import ThinkingLoader from '../components/ThinkingLoader.vue';
 import Footer from './Footer.vue'
@@ -471,8 +473,8 @@ const getNivelBadgeClass = (nivel: string): string => {
                 class="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-y-0 translate-y-2">
                 <div
                   class="bg-white dark:bg-slate-700 rounded-full px-2 py-1 shadow-lg border-2 border-amber-300 dark:border-amber-500">
-                  <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 whitespace-nowrap">¡Hola!
-                    👋</span>
+                  <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 whitespace-nowrap flex items-center gap-0.5">¡Hola!
+                    <Hand class="w-3 h-3" /></span>
                 </div>
               </div>
             </div>
@@ -589,7 +591,7 @@ const getNivelBadgeClass = (nivel: string): string => {
                   class="flex items-center justify-center py-4 px-3 bg-gradient-to-br from-sky-50 to-teal-50 dark:bg-slate-900 border-2 border-dashed border-sky-300 dark:border-slate-600 rounded-xl hover:border-teal-400 hover:bg-teal-50 transition-all duration-300">
                   <div class="text-center">
                     <CloudUpload class="w-6 h-6 text-teal-500 mx-auto mb-1" />
-                    <span class="text-teal-600 dark:text-slate-400 text-xs font-medium">📄 PDF o Word</span>
+                    <span class="text-teal-600 dark:text-slate-400 text-xs font-medium flex items-center gap-1"><FileText class="w-3 h-3" /> PDF o Word</span>
                   </div>
                 </div>
               </div>
@@ -659,7 +661,7 @@ const getNivelBadgeClass = (nivel: string): string => {
                   </div>
                   <span v-if="selectedDesempenosCount > 0"
                     class="px-3 py-1.5 rounded-full bg-amber-400 text-amber-900 text-xs font-bold shadow-lg">
-                    ✓ {{ selectedDesempenosCount }} seleccionados
+                    <CheckCircle2 class="w-3 h-3 inline" /> {{ selectedDesempenosCount }} seleccionados
                   </span>
                 </div>
               </div>
@@ -703,17 +705,21 @@ const getNivelBadgeClass = (nivel: string): string => {
               <div v-else-if="desempenos.length > 0" class="flex-1 flex flex-col overflow-hidden">
 
                 <!-- Tab Navigation - Niveles de Comprensión -->
-                <div class="flex overflow-x-auto scrollbar-hide bg-gray-50 dark:bg-slate-900 p-1.5 gap-1 min-w-full">
+                <div class="flex overflow-x-auto scrollbar-hide bg-slate-100 dark:bg-slate-900/80 p-1.5 gap-1 min-w-full border-b border-slate-200/60 dark:border-slate-700/60">
                   <button v-for="tipo in ['literal', 'inferencial', 'critico']" :key="tipo"
                     @click="activeCapacidadTab = tipo"
                     class="flex-1 min-w-[100px] relative px-2 sm:px-4 py-2 sm:py-2.5 text-[10px] sm:text-xs font-bold uppercase tracking-wide transition-all duration-300 rounded-lg whitespace-nowrap"
                     :class="activeCapacidadTab === tipo
                       ? {
-                        'bg-teal-500 text-white shadow-lg shadow-teal-500/30': tipo === 'literal',
-                        'bg-amber-500 text-white shadow-lg shadow-amber-500/30': tipo === 'inferencial',
-                        'bg-violet-500 text-white shadow-lg shadow-violet-500/30': tipo === 'critico'
+                        'bg-gradient-to-b from-teal-400 to-teal-600 dark:from-teal-500 dark:to-teal-700 text-white shadow-lg shadow-teal-600/40 dark:shadow-teal-500/30 ring-1 ring-teal-400/50 dark:ring-teal-400/30': tipo === 'literal',
+                        'bg-gradient-to-b from-amber-400 to-amber-600 dark:from-amber-500 dark:to-amber-700 text-white shadow-lg shadow-amber-600/40 dark:shadow-amber-500/30 ring-1 ring-amber-400/50 dark:ring-amber-400/30': tipo === 'inferencial',
+                        'bg-gradient-to-b from-violet-400 to-violet-600 dark:from-violet-500 dark:to-violet-700 text-white shadow-lg shadow-violet-600/40 dark:shadow-violet-500/30 ring-1 ring-violet-400/50 dark:ring-violet-400/30': tipo === 'critico'
                       }
-                      : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800'">
+                      : {
+                        'text-slate-500 dark:text-slate-400 hover:bg-teal-100/70 dark:hover:bg-teal-900/30 hover:text-teal-700 dark:hover:text-teal-300 hover:shadow-sm': tipo === 'literal',
+                        'text-slate-500 dark:text-slate-400 hover:bg-amber-100/70 dark:hover:bg-amber-900/30 hover:text-amber-700 dark:hover:text-amber-300 hover:shadow-sm': tipo === 'inferencial',
+                        'text-slate-500 dark:text-slate-400 hover:bg-violet-100/70 dark:hover:bg-violet-900/30 hover:text-violet-700 dark:hover:text-violet-300 hover:shadow-sm': tipo === 'critico'
+                      }">
                     <div class="flex items-center justify-center gap-1.5 sm:gap-2">
                       <BookOpen v-if="tipo === 'literal'" class="w-3 h-3 sm:w-4 h-4" />
                       <FileSearch v-else-if="tipo === 'inferencial'" class="w-3 h-3 sm:w-4 h-4" />

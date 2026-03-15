@@ -338,7 +338,7 @@ const qCritico = computed({
                             class="flex items-center justify-center py-4 px-3 bg-gradient-to-br from-sky-50 to-teal-50 dark:from-slate-900 dark:to-slate-950 border-2 border-dashed border-sky-300 dark:border-slate-600 rounded-xl hover:border-teal-400 hover:from-teal-50 hover:to-teal-100 dark:hover:from-slate-800 dark:hover:to-slate-900 transition-all duration-300">
                             <div class="text-center">
                                 <CloudUpload class="w-6 h-6 text-teal-500 mx-auto mb-1" />
-                                <span class="text-teal-600 dark:text-slate-400 text-xs font-medium">📄 PDF o Word</span>
+                                <span class="text-teal-600 dark:text-slate-400 text-xs font-medium flex items-center gap-1"><FileText class="w-3 h-3" /> PDF o Word</span>
                             </div>
                         </div>
                     </div>

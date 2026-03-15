@@ -362,35 +362,9 @@ export const matematicaService = {
     situacion_base?: string;
     modelo?: string;
     nivel_dificultad?: 'basico' | 'intermedio' | 'avanzado';
-  }): Promise<{
-    grado: string;
-    competencia: string;
-    desempenos_usados: string;
-    saludo: string;
-    examen: {
-      titulo: string;
-      grado: string;
-      competencia: string;
-      instrucciones: string;
-      situacion_problematica: string;
-      preguntas: Array<{
-        numero: number;
-        enunciado: string;
-        opciones: Array<{ letra: string; texto: string; es_correcta: boolean }>;
-        capacidad: string;
-        desempeno_codigo: string;
-        criterio_evaluacion: string;
-      }>;
-      tabla_respuestas: Array<{
-        pregunta: number;
-        capacidad: string;
-        desempeno: string;
-        respuesta_correcta: string;
-        justificacion: string;
-      }>;
-    };
-    total_preguntas: number;
-  }> {
+    contenido_tematico?: string;
+    tipo_producto?: number;
+  }): Promise<any> {
     const response = await apiClient.post('/matsistem/generar', request);
     return response.data;
   },

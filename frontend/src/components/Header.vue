@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Sun, Moon, Star, GraduationCap, Eye, EyeOff } from 'lucide-vue-next';
+import { Sun, Moon, Star, GraduationCap, Eye, EyeOff, Hand } from 'lucide-vue-next';
 import logoDre from '../assets/logo.png';
 import mascotaLectosistem from '../assets/mascota_lectosistem.png';
 
@@ -83,8 +83,8 @@ const emit = defineEmits(['toggleTheme', 'toggleResults']);
                             class="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-y-0 translate-y-2">
                             <div
                                 :class="['bg-white dark:bg-slate-700 rounded-full px-2 py-1 shadow-lg border-2', mascotaBubbleClass]">
-                                <span :class="['text-[10px] font-bold whitespace-nowrap', mascotaTextClass]">¡Hola!
-                                    👋</span>
+                                <span :class="['text-[10px] font-bold whitespace-nowrap flex items-center gap-0.5', mascotaTextClass]">¡Hola!
+                                    <Hand class="w-3 h-3" /></span>
                             </div>
                         </div>
                     </div>

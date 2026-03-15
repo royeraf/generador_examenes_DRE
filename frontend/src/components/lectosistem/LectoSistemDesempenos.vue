@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Target, BookOpen, FileSearch, Lightbulb, Rocket, AlertTriangle } from 'lucide-vue-next';
+import { Target, BookOpen, FileSearch, Lightbulb, Rocket, AlertTriangle, CheckCircle2 } from 'lucide-vue-next';
 import ThinkingLoader from '../ThinkingLoader.vue';
 import Tooltip from '../Tooltip.vue';
 import Checkbox from '../Checkbox.vue';
@@ -68,7 +68,7 @@ const getCapacidadLabel = (tipo: string): string => {
                     </div>
                     <span v-if="selectedDesempenosCount > 0"
                         class="px-3 py-1.5 rounded-full bg-amber-400 text-amber-900 text-xs font-bold shadow-lg">
-                        ✓ {{ selectedDesempenosCount }} seleccionados
+                        <CheckCircle2 class="w-3 h-3 inline" /> {{ selectedDesempenosCount }} seleccionados
                     </span>
                 </div>
             </div>
@@ -112,18 +112,22 @@ const getCapacidadLabel = (tipo: string): string => {
             <div v-else-if="desempenos.length > 0" class="flex-1 flex flex-col overflow-hidden">
 
                 <!-- Tab Navigation - Niveles de Comprensión -->
-                <div class="flex overflow-x-auto scrollbar-hide bg-gray-50 dark:bg-slate-900 p-1.5 gap-1 min-w-full">
+                <div class="flex overflow-x-auto scrollbar-hide bg-slate-100 dark:bg-slate-900/80 p-1.5 gap-1 min-w-full border-b border-slate-200/60 dark:border-slate-700/60">
                     <Tooltip v-for="tipo in ['literal', 'inferencial', 'critico']" :key="tipo"
                         :text="getCapacidadLabel(tipo)" position="bottom">
                         <button @click="emit('update:activeCapacidadTab', tipo)"
-                            class="flex-1 min-w-[100px] relative px-2 sm:px-4 py-2 sm:py-2.5 text-[10px] sm:text-xs font-bold uppercase tracking-wide transition-all duration-300 rounded-lg whitespace-nowrap"
+                            class="flex-1 min-w-[100px] relative px-2 sm:px-4 py-2.5 sm:py-3 text-[10px] sm:text-xs font-bold uppercase tracking-wide transition-all duration-300 rounded-lg whitespace-nowrap"
                             :class="activeCapacidadTab === tipo
                                 ? {
-                                    'bg-teal-500 text-white shadow-lg shadow-teal-500/30': tipo === 'literal',
-                                    'bg-amber-500 text-white shadow-lg shadow-amber-500/30': tipo === 'inferencial',
-                                    'bg-violet-500 text-white shadow-lg shadow-violet-500/30': tipo === 'critico'
+                                    'bg-gradient-to-b from-teal-400 to-teal-600 dark:from-teal-500 dark:to-teal-700 text-white shadow-lg shadow-teal-600/40 dark:shadow-teal-500/30 ring-1 ring-teal-400/50 dark:ring-teal-400/30': tipo === 'literal',
+                                    'bg-gradient-to-b from-amber-400 to-amber-600 dark:from-amber-500 dark:to-amber-700 text-white shadow-lg shadow-amber-600/40 dark:shadow-amber-500/30 ring-1 ring-amber-400/50 dark:ring-amber-400/30': tipo === 'inferencial',
+                                    'bg-gradient-to-b from-violet-400 to-violet-600 dark:from-violet-500 dark:to-violet-700 text-white shadow-lg shadow-violet-600/40 dark:shadow-violet-500/30 ring-1 ring-violet-400/50 dark:ring-violet-400/30': tipo === 'critico'
                                 }
-                                : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800'">
+                                : {
+                                    'text-slate-500 dark:text-slate-400 hover:bg-teal-100/70 dark:hover:bg-teal-900/30 hover:text-teal-700 dark:hover:text-teal-300 hover:shadow-sm': tipo === 'literal',
+                                    'text-slate-500 dark:text-slate-400 hover:bg-amber-100/70 dark:hover:bg-amber-900/30 hover:text-amber-700 dark:hover:text-amber-300 hover:shadow-sm': tipo === 'inferencial',
+                                    'text-slate-500 dark:text-slate-400 hover:bg-violet-100/70 dark:hover:bg-violet-900/30 hover:text-violet-700 dark:hover:text-violet-300 hover:shadow-sm': tipo === 'critico'
+                                }">
                             <div class="flex items-center justify-center gap-1.5 sm:gap-2">
                                 <BookOpen v-if="tipo === 'literal'" class="w-3 h-3 sm:w-4 h-4" />
                                 <FileSearch v-else-if="tipo === 'inferencial'" class="w-3 h-3 sm:w-4 h-4" />

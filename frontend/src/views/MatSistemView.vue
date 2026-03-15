@@ -45,8 +45,10 @@ const {
   selectedDesempenoIds,
   selectedNivelDificultad,
   nivelesDificultad,
+  competencias,
   cantidadPreguntas,
   useTextoBase,
+  contenidoTematico,
   selectedFiles,
   filesMetadata,
   uploadingFile,
@@ -63,7 +65,6 @@ const {
   desempenosPorCapacidad,
   selectedDesempenosCount,
   gradoOptions,
-  competenciaOptions,
   capacidadesActuales,
   loadInitialData,
   selectAllCapacidad,
@@ -272,8 +273,8 @@ onMounted(async () => {
           <button @click="activeTab = 'generador'"
             class="flex items-center gap-2 px-3 py-2 sm:px-5 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 whitespace-nowrap"
             :class="activeTab === 'generador'
-              ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-lg shadow-teal-500/30'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-teal-50 dark:hover:bg-slate-700'">
+              ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-500/30'
+              : 'text-slate-600 dark:text-slate-400 hover:bg-indigo-50 dark:hover:bg-slate-700'">
             <Brain class="w-4 h-4 sm:w-5 sm:h-5" />
             <span>Generador de Examen</span>
             <Sparkles v-if="activeTab === 'generador'" class="w-3 h-3 sm:w-4 sm:h-4 text-amber-300" />
@@ -309,10 +310,12 @@ onMounted(async () => {
 
         <!-- MatSistemConfig -->
         <MatSistemConfig v-model:selectedNivelDificultad="selectedNivelDificultad"
-          :nivelesDificultad="nivelesDificultad" v-model:selectedGradoId="selectedGradoId" :gradoOptions="gradoOptions"
+          :nivelesDificultad="nivelesDificultad"
+          v-model:selectedGradoId="selectedGradoId" :gradoOptions="gradoOptions"
           :loading-grados="loadingGrados" v-model:selectedCompetenciaId="selectedCompetenciaId"
-          :competenciaOptions="competenciaOptions" v-model:cantidadPreguntas="cantidadPreguntas"
-          v-model:useTextoBase="useTextoBase" :selectedFiles="selectedFiles" :filesMetadata="filesMetadata"
+          :competencias="competencias" v-model:cantidadPreguntas="cantidadPreguntas"
+          v-model:useTextoBase="useTextoBase" v-model:contenidoTematico="contenidoTematico"
+          :selectedFiles="selectedFiles" :filesMetadata="filesMetadata"
           :uploadingFile="uploadingFile" :uploadError="uploadError" @handleFileUpload="handleFileUpload"
           @clearFiles="clearFiles" />
 

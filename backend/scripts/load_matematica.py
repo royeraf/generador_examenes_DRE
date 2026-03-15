@@ -15,8 +15,7 @@ Archivos fuente (en capacidades_mat/):
 import sys
 import os
 import re
-import zipfile
-import xml.etree.ElementTree as ET
+from docx import Document
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -30,6 +29,8 @@ from app.models.db_models import (
     EstandarMatematica,
     DesempenoMatematica
 )
+# Import all models so Base.metadata.create_all() can resolve foreign keys
+from app.models.docente import Docente  # noqa: F401
 
 # Motor síncrono para el script de carga
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./desempenos.db")
@@ -114,45 +115,18 @@ GRADOS_MATEMATICA = [
 ]
 
 
-def extract_text_from_docx(docx_path: str) -> str:
-    """Extrae texto plano de un archivo .docx."""
-    try:
-        with zipfile.ZipFile(docx_path, 'r') as zip_ref:
-            xml_content = zip_ref.read('word/document.xml')
-            tree = ET.fromstring(xml_content)
-            
-            # Namespace de Word
-            ns = {'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}
-            
-            text_parts = []
-            for paragraph in tree.iter('{http://schemas.openxmlformats.org/wordprocessingml/2006/main}p'):
-                para_text = ''
-                for text_elem in paragraph.iter('{http://schemas.openxmlformats.org/wordprocessingml/2006/main}t'):
-                    if text_elem.text:
-                        para_text += text_elem.text
-                if para_text.strip():
-                    text_parts.append(para_text.strip())
-            
-            return '\n'.join(text_parts)
-    except Exception as e:
-        print(f"   ⚠️ Error extrayendo texto de {docx_path}: {e}")
-        return ""
-
-
 def identify_grado(text: str) -> dict | None:
-    """Identifica el grado a partir de un texto."""
+    """Identifica el grado a partir de un texto corto (título de sección)."""
+    if len(text) > 80:
+        return None
+    
     text_upper = text.upper()
     
     for grado in GRADOS_MATEMATICA:
-        # Buscar coincidencia flexible
-        grado_check = grado["nombre"].upper()
-        
-        # Patrones de búsqueda
         if grado["nivel"] == "inicial":
             if "INICIAL" in text_upper and ("5 AÑOS" in text_upper or "5AÑOS" in text_upper):
                 return grado
         elif "GRADO DE PRIMARIA" in text_upper or "GRADO DE SECUNDARIA" in text_upper:
-            # Extraer número ordinal
             ordinals = {
                 "PRIMER": 1, "SEGUNDO": 2, "TERCER": 3, "CUARTO": 4,
                 "QUINTO": 5, "SEXTO": 6
@@ -167,41 +141,59 @@ def identify_grado(text: str) -> dict | None:
     return None
 
 
+def is_paragraph_bold(para) -> bool:
+    """Verifica si un párrafo tiene formato bold (total o mayoritariamente)."""
+    if not para.runs:
+        return False
+    # Considerar bold si más del 50% del texto está en bold
+    total_chars = 0
+    bold_chars = 0
+    for run in para.runs:
+        text_len = len(run.text.strip())
+        total_chars += text_len
+        if run.bold:
+            bold_chars += text_len
+    if total_chars == 0:
+        return False
+    return (bold_chars / total_chars) > 0.5
+
+
 def parse_docx_competencia(docx_path: str, competencia_codigo: int) -> dict:
     """
-    Parsea un archivo .docx de competencia matemática.
+    Parsea un archivo .docx de competencia matemática usando python-docx.
+    Usa el formato bold para distinguir entre títulos de capacidad y desempeños.
     Retorna un diccionario con estándares y desempeños por grado.
     """
     print(f"\n📄 Procesando: {os.path.basename(docx_path)}")
     
-    text = extract_text_from_docx(docx_path)
-    if not text:
+    try:
+        doc = Document(docx_path)
+    except Exception as e:
+        print(f"   ⚠️ Error abriendo {docx_path}: {e}")
         return {"estandares": [], "desempenos": []}
     
-    lines = text.split('\n')
-    
     result = {
-        "estandares": [],   # [{grado_info, descripcion, ciclo}]
-        "desempenos": []    # [{grado_info, capacidad_orden, descripcion}]
+        "estandares": [],
+        "desempenos": []
     }
+    
+    capacidades_competencia = COMPETENCIAS[competencia_codigo - 1]["capacidades"]
     
     current_grado = None
     current_capacidad_orden = None
     current_section = None  # "estandar", "desempenos"
-    
-    # Buffer para acumular texto de estándar
     estandar_buffer = []
     
-    # Mapeo de capacidades por competencia
-    capacidades_competencia = COMPETENCIAS[competencia_codigo - 1]["capacidades"]
-    
-    i = 0
-    while i < len(lines):
-        line = lines[i].strip()
-        line_upper = line.upper()
+    for para in doc.paragraphs:
+        text = para.text.strip()
+        if not text:
+            continue
         
-        # Detectar cambio de grado
-        grado_detected = identify_grado(line)
+        text_upper = text.upper()
+        bold = is_paragraph_bold(para)
+        
+        # 1. Detectar cambio de grado (líneas cortas, generalmente bold)
+        grado_detected = identify_grado(text)
         if grado_detected:
             # Guardar estándar anterior si existe
             if current_grado and estandar_buffer:
@@ -216,68 +208,55 @@ def parse_docx_competencia(docx_path: str, competencia_codigo: int) -> dict:
             current_section = None
             current_capacidad_orden = None
             print(f"   📍 Grado: {current_grado['nombre']}")
-            i += 1
             continue
         
-        # Detectar sección de estándar
-        if "ESTÁNDAR" in line_upper or "ESTANDAR" in line_upper:
+        if not current_grado:
+            continue
+        
+        # 2. Detectar sección de estándar
+        if "ESTÁNDAR" in text_upper or "ESTANDAR" in text_upper:
             current_section = "estandar"
             estandar_buffer = []
-            i += 1
             continue
         
-        # Detectar sección de desempeños
-        if "DESEMPEÑO" in line_upper and "CAPACIDAD" in line_upper:
-            # Guardar estándar si había uno en buffer
-            if current_grado and estandar_buffer:
+        # 3. Detectar sección de desempeños
+        if "DESEMPEÑO" in text_upper and "CAPACIDAD" in text_upper:
+            if estandar_buffer:
                 result["estandares"].append({
                     "grado_info": current_grado,
                     "descripcion": ' '.join(estandar_buffer),
                     "ciclo": current_grado.get("ciclo", "")
                 })
                 estandar_buffer = []
-            
             current_section = "desempenos"
-            i += 1
             continue
         
-        # Detectar capacidad específica
-        if current_section == "desempenos" and current_grado:
-            for idx, cap_nombre in enumerate(capacidades_competencia):
-                # Buscar match de capacidad (comparación flexible)
-                cap_words = cap_nombre.upper().split()[:3]  # Primeras 3 palabras
-                if all(word in line_upper for word in cap_words):
-                    current_capacidad_orden = idx + 1
-                    print(f"      ✓ Capacidad {current_capacidad_orden}: {cap_nombre[:50]}...")
-                    break
+        # 4. Acumular contenido de estándar
+        if current_section == "estandar" and not bold:
+            if "COMPETENCIA" not in text_upper and "CAPACIDAD" not in text_upper:
+                estandar_buffer.append(text)
+            continue
         
-        # Acumular contenido de estándar
-        if current_section == "estandar" and current_grado and line:
-            # Evitar agregar líneas que son títulos de sección
-            if "COMPETENCIA" not in line_upper and "CAPACIDAD" not in line_upper:
-                estandar_buffer.append(line)
-        
-        # Detectar y guardar desempeños
-        if current_section == "desempenos" and current_grado and current_capacidad_orden:
-            # Los desempeños suelen empezar con verbos de acción
-            verbos_inicio = [
-                "Establece", "Expresa", "Selecciona", "Emplea", "Plantea", 
-                "Compara", "Usa", "Representa", "Comunica", "Modela",
-                "Describe", "Realiza", "Identifica", "Argumenta", "Justifica",
-                "Evalúa", "Resuelve", "Traduce", "Interpreta", "Lee",
-                "Recolecta", "Organiza", "Sustenta", "Predice", "Explica"
-            ]
+        # 5. Procesar sección de desempeños
+        if current_section == "desempenos":
+            # Si es bold → es un título de capacidad (no un desempeño)
+            if bold:
+                # Intentar detectar qué capacidad es
+                for idx, cap_nombre in enumerate(capacidades_competencia):
+                    cap_words = cap_nombre.upper().split()[:3]
+                    if all(word in text_upper for word in cap_words):
+                        current_capacidad_orden = idx + 1
+                        print(f"      ✓ Capacidad {current_capacidad_orden}: {cap_nombre[:50]}...")
+                        break
+                continue
             
-            starts_with_verb = any(line.startswith(v) for v in verbos_inicio)
-            
-            if starts_with_verb and len(line) > 20:
+            # Si NO es bold y tenemos capacidad actual → es un desempeño
+            if current_capacidad_orden and len(text) > 20:
                 result["desempenos"].append({
                     "grado_info": current_grado,
                     "capacidad_orden": current_capacidad_orden,
-                    "descripcion": line
+                    "descripcion": text
                 })
-        
-        i += 1
     
     # Guardar último estándar si existe
     if current_grado and estandar_buffer:

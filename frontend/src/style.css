@@ -22,9 +22,6 @@
   --edu-accent-light: #38bdf8;
   --edu-accent-dark: #0284c7;
   
-  --edu-coral: #f97316;         /* Coral - Energía */
-  --edu-violet: #8b5cf6;        /* Violet - Excelencia */
-  
   /* Fondos Educativos */
   --edu-bg-cream: #fefdf8;
   --edu-bg-warm: #fef7ed;
@@ -42,34 +39,6 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
-}
-
-/* Estilos para botones educativos */
-.edu-btn-primary {
-  background: linear-gradient(135deg, var(--edu-primary) 0%, var(--edu-primary-dark) 100%);
-  color: white;
-  border-radius: 12px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 14px 0 rgba(13, 148, 136, 0.3);
-}
-
-.edu-btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px 0 rgba(13, 148, 136, 0.4);
-}
-
-/* Cards educativas */
-.edu-card {
-  background: white;
-  border-radius: 16px;
-  border: 2px solid #e5e7eb;
-  transition: all 0.3s ease;
-}
-
-.edu-card:hover {
-  border-color: var(--edu-primary-light);
-  box-shadow: 0 10px 40px -10px rgba(13, 148, 136, 0.2);
 }
 
 /* Animaciones educativas */

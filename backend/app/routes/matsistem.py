@@ -541,6 +541,8 @@ class GenerarExamenMatRequest(BaseModel):
     situacion_base: Optional[str] = None
     modelo: str = "gemini"
     nivel_dificultad: str = "intermedio"  # basico, intermedio, avanzado
+    contenido_tematico: Optional[str] = None  # Ej: "fracciones", "geometría"
+    tipo_producto: int = 2  # Preguntas con alternativas (por defecto)
 
 
 @router.post("/generar")
@@ -564,7 +566,9 @@ async def generar_examen_matematica(
             cantidad=request.cantidad,
             situacion_base=request.situacion_base,
             modelo=request.modelo,
-            nivel_dificultad=request.nivel_dificultad
+            nivel_dificultad=request.nivel_dificultad,
+            contenido_tematico=request.contenido_tematico,
+            tipo_producto=request.tipo_producto
         )
 
         return resultado

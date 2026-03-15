@@ -74,7 +74,7 @@ const handleDniInput = (e: Event) => {
 
         <!-- LEFT PANEL: Hero & Illustration -->
         <div class="w-full md:w-1/2 lg:w-3/5 bg-gradient-to-br from-teal-500 via-teal-600 to-indigo-700 relative overflow-hidden flex flex-col justify-between md:min-h-screen"
-            :class="'p-5 sm:p-8 md:p-12 lg:p-20 min-h-[auto] md:min-h-screen'">
+            :class="'p-5 sm:p-8 md:px-10 md:py-8 lg:px-16 lg:py-10 xl:px-20 xl:py-12 min-h-[auto] md:min-h-screen'">
             <!-- Background decorative elements for Left Panel -->
             <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
                 <div class="absolute top-[-20%] left-[-10%] w-96 h-96 bg-white/10 rounded-full blur-3xl animate-blob">
@@ -111,18 +111,18 @@ const handleDniInput = (e: Event) => {
             </div>
 
             <!-- DESKTOP: original vertical layout -->
-            <div class="relative z-10 pt-4 hidden md:block">
+            <div class="relative z-10 pt-2 lg:pt-4 hidden md:block">
                 <div
-                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-white/90 text-xs font-semibold uppercase tracking-wider mb-6 backdrop-blur-md">
-                    <Sparkles class="w-4 h-4" />
+                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-white/90 text-[10px] lg:text-xs font-semibold uppercase tracking-wider mb-4 lg:mb-6 backdrop-blur-md">
+                    <Sparkles class="w-3.5 h-3.5 lg:w-4 lg:h-4" />
                     Plataforma Educativa
                 </div>
-                <h1 class="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-tight tracking-tight mb-4">
+                <h1 class="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-white leading-tight tracking-tight mb-2 lg:mb-4">
                     SISTEMA INTEGRADO<br />
                     <span class="text-teal-200">DE EVALUACIÓN DE AULA</span>
                 </h1>
-                <p class="text-xl text-teal-50 font-medium">Bienvenido a SIEVA</p>
-                <p class="text-white/70 mt-4 max-w-lg text-base lg:text-lg leading-relaxed">
+                <p class="text-lg lg:text-xl text-teal-50 font-medium">Bienvenido a SIEVA</p>
+                <p class="text-white/70 mt-2 lg:mt-4 max-w-lg text-sm lg:text-base xl:text-lg leading-relaxed">
                     Potenciando la enseñanza a través de la inteligencia artificial. Analiza, genera y sistematiza
                     evaluaciones con precisión humana y velocidad de máquina.
                 </p>
@@ -130,8 +130,8 @@ const handleDniInput = (e: Event) => {
 
             <!-- Teaching SVG Illustration (desktop only) -->
             <div
-                class="relative z-10 mt-8 mb-8 md:mb-0 md:mt-auto hidden md:flex items-center justify-center pb-8 pt-4">
-                <div class="relative w-72 h-72 md:w-64 md:h-64 lg:w-72 lg:h-72">
+                class="relative z-10 mt-6 mb-4 md:mb-0 md:mt-auto hidden md:flex items-center justify-center pb-4 lg:pb-8 pt-4">
+                <div class="relative w-56 h-56 md:w-48 md:h-48 lg:w-64 lg:h-64 xl:w-72 xl:h-72 shrink-0">
                     <!-- Background Glow -->
                     <div class="absolute inset-0 bg-teal-400/20 blur-3xl rounded-full"></div>
 
@@ -144,9 +144,9 @@ const handleDniInput = (e: Event) => {
 
                     <!-- Floating Glass Card 1 - Docente -->
                     <div
-                        class="absolute -top-2 -left-10 md:-left-14 z-20 bg-white/15 backdrop-blur-md border border-white/25 rounded-2xl px-3 py-2.5 md:px-4 md:py-3 shadow-[0_8px_32px_rgba(0,0,0,0.2)] flex items-center gap-3 animate-float-y">
-                        <div class="relative p-2 bg-teal-400/30 rounded-xl shrink-0">
-                            <Users class="w-4 h-4 md:w-5 md:h-5 text-teal-100" />
+                        class="absolute -top-2 -left-6 md:-left-8 lg:-left-12 xl:-left-14 z-20 bg-white/15 backdrop-blur-md border border-white/25 rounded-2xl px-2.5 py-2 md:px-3 md:py-2.5 lg:px-4 lg:py-3 shadow-[0_8px_32px_rgba(0,0,0,0.2)] flex items-center gap-2 lg:gap-3 animate-float-y">
+                        <div class="relative p-1.5 md:p-2 bg-teal-400/30 rounded-xl shrink-0">
+                            <Users class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-teal-100" />
                             <!-- Active pulse dot -->
                             <span
                                 class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-teal-300 rounded-full ring-2 ring-white/20">
@@ -163,10 +163,10 @@ const handleDniInput = (e: Event) => {
                     </div>
 
                     <!-- Floating Glass Card 2 - IA -->
-                    <div class="absolute -bottom-2 -right-10 md:-right-14 z-20 bg-white/15 backdrop-blur-md border border-white/25 rounded-2xl px-3 py-2.5 md:px-4 md:py-3 shadow-[0_8px_32px_rgba(0,0,0,0.2)] flex items-center gap-3 animate-float-y"
+                    <div class="absolute -bottom-2 -right-6 md:-right-8 lg:-right-12 xl:-right-14 z-20 bg-white/15 backdrop-blur-md border border-white/25 rounded-2xl px-2.5 py-2 md:px-3 md:py-2.5 lg:px-4 lg:py-3 shadow-[0_8px_32px_rgba(0,0,0,0.2)] flex items-center gap-2 lg:gap-3 animate-float-y"
                         style="animation-delay: 2s;">
-                        <div class="relative p-2 bg-indigo-400/30 rounded-xl shrink-0">
-                            <BrainCircuit class="w-4 h-4 md:w-5 md:h-5 text-indigo-100" />
+                        <div class="relative p-1.5 md:p-2 bg-indigo-400/30 rounded-xl shrink-0">
+                            <BrainCircuit class="w-3.5 h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 text-indigo-100" />
                             <!-- Active pulse dot -->
                             <span
                                 class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-indigo-300 rounded-full ring-2 ring-white/20">
@@ -188,12 +188,12 @@ const handleDniInput = (e: Event) => {
 
         <!-- RIGHT PANEL: Login Form -->
         <div class="w-full md:w-1/2 lg:w-2/5 flex flex-col justify-center bg-white dark:bg-slate-900 relative md:min-h-screen"
-            :class="'p-5 sm:p-8 md:p-12 lg:p-16'">
+            :class="'p-5 sm:p-8 md:px-10 md:py-8 lg:px-12 xl:px-16'">
 
             <div class="max-w-md w-full mx-auto flex flex-col justify-center h-full py-6 md:py-0">
-                <div class="flex flex-col items-center mb-6 md:mb-10">
+                <div class="flex flex-col items-center mb-6 md:mb-8 lg:mb-10">
                     <div
-                        class="relative w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center shadow-lg border border-slate-100 dark:border-slate-700 mb-4 md:mb-6">
+                        class="relative w-14 h-14 sm:w-16 sm:h-16 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center shadow-lg border border-slate-100 dark:border-slate-700 mb-4 md:mb-5 lg:mb-6">
                         <div class="logo-display" :style="{
                             'mask-image': `url(${logoDre})`,
                             '-webkit-mask-image': `url(${logoDre})`
@@ -209,7 +209,7 @@ const handleDniInput = (e: Event) => {
                 </div>
 
                 <!-- Form -->
-                <form @submit="onSubmit" class="space-y-4 md:space-y-6" autocomplete="off">
+                <form @submit="onSubmit" class="space-y-4 md:space-y-5 lg:space-y-6" autocomplete="off">
                     <!-- Honeypot -->
                     <input type="text" name="username_fake" aria-hidden="true" tabindex="-1"
                         style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;overflow:hidden;" />
@@ -265,7 +265,7 @@ const handleDniInput = (e: Event) => {
                     </div>
 
                     <button type="submit" :disabled="loading"
-                        class="w-full bg-slate-800 dark:bg-teal-600 hover:bg-slate-900 dark:hover:bg-teal-500 text-white font-bold py-4 rounded-xl shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-3 mt-6">
+                        class="w-full bg-slate-800 dark:bg-teal-600 hover:bg-slate-900 dark:hover:bg-teal-500 text-white font-bold py-3.5 md:py-4 rounded-xl shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-3 mt-4 md:mt-6">
                         <Loader2 v-if="loading" class="w-5 h-5 animate-spin" />
                         <span v-else class="text-sm sm:text-base tracking-wide">Iniciar Sesión</span>
                         <LogIn v-if="!loading" class="w-5 h-5" />

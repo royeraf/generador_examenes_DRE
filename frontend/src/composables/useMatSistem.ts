@@ -19,25 +19,25 @@ export interface NivelDificultadOption {
   icono: string;
 }
 
+export interface TipoProductoOption {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  icono: string;
+}
+
 export const NIVELES_DIFICULTAD: NivelDificultadOption[] = [
-  {
-    id: 'basico',
-    nombre: 'Básico',
-    descripcion: 'Problemas simples y directos',
-    icono: 'Sprout'
-  },
-  {
-    id: 'intermedio',
-    nombre: 'Intermedio',
-    descripcion: 'Demanda cognitiva media',
-    icono: 'Leaf'
-  },
-  {
-    id: 'avanzado',
-    nombre: 'Avanzado',
-    descripcion: 'Alta demanda cognitiva',
-    icono: 'TreeDeciduous'
-  }
+  { id: 'basico', nombre: 'Básico', descripcion: 'Problemas simples y directos', icono: 'Sprout' },
+  { id: 'intermedio', nombre: 'Intermedio', descripcion: 'Demanda cognitiva media', icono: 'Leaf' },
+  { id: 'avanzado', nombre: 'Avanzado', descripcion: 'Alta demanda cognitiva', icono: 'TreeDeciduous' }
+];
+
+export const TIPOS_PRODUCTO: TipoProductoOption[] = [
+  { id: 1, nombre: 'Situación + Preguntas Abiertas', descripcion: 'Situación integradora con 4 preguntas abiertas', icono: 'PenLine' },
+  { id: 2, nombre: 'Situación + Alternativas (5)', descripcion: 'Situación integradora con 4 preguntas de 5 alternativas', icono: 'ListChecks' },
+  { id: 3, nombre: 'Cerradas Independientes', descripcion: '4 preguntas cerradas independientes por criterio', icono: 'CheckSquare' },
+  { id: 4, nombre: 'Abiertas Independientes', descripcion: '4 preguntas abiertas independientes por criterio', icono: 'FileText' },
+  { id: 5, nombre: 'Actividad de Aprendizaje', descripcion: 'Sesión completa INICIO/DESARROLLO/CIERRE', icono: 'BookOpen' }
 ];
 
 export function useMatSistem() {
@@ -55,6 +55,8 @@ export function useMatSistem() {
   const cantidadPreguntas = shallowRef(3);
   const textoBase = shallowRef('');
   const useTextoBase = shallowRef(false);
+  const contenidoTematico = shallowRef('');
+  const tipoProducto = shallowRef(2);
   const selectedFiles = ref<File[]>([]);
   const filesMetadata = ref<{ archivos: { filename: string; palabras: number; caracteres: number }[]; total_palabras: number; total_caracteres: number } | null>(null);
   const uploadingFile = shallowRef(false);
@@ -264,7 +266,9 @@ export function useMatSistem() {
         cantidad: cantidadPreguntas.value,
         situacion_base: useTextoBase.value ? textoBase.value : undefined,
         modelo: 'gemini',
-        nivel_dificultad: selectedNivelDificultad.value
+        nivel_dificultad: selectedNivelDificultad.value,
+        contenido_tematico: contenidoTematico.value || undefined,
+        tipo_producto: tipoProducto.value
       });
 
       resultado.value = {
@@ -272,18 +276,18 @@ export function useMatSistem() {
         desempenos_usados: response.desempenos_usados,
         saludo: response.saludo,
         examen: {
-          titulo: response.examen.titulo,
-          grado: response.examen.grado,
-          instrucciones: response.examen.instrucciones,
-          lectura: response.examen.situacion_problematica,
-          preguntas: response.examen.preguntas.map(p => ({
+          titulo: response.examen?.titulo ?? '',
+          grado: response.examen?.grado ?? '',
+          instrucciones: response.examen?.instrucciones ?? '',
+          lectura: response.examen?.situacion_problematica ?? '',
+          preguntas: (response.examen?.preguntas ?? []).map((p: any) => ({
             numero: p.numero,
             enunciado: p.enunciado,
             opciones: p.opciones,
             desempeno_codigo: p.desempeno_codigo,
             nivel: p.capacidad
           })),
-          tabla_respuestas: response.examen.tabla_respuestas.map(t => ({
+          tabla_respuestas: (response.examen?.tabla_respuestas ?? []).map((t: any) => ({
             pregunta: t.pregunta,
             desempeno: t.desempeno,
             nivel: t.capacidad,
@@ -291,7 +295,7 @@ export function useMatSistem() {
             justificacion: t.justificacion
           }))
         },
-        total_preguntas: response.total_preguntas
+        total_preguntas: response.total_preguntas ?? 0
       };
     } catch (e: any) {
       error.value = e.response?.data?.detail || 'Error al generar el examen de matemática';
@@ -328,9 +332,12 @@ export function useMatSistem() {
     selectedDesempenoIds,
     selectedNivelDificultad,
     nivelesDificultad: NIVELES_DIFICULTAD,
+    tiposProducto: TIPOS_PRODUCTO,
     cantidadPreguntas,
     textoBase,
     useTextoBase,
+    contenidoTematico,
+    tipoProducto,
     selectedFiles,
     filesMetadata,
     uploadingFile,

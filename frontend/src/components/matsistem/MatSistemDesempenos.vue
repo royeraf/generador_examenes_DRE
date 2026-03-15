@@ -3,14 +3,12 @@ import { computed } from 'vue';
 import {
     Target,
     BookOpen,
-    Calculator,
-    Sigma,
-    Shapes,
     Rocket,
-    AlertTriangle
+    AlertTriangle,
+    CheckCircle2,
+    CircleDot
 } from 'lucide-vue-next';
 import ThinkingLoader from '../ThinkingLoader.vue';
-import Tooltip from '../Tooltip.vue';
 import Checkbox from '../Checkbox.vue';
 import type { DesempenoMatCompleto, CapacidadMatConCompetencia } from '../../types/matematica';
 
@@ -40,220 +38,258 @@ const localSelectedDesempenoIds = computed({
     set: (val) => emit('update:selectedDesempenoIds', val)
 });
 
-// Helper - Obtener nombre corto de capacidad
-const getCapacidadLabel = (orden: number): string => {
-    const cap = props.capacidadesActuales.find(c => c.orden === orden);
-    if (!cap) return `Cap. ${orden}`;
-    // Extraer primeras 2-3 palabras
-    const palabras = cap.nombre.split(' ').slice(0, 3).join(' ');
-    return palabras.length > 25 ? palabras.substring(0, 25) + '...' : palabras;
-};
+// Selected count per capacidad tab
+const selectedCountPerCap = computed(() => {
+    const counts: Record<number, number> = {};
+    for (const orden of [1, 2, 3, 4]) {
+        const ids = props.desempenosPorCapacidad[orden]?.map(d => d.id) || [];
+        counts[orden] = ids.filter(id => props.selectedDesempenoIds.includes(id)).length;
+    }
+    return counts;
+});
 
-// Helper - Obtener nombre completo de capacidad (para tooltips)
-const getCapacidadFullName = (orden: number): string => {
-    const cap = props.capacidadesActuales.find(c => c.orden === orden);
-    return cap?.nombre || `Capacidad ${orden}`;
-};
+// Total desempeños per capacidad
+const totalPerCap = computed(() => {
+    const counts: Record<number, number> = {};
+    for (const orden of [1, 2, 3, 4]) {
+        counts[orden] = props.desempenosPorCapacidad[orden]?.length || 0;
+    }
+    return counts;
+});
 
-// Helper - Obtener color por orden de capacidad
-const getCapacidadColor = (orden: number) => {
-    const colors: Record<number, { bg: string; text: string; ring: string; border: string; bgSelected: string; checkboxClass: string }> = {
-        1: {
-            bg: 'bg-teal-500',
-            text: 'text-teal-600 dark:text-teal-400',
-            ring: 'ring-teal-300 dark:ring-teal-700',
-            border: 'border-teal-200 dark:border-teal-800',
-            bgSelected: 'bg-teal-50 dark:bg-teal-900/20',
-            checkboxClass: 'checked:bg-teal-600 checked:border-teal-600 dark:checked:bg-teal-500 dark:checked:border-teal-500 focus:ring-teal-500/50'
-        },
-        2: {
-            bg: 'bg-amber-500',
-            text: 'text-amber-600 dark:text-amber-400',
-            ring: 'ring-amber-300 dark:ring-amber-700',
-            border: 'border-amber-200 dark:border-amber-800',
-            bgSelected: 'bg-amber-50 dark:bg-amber-900/20',
-            checkboxClass: 'checked:bg-amber-600 checked:border-amber-600 dark:checked:bg-amber-500 dark:checked:border-amber-500 focus:ring-amber-500/50'
-        },
-        3: {
-            bg: 'bg-violet-500',
-            text: 'text-violet-600 dark:text-violet-400',
-            ring: 'ring-violet-300 dark:ring-violet-700',
-            border: 'border-violet-200 dark:border-violet-800',
-            bgSelected: 'bg-violet-50 dark:bg-violet-900/20',
-            checkboxClass: 'checked:bg-violet-600 checked:border-violet-600 dark:checked:bg-violet-500 dark:checked:border-violet-500 focus:ring-violet-500/50'
-        },
-        4: {
-            bg: 'bg-rose-500',
-            text: 'text-rose-600 dark:text-rose-400',
-            ring: 'ring-rose-300 dark:ring-rose-700',
-            border: 'border-rose-200 dark:border-rose-800',
-            bgSelected: 'bg-rose-50 dark:bg-rose-900/20',
-            checkboxClass: 'checked:bg-rose-600 checked:border-rose-600 dark:checked:bg-rose-500 dark:checked:border-rose-500 focus:ring-rose-500/50'
-        }
+// Get capacidad display info
+const getCapInfo = (orden: number) => {
+    const cap = props.capacidadesActuales.find(c => c.orden === orden);
+    return {
+        nombre: cap?.nombre || `Capacidad ${orden}`,
+        hasDesempenos: (totalPerCap.value[orden] ?? 0) > 0
     };
-    return colors[orden] || { bg: 'bg-gray-500', text: 'text-gray-600', ring: 'ring-gray-300', border: 'border-gray-200', bgSelected: 'bg-gray-50', checkboxClass: '' };
 };
+
+// Colors per capacidad
+const CAP_COLORS: Record<number, { bg: string; bgActive: string; bgHover: string; text: string; textActive: string; border: string; ring: string; bgSelected: string; checkboxClass: string; dot: string }> = {
+    1: {
+        bg: 'bg-teal-50 dark:bg-teal-900/15',
+        bgActive: 'bg-gradient-to-b from-teal-400 to-teal-600 dark:from-teal-500 dark:to-teal-700 ring-1 ring-teal-400/50 dark:ring-teal-400/30',
+        bgHover: 'hover:bg-teal-100/70 dark:hover:bg-teal-900/30 hover:text-teal-700 dark:hover:text-teal-300 hover:shadow-sm',
+        text: 'text-teal-600 dark:text-teal-400',
+        textActive: 'text-white',
+        border: 'border-teal-200 dark:border-teal-800',
+        ring: 'ring-teal-300 dark:ring-teal-700',
+        bgSelected: 'bg-teal-50 dark:bg-teal-900/20',
+        checkboxClass: 'checked:bg-teal-600 checked:border-teal-600 dark:checked:bg-teal-500 dark:checked:border-teal-500 focus:ring-teal-500/50',
+        dot: 'text-teal-500'
+    },
+    2: {
+        bg: 'bg-amber-50 dark:bg-amber-900/15',
+        bgActive: 'bg-gradient-to-b from-amber-400 to-amber-600 dark:from-amber-500 dark:to-amber-700 ring-1 ring-amber-400/50 dark:ring-amber-400/30',
+        bgHover: 'hover:bg-amber-100/70 dark:hover:bg-amber-900/30 hover:text-amber-700 dark:hover:text-amber-300 hover:shadow-sm',
+        text: 'text-amber-600 dark:text-amber-400',
+        textActive: 'text-white',
+        border: 'border-amber-200 dark:border-amber-800',
+        ring: 'ring-amber-300 dark:ring-amber-700',
+        bgSelected: 'bg-amber-50 dark:bg-amber-900/20',
+        checkboxClass: 'checked:bg-amber-600 checked:border-amber-600 dark:checked:bg-amber-500 dark:checked:border-amber-500 focus:ring-amber-500/50',
+        dot: 'text-amber-500'
+    },
+    3: {
+        bg: 'bg-violet-50 dark:bg-violet-900/15',
+        bgActive: 'bg-gradient-to-b from-violet-400 to-violet-600 dark:from-violet-500 dark:to-violet-700 ring-1 ring-violet-400/50 dark:ring-violet-400/30',
+        bgHover: 'hover:bg-violet-100/70 dark:hover:bg-violet-900/30 hover:text-violet-700 dark:hover:text-violet-300 hover:shadow-sm',
+        text: 'text-violet-600 dark:text-violet-400',
+        textActive: 'text-white',
+        border: 'border-violet-200 dark:border-violet-800',
+        ring: 'ring-violet-300 dark:ring-violet-700',
+        bgSelected: 'bg-violet-50 dark:bg-violet-900/20',
+        checkboxClass: 'checked:bg-violet-600 checked:border-violet-600 dark:checked:bg-violet-500 dark:checked:border-violet-500 focus:ring-violet-500/50',
+        dot: 'text-violet-500'
+    },
+    4: {
+        bg: 'bg-rose-50 dark:bg-rose-900/15',
+        bgActive: 'bg-gradient-to-b from-rose-400 to-rose-600 dark:from-rose-500 dark:to-rose-700 ring-1 ring-rose-400/50 dark:ring-rose-400/30',
+        bgHover: 'hover:bg-rose-100/70 dark:hover:bg-rose-900/30 hover:text-rose-700 dark:hover:text-rose-300 hover:shadow-sm',
+        text: 'text-rose-600 dark:text-rose-400',
+        textActive: 'text-white',
+        border: 'border-rose-200 dark:border-rose-800',
+        ring: 'ring-rose-300 dark:ring-rose-700',
+        bgSelected: 'bg-rose-50 dark:bg-rose-900/20',
+        checkboxClass: 'checked:bg-rose-600 checked:border-rose-600 dark:checked:bg-rose-500 dark:checked:border-rose-500 focus:ring-rose-500/50',
+        dot: 'text-rose-500'
+    }
+};
+
+const DEFAULT_CAP_COLOR = CAP_COLORS[1]!;
+const getCapColor = (orden: number) => CAP_COLORS[orden] ?? DEFAULT_CAP_COLOR;
+
+// Are all desempeños in active tab selected?
+const allSelectedInTab = computed(() => {
+    const ids = props.desempenosPorCapacidad[props.activeCapacidadTab]?.map(d => d.id) || [];
+    return ids.length > 0 && ids.every(id => props.selectedDesempenoIds.includes(id));
+});
 </script>
 
 <template>
     <div class="flex flex-col space-y-3 order-1 lg:order-1">
 
         <!-- Desempeños Card -->
-        <div
-            class="h-[500px] sm:h-[580px] lg:h-[650px] flex flex-col bg-white dark:bg-slate-800 rounded-2xl border-2 border-teal-100 dark:border-slate-700 overflow-hidden shadow-lg">
+        <div class="h-[500px] sm:h-[580px] lg:h-[650px] flex flex-col bg-white dark:bg-slate-800 rounded-2xl border-2 border-indigo-100 dark:border-slate-700 overflow-hidden shadow-lg">
 
-            <!-- Card Header - Educativo -->
-            <div class="bg-gradient-to-r from-teal-500 via-teal-600 to-sky-500 px-5 py-4">
+            <!-- Card Header -->
+            <div class="bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-500 px-5 py-4">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <div
-                            class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
+                        <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
                             <Target class="w-5 h-5 text-white" />
                         </div>
                         <div>
                             <h2 class="text-lg font-bold text-white">
-                                Desempeños
+                                Desempeños a Evaluar
                             </h2>
-                            <span v-if="desempenos.length" class="text-xs text-teal-100 font-medium">
-                                {{ desempenos.length }} disponibles para evaluar
-                            </span>
+                            <p v-if="desempenos.length" class="text-xs text-indigo-100">
+                                Marca los desempeños que quieres evaluar en el examen
+                            </p>
                         </div>
                     </div>
                     <span v-if="selectedDesempenosCount > 0"
-                        class="px-3 py-1.5 rounded-full bg-amber-400 text-amber-900 text-xs font-bold shadow-lg">
-                        ✓ {{ selectedDesempenosCount }} seleccionados
+                        class="px-3 py-1.5 rounded-full bg-amber-400 text-amber-900 text-xs font-bold shadow-lg flex items-center gap-1.5">
+                        <CheckCircle2 class="w-3.5 h-3.5" />
+                        {{ selectedDesempenosCount }} seleccionados
                     </span>
                 </div>
             </div>
 
             <!-- Loading Skeleton -->
             <div v-if="loadingDesempenos" class="flex-1 flex flex-col p-4 space-y-4 overflow-hidden">
-                <!-- Skeleton for Tabs -->
-                <div class="flex gap-2 mb-2">
-                    <div v-for="i in 3" :key="i"
-                        class="h-10 flex-1 bg-slate-100 dark:bg-slate-800/80 rounded-lg animate-pulse border border-slate-200/50 dark:border-slate-700">
-                    </div>
-                </div>
-                <!-- Skeleton for Actions -->
-                <div class="flex justify-between items-center mb-2 px-1">
-                    <div class="h-3 w-48 bg-slate-200/70 dark:bg-slate-800 rounded-full animate-pulse"></div>
-                    <div class="flex gap-2">
-                        <div class="h-6 w-24 bg-slate-200/70 dark:bg-slate-800 rounded-full animate-pulse"></div>
-                        <div class="h-6 w-16 bg-slate-200/70 dark:bg-slate-800 rounded-full animate-pulse"></div>
-                    </div>
-                </div>
-                <!-- Skeleton for List Items -->
                 <div class="space-y-3">
+                    <div class="h-14 bg-slate-100 dark:bg-slate-800/80 rounded-xl animate-pulse"></div>
                     <div v-for="i in 4" :key="i"
-                        class="flex items-start gap-4 p-4 rounded-xl border border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/30 animate-pulse">
-                        <div
-                            class="w-5 h-5 rounded border-2 border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 mt-0.5">
-                        </div>
-                        <div class="flex-1 space-y-3">
-                            <div class="h-5 w-16 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
-                            <div class="space-y-2.5">
-                                <div class="h-3 w-full bg-slate-200 dark:bg-slate-700 rounded"></div>
-                                <div class="h-3 w-5/6 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                                <div class="h-3 w-2/3 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                            </div>
-                        </div>
+                        class="h-20 bg-slate-50 dark:bg-slate-800/50 rounded-xl animate-pulse border border-slate-100 dark:border-slate-700/50">
                     </div>
                 </div>
             </div>
 
-            <!-- Desempeños List with Tabs -->
+            <!-- Desempeños Content -->
             <div v-else-if="desempenos.length > 0" class="flex-1 flex flex-col overflow-hidden">
 
-                <!-- Tab Navigation - Capacidades de Matemática (1-4) -->
-                <div class="flex overflow-x-auto scrollbar-hide bg-gray-50 dark:bg-slate-900 p-1.5 gap-1 min-w-full">
-                    <Tooltip v-for="orden in [1, 2, 3, 4]" :key="orden" :text="getCapacidadFullName(orden)"
-                        position="bottom">
-                        <button @click="emit('update:activeCapacidadTab', orden)"
-                            class="flex-1 min-w-[80px] relative px-2 sm:px-4 py-2 sm:py-2.5 text-[10px] sm:text-xs font-bold transition-all duration-300 rounded-lg whitespace-nowrap"
-                            :class="activeCapacidadTab === orden
-                                ? `${getCapacidadColor(orden).bg} text-white shadow-lg`
-                                : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800'">
-                            <div class="flex items-center justify-center gap-1.5 sm:gap-2">
-                                <Calculator v-if="orden === 1" class="w-3 h-3 sm:w-4 h-4" />
-                                <Sigma v-else-if="orden === 2" class="w-3 h-3 sm:w-4 h-4" />
-                                <Shapes v-else-if="orden === 3" class="w-3 h-3 sm:w-4 h-4" />
-                                <Target v-else class="w-3 h-3 sm:w-4 h-4" />
-                                <span class="hidden sm:inline truncate max-w-[80px]">{{ getCapacidadLabel(orden)
-                                    }}</span>
-                                <span class="sm:hidden">Cap. {{ orden }}</span>
+                <!-- Capacidad Tabs - Vertical list style -->
+                <div class="bg-slate-100 dark:bg-slate-900/80 p-2 border-b border-slate-200/60 dark:border-slate-700/60">
+                    <div class="flex gap-1.5 overflow-x-auto scrollbar-hide">
+                        <button
+                            v-for="orden in [1, 2, 3, 4]"
+                            :key="orden"
+                            @click="getCapInfo(orden).hasDesempenos && emit('update:activeCapacidadTab', orden)"
+                            class="flex-1 min-w-0 relative px-3 py-2.5 rounded-lg transition-all duration-200 text-left"
+                            :class="[
+                                !getCapInfo(orden).hasDesempenos
+                                    ? 'opacity-40 cursor-not-allowed'
+                                    : activeCapacidadTab === orden
+                                        ? `${getCapColor(orden).bgActive} shadow-lg`
+                                        : `${getCapColor(orden).bgHover} cursor-pointer`
+                            ]"
+                            :disabled="!getCapInfo(orden).hasDesempenos">
+
+                            <div class="flex items-center gap-2">
+                                <!-- Capacidad number badge -->
+                                <span class="w-6 h-6 rounded-md flex items-center justify-center text-xs font-black flex-shrink-0"
+                                    :class="activeCapacidadTab === orden
+                                        ? 'bg-white/25 text-white'
+                                        : `${getCapColor(orden).bg} ${getCapColor(orden).text}`">
+                                    {{ orden }}
+                                </span>
+
+                                <!-- Capacidad name (truncated) -->
+                                <span class="text-[11px] font-semibold truncate leading-tight"
+                                    :class="activeCapacidadTab === orden
+                                        ? 'text-white'
+                                        : 'text-slate-600 dark:text-slate-300'">
+                                    {{ getCapInfo(orden).nombre.split(' ').slice(0, 3).join(' ') }}
+                                </span>
                             </div>
+
+                            <!-- Selected count badge -->
+                            <span v-if="(selectedCountPerCap[orden] ?? 0) > 0"
+                                class="absolute -top-1 -right-1 w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center shadow-sm"
+                                :class="activeCapacidadTab === orden
+                                    ? 'bg-amber-400 text-amber-900'
+                                    : `${getCapColor(orden).bgActive} text-white`">
+                                {{ selectedCountPerCap[orden] }}
+                            </span>
                         </button>
-                    </Tooltip>
+                    </div>
                 </div>
 
-                <!-- Tab Content -->
-                <div class="flex-1 flex flex-col overflow-hidden p-3">
-                    <!-- Actions Bar -->
-                    <div class="flex items-center justify-between mb-3 px-1">
-                        <span class="text-xs text-slate-500 dark:text-slate-400">
-                            Selecciona los desempeños a evaluar
-                        </span>
-                        <div class="flex gap-2 text-[11px] font-medium">
-                            <button @click="emit('selectAllCapacidad', activeCapacidadTab)"
-                                class="px-2.5 py-1 rounded-full transition-colors"
-                                :class="getCapacidadColor(activeCapacidadTab).text + ' hover:bg-gray-100 dark:hover:bg-slate-800'">
-                                Seleccionar todos
+                <!-- Active Capacidad Info -->
+                <div class="px-4 pt-3 pb-2">
+                    <div class="flex items-start gap-2 p-2.5 rounded-lg" :class="getCapColor(activeCapacidadTab).bg">
+                        <CircleDot class="w-4 h-4 flex-shrink-0 mt-0.5" :class="getCapColor(activeCapacidadTab).text" />
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-bold" :class="getCapColor(activeCapacidadTab).text">
+                                Capacidad {{ activeCapacidadTab }}:
+                            </p>
+                            <p class="text-[11px] text-slate-600 dark:text-slate-400 leading-snug mt-0.5">
+                                {{ getCapInfo(activeCapacidadTab).nombre }}
+                            </p>
+                        </div>
+                        <!-- Select all / none -->
+                        <div class="flex gap-1 flex-shrink-0">
+                            <button
+                                v-if="!allSelectedInTab"
+                                @click="emit('selectAllCapacidad', activeCapacidadTab)"
+                                class="text-[10px] font-semibold px-2 py-1 rounded-md transition-colors"
+                                :class="getCapColor(activeCapacidadTab).text + ' hover:bg-white/50 dark:hover:bg-slate-800/50'">
+                                Todos
                             </button>
-                            <button @click="emit('deselectAllCapacidad', activeCapacidadTab)"
-                                class="px-2.5 py-1 rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                            <button
+                                v-else
+                                @click="emit('deselectAllCapacidad', activeCapacidadTab)"
+                                class="text-[10px] font-semibold px-2 py-1 rounded-md text-slate-500 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
                                 Ninguno
                             </button>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Items Grid -->
-                    <div class="flex-1 overflow-y-auto space-y-1.5 pr-1">
-                        <template v-if="desempenosPorCapacidad[activeCapacidadTab]?.length">
-                            <Tooltip v-for="des in desempenosPorCapacidad[activeCapacidadTab]" :key="des.id"
-                                :text="des.descripcion" position="top">
-                                <Checkbox v-model="localSelectedDesempenoIds" :value="des.id"
-                                    class="group flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-all duration-150 border"
-                                    :class="localSelectedDesempenoIds.includes(des.id)
-                                        ? `${getCapacidadColor(activeCapacidadTab).bgSelected} ${getCapacidadColor(activeCapacidadTab).border} ring-1 ${getCapacidadColor(activeCapacidadTab).ring}`
-                                        : 'border-gray-100 dark:border-slate-700 hover:border-gray-200 dark:hover:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-800/50'"
-                                    :color="getCapacidadColor(activeCapacidadTab).checkboxClass">
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <span
-                                            class="text-[10px] px-2 py-0.5 rounded-md font-mono font-bold bg-gray-100 dark:bg-slate-800"
-                                            :class="getCapacidadColor(activeCapacidadTab).text">
-                                            {{ des.codigo }}
-                                        </span>
-                                    </div>
-                                    <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                                        {{ des.descripcion }}
-                                    </p>
-                                </Checkbox>
-                            </Tooltip>
-                        </template>
-
-                        <!-- Empty Tab -->
-                        <div v-else class="py-8 text-center">
-                            <p class="text-slate-400 dark:text-slate-500 text-sm">
-                                No hay desempeños para esta capacidad
+                <!-- Desempeños List -->
+                <div class="flex-1 overflow-y-auto px-4 pb-3 space-y-1.5">
+                    <template v-if="desempenosPorCapacidad[activeCapacidadTab]?.length">
+                        <Checkbox
+                            v-for="des in desempenosPorCapacidad[activeCapacidadTab]"
+                            :key="des.id"
+                            v-model="localSelectedDesempenoIds"
+                            :value="des.id"
+                            class="group flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-all duration-150 border"
+                            :class="localSelectedDesempenoIds.includes(des.id)
+                                ? `${getCapColor(activeCapacidadTab).bgSelected} ${getCapColor(activeCapacidadTab).border} ring-1 ${getCapColor(activeCapacidadTab).ring}`
+                                : 'border-slate-100 dark:border-slate-700 hover:border-slate-200 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800/50'"
+                            :color="getCapColor(activeCapacidadTab).checkboxClass">
+                            <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                                {{ des.descripcion }}
                             </p>
-                        </div>
+                        </Checkbox>
+                    </template>
+
+                    <!-- Empty Tab -->
+                    <div v-else class="py-8 text-center">
+                        <p class="text-slate-400 dark:text-slate-500 text-sm">
+                            No hay desempeños para esta capacidad en el grado seleccionado
+                        </p>
                     </div>
                 </div>
             </div>
 
-            <!-- Empty -->
+            <!-- Empty State -->
             <div v-else class="flex-1 flex flex-col items-center justify-center px-6 text-center">
-                <div
-                    class="w-14 h-14 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div class="w-14 h-14 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <BookOpen class="w-7 h-7 text-indigo-500 dark:text-indigo-400" />
                 </div>
                 <h3 class="text-slate-700 dark:text-slate-200 font-medium mb-1">Sin desempeños</h3>
-                <p class="text-slate-500 dark:text-slate-400 text-sm">Selecciona un grado para ver los desempeños
-                    disponibles</p>
+                <p class="text-slate-500 dark:text-slate-400 text-sm">
+                    Selecciona un grado y una competencia para ver los desempeños disponibles
+                </p>
             </div>
         </div>
 
-        <!-- Generate Button - Educativo -->
+        <!-- Generate Button -->
         <button @click="emit('generarPreguntas')"
             :disabled="loading || !selectedGradoId || selectedDesempenoIds.length === 0"
             class="w-full px-4 py-4 sm:px-6 sm:py-5 font-bold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 shadow-xl hover:shadow-2xl hover:-translate-y-1 text-base sm:text-lg"
@@ -270,12 +306,10 @@ const getCapacidadColor = (orden: number) => {
         <!-- Error -->
         <div v-if="error"
             class="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 p-4 rounded-2xl text-sm flex items-start gap-3">
-            <div
-                class="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
+            <div class="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
                 <AlertTriangle class="w-5 h-5" />
             </div>
             <p class="font-medium">{{ error }}</p>
         </div>
-
     </div>
 </template>
