@@ -70,7 +70,7 @@ const getCapInfo = (orden: number) => {
 const CAP_COLORS: Record<number, { bg: string; bgActive: string; bgHover: string; text: string; textActive: string; border: string; ring: string; bgSelected: string; checkboxClass: string; dot: string }> = {
     1: {
         bg: 'bg-teal-50 dark:bg-teal-900/15',
-        bgActive: 'bg-gradient-to-b from-teal-400 to-teal-600 dark:from-teal-500 dark:to-teal-700 ring-1 ring-teal-400/50 dark:ring-teal-400/30',
+        bgActive: 'bg-teal-500 dark:bg-teal-600',
         bgHover: 'hover:bg-teal-100/70 dark:hover:bg-teal-900/30 hover:text-teal-700 dark:hover:text-teal-300 hover:shadow-sm',
         text: 'text-teal-600 dark:text-teal-400',
         textActive: 'text-white',
@@ -82,7 +82,7 @@ const CAP_COLORS: Record<number, { bg: string; bgActive: string; bgHover: string
     },
     2: {
         bg: 'bg-amber-50 dark:bg-amber-900/15',
-        bgActive: 'bg-gradient-to-b from-amber-400 to-amber-600 dark:from-amber-500 dark:to-amber-700 ring-1 ring-amber-400/50 dark:ring-amber-400/30',
+        bgActive: 'bg-amber-500 dark:bg-amber-600',
         bgHover: 'hover:bg-amber-100/70 dark:hover:bg-amber-900/30 hover:text-amber-700 dark:hover:text-amber-300 hover:shadow-sm',
         text: 'text-amber-600 dark:text-amber-400',
         textActive: 'text-white',
@@ -94,7 +94,7 @@ const CAP_COLORS: Record<number, { bg: string; bgActive: string; bgHover: string
     },
     3: {
         bg: 'bg-violet-50 dark:bg-violet-900/15',
-        bgActive: 'bg-gradient-to-b from-violet-400 to-violet-600 dark:from-violet-500 dark:to-violet-700 ring-1 ring-violet-400/50 dark:ring-violet-400/30',
+        bgActive: 'bg-violet-500 dark:bg-violet-600',
         bgHover: 'hover:bg-violet-100/70 dark:hover:bg-violet-900/30 hover:text-violet-700 dark:hover:text-violet-300 hover:shadow-sm',
         text: 'text-violet-600 dark:text-violet-400',
         textActive: 'text-white',
@@ -106,7 +106,7 @@ const CAP_COLORS: Record<number, { bg: string; bgActive: string; bgHover: string
     },
     4: {
         bg: 'bg-rose-50 dark:bg-rose-900/15',
-        bgActive: 'bg-gradient-to-b from-rose-400 to-rose-600 dark:from-rose-500 dark:to-rose-700 ring-1 ring-rose-400/50 dark:ring-rose-400/30',
+        bgActive: 'bg-rose-500 dark:bg-rose-600',
         bgHover: 'hover:bg-rose-100/70 dark:hover:bg-rose-900/30 hover:text-rose-700 dark:hover:text-rose-300 hover:shadow-sm',
         text: 'text-rose-600 dark:text-rose-400',
         textActive: 'text-white',
@@ -171,24 +171,24 @@ const allSelectedInTab = computed(() => {
             <!-- Desempeños Content -->
             <div v-else-if="desempenos.length > 0" class="flex-1 flex flex-col overflow-hidden">
 
-                <!-- Capacidad Tabs - Vertical list style -->
-                <div class="bg-slate-100 dark:bg-slate-900/80 p-2 border-b border-slate-200/60 dark:border-slate-700/60">
-                    <div class="flex gap-1.5 overflow-x-auto scrollbar-hide">
+                <!-- Capacidad Tabs (fixed height to prevent card resize) -->
+                <div class="bg-slate-100 dark:bg-slate-900/80 p-2 border-b border-slate-200/60 dark:border-slate-700/60 flex-shrink-0 h-[68px]">
+                    <div class="flex gap-1.5 h-full">
                         <button
                             v-for="orden in [1, 2, 3, 4]"
                             :key="orden"
                             @click="getCapInfo(orden).hasDesempenos && emit('update:activeCapacidadTab', orden)"
-                            class="flex-1 min-w-0 relative px-3 py-2.5 rounded-lg transition-all duration-200 text-left"
+                            class="relative min-w-0 rounded-lg transition-all duration-300 text-left overflow-hidden"
                             :class="[
                                 !getCapInfo(orden).hasDesempenos
-                                    ? 'opacity-40 cursor-not-allowed'
+                                    ? 'opacity-40 cursor-not-allowed flex-1 px-3'
                                     : activeCapacidadTab === orden
-                                        ? `${getCapColor(orden).bgActive} shadow-lg`
-                                        : `${getCapColor(orden).bgHover} cursor-pointer`
+                                        ? `${getCapColor(orden).bgActive} shadow-lg flex-[2.5] px-3`
+                                        : `${getCapColor(orden).bgHover} cursor-pointer flex-1 px-2`
                             ]"
                             :disabled="!getCapInfo(orden).hasDesempenos">
 
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2 h-full">
                                 <!-- Capacidad number badge -->
                                 <span class="w-6 h-6 rounded-md flex items-center justify-center text-xs font-black flex-shrink-0"
                                     :class="activeCapacidadTab === orden
@@ -197,12 +197,12 @@ const allSelectedInTab = computed(() => {
                                     {{ orden }}
                                 </span>
 
-                                <!-- Capacidad name (truncated) -->
-                                <span class="text-[11px] font-semibold truncate leading-tight"
+                                <!-- Capacidad name: active wraps up to 2 lines, inactive truncates -->
+                                <span class="text-[11px] font-semibold leading-snug"
                                     :class="activeCapacidadTab === orden
-                                        ? 'text-white'
-                                        : 'text-slate-600 dark:text-slate-300'">
-                                    {{ getCapInfo(orden).nombre.split(' ').slice(0, 3).join(' ') }}
+                                        ? 'text-white line-clamp-2'
+                                        : 'text-slate-600 dark:text-slate-300 truncate'">
+                                    {{ getCapInfo(orden).nombre }}
                                 </span>
                             </div>
 

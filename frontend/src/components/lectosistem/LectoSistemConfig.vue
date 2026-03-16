@@ -103,60 +103,84 @@ const qCritico = computed({
 
 <template>
     <div class="mb-6">
-        <!-- Nivel de Dificultad Selector -->
-        <div class="mb-6">
-            <div
-                class="bg-white dark:bg-slate-800 rounded-2xl p-5 border-2 border-violet-100 dark:border-slate-700 shadow-sm">
-                <label class="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300 mb-4">
-                    <div
-                        class="w-8 h-8 bg-gradient-to-br from-violet-400 to-purple-600 rounded-lg flex items-center justify-center">
-                        <Signal class="w-4 h-4 text-white" />
-                    </div>
-                    Nivel de Dificultad
-                </label>
-                <div class="grid grid-cols-3 gap-3">
-                    <button v-for="nivel in nivelesDificultad" :key="nivel.id"
-                        @click="selectedNivelDificultad = nivel.id"
-                        class="relative p-4 rounded-xl border-2 transition-all duration-300 text-center" :class="selectedNivelDificultad === nivel.id
-                            ? nivel.id === 'basico'
-                                ? 'bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/30 dark:to-green-900/20 border-emerald-400 dark:border-emerald-600 ring-2 ring-emerald-200 dark:ring-emerald-800'
-                                : nivel.id === 'intermedio'
-                                    ? 'bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/20 border-amber-400 dark:border-amber-600 ring-2 ring-amber-200 dark:ring-amber-800'
-                                    : 'bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-900/30 dark:to-rose-900/20 border-red-400 dark:border-red-600 ring-2 ring-red-200 dark:ring-red-800'
-                            : 'bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:hover:border-slate-600'
-                            ">
-                        <div class="mb-2 flex justify-center">
-                            <Sprout v-if="nivel.icono === 'Sprout'" class="w-8 h-8"
-                                :class="selectedNivelDificultad === nivel.id ? 'text-emerald-500' : 'text-slate-400'" />
-                            <Leaf v-else-if="nivel.icono === 'Leaf'" class="w-8 h-8"
-                                :class="selectedNivelDificultad === nivel.id ? 'text-amber-500' : 'text-slate-400'" />
-                            <TreeDeciduous v-else class="w-8 h-8"
-                                :class="selectedNivelDificultad === nivel.id ? 'text-red-500' : 'text-slate-400'" />
-                        </div>
-                        <span class="font-bold text-sm block" :class="selectedNivelDificultad === nivel.id
-                            ? nivel.id === 'basico'
-                                ? 'text-emerald-700 dark:text-emerald-400'
-                                : nivel.id === 'intermedio'
-                                    ? 'text-amber-700 dark:text-amber-400'
-                                    : 'text-red-700 dark:text-red-400'
-                            : 'text-slate-600 dark:text-slate-400'
-                            ">
-                            {{ nivel.nombre }}
-                        </span>
-                        <span class="text-xs text-slate-500 dark:text-slate-500 mt-1 block">
-                            {{ nivel.descripcion }}
-                        </span>
-                        <div v-if="selectedNivelDificultad === nivel.id"
-                            class="absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center" :class="nivel.id === 'basico'
-                                ? 'bg-emerald-500'
-                                : nivel.id === 'intermedio'
-                                    ? 'bg-amber-500'
-                                    : 'bg-red-500'
-                                ">
-                            <Check class="w-3 h-3 text-white" />
-                        </div>
-                    </button>
+        <!-- Nivel de Dificultad - Tactical Signal Design -->
+        <div
+            class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-slate-700/50 shadow-xl shadow-black/20 relative overflow-hidden group">
+            <!-- Ambient glow effect -->
+            <div class="absolute inset-0 bg-gradient-to-r from-violet-500/5 via-purple-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            
+            <label class="flex items-center gap-2 text-sm font-bold text-slate-200 mb-4 relative z-10">
+                <div
+                    class="w-8 h-8 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-purple-500/30">
+                    <Signal class="w-4 h-4 text-white" />
                 </div>
+                <span class="bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">Nivel de Dificultad</span>
+            </label>
+            
+            <div class="grid grid-cols-3 gap-2 relative z-10">
+                <button v-for="nivel in nivelesDificultad" :key="nivel.id" @click="selectedNivelDificultad = nivel.id"
+                    class="relative p-3 rounded-xl border transition-all duration-300 text-center group/btn overflow-hidden"
+                    :class="selectedNivelDificultad === nivel.id
+                        ? nivel.id === 'basico'
+                            ? 'border-emerald-500/50 bg-gradient-to-br from-emerald-500/10 to-emerald-600/5'
+                            : nivel.id === 'intermedio'
+                                ? 'border-amber-500/50 bg-gradient-to-br from-amber-500/10 to-amber-600/5'
+                                : 'border-rose-500/50 bg-gradient-to-br from-rose-500/10 to-rose-600/5'
+                        : 'border-slate-700/50 bg-slate-800/30 hover:border-slate-600/50 hover:bg-slate-800/50'">
+                    
+                    <!-- Active indicator line -->
+                    <div v-if="selectedNivelDificultad === nivel.id" class="absolute bottom-0 left-0 right-0 h-0.5"
+                        :class="nivel.id === 'basico'
+                            ? 'bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-400'
+                            : nivel.id === 'intermedio'
+                                ? 'bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400'
+                                : 'bg-gradient-to-r from-rose-400 via-rose-500 to-rose-400'">
+                    </div>
+                    
+                    <!-- Animated Icon -->
+                    <div class="flex justify-center mb-2">
+                        <Sprout v-if="nivel.icono === 'Sprout'" class="w-7 h-7 transition-all duration-500"
+                            :class="selectedNivelDificultad === nivel.id 
+                                ? 'text-emerald-400 animate-bounce-gentle drop-shadow-lg shadow-emerald-500/50' 
+                                : 'text-slate-500 group-hover:scale-110'" />
+                        <Leaf v-else-if="nivel.icono === 'Leaf'" class="w-7 h-7 transition-all duration-500"
+                            :class="selectedNivelDificultad === nivel.id 
+                                ? 'text-amber-400 animate-bounce-gentle drop-shadow-lg shadow-amber-500/50' 
+                                : 'text-slate-500 group-hover:scale-110'" />
+                        <TreeDeciduous v-else class="w-7 h-7 transition-all duration-500"
+                            :class="selectedNivelDificultad === nivel.id 
+                                ? 'text-rose-400 animate-bounce-gentle drop-shadow-lg shadow-rose-500/50' 
+                                : 'text-slate-500 group-hover:scale-110'" />
+                    </div>
+                    
+                    <span class="font-bold text-xs block leading-tight transition-colors duration-300"
+                        :class="selectedNivelDificultad === nivel.id
+                            ? nivel.id === 'basico'
+                                ? 'text-emerald-400'
+                                : nivel.id === 'intermedio'
+                                    ? 'text-amber-400'
+                                    : 'text-rose-400'
+                            : 'text-slate-400 group-hover/btn:text-slate-300'">
+                        {{ nivel.nombre }}
+                    </span>
+                    <span class="text-[9px] text-slate-500 block mt-0.5">
+                        {{ nivel.descripcion }}
+                    </span>
+                    
+                    <!-- Check indicator -->
+                    <div v-if="selectedNivelDificultad === nivel.id" class="absolute top-2 right-2 w-4 h-4 rounded-full flex items-center justify-center"
+                        :class="nivel.id === 'basico'
+                            ? 'bg-emerald-500/20 border border-emerald-500/50'
+                            : nivel.id === 'intermedio'
+                                ? 'bg-amber-500/20 border border-amber-500/50'
+                                : 'bg-rose-500/20 border border-rose-500/50'">
+                        <Check class="w-2.5 h-2.5" :class="nivel.id === 'basico'
+                            ? 'text-emerald-400'
+                            : nivel.id === 'intermedio'
+                                ? 'text-amber-400'
+                                : 'text-rose-400'" />
+                    </div>
+                </button>
             </div>
         </div>
 
@@ -380,3 +404,18 @@ const qCritico = computed({
         </div>
     </div>
 </template>
+
+<style scoped>
+@keyframes bounce-gentle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-bounce-gentle {
+  animation: bounce-gentle 1.5s ease-in-out infinite;
+}
+</style>

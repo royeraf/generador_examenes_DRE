@@ -119,9 +119,9 @@ const getCapacidadLabel = (tipo: string): string => {
                             class="flex-1 min-w-[100px] relative px-2 sm:px-4 py-2.5 sm:py-3 text-[10px] sm:text-xs font-bold uppercase tracking-wide transition-all duration-300 rounded-lg whitespace-nowrap"
                             :class="activeCapacidadTab === tipo
                                 ? {
-                                    'bg-gradient-to-b from-teal-400 to-teal-600 dark:from-teal-500 dark:to-teal-700 text-white shadow-lg shadow-teal-600/40 dark:shadow-teal-500/30 ring-1 ring-teal-400/50 dark:ring-teal-400/30': tipo === 'literal',
-                                    'bg-gradient-to-b from-amber-400 to-amber-600 dark:from-amber-500 dark:to-amber-700 text-white shadow-lg shadow-amber-600/40 dark:shadow-amber-500/30 ring-1 ring-amber-400/50 dark:ring-amber-400/30': tipo === 'inferencial',
-                                    'bg-gradient-to-b from-violet-400 to-violet-600 dark:from-violet-500 dark:to-violet-700 text-white shadow-lg shadow-violet-600/40 dark:shadow-violet-500/30 ring-1 ring-violet-400/50 dark:ring-violet-400/30': tipo === 'critico'
+                                    'bg-teal-500 dark:bg-teal-600 text-white shadow-lg shadow-teal-500/30': tipo === 'literal',
+                                    'bg-amber-500 dark:bg-amber-600 text-white shadow-lg shadow-amber-500/30': tipo === 'inferencial',
+                                    'bg-violet-500 dark:bg-violet-600 text-white shadow-lg shadow-violet-500/30': tipo === 'critico'
                                 }
                                 : {
                                     'text-slate-500 dark:text-slate-400 hover:bg-teal-100/70 dark:hover:bg-teal-900/30 hover:text-teal-700 dark:hover:text-teal-300 hover:shadow-sm': tipo === 'literal',

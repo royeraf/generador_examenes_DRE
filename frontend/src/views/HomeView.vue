@@ -17,13 +17,13 @@ const auth = useAuthStore();
         <!-- Background Decoration -->
         <div class="absolute inset-0 overflow-hidden pointer-events-none">
             <div
-                class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-teal-200/30 dark:bg-teal-500/10 rounded-full blur-3xl animate-blob">
+                class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-teal-200/30 dark:bg-teal-500/10 rounded-full blur-3xl animate-blob will-change-transform">
             </div>
             <div
-                class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-indigo-200/30 dark:bg-indigo-500/10 rounded-full blur-3xl animate-blob animation-delay-2000">
+                class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-indigo-200/30 dark:bg-indigo-500/10 rounded-full blur-3xl animate-blob animation-delay-2000 will-change-transform">
             </div>
             <div
-                class="absolute top-[20%] right-[20%] w-72 h-72 bg-amber-200/20 dark:bg-amber-500/10 rounded-full blur-3xl animate-blob animation-delay-4000">
+                class="absolute top-[20%] right-[20%] w-72 h-72 bg-amber-200/20 dark:bg-amber-500/10 rounded-full blur-3xl animate-blob animation-delay-4000 will-change-transform">
             </div>
         </div>
 
@@ -193,7 +193,7 @@ const auth = useAuthStore();
 
                     <!-- Gestión de Usuarios -->
                     <button @click="router.push('/admin/usuarios')"
-                        class="group relative bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-2xl p-3 sm:p-4 flex min-[400px]:flex-col flex-row min-[400px]:justify-center items-center gap-3 sm:gap-2.5 transition-all duration-300 hover:-translate-y-1 shadow-lg shadow-slate-900/5 dark:shadow-black/20 hover:shadow-xl hover:shadow-violet-500/20 hover:border-violet-400/60 dark:hover:border-violet-500/60 text-left min-[400px]:text-center">
+                        class="group relative bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-2xl p-3 sm:p-4 flex min-[400px]:flex-col flex-row min-[400px]:justify-center items-center gap-3 sm:gap-2.5 transition-all duration-300 hover:-translate-y-1 shadow-lg sm:shadow-xl shadow-slate-900/10 dark:shadow-black/20 hover:shadow-2xl hover:shadow-violet-500/25 hover:border-violet-400/60 dark:hover:border-violet-500/60 text-left min-[400px]:text-center">
                         <div
                             class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-violet-400 to-pink-500 flex items-center justify-center shrink-0 shadow-md shadow-violet-500/30 group-hover:scale-110 transition-transform duration-300">
                             <Users class="w-4 h-4 sm:w-5 sm:h-5 text-white" />
@@ -206,16 +206,12 @@ const auth = useAuthStore();
 
                 </div>
 
-                <p
-                    class="text-center text-xs text-slate-400 dark:text-slate-600 flex items-center justify-center gap-1.5 mt-5">
-                    <Sparkles class="w-3.5 h-3.5" /> Desarrollado para la Dirección Regional de Educación Huanuco
-                </p>
             </div>
 
-            <div v-else class="mt-12 text-center">
+            <div :class="[auth.isAdmin ? 'mt-5' : 'mt-12', { 'animate-fade-in delay-500': !auth.isAdmin }]" class="text-center">
                 <p
-                    class="text-sm text-slate-400 dark:text-slate-500 flex items-center justify-center gap-2 animate-fade-in delay-500">
-                    <Sparkles class="w-4 h-4" /> Desarrollado para la Dirección Regional de Educación Huanuco
+                    class="text-xs sm:text-sm text-slate-400 dark:text-slate-500 flex items-center justify-center gap-1.5">
+                    <Sparkles class="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Desarrollado para la Dirección Regional de Educación Huánuco
                 </p>
             </div>
 

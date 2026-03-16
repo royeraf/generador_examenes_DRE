@@ -14,6 +14,7 @@ const router = useRouter();
 import Swal from 'sweetalert2';
 import Header from '../components/Header.vue';
 import EduBackground from '../components/EduBackground.vue';
+import ComboBox from '../components/ComboBox.vue';
 import { useTheme } from '../composables/useTheme';
 
 const { isDark, toggleTheme } = useTheme();
@@ -44,6 +45,32 @@ const stats = computed(() => ({
     desempenos: desempenos.value.length,
     grados: grados.value.length
 }));
+
+// ComboBox options
+const gradoOptions = computed(() =>
+    grados.value.map(g => ({ id: g.id, label: g.nombre }))
+);
+
+const competenciaOptions = computed(() =>
+    competencias.value.map(c => ({ id: c.id, label: c.nombre }))
+);
+
+// Wrapper for capacidades tab filter (supports "Todas" = null)
+const capFilterCompetenciaId = computed({
+    get: () => selectedCompetenciaId.value ?? '__all__',
+    set: (val: number | string | null) => {
+        selectedCompetenciaId.value = val === '__all__' ? null : val as number;
+    }
+});
+
+const competenciaOptionsConTodas = computed(() => [
+    { id: '__all__' as string | number, label: 'Todas' },
+    ...competencias.value.map(c => ({ id: c.id as string | number, label: c.nombre }))
+]);
+
+const capacidadModalOptions = computed(() =>
+    capacidadesFiltradas.value.map(c => ({ id: c.id, label: `Cap. ${c.orden}: ${c.nombre}` }))
+);
 
 // Fetch Data
 const fetchData = async () => {
@@ -262,28 +289,24 @@ const deleteItem = async (id: number) => {
                 <div v-if="activeTab === 'desempenos'" class="flex flex-wrap items-center gap-4">
                     <div class="flex items-center gap-2">
                         <span class="text-sm font-bold text-slate-700 dark:text-slate-300">Grado:</span>
-                        <select v-model="selectedGradoId"
-                            class="px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-violet-500">
-                            <option v-for="g in grados" :key="g.id" :value="g.id">{{ g.nombre }}</option>
-                        </select>
+                        <div class="w-52">
+                            <ComboBox v-model="selectedGradoId" :options="gradoOptions" placeholder="Seleccionar grado..." />
+                        </div>
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="text-sm font-bold text-slate-700 dark:text-slate-300">Competencia:</span>
-                        <select v-model="selectedCompetenciaId"
-                            class="px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-violet-500">
-                            <option v-for="c in competencias" :key="c.id" :value="c.id">{{ c.nombre }}</option>
-                        </select>
+                        <div class="w-64">
+                            <ComboBox v-model="selectedCompetenciaId" :options="competenciaOptions" placeholder="Seleccionar competencia..." />
+                        </div>
                     </div>
                 </div>
 
                 <!-- Filter for Capacidades -->
                 <div v-else-if="activeTab === 'capacidades'" class="flex items-center gap-2">
                     <span class="text-sm font-bold text-slate-700 dark:text-slate-300">Competencia:</span>
-                    <select v-model="selectedCompetenciaId"
-                        class="px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-violet-500">
-                        <option :value="null">Todas</option>
-                        <option v-for="c in competencias" :key="c.id" :value="c.id">{{ c.nombre }}</option>
-                    </select>
+                    <div class="w-64">
+                        <ComboBox v-model="capFilterCompetenciaId" :options="competenciaOptionsConTodas" placeholder="Todas..." />
+                    </div>
                 </div>
 
                 <div v-else></div>
@@ -537,10 +560,10 @@ const deleteItem = async (id: number) => {
                             </div>
                             <div class="col-span-3">
                                 <label class="block text-xs font-bold text-slate-500 mb-1">Competencia</label>
-                                <select v-model="editItem.competencia_id" :disabled="isEditing"
-                                    class="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white disabled:opacity-50">
-                                    <option v-for="c in competencias" :key="c.id" :value="c.id">{{ c.nombre }}</option>
-                                </select>
+                                <div v-if="isEditing" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-sm font-medium text-slate-500 dark:text-slate-400">
+                                    {{ competencias.find(c => c.id === editItem.competencia_id)?.nombre || '-' }}
+                                </div>
+                                <ComboBox v-else v-model="editItem.competencia_id" :options="competenciaOptions" placeholder="Seleccionar competencia..." />
                             </div>
                         </div>
                         <div>
@@ -560,12 +583,10 @@ const deleteItem = async (id: number) => {
                             </div>
                             <div class="col-span-2">
                                 <label class="block text-xs font-bold text-slate-500 mb-1">Capacidad</label>
-                                <select v-model="editItem.capacidad_id" :disabled="isEditing"
-                                    class="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white disabled:opacity-50">
-                                    <option v-for="c in capacidadesFiltradas" :key="c.id" :value="c.id">
-                                        Cap. {{ c.orden }}: {{ c.nombre }}
-                                    </option>
-                                </select>
+                                <div v-if="isEditing" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-sm font-medium text-slate-500 dark:text-slate-400">
+                                    {{ capacidadesFiltradas.find(c => c.id === editItem.capacidad_id)?.nombre || '-' }}
+                                </div>
+                                <ComboBox v-else v-model="editItem.capacidad_id" :options="capacidadModalOptions" placeholder="Seleccionar capacidad..." />
                             </div>
                         </div>
                         <div>

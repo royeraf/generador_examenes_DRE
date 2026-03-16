@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, shallowRef, onMounted, watch, computed } from 'vue';
 import type { Grado, NivelLogro, DesempenoItem, Examen } from '../types';
+import type { NivelDificultad } from '../composables/useLectoSistem';
 import desempenosService from '../services/api';
 import ComboBox from '../components/ComboBox.vue';
 
@@ -54,7 +55,11 @@ import {
   Lightbulb,
   ClipboardCheck,
   Hand,
-  CheckCircle2
+  CheckCircle2,
+  Signal,
+  Sprout,
+  Leaf,
+  TreeDeciduous
 } from 'lucide-vue-next';
 import ThinkingLoader from '../components/ThinkingLoader.vue';
 import Footer from './Footer.vue'
@@ -71,6 +76,7 @@ const desempenos = ref<DesempenoItem[]>([]);
 const selectedGradoId = shallowRef<number | null>(null);
 const selectedDesempenoIds = ref<number[]>([]);
 const selectedNivelLogro = shallowRef<string>('en_proceso');
+const selectedNivelDificultad = shallowRef<NivelDificultad>('intermedio');
 const cantidadPreguntas = shallowRef(3);
 const textoBase = shallowRef('');
 const useTextoBase = shallowRef(false);
@@ -250,7 +256,7 @@ const generarPreguntas = async () => {
     const response = await desempenosService.generarPreguntas({
       grado_id: selectedGradoId.value,
       nivel_logro: selectedNivelLogro.value,
-      nivel_dificultad: 'intermedio',
+      nivel_dificultad: selectedNivelDificultad.value,
       cantidad: cantidadPreguntas.value,
       texto_base: useTextoBase.value ? textoBase.value : undefined,
       desempeno_ids: selectedDesempenoIds.value
@@ -530,12 +536,12 @@ const getNivelBadgeClass = (nivel: string): string => {
       <!-- Generator Tab Content -->
       <div v-show="activeTab === 'generador'">
         <!-- Configuration Row - Diseño Educativo -->
-        <div class="grid md:grid-cols-3 gap-4 mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
 
           <!-- Grade Selection -->
           <div
-            class="bg-white dark:bg-slate-800 rounded-2xl p-5 border-2 border-teal-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-teal-200 transition-all duration-300">
-            <label class="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">
+            class="bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 border-2 border-teal-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-teal-200 transition-all duration-300">
+            <label class="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 sm:mb-3">
               <div
                 class="w-8 h-8 bg-gradient-to-br from-teal-400 to-teal-600 rounded-lg flex items-center justify-center">
                 <GraduationCap class="w-4 h-4 text-white" />
@@ -550,21 +556,108 @@ const getNivelBadgeClass = (nivel: string): string => {
             <ComboBox v-else v-model="selectedGradoId" :options="gradoOptions" placeholder="Seleccionar grado..." />
           </div>
 
+          <!-- Nivel de Dificultad - Tactical Signal Design -->
+          <div
+            class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-slate-700/50 shadow-xl shadow-black/20 relative overflow-hidden group">
+            <!-- Ambient glow effect -->
+            <div class="absolute inset-0 bg-gradient-to-r from-violet-500/5 via-purple-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            
+            <label class="flex items-center gap-2 text-sm font-bold text-slate-200 mb-4 relative z-10">
+              <div
+                class="w-8 h-8 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-purple-500/30">
+                <Signal class="w-4 h-4 text-white" />
+              </div>
+              <span class="bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">Nivel de Dificultad</span>
+            </label>
+            
+            <div class="grid grid-cols-3 gap-2 relative z-10">
+              <button v-for="nivel in ([
+                { id: 'basico', nombre: 'Básico', descripcion: 'Fundamentos', color: 'emerald' },
+                { id: 'intermedio', nombre: 'Intermedio', descripcion: 'Desarrollo', color: 'amber' },
+                { id: 'avanzado', nombre: 'Avanzado', descripcion: 'Dominio', color: 'rose' }
+              ] as const)" :key="nivel.id" @click="selectedNivelDificultad = nivel.id"
+                class="relative p-3 rounded-xl border transition-all duration-300 text-center group/btn overflow-hidden"
+                :class="selectedNivelDificultad === nivel.id
+                  ? nivel.color === 'emerald' 
+                    ? 'border-emerald-500/50 bg-gradient-to-br from-emerald-500/10 to-emerald-600/5'
+                    : nivel.color === 'amber'
+                      ? 'border-amber-500/50 bg-gradient-to-br from-amber-500/10 to-amber-600/5'
+                      : 'border-rose-500/50 bg-gradient-to-br from-rose-500/10 to-rose-600/5'
+                  : 'border-slate-700/50 bg-slate-800/30 hover:border-slate-600/50 hover:bg-slate-800/50'">
+                
+                <!-- Active indicator line -->
+                <div v-if="selectedNivelDificultad === nivel.id"
+                  class="absolute bottom-0 left-0 right-0 h-0.5"
+                  :class="nivel.color === 'emerald' 
+                    ? 'bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-400'
+                    : nivel.color === 'amber'
+                      ? 'bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400'
+                      : 'bg-gradient-to-r from-rose-400 via-rose-500 to-rose-400'">
+                </div>
+                
+                <!-- Animated Icon -->
+                <div class="flex justify-center mb-2">
+                  <Sprout v-if="nivel.id === 'basico'" class="w-7 h-7 transition-all duration-500"
+                    :class="selectedNivelDificultad === nivel.id 
+                      ? 'text-emerald-400 animate-bounce-gentle drop-shadow-lg shadow-emerald-500/50' 
+                      : 'text-slate-500 group-hover:scale-110'" />
+                  <Leaf v-else-if="nivel.id === 'intermedio'" class="w-7 h-7 transition-all duration-500"
+                    :class="selectedNivelDificultad === nivel.id 
+                      ? 'text-amber-400 animate-bounce-gentle drop-shadow-lg shadow-amber-500/50' 
+                      : 'text-slate-500 group-hover:scale-110'" />
+                  <TreeDeciduous v-else class="w-7 h-7 transition-all duration-500"
+                    :class="selectedNivelDificultad === nivel.id 
+                      ? 'text-rose-400 animate-bounce-gentle drop-shadow-lg shadow-rose-500/50' 
+                      : 'text-slate-500 group-hover:scale-110'" />
+                </div>
+                
+                <span class="font-bold text-xs block leading-tight transition-colors duration-300"
+                  :class="selectedNivelDificultad === nivel.id
+                    ? nivel.color === 'emerald' 
+                      ? 'text-emerald-400'
+                      : nivel.color === 'amber'
+                        ? 'text-amber-400'
+                        : 'text-rose-400'
+                    : 'text-slate-400 group-hover/btn:text-slate-300'">
+                  {{ nivel.nombre }}
+                </span>
+                <span class="text-[9px] text-slate-500 block mt-0.5">
+                  {{ nivel.descripcion }}
+                </span>
+                
+                <!-- Check indicator -->
+                <div v-if="selectedNivelDificultad === nivel.id"
+                  class="absolute top-2 right-2 w-4 h-4 rounded-full flex items-center justify-center"
+                  :class="nivel.color === 'emerald' 
+                    ? 'bg-emerald-500/20 border border-emerald-500/50'
+                    : nivel.color === 'amber'
+                      ? 'bg-amber-500/20 border border-amber-500/50'
+                      : 'bg-rose-500/20 border border-rose-500/50'">
+                  <Check class="w-2.5 h-2.5" :class="nivel.color === 'emerald' 
+                    ? 'text-emerald-400'
+                    : nivel.color === 'amber'
+                      ? 'text-amber-400'
+                      : 'text-rose-400'" />
+                </div>
+              </button>
+            </div>
+          </div>
+
           <!-- Quantity -->
           <div
-            class="bg-white dark:bg-slate-800 rounded-2xl p-5 border-2 border-amber-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-amber-200 transition-all duration-300">
-            <label class="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">
+            class="bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 border-2 border-amber-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-amber-200 transition-all duration-300">
+            <label class="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 sm:mb-3">
               <div
                 class="w-8 h-8 bg-gradient-to-br from-amber-400 to-amber-600 rounded-lg flex items-center justify-center">
                 <Hash class="w-4 h-4 text-white" />
               </div>
               Cantidad de Preguntas
             </label>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-3 sm:gap-4">
               <input type="range" v-model="cantidadPreguntas" min="1" max="10"
-                class="flex-1 h-3 bg-gradient-to-r from-teal-100 to-amber-100 dark:bg-slate-700 rounded-full appearance-none cursor-pointer accent-teal-600" />
+                class="flex-1 h-2.5 sm:h-3 bg-gradient-to-r from-teal-100 to-amber-100 dark:bg-slate-700 rounded-full appearance-none cursor-pointer accent-teal-600" />
               <span
-                class="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center text-xl font-bold text-white shadow-lg shadow-teal-500/30">
+                class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center text-lg sm:text-xl font-bold text-white shadow-lg shadow-teal-500/30">
                 {{ cantidadPreguntas }}
               </span>
             </div>
@@ -572,8 +665,8 @@ const getNivelBadgeClass = (nivel: string): string => {
 
           <!-- File Upload -->
           <div
-            class="bg-white dark:bg-slate-800 rounded-2xl p-5 border-2 border-sky-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-sky-200 transition-all duration-300">
-            <Checkbox v-model="useTextoBase" class="items-center mb-3">
+            class="bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl p-4 sm:p-5 border-2 border-sky-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-sky-200 transition-all duration-300">
+            <Checkbox v-model="useTextoBase" class="items-center mb-2 sm:mb-3">
               <div class="flex items-center gap-2">
                 <div
                   class="w-8 h-8 bg-gradient-to-br from-sky-400 to-sky-600 rounded-lg flex items-center justify-center">
@@ -633,7 +726,7 @@ const getNivelBadgeClass = (nivel: string): string => {
         </div>
 
         <!-- Main Content -->
-        <div class="grid lg:grid-cols-2 gap-4 sm:gap-6">
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
 
           <!-- Left: Desempeños -->
           <div class="flex flex-col space-y-3 order-1 lg:order-1">
@@ -711,9 +804,9 @@ const getNivelBadgeClass = (nivel: string): string => {
                     class="flex-1 min-w-[100px] relative px-2 sm:px-4 py-2 sm:py-2.5 text-[10px] sm:text-xs font-bold uppercase tracking-wide transition-all duration-300 rounded-lg whitespace-nowrap"
                     :class="activeCapacidadTab === tipo
                       ? {
-                        'bg-gradient-to-b from-teal-400 to-teal-600 dark:from-teal-500 dark:to-teal-700 text-white shadow-lg shadow-teal-600/40 dark:shadow-teal-500/30 ring-1 ring-teal-400/50 dark:ring-teal-400/30': tipo === 'literal',
-                        'bg-gradient-to-b from-amber-400 to-amber-600 dark:from-amber-500 dark:to-amber-700 text-white shadow-lg shadow-amber-600/40 dark:shadow-amber-500/30 ring-1 ring-amber-400/50 dark:ring-amber-400/30': tipo === 'inferencial',
-                        'bg-gradient-to-b from-violet-400 to-violet-600 dark:from-violet-500 dark:to-violet-700 text-white shadow-lg shadow-violet-600/40 dark:shadow-violet-500/30 ring-1 ring-violet-400/50 dark:ring-violet-400/30': tipo === 'critico'
+                        'bg-teal-500 dark:bg-teal-600 text-white shadow-lg shadow-teal-500/30': tipo === 'literal',
+                        'bg-amber-500 dark:bg-amber-600 text-white shadow-lg shadow-amber-500/30': tipo === 'inferencial',
+                        'bg-violet-500 dark:bg-violet-600 text-white shadow-lg shadow-violet-500/30': tipo === 'critico'
                       }
                       : {
                         'text-slate-500 dark:text-slate-400 hover:bg-teal-100/70 dark:hover:bg-teal-900/30 hover:text-teal-700 dark:hover:text-teal-300 hover:shadow-sm': tipo === 'literal',
@@ -914,7 +1007,7 @@ const getNivelBadgeClass = (nivel: string): string => {
 
                 <!-- Instrucciones -->
                 <div
-                  class="bg-gradient-to-r from-teal-50 to-sky-50 dark:from-teal-900/40 dark:to-slate-900 rounded-xl p-4 border-2 border-teal-100 dark:border-teal-800">
+                  class="bg-gradient-to-r from-teal-50 to-sky-50 dark:from-teal-900/40 dark:to-slate-900 rounded-xl p-3 sm:p-4 border-2 border-teal-100 dark:border-teal-800">
                   <p class="text-slate-700 dark:text-slate-300 text-sm">
                     <strong class="text-teal-700 dark:text-teal-400 flex items-center gap-2 mb-2">
                       <ClipboardCheck class="w-4 h-4" />
@@ -926,8 +1019,8 @@ const getNivelBadgeClass = (nivel: string): string => {
 
                 <!-- Lectura -->
                 <div
-                  class="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-900 dark:to-slate-950 rounded-xl p-5 border-2 border-amber-100 dark:border-slate-700">
-                  <h4 class="text-sm font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
+                  class="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-900 dark:to-slate-950 rounded-xl p-4 sm:p-5 border-2 border-amber-100 dark:border-slate-700">
+                  <h4 class="text-sm font-bold text-slate-800 dark:text-white mb-2 sm:mb-3 flex items-center gap-2">
                     <div
                       class="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center">
                       <BookOpen class="w-4 h-4 text-white" />
@@ -935,13 +1028,13 @@ const getNivelBadgeClass = (nivel: string): string => {
                     Lectura
                   </h4>
                   <p
-                    class="text-slate-700 dark:text-slate-300 text-sm leading-7 whitespace-pre-line bg-white/50 dark:bg-black/20 p-4 rounded-lg">
+                    class="text-slate-700 dark:text-slate-300 text-sm leading-7 whitespace-pre-line bg-white/50 dark:bg-black/20 p-3 sm:p-4 rounded-lg">
                     {{ resultado.examen.lectura }}
                   </p>
                 </div>
 
                 <!-- Preguntas -->
-                <div class="space-y-4">
+                <div class="space-y-3 sm:space-y-4">
                   <h4 class="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
                     <div
                       class="w-8 h-8 bg-gradient-to-br from-violet-400 to-purple-500 rounded-lg flex items-center justify-center">
@@ -951,8 +1044,8 @@ const getNivelBadgeClass = (nivel: string): string => {
                   </h4>
 
                   <div v-for="pregunta in resultado.examen.preguntas" :key="pregunta.numero"
-                    class="bg-white dark:bg-slate-800 rounded-xl p-5 border-2 border-slate-100 dark:border-slate-700 hover:border-teal-200 dark:hover:border-teal-700 transition-all duration-300">
-                    <div class="flex items-start gap-4">
+                    class="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-5 border-2 border-slate-100 dark:border-slate-700 hover:border-teal-200 dark:hover:border-teal-700 transition-all duration-300">
+                    <div class="flex items-start gap-3 sm:gap-4">
                       <span
                         class="w-10 h-10 bg-gradient-to-br from-teal-500 to-sky-500 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-lg shadow-teal-500/20">
                         {{ pregunta.numero }}
@@ -970,15 +1063,15 @@ const getNivelBadgeClass = (nivel: string): string => {
 
                         <div class="space-y-2">
                           <div v-for="opcion in pregunta.opciones" :key="opcion.letra"
-                            class="flex items-center gap-3 text-sm py-3 px-4 rounded-xl border-2 transition-all duration-200"
+                            class="flex items-center gap-2 sm:gap-3 text-sm py-2 sm:py-3 px-3 sm:px-4 rounded-xl border-2 transition-all duration-200"
                             :class="opcion.es_correcta
                               ? 'bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-emerald-900/40 dark:to-slate-900 border-teal-300 dark:border-emerald-800 text-teal-700 dark:text-emerald-400'
                               : 'bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-gray-300'">
-                            <span class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm"
+                            <span class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm flex-shrink-0"
                               :class="opcion.es_correcta ? 'bg-teal-500 text-white' : 'bg-gray-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'">{{
                                 opcion.letra }}</span>
-                            <span class="flex-1">{{ opcion.texto }}</span>
-                            <Check v-if="opcion.es_correcta" class="w-5 h-5 text-teal-500" />
+                            <span class="flex-1 min-w-0">{{ opcion.texto }}</span>
+                            <Check v-if="opcion.es_correcta" class="w-5 h-5 flex-shrink-0 text-teal-500" />
                           </div>
                         </div>
                       </div>
@@ -987,36 +1080,36 @@ const getNivelBadgeClass = (nivel: string): string => {
                 </div>
 
                 <!-- Answer Table -->
-                <div class="bg-white dark:bg-slate-800 rounded-xl p-5 border-2 border-sky-100 dark:border-slate-700">
-                  <h4 class="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                <div class="bg-white dark:bg-slate-800 rounded-xl p-3 sm:p-5 border-2 border-sky-100 dark:border-slate-700">
+                  <h4 class="text-sm font-bold text-slate-800 dark:text-white mb-3 sm:mb-4 flex items-center gap-2">
                     <div
                       class="w-8 h-8 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg flex items-center justify-center">
                       <LayoutGrid class="w-4 h-4 text-white" />
                     </div>
                     Tabla de Respuestas
                   </h4>
-                  <div class="overflow-x-auto rounded-xl border-2 border-gray-100 dark:border-slate-700">
+                  <div class="exam-table-container rounded-xl border-2 border-gray-100 dark:border-slate-700">
                     <table class="w-full text-sm">
                       <thead>
                         <tr
                           class="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-900 dark:to-slate-950 border-b-2 border-gray-200 dark:border-slate-700">
-                          <th class="text-left py-3 px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">#</th>
-                          <th class="text-left py-3 px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
+                          <th class="text-left py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">#</th>
+                          <th class="text-left py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
                             Desempeño
                           </th>
-                          <th class="text-left py-3 px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">Nivel
+                          <th class="text-left py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">Nivel
                           </th>
-                          <th class="text-center py-3 px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">Rpta.
+                          <th class="text-center py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">Rpta.
                           </th>
                         </tr>
                       </thead>
                       <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
                         <tr v-for="fila in resultado.examen.tabla_respuestas" :key="fila.pregunta"
                           class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
-                          <td class="py-3 px-4 text-slate-800 dark:text-slate-200 font-bold">{{ fila.pregunta }}
+                          <td class="py-3 px-3 sm:px-4 text-slate-800 dark:text-slate-200 font-bold">{{ fila.pregunta }}
                           </td>
-                          <td class="py-3 px-4 text-slate-600 dark:text-slate-400 text-xs">{{ fila.desempeno }}</td>
-                          <td class="py-3 px-4">
+                          <td class="py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 text-xs">{{ fila.desempeno }}</td>
+                          <td class="py-3 px-3 sm:px-4">
                             <span class="px-2.5 py-1 text-[10px] font-bold rounded-full inline-flex items-center gap-1"
                               :class="getNivelBadgeClass(fila.nivel)">
                               <BookOpen v-if="fila.nivel === 'LITERAL'" class="w-3 h-3" />
@@ -1025,7 +1118,7 @@ const getNivelBadgeClass = (nivel: string): string => {
                               {{ fila.nivel }}
                             </span>
                           </td>
-                          <td class="py-3 px-4 text-center">
+                          <td class="py-3 px-3 sm:px-4 text-center">
                             <span
                               class="w-8 h-8 bg-gradient-to-br from-teal-400 to-teal-600 text-white rounded-lg inline-flex items-center justify-center font-bold text-sm shadow-lg shadow-teal-500/20">
                               {{ fila.respuesta_correcta }}
@@ -1064,9 +1157,16 @@ const getNivelBadgeClass = (nivel: string): string => {
 </template>
 
 <style scoped>
-/* Scrollbar sutil */
+:root {
+  --font-size-h1: clamp(1.25rem, 2.5vw, 2rem);
+  --font-size-h2: clamp(1rem, 2vw, 1.5rem);
+  --font-size-body: clamp(0.875rem, 1.5vw, 1rem);
+  --font-size-sm: clamp(0.75rem, 1vw, 0.875rem);
+}
+
 ::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -1080,5 +1180,34 @@ const getNivelBadgeClass = (nivel: string): string => {
 
 .dark ::-webkit-scrollbar-thumb {
   background-color: #475569;
+}
+
+.exam-table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.exam-table-container table {
+  min-width: 500px;
+}
+
+@media (min-width: 768px) {
+  .exam-table-container table {
+    min-width: auto;
+  }
+}
+
+@keyframes bounce-gentle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-bounce-gentle {
+  animation: bounce-gentle 1.5s ease-in-out infinite;
 }
 </style>
