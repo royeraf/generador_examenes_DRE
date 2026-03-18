@@ -149,18 +149,18 @@ const getCompVisual = (codigo: number) => COMP_VISUAL[codigo] ?? DEFAULT_COMP_VI
         <div class="bg-white dark:bg-slate-800 rounded-2xl border-2 border-indigo-100 dark:border-slate-700 shadow-sm">
 
             <!-- Section Header -->
-            <div class="bg-gradient-to-r from-indigo-500 to-purple-500 px-5 py-3 rounded-t-[calc(1rem-2px)]">
+            <div class="bg-gradient-to-r from-indigo-500 to-purple-500 px-4 sm:px-5 py-2.5 sm:py-3 rounded-t-[calc(1rem-2px)]">
                 <h3 class="text-sm font-bold text-white flex items-center gap-2">
                     <GraduationCap class="w-4 h-4" />
                     Grado y Competencia
                 </h3>
-                <p class="text-xs text-indigo-100 mt-0.5">Selecciona el grado escolar y la competencia a evaluar</p>
+                <p class="text-[11px] sm:text-xs text-indigo-100 mt-0.5">Selecciona el grado escolar y la competencia a evaluar</p>
             </div>
 
-            <div class="p-5 space-y-5">
+            <div class="p-4 sm:p-5 space-y-4 sm:space-y-5">
 
                 <!-- Grado + Cantidad en fila -->
-                <div class="grid sm:grid-cols-2 gap-4">
+                <div class="grid sm:grid-cols-2 gap-3 sm:gap-4">
                     <!-- Grado -->
                     <div>
                         <label class="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-400 mb-2 uppercase tracking-wider">
@@ -179,10 +179,10 @@ const getCompVisual = (codigo: number) => COMP_VISUAL[codigo] ?? DEFAULT_COMP_VI
                             <Hash class="w-3.5 h-3.5 text-indigo-500" />
                             Cantidad de Preguntas
                         </label>
-                        <div class="flex items-center gap-3 h-[46px]">
+                        <div class="flex items-center gap-2 sm:gap-3 h-10 sm:h-[46px]">
                             <input type="range" v-model="localCantidadPreguntas" min="1" max="10"
                                 class="flex-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-full appearance-none cursor-pointer accent-indigo-600" />
-                            <span class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white shadow-lg shadow-indigo-500/30">
+                            <span class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-base sm:text-lg font-bold text-white shadow-lg shadow-indigo-500/30">
                                 {{ localCantidadPreguntas }}
                             </span>
                         </div>
@@ -195,12 +195,12 @@ const getCompVisual = (codigo: number) => COMP_VISUAL[codigo] ?? DEFAULT_COMP_VI
                         <Target class="w-3.5 h-3.5 text-indigo-500" />
                         Competencia Matemática
                     </label>
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
                         <button
                             v-for="comp in competencias"
                             :key="comp.id"
                             @click="localSelectedCompetenciaId = comp.id"
-                            class="relative p-4 rounded-xl border-2 transition-all duration-300 text-left group"
+                            class="relative p-3 sm:p-4 rounded-xl border-2 transition-all duration-300 text-left group"
                             :class="localSelectedCompetenciaId === comp.id
                                 ? `bg-gradient-to-br ${getCompVisual(comp.codigo).gradientSelected} ${getCompVisual(comp.codigo).border} ${getCompVisual(comp.codigo).ring} shadow-md`
                                 : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-sm'">
@@ -251,15 +251,15 @@ const getCompVisual = (codigo: number) => COMP_VISUAL[codigo] ?? DEFAULT_COMP_VI
         <div class="bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-100 dark:border-slate-700 shadow-sm">
 
             <!-- Section Header -->
-            <div class="bg-gradient-to-r from-slate-500 to-slate-600 dark:from-slate-600 dark:to-slate-700 px-5 py-3 rounded-t-[calc(1rem-2px)]">
+            <div class="bg-gradient-to-r from-slate-500 to-slate-600 dark:from-slate-600 dark:to-slate-700 px-4 sm:px-5 py-2.5 sm:py-3 rounded-t-[calc(1rem-2px)]">
                 <h3 class="text-sm font-bold text-white flex items-center gap-2">
                     <Signal class="w-4 h-4" />
                     Opciones del Examen
                 </h3>
-                <p class="text-xs text-slate-200 mt-0.5">Dificultad, tema y situación problemática base</p>
+                <p class="text-[11px] sm:text-xs text-slate-200 mt-0.5">Dificultad, tema y situación problemática base</p>
             </div>
 
-            <div class="p-5 space-y-5">
+            <div class="p-4 sm:p-5 space-y-4 sm:space-y-5">
 
                 <!-- Nivel de Dificultad -->
                 <div>
@@ -267,7 +267,7 @@ const getCompVisual = (codigo: number) => COMP_VISUAL[codigo] ?? DEFAULT_COMP_VI
                         <Signal class="w-3.5 h-3.5 text-violet-500" />
                         Nivel de Dificultad
                     </label>
-                    <div class="grid grid-cols-3 gap-3">
+                    <div class="grid grid-cols-3 gap-2 sm:gap-3">
                         <button v-for="nivel in nivelesDificultad" :key="nivel.id"
                             @click="localSelectedNivelDificultad = nivel.id"
                             class="relative p-3 sm:p-4 rounded-xl border-2 transition-all duration-300 text-center" :class="localSelectedNivelDificultad === nivel.id
@@ -279,14 +279,14 @@ const getCompVisual = (codigo: number) => COMP_VISUAL[codigo] ?? DEFAULT_COMP_VI
                                 : 'bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:hover:border-slate-600'
                                 ">
                             <div class="mb-1.5 flex justify-center">
-                                <Sprout v-if="nivel.icono === 'Sprout'" class="w-7 h-7"
+                                <Sprout v-if="nivel.icono === 'Sprout'" class="w-5 h-5 sm:w-7 sm:h-7"
                                     :class="localSelectedNivelDificultad === nivel.id ? 'text-emerald-500' : 'text-slate-400'" />
-                                <Leaf v-else-if="nivel.icono === 'Leaf'" class="w-7 h-7"
+                                <Leaf v-else-if="nivel.icono === 'Leaf'" class="w-5 h-5 sm:w-7 sm:h-7"
                                     :class="localSelectedNivelDificultad === nivel.id ? 'text-amber-500' : 'text-slate-400'" />
-                                <TreeDeciduous v-else class="w-7 h-7"
+                                <TreeDeciduous v-else class="w-5 h-5 sm:w-7 sm:h-7"
                                     :class="localSelectedNivelDificultad === nivel.id ? 'text-red-500' : 'text-slate-400'" />
                             </div>
-                            <span class="font-bold text-sm block" :class="localSelectedNivelDificultad === nivel.id
+                            <span class="font-bold text-xs sm:text-sm block" :class="localSelectedNivelDificultad === nivel.id
                                 ? nivel.id === 'basico'
                                     ? 'text-emerald-700 dark:text-emerald-400'
                                     : nivel.id === 'intermedio'
@@ -313,7 +313,7 @@ const getCompVisual = (codigo: number) => COMP_VISUAL[codigo] ?? DEFAULT_COMP_VI
                 </div>
 
                 <!-- Contenido Temático + Problema Base en fila -->
-                <div class="grid sm:grid-cols-2 gap-4">
+                <div class="grid sm:grid-cols-2 gap-3 sm:gap-4">
                     <!-- Contenido Temático -->
                     <div>
                         <label class="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-400 mb-2 uppercase tracking-wider">
@@ -325,7 +325,7 @@ const getCompVisual = (codigo: number) => COMP_VISUAL[codigo] ?? DEFAULT_COMP_VI
                             type="text"
                             v-model="localContenidoTematico"
                             placeholder="Ej: fracciones, geometría plana..."
-                            class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:border-teal-400 dark:focus:border-teal-500 transition-colors"
+                            class="w-full px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border-2 border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 text-sm focus:outline-none focus:border-teal-400 dark:focus:border-teal-500 transition-colors"
                         />
                     </div>
 

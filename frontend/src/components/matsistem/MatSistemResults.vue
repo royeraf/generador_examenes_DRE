@@ -56,7 +56,7 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
 </script>
 
 <template>
-    <div class="flex flex-col order-2 lg:order-2">
+    <div class="flex flex-col order-2 lg:order-2 min-w-0">
 
         <!-- Empty State -->
         <div v-if="!resultado && !loading"
@@ -112,7 +112,7 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                 <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
                     <div class="flex items-center gap-3 w-full sm:w-auto">
                         <div
-                            class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 backdrop-blur-sm rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
+                            class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
                             <Award class="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                         </div>
                         <div class="min-w-0 flex-1">
@@ -157,8 +157,8 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
 
                 <!-- Lectura -->
                 <div
-                    class="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-900 dark:to-slate-950 rounded-xl p-5 border-2 border-amber-100 dark:border-slate-700">
-                    <h4 class="text-sm font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
+                    class="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-900 dark:to-slate-950 rounded-xl p-3 sm:p-5 border-2 border-amber-100 dark:border-slate-700">
+                    <h4 class="text-sm font-bold text-slate-800 dark:text-white mb-2 sm:mb-3 flex items-center gap-2">
                         <div
                             class="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center">
                             <BookOpen class="w-4 h-4 text-white" />
@@ -166,7 +166,7 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                         Lectura / Problema
                     </h4>
                     <p
-                        class="text-slate-700 dark:text-slate-300 text-sm leading-7 whitespace-pre-line bg-white/50 dark:bg-black/20 p-4 rounded-lg">
+                        class="text-slate-700 dark:text-slate-300 text-sm leading-7 whitespace-pre-line bg-white/50 dark:bg-black/20 p-3 sm:p-4 rounded-lg">
                         {{ (resultado.examen as any).situacion_problematica || resultado.examen.lectura }}
                     </p>
                 </div>
@@ -182,8 +182,8 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                     </h4>
 
                     <div v-for="pregunta in resultado.examen.preguntas" :key="pregunta.numero"
-                        class="bg-white dark:bg-slate-800 rounded-xl p-5 border-2 border-slate-100 dark:border-slate-700 hover:border-teal-200 dark:hover:border-teal-700 transition-all duration-300">
-                        <div class="flex items-start gap-4">
+                        class="bg-white dark:bg-slate-800 rounded-xl p-3 sm:p-5 border-2 border-slate-100 dark:border-slate-700 hover:border-teal-200 dark:hover:border-teal-700 transition-all duration-300">
+                        <div class="flex items-start gap-2.5 sm:gap-4">
                             <span
                                 class="w-10 h-10 bg-gradient-to-br from-teal-500 to-sky-500 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-lg shadow-teal-500/20">
                                 {{ pregunta.numero }}
@@ -200,7 +200,7 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
 
                                 <div class="space-y-2">
                                     <div v-for="opcion in pregunta.opciones" :key="opcion.letra"
-                                        class="flex items-center gap-3 text-sm py-3 px-4 rounded-xl border-2 transition-all duration-200"
+                                        class="flex items-center gap-2 sm:gap-3 text-sm py-2 sm:py-3 px-3 sm:px-4 rounded-xl border-2 transition-all duration-200"
                                         :class="opcion.es_correcta
                                             ? 'bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-emerald-900/40 dark:to-slate-900 border-teal-300 dark:border-emerald-800 text-teal-700 dark:text-emerald-400'
                                             : 'bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-gray-300'">
@@ -229,36 +229,36 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                 </div>
 
                 <!-- Answer Table -->
-                <div class="bg-white dark:bg-slate-800 rounded-xl p-5 border-2 border-sky-100 dark:border-slate-700">
-                    <h4 class="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                <div class="bg-white dark:bg-slate-800 rounded-xl p-3 sm:p-5 border-2 border-sky-100 dark:border-slate-700">
+                    <h4 class="text-sm font-bold text-slate-800 dark:text-white mb-3 sm:mb-4 flex items-center gap-2">
                         <div
                             class="w-8 h-8 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg flex items-center justify-center">
                             <LayoutGrid class="w-4 h-4 text-white" />
                         </div>
                         Tabla de Respuestas
                     </h4>
-                    <div class="overflow-x-auto rounded-xl border-2 border-gray-100 dark:border-slate-700">
-                        <table class="w-full text-sm">
+                    <div class="overflow-x-auto rounded-xl border-2 border-gray-100 dark:border-slate-700 -webkit-overflow-scrolling-touch">
+                        <table class="w-full text-sm min-w-[540px]">
                             <thead>
                                 <tr
                                     class="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-900 dark:to-slate-950 border-b-2 border-gray-200 dark:border-slate-700">
                                     <th
-                                        class="text-left py-3 px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
+                                        class="text-left py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
                                         #</th>
                                     <th
-                                        class="text-left py-3 px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
+                                        class="text-left py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
                                         Desempeño
                                     </th>
                                     <th
-                                        class="text-left py-3 px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
+                                        class="text-left py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
                                         Capacidad
                                     </th>
                                     <th
-                                        class="text-center py-3 px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
+                                        class="text-center py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
                                         Rpta.
                                     </th>
                                     <th
-                                        class="text-left py-3 px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
+                                        class="text-left py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
                                         Justificación
                                     </th>
                                 </tr>
@@ -266,12 +266,12 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                             <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
                                 <tr v-for="fila in resultado.examen.tabla_respuestas" :key="fila.pregunta"
                                     class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
-                                    <td class="py-3 px-4 text-slate-800 dark:text-slate-200 font-bold">{{ fila.pregunta
+                                    <td class="py-2.5 sm:py-3 px-3 sm:px-4 text-slate-800 dark:text-slate-200 font-bold">{{ fila.pregunta
                                     }}
                                     </td>
-                                    <td class="py-3 px-4 text-slate-600 dark:text-slate-400 text-xs">{{ fila.desempeno
+                                    <td class="py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 text-xs">{{ fila.desempeno
                                     }}</td>
-                                    <td class="py-3 px-4">
+                                    <td class="py-2.5 sm:py-3 px-3 sm:px-4">
                                         <span
                                             class="px-2.5 py-1 text-[10px] font-bold rounded-full inline-flex items-center gap-1"
                                             :class="getCapacidadBadgeClass((fila as any).capacidad || fila.nivel)">
@@ -279,13 +279,13 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                                             {{ (fila as any).capacidad || fila.nivel }}
                                         </span>
                                     </td>
-                                    <td class="py-3 px-4 text-center">
+                                    <td class="py-2.5 sm:py-3 px-3 sm:px-4 text-center">
                                         <span
                                             class="w-8 h-8 bg-gradient-to-br from-teal-400 to-teal-600 text-white rounded-lg inline-flex items-center justify-center font-bold text-sm shadow-lg shadow-teal-500/20">
                                             {{ fila.respuesta_correcta }}
                                         </span>
                                     </td>
-                                    <td class="py-3 px-4 text-slate-600 dark:text-slate-400 text-xs italic">
+                                    <td class="py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 text-xs italic">
                                         {{ fila.justificacion || 'No disponible' }}
                                     </td>
                                 </tr>

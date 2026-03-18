@@ -315,26 +315,27 @@ const getNivelBadgeClass = (nivel: string): string => {
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
       <!-- Círculos decorativos con colores educativos -->
       <div
-        class="absolute -top-24 -right-24 w-96 h-96 bg-teal-200/40 dark:bg-teal-500/10 rounded-full blur-3xl animate-float">
+        class="absolute -top-24 -right-24 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-teal-200/40 dark:bg-teal-500/10 rounded-full blur-3xl animate-float will-change-transform">
       </div>
-      <div class="absolute top-1/3 -left-24 w-80 h-80 bg-amber-200/40 dark:bg-amber-500/10 rounded-full blur-3xl"
+      <div class="absolute top-1/3 -left-24 w-40 h-40 sm:w-60 sm:h-60 lg:w-80 lg:h-80 bg-amber-200/40 dark:bg-amber-500/10 rounded-full blur-3xl will-change-transform"
         style="animation-delay: 2s;"></div>
       <div
-        class="absolute bottom-0 right-1/4 w-72 h-72 bg-sky-200/30 dark:bg-sky-500/10 rounded-full blur-3xl animate-float"
+        class="absolute bottom-0 right-1/4 w-36 h-36 sm:w-56 sm:h-56 lg:w-72 lg:h-72 bg-sky-200/30 dark:bg-sky-500/10 rounded-full blur-3xl animate-float will-change-transform"
         style="animation-delay: 4s;">
       </div>
-      <div class="absolute top-2/3 left-1/3 w-64 h-64 bg-violet-200/20 dark:bg-violet-500/5 rounded-full blur-3xl">
+      <div class="absolute top-2/3 left-1/3 w-32 h-32 sm:w-48 sm:h-48 lg:w-64 lg:h-64 bg-violet-200/20 dark:bg-violet-500/5 rounded-full blur-3xl">
       </div>
       <!-- Círculos adicionales -->
       <div
-        class="absolute top-1/4 right-1/3 w-48 h-48 bg-rose-200/20 dark:bg-rose-500/5 rounded-full blur-3xl animate-float"
+        class="absolute top-1/4 right-1/3 w-24 h-24 sm:w-36 sm:h-36 lg:w-48 lg:h-48 bg-rose-200/20 dark:bg-rose-500/5 rounded-full blur-3xl animate-float will-change-transform"
         style="animation-delay: 6s;">
       </div>
-      <div class="absolute bottom-1/4 left-1/4 w-56 h-56 bg-emerald-200/25 dark:bg-emerald-500/5 rounded-full blur-3xl"
+      <div class="absolute bottom-1/4 left-1/4 w-28 h-28 sm:w-40 sm:h-40 lg:w-56 lg:h-56 bg-emerald-200/25 dark:bg-emerald-500/5 rounded-full blur-3xl"
         style="animation-delay: 3.5s;">
       </div>
 
-      <!-- Elementos decorativos educativos flotantes - Iconos -->
+      <!-- Elementos decorativos educativos flotantes - Iconos (hidden on mobile for performance) -->
+      <div class="hidden md:block">
       <div class="absolute top-20 right-[15%] text-teal-400/40 dark:text-teal-500/25 animate-float">
         <BookOpen class="w-16 h-16" />
       </div>
@@ -425,14 +426,15 @@ const getNivelBadgeClass = (nivel: string): string => {
         style="animation-delay: 10s;">
         <Sigma class="w-9 h-9" />
       </div>
+      </div>
 
       <!-- Círculos adicionales de fondo -->
       <div
-        class="absolute top-[80%] left-[60%] w-40 h-40 bg-lime-300/25 dark:bg-lime-500/10 rounded-full blur-3xl animate-float"
+        class="absolute top-[80%] left-[60%] w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 bg-lime-300/25 dark:bg-lime-500/10 rounded-full blur-3xl animate-float will-change-transform"
         style="animation-delay: 5s;">
       </div>
       <div
-        class="absolute top-[40%] right-[50%] w-52 h-52 bg-fuchsia-300/20 dark:bg-fuchsia-500/8 rounded-full blur-3xl"
+        class="absolute top-[40%] right-[50%] w-28 h-28 sm:w-40 sm:h-40 lg:w-52 lg:h-52 bg-fuchsia-300/20 dark:bg-fuchsia-500/8 rounded-full blur-3xl"
         style="animation-delay: 7s;">
       </div>
     </div>
@@ -446,7 +448,7 @@ const getNivelBadgeClass = (nivel: string): string => {
             <!-- Logo con icono de libro -->
             <div class="relative flex-shrink-0">
               <div
-                class="w-10 h-10 sm:w-14 sm:h-14 bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg border border-white/30 p-1">
+                class="w-10 h-10 sm:w-14 sm:h-14 bg-white/90 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg border border-white/30 p-1">
                 <img :src="logoDre" alt="Logo DRE" class="w-full h-full object-contain" />
               </div>
               <!-- Estrella decorativa -->
@@ -488,7 +490,7 @@ const getNivelBadgeClass = (nivel: string): string => {
 
           <div class="flex items-center gap-2 sm:gap-3">
             <button v-if="resultado && !loading && activeTab === 'generador'" @click="showResults = !showResults"
-              class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl font-medium text-[10px] sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all duration-300 bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30">
+              class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl font-medium text-[10px] sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all duration-300 bg-white/20 text-white border border-white/30 hover:bg-white/30">
               <Eye v-if="showResults" class="w-3 h-3 sm:w-4 sm:h-4" />
               <EyeOff v-else class="w-3 h-3 sm:w-4 sm:h-4" />
               <span class="hidden sm:inline">{{ showResults ? 'Ocultar' : 'Ver Resultado' }}</span>
@@ -496,7 +498,7 @@ const getNivelBadgeClass = (nivel: string): string => {
             </button>
 
             <button @click="toggleTheme"
-              class="p-2.5 rounded-xl bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600 transition-all duration-300">
+              class="p-2.5 rounded-xl bg-white/20 text-white border border-white/30 hover:bg-white/30 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600 transition-all duration-300">
               <Sun v-if="isDark" class="w-5 h-5" />
               <Moon v-else class="w-5 h-5" />
             </button>
@@ -536,7 +538,7 @@ const getNivelBadgeClass = (nivel: string): string => {
       <!-- Generator Tab Content -->
       <div v-show="activeTab === 'generador'">
         <!-- Configuration Row - Diseño Educativo -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
 
           <!-- Grade Selection -->
           <div
@@ -576,7 +578,7 @@ const getNivelBadgeClass = (nivel: string): string => {
                 { id: 'intermedio', nombre: 'Intermedio', descripcion: 'Desarrollo', color: 'amber' },
                 { id: 'avanzado', nombre: 'Avanzado', descripcion: 'Dominio', color: 'rose' }
               ] as const)" :key="nivel.id" @click="selectedNivelDificultad = nivel.id"
-                class="relative p-3 rounded-xl border transition-all duration-300 text-center group/btn overflow-hidden"
+                class="relative p-2 sm:p-3 rounded-xl border transition-all duration-300 text-center group/btn overflow-hidden"
                 :class="selectedNivelDificultad === nivel.id
                   ? nivel.color === 'emerald' 
                     ? 'border-emerald-500/50 bg-gradient-to-br from-emerald-500/10 to-emerald-600/5'
@@ -597,15 +599,15 @@ const getNivelBadgeClass = (nivel: string): string => {
                 
                 <!-- Animated Icon -->
                 <div class="flex justify-center mb-2">
-                  <Sprout v-if="nivel.id === 'basico'" class="w-7 h-7 transition-all duration-500"
+                  <Sprout v-if="nivel.id === 'basico'" class="w-5 h-5 sm:w-7 sm:h-7 transition-all duration-500"
                     :class="selectedNivelDificultad === nivel.id 
                       ? 'text-emerald-400 animate-bounce-gentle drop-shadow-lg shadow-emerald-500/50' 
                       : 'text-slate-500 group-hover:scale-110'" />
-                  <Leaf v-else-if="nivel.id === 'intermedio'" class="w-7 h-7 transition-all duration-500"
+                  <Leaf v-else-if="nivel.id === 'intermedio'" class="w-5 h-5 sm:w-7 sm:h-7 transition-all duration-500"
                     :class="selectedNivelDificultad === nivel.id 
                       ? 'text-amber-400 animate-bounce-gentle drop-shadow-lg shadow-amber-500/50' 
                       : 'text-slate-500 group-hover:scale-110'" />
-                  <TreeDeciduous v-else class="w-7 h-7 transition-all duration-500"
+                  <TreeDeciduous v-else class="w-5 h-5 sm:w-7 sm:h-7 transition-all duration-500"
                     :class="selectedNivelDificultad === nivel.id 
                       ? 'text-rose-400 animate-bounce-gentle drop-shadow-lg shadow-rose-500/50' 
                       : 'text-slate-500 group-hover:scale-110'" />
@@ -726,21 +728,21 @@ const getNivelBadgeClass = (nivel: string): string => {
         </div>
 
         <!-- Main Content -->
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
 
           <!-- Left: Desempeños -->
           <div class="flex flex-col space-y-3 order-1 lg:order-1">
 
             <!-- Desempeños Card -->
             <div
-              class="h-[500px] sm:h-[580px] lg:h-[650px] flex flex-col bg-white dark:bg-slate-800 rounded-2xl border-2 border-teal-100 dark:border-slate-700 overflow-hidden shadow-lg">
+              class="h-[500px] sm:h-[540px] lg:h-[580px] xl:h-[650px] flex flex-col bg-white dark:bg-slate-800 rounded-2xl border-2 border-teal-100 dark:border-slate-700 overflow-hidden shadow-lg">
 
               <!-- Card Header - Educativo -->
               <div class="bg-gradient-to-r from-teal-500 via-teal-600 to-sky-500 px-5 py-4">
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-3">
                     <div
-                      class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
+                      class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shadow-lg">
                       <Target class="w-5 h-5 text-white" />
                     </div>
                     <div>
@@ -930,7 +932,7 @@ const getNivelBadgeClass = (nivel: string): string => {
 
             <!-- Empty State -->
             <div v-if="!resultado && !loading"
-              class="h-[300px] sm:h-[580px] lg:h-[650px] bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 text-center flex flex-col items-center justify-center shadow-sm p-6">
+              class="h-[300px] sm:h-[400px] lg:h-[580px] xl:h-[650px] bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 text-center flex flex-col items-center justify-center shadow-sm p-6">
               <Zap class="w-10 h-10 sm:w-12 sm:h-12 text-gray-300 dark:text-slate-600 mb-4" />
               <h3 class="text-base sm:text-lg font-semibold text-slate-800 dark:text-white mb-2">Listo para generar</h3>
               <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm max-w-xs mb-4">
@@ -949,7 +951,7 @@ const getNivelBadgeClass = (nivel: string): string => {
 
             <!-- Loading State -->
             <div v-if="loading"
-              class="h-[400px] sm:h-[580px] lg:h-[650px] bg-gradient-to-br from-white via-violet-50 to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 rounded-xl border border-violet-200 dark:border-slate-700/50 text-center flex flex-col items-center justify-center shadow-lg p-6 relative overflow-hidden">
+              class="h-[400px] sm:h-[450px] lg:h-[580px] xl:h-[650px] bg-gradient-to-br from-white via-violet-50 to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 rounded-xl border border-violet-200 dark:border-slate-700/50 text-center flex flex-col items-center justify-center shadow-lg p-6 relative overflow-hidden">
               <div class="absolute inset-0 opacity-20">
                 <div class="absolute top-1/4 left-1/4 w-32 h-32 bg-violet-500/30 rounded-full blur-3xl animate-pulse">
                 </div>
@@ -973,7 +975,7 @@ const getNivelBadgeClass = (nivel: string): string => {
 
             <!-- Results -->
             <div v-if="resultado && !loading && showResults"
-              class="h-[500px] sm:h-[580px] lg:h-[650px] bg-white dark:bg-slate-800 rounded-2xl border-2 border-amber-200 dark:border-slate-700 shadow-xl flex flex-col overflow-hidden">
+              class="h-[500px] sm:h-[540px] lg:h-[580px] xl:h-[650px] bg-white dark:bg-slate-800 rounded-2xl border-2 border-amber-200 dark:border-slate-700 shadow-xl flex flex-col overflow-hidden">
 
               <!-- Results Header - Celebratorio -->
               <div

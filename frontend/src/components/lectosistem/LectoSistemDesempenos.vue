@@ -2,7 +2,6 @@
 import { computed } from 'vue';
 import { Target, BookOpen, FileSearch, Lightbulb, Rocket, AlertTriangle, CheckCircle2 } from 'lucide-vue-next';
 import ThinkingLoader from '../ThinkingLoader.vue';
-import Tooltip from '../Tooltip.vue';
 import Checkbox from '../Checkbox.vue';
 import type { DesempenoItem } from '../../types';
 
@@ -54,7 +53,7 @@ const getCapacidadLabel = (tipo: string): string => {
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <div
-                            class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
+                            class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shadow-lg">
                             <Target class="w-5 h-5 text-white" />
                         </div>
                         <div>
@@ -113,8 +112,7 @@ const getCapacidadLabel = (tipo: string): string => {
 
                 <!-- Tab Navigation - Niveles de Comprensión -->
                 <div class="flex overflow-x-auto scrollbar-hide bg-slate-100 dark:bg-slate-900/80 p-1.5 gap-1 min-w-full border-b border-slate-200/60 dark:border-slate-700/60">
-                    <Tooltip v-for="tipo in ['literal', 'inferencial', 'critico']" :key="tipo"
-                        :text="getCapacidadLabel(tipo)" position="bottom">
+                    <div v-for="tipo in ['literal', 'inferencial', 'critico']" :key="tipo">
                         <button @click="emit('update:activeCapacidadTab', tipo)"
                             class="flex-1 min-w-[100px] relative px-2 sm:px-4 py-2.5 sm:py-3 text-[10px] sm:text-xs font-bold uppercase tracking-wide transition-all duration-300 rounded-lg whitespace-nowrap"
                             :class="activeCapacidadTab === tipo
@@ -135,7 +133,7 @@ const getCapacidadLabel = (tipo: string): string => {
                                 <span>{{ getCapacidadLabel(tipo) }}</span>
                             </div>
                         </button>
-                    </Tooltip>
+                    </div>
                 </div>
 
                 <!-- Tab Content -->
@@ -164,9 +162,8 @@ const getCapacidadLabel = (tipo: string): string => {
                     <!-- Items Grid -->
                     <div class="flex-1 overflow-y-auto space-y-1.5 pr-1">
                         <template v-if="desempenosPorCapacidad[activeCapacidadTab]?.length">
-                            <Tooltip v-for="des in desempenosPorCapacidad[activeCapacidadTab]" :key="des.id"
-                                :text="des.descripcion" position="top">
-                                <Checkbox v-model="localSelectedDesempenoIds" :value="des.id"
+                            <Checkbox v-for="des in desempenosPorCapacidad[activeCapacidadTab]" :key="des.id"
+                                v-model="localSelectedDesempenoIds" :value="des.id"
                                     class="group flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-all duration-150 border"
                                     :class="localSelectedDesempenoIds.includes(des.id)
                                         ? {
@@ -192,8 +189,7 @@ const getCapacidadLabel = (tipo: string): string => {
                                     <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
                                         {{ des.descripcion }}
                                     </p>
-                                </Checkbox>
-                            </Tooltip>
+                            </Checkbox>
                         </template>
 
                         <!-- Empty Tab -->

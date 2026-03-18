@@ -258,7 +258,7 @@ onMounted(async () => {
       @toggle-results="showResults = !showResults">
       <template #actions-before>
         <button @click="router.push('/')"
-          class="p-2.5 rounded-xl bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600 transition-all duration-300"
+          class="p-2.5 rounded-xl bg-white/20 text-white border border-white/30 hover:bg-white/30 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600 transition-all duration-300"
           title="Inicio">
           <Home class="w-5 h-5" />
         </button>

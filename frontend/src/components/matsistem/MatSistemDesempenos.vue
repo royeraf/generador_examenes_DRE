@@ -129,31 +129,31 @@ const allSelectedInTab = computed(() => {
 </script>
 
 <template>
-    <div class="flex flex-col space-y-3 order-1 lg:order-1">
+    <div class="flex flex-col space-y-3 order-1 lg:order-1 min-w-0">
 
         <!-- Desempeños Card -->
         <div class="h-[500px] sm:h-[580px] lg:h-[650px] flex flex-col bg-white dark:bg-slate-800 rounded-2xl border-2 border-indigo-100 dark:border-slate-700 overflow-hidden shadow-lg">
 
             <!-- Card Header -->
-            <div class="bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-500 px-5 py-4">
+            <div class="bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-500 px-4 sm:px-5 py-3 sm:py-4">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg">
-                            <Target class="w-5 h-5 text-white" />
+                    <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                            <Target class="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                         </div>
-                        <div>
-                            <h2 class="text-lg font-bold text-white">
+                        <div class="min-w-0">
+                            <h2 class="text-base sm:text-lg font-bold text-white truncate">
                                 Desempeños a Evaluar
                             </h2>
-                            <p v-if="desempenos.length" class="text-xs text-indigo-100">
-                                Marca los desempeños que quieres evaluar en el examen
+                            <p v-if="desempenos.length" class="text-[11px] sm:text-xs text-indigo-100 truncate">
+                                Marca los desempeños que quieres evaluar
                             </p>
                         </div>
                     </div>
                     <span v-if="selectedDesempenosCount > 0"
-                        class="px-3 py-1.5 rounded-full bg-amber-400 text-amber-900 text-xs font-bold shadow-lg flex items-center gap-1.5">
-                        <CheckCircle2 class="w-3.5 h-3.5" />
-                        {{ selectedDesempenosCount }} seleccionados
+                        class="px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-amber-400 text-amber-900 text-[10px] sm:text-xs font-bold shadow-lg flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
+                        <CheckCircle2 class="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                        {{ selectedDesempenosCount }}
                     </span>
                 </div>
             </div>
@@ -172,8 +172,8 @@ const allSelectedInTab = computed(() => {
             <div v-else-if="desempenos.length > 0" class="flex-1 flex flex-col overflow-hidden">
 
                 <!-- Capacidad Tabs (fixed height to prevent card resize) -->
-                <div class="bg-slate-100 dark:bg-slate-900/80 p-2 border-b border-slate-200/60 dark:border-slate-700/60 flex-shrink-0 h-[68px]">
-                    <div class="flex gap-1.5 h-full">
+                <div class="bg-slate-100 dark:bg-slate-900/80 p-1.5 sm:p-2 border-b border-slate-200/60 dark:border-slate-700/60 flex-shrink-0 h-[56px] sm:h-[68px]">
+                    <div class="flex gap-1 sm:gap-1.5 h-full">
                         <button
                             v-for="orden in [1, 2, 3, 4]"
                             :key="orden"
@@ -188,9 +188,9 @@ const allSelectedInTab = computed(() => {
                             ]"
                             :disabled="!getCapInfo(orden).hasDesempenos">
 
-                            <div class="flex items-center gap-2 h-full">
+                            <div class="flex items-center gap-1 sm:gap-2 h-full">
                                 <!-- Capacidad number badge -->
-                                <span class="w-6 h-6 rounded-md flex items-center justify-center text-xs font-black flex-shrink-0"
+                                <span class="w-5 h-5 sm:w-6 sm:h-6 rounded-md flex items-center justify-center text-[10px] sm:text-xs font-black flex-shrink-0"
                                     :class="activeCapacidadTab === orden
                                         ? 'bg-white/25 text-white'
                                         : `${getCapColor(orden).bg} ${getCapColor(orden).text}`">
@@ -198,7 +198,7 @@ const allSelectedInTab = computed(() => {
                                 </span>
 
                                 <!-- Capacidad name: active wraps up to 2 lines, inactive truncates -->
-                                <span class="text-[11px] font-semibold leading-snug"
+                                <span class="text-[9px] sm:text-[11px] font-semibold leading-snug"
                                     :class="activeCapacidadTab === orden
                                         ? 'text-white line-clamp-2'
                                         : 'text-slate-600 dark:text-slate-300 truncate'">

@@ -62,7 +62,7 @@ const localCompetencia = computed({
             <div class="bg-gradient-to-r from-teal-500 to-sky-500 p-4">
                 <div class="flex items-center gap-4">
                     <div
-                        class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center shadow-lg">
+                        class="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center shadow-lg">
                         <BookOpen class="w-7 h-7 text-white" />
                     </div>
                     <div>

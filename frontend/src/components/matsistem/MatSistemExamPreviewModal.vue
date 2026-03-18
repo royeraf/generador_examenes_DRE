@@ -55,7 +55,7 @@ function formatFecha(iso: string): string {
                         <div class="flex items-center justify-between gap-3">
                             <div class="flex items-center gap-3 min-w-0 flex-1">
                                 <div
-                                    class="w-11 h-11 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                                    class="w-11 h-11 bg-white/20 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
                                     <Award class="w-6 h-6 text-white" />
                                 </div>
                                 <div class="min-w-0 flex-1">

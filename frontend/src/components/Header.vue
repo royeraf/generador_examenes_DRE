@@ -47,7 +47,7 @@ const emit = defineEmits(['toggleTheme', 'toggleResults']);
                     <!-- Logo con icono de libro -->
                     <div class="relative flex-shrink-0">
                         <div
-                            class="w-10 h-10 sm:w-14 sm:h-14 bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg border border-white/30 p-1">
+                            class="w-10 h-10 sm:w-14 sm:h-14 bg-white/90 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg border border-white/30 p-1">
                             <img :src="logoDre" alt="Logo DRE" class="w-full h-full object-contain" />
                         </div>
                         <!-- Estrella decorativa -->
@@ -95,7 +95,7 @@ const emit = defineEmits(['toggleTheme', 'toggleResults']);
                     <slot name="actions-before"></slot>
 
                     <button v-if="hasResultado && !loading && activeTab === 'generador'" @click="emit('toggleResults')"
-                        class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl font-medium text-[10px] sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all duration-300 bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30">
+                        class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl font-medium text-[10px] sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all duration-300 bg-white/20 text-white border border-white/30 hover:bg-white/30">
                         <Eye v-if="showResults" class="w-3 h-3 sm:w-4 sm:h-4" />
                         <EyeOff v-else class="w-3 h-3 sm:w-4 sm:h-4" />
                         <span class="hidden sm:inline">{{ showResults ? 'Ocultar' : 'Ver Resultado' }}</span>
@@ -103,7 +103,7 @@ const emit = defineEmits(['toggleTheme', 'toggleResults']);
                     </button>
 
                     <button @click="emit('toggleTheme')"
-                        class="p-2.5 rounded-xl bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600 transition-all duration-300">
+                        class="p-2.5 rounded-xl bg-white/20 text-white border border-white/30 hover:bg-white/30 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600 transition-all duration-300">
                         <Sun v-if="isDark" class="w-5 h-5" />
                         <Moon v-else class="w-5 h-5" />
                     </button>

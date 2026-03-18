@@ -6,7 +6,7 @@
                 <!-- Logo y Nombre -->
                 <div class="flex items-center gap-3 w-full lg:w-auto justify-center lg:justify-start">
                     <div
-                        class="w-10 h-10 sm:w-12 sm:h-12 bg-white/90 backdrop-blur-sm rounded-xl flex items-center justify-center p-1 flex-shrink-0">
+                        class="w-10 h-10 sm:w-12 sm:h-12 bg-white/90 rounded-xl flex items-center justify-center p-1 flex-shrink-0">
                         <img :src="logoDre" alt="Logo DRE" class="w-full h-full object-contain" />
                     </div>
                     <div>
@@ -32,11 +32,11 @@
                 <!-- Año y Créditos -->
                 <div
                     class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-white/80 text-[10px] sm:text-xs">
-                    <div class="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                    <div class="flex items-center gap-1.5 bg-white/10 px-3 py-1.5 rounded-full">
                         <Star class="w-3 h-3 sm:w-4 sm:h-4 text-amber-300" />
                         <span>© 2026</span>
                     </div>
-                    <div class="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                    <div class="flex items-center gap-1.5 bg-white/10 px-3 py-1.5 rounded-full">
                         <Sparkles class="w-3 h-3 sm:w-4 sm:h-4 text-sky-300" />
                         <span>Hecho con
                             <Heart class="w-3 h-3 sm:w-4 sm:h-4 inline text-red-400 fill-red-400" /> para la educación
@@ -44,7 +44,7 @@
                     </div>
                     <!-- AI Model Info -->
                     <div
-                        class="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/5 shrink-0">
+                        class="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full border border-white/5 shrink-0">
                         <img src="/icons/gemini.svg" alt="Gemini" class="w-4 h-4 object-contain" />
                         <span class="text-sky-100 font-semibold tracking-wide">Gemini 3 Flash Preview</span>
                     </div>

@@ -93,7 +93,7 @@ const getNivelBadgeClass = (nivel: string): string => {
                 class="bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 px-4 sm:px-5 py-3 sm:py-4 flex-shrink-0">
                 <div class="flex items-center gap-3 mb-3">
                     <div
-                        class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                        class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
                         <Award class="w-5 h-5 text-white" />
                     </div>
                     <div class="min-w-0 flex-1">

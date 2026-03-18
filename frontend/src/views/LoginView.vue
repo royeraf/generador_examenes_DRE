@@ -2,7 +2,7 @@
 import { shallowRef } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
-import { LogIn, User, Lock, Loader2, AlertCircle, BrainCircuit, Users, Sparkles } from 'lucide-vue-next';
+import { LogIn, User, Lock, Loader2, AlertCircle } from 'lucide-vue-next';
 import { useForm, useField } from 'vee-validate';
 import * as yup from 'yup';
 import logoDre from '../assets/logo.png';
@@ -64,241 +64,419 @@ const handleDniInput = (e: Event) => {
 </script>
 
 <template>
-    <div
-        class="min-h-screen flex flex-col lg:flex-row bg-gradient-to-br from-teal-500 via-teal-600 to-indigo-700 lg:bg-none lg:bg-white lg:dark:bg-slate-900 relative overflow-hidden transition-colors duration-300">
+    <div class="login-page min-h-screen flex flex-col lg:flex-row transition-colors duration-300">
 
-        <!-- Mobile/Tablet background blobs (visible below lg) -->
-        <div class="absolute inset-0 overflow-hidden pointer-events-none lg:hidden">
-            <div class="absolute top-[-15%] left-[-15%] w-72 h-72 md:w-96 md:h-96 bg-white/10 rounded-full blur-3xl animate-blob will-change-transform"></div>
-            <div class="absolute bottom-[-10%] right-[-10%] w-64 h-64 md:w-80 md:h-80 bg-indigo-400/20 rounded-full blur-3xl animate-blob animation-delay-2000 will-change-transform"></div>
-            <div class="absolute top-[40%] right-[-5%] w-48 h-48 md:w-64 md:h-64 bg-teal-300/15 rounded-full blur-3xl animate-blob animation-delay-4000 will-change-transform"></div>
-        </div>
+        <!-- ═══ LEFT: Hero Panel (desktop lg+) ═══ -->
+        <div
+            class="hidden lg:flex lg:w-[55%] xl:w-3/5 relative flex-col justify-between overflow-hidden bg-slate-950">
 
-        <!-- Theme Toggle (top right global) -->
-        <div class="fixed top-3 right-3 sm:top-5 sm:right-5 z-[100]">
-            <ThemeToggle />
-        </div>
+            <!-- Grid pattern overlay -->
+            <div class="absolute inset-0 hero-grid"></div>
 
-        <!-- LEFT PANEL: Hero & Illustration (DESKTOP lg+ ONLY) -->
-        <div class="hidden lg:flex w-full lg:w-3/5 bg-gradient-to-br from-teal-500 via-teal-600 to-indigo-700 relative overflow-hidden flex-col justify-between lg:min-h-screen lg:px-16 lg:py-10 xl:px-20 xl:py-12">
-            <!-- Background decorative elements for Left Panel -->
-            <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                <div class="absolute top-[-20%] left-[-10%] w-96 h-96 bg-white/10 rounded-full blur-3xl animate-blob will-change-transform"></div>
-                <div class="absolute bottom-[-20%] right-[-10%] w-96 h-96 bg-indigo-400/20 rounded-full blur-3xl animate-blob animation-delay-2000 will-change-transform"></div>
-            </div>
-
-            <!-- DESKTOP: original vertical layout -->
-            <div class="relative z-10 pt-4">
-                <div
-                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-white/90 text-xs font-semibold uppercase tracking-wider mb-6 backdrop-blur-md">
-                    <Sparkles class="w-4 h-4" />
-                    Plataforma Educativa
-                </div>
-                <h1 class="text-5xl xl:text-6xl font-black text-white leading-tight tracking-tight mb-4">
-                    SISTEMA INTEGRADO<br />
-                    <span class="text-teal-200">DE EVALUACIÓN DE AULA</span>
-                </h1>
-                <p class="text-xl text-teal-50 font-medium">Bienvenido a SIEVA</p>
-                <p class="text-white/70 mt-4 max-w-lg lg:text-base xl:text-lg leading-relaxed">
-                    Potenciando la enseñanza a través de la inteligencia artificial. Analiza, genera y sistematiza
-                    evaluaciones con precisión humana y velocidad de máquina.
-                </p>
-            </div>
-
-            <!-- Teaching SVG Illustration (desktop only) -->
+            <!-- Gradient atmosphere -->
             <div
-                class="relative z-10 mt-auto flex items-center justify-center pb-8 pt-4">
-                <div class="relative lg:w-64 lg:h-64 xl:w-72 xl:h-72 shrink-0">
-                    <!-- Background Glow -->
-                    <div class="absolute inset-0 bg-teal-400/20 blur-3xl rounded-full"></div>
-
-                    <!-- Animated Morph Container + SVG Illustration -->
-                    <div
-                        class="w-full h-full relative z-10 border-[3px] border-white/30 shadow-2xl overflow-hidden animate-morph bg-indigo-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-                        <img :src="teachingSvg" alt="Ilustración educativa"
-                            class="w-full h-full object-contain drop-shadow-2xl" />
-                    </div>
-
-                    <!-- Floating Glass Card 1 - Docente -->
-                    <div
-                        class="absolute -top-2 lg:-left-12 xl:-left-14 z-20 bg-white/15 backdrop-blur-md border border-white/25 rounded-2xl lg:px-4 lg:py-3 shadow-[0_8px_32px_rgba(0,0,0,0.2)] flex items-center gap-3 animate-float-y">
-                        <div class="relative p-2 bg-teal-400/30 rounded-xl shrink-0">
-                            <Users class="w-5 h-5 text-teal-100" />
-                            <span
-                                class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-teal-300 rounded-full ring-2 ring-white/20">
-                                <span class="absolute inset-0 rounded-full bg-teal-300 animate-ping opacity-75"></span>
-                            </span>
-                        </div>
-                        <div>
-                            <p class="text-[10px] text-teal-200 uppercase font-black tracking-widest leading-none mb-1">
-                                Pedagogía</p>
-                            <p class="text-sm font-bold text-white leading-tight">Evaluación<br /> Humana</p>
-                        </div>
-                    </div>
-
-                    <!-- Floating Glass Card 2 - IA -->
-                    <div class="absolute -bottom-2 lg:-right-12 xl:-right-14 z-20 bg-white/15 backdrop-blur-md border border-white/25 rounded-2xl lg:px-4 lg:py-3 shadow-[0_8px_32px_rgba(0,0,0,0.2)] flex items-center gap-3 animate-float-y"
-                        style="animation-delay: 2s;">
-                        <div class="relative p-2 bg-indigo-400/30 rounded-xl shrink-0">
-                            <BrainCircuit class="w-5 h-5 text-indigo-100" />
-                            <span
-                                class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-indigo-300 rounded-full ring-2 ring-white/20">
-                                <span
-                                    class="absolute inset-0 rounded-full bg-indigo-300 animate-ping opacity-75"></span>
-                            </span>
-                        </div>
-                        <div>
-                            <p class="text-[10px] text-indigo-200 uppercase font-black tracking-widest leading-none mb-1">
-                                IA Generativa</p>
-                            <p class="text-sm font-bold text-white leading-tight">Exámenes<br /> al Instante</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- RIGHT PANEL: Login Form -->
-        <div class="w-full lg:w-2/5 flex flex-col justify-center relative lg:min-h-screen lg:bg-white lg:dark:bg-slate-900 p-4 sm:p-6 md:p-8 lg:px-12 xl:px-16">
-
-            <!-- Mobile/Tablet branding header (below lg) -->
-            <div class="relative z-10 flex flex-col items-center text-center mb-6 md:mb-8 lg:hidden animate-mobile-fade-in">
-                <!-- Tablet: illustration with glass cards -->
-                <div class="relative w-14 h-14 md:w-28 md:h-28 mb-3 md:mb-5">
-                    <div class="absolute inset-0 bg-teal-300/20 blur-xl rounded-full"></div>
-                    <div class="w-full h-full relative z-10 border-2 border-white/30 shadow-xl overflow-hidden animate-morph bg-indigo-900/40 flex items-center justify-center p-1.5 md:p-3">
-                        <img :src="teachingSvg" alt="SIEVA" class="w-full h-full object-contain" />
-                    </div>
-                    <!-- Tablet-only floating glass pills -->
-                    <div class="hidden md:flex absolute -left-24 top-1 z-20 bg-white/15 backdrop-blur-md border border-white/25 rounded-xl px-2.5 py-1.5 shadow-lg items-center gap-2 animate-float-y">
-                        <div class="p-1 bg-teal-400/30 rounded-lg">
-                            <Users class="w-3.5 h-3.5 text-teal-100" />
-                        </div>
-                        <span class="text-[10px] font-bold text-white">Pedagogía</span>
-                    </div>
-                    <div class="hidden md:flex absolute -right-24 bottom-1 z-20 bg-white/15 backdrop-blur-md border border-white/25 rounded-xl px-2.5 py-1.5 shadow-lg items-center gap-2 animate-float-y" style="animation-delay: 2s;">
-                        <div class="p-1 bg-indigo-400/30 rounded-lg">
-                            <BrainCircuit class="w-3.5 h-3.5 text-indigo-100" />
-                        </div>
-                        <span class="text-[10px] font-bold text-white">IA Generativa</span>
-                    </div>
-                </div>
-                <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 border border-white/20 text-white/90 text-[10px] md:text-xs font-semibold uppercase tracking-wider backdrop-blur-md mb-2">
-                    <Sparkles class="w-3 h-3 md:w-3.5 md:h-3.5" />
-                    Plataforma Educativa
-                </div>
-                <h1 class="text-xl md:text-3xl font-black text-white leading-tight tracking-tight">
-                    SIEVA
-                </h1>
-                <p class="text-teal-100/80 text-xs md:text-sm mt-0.5 md:mt-1">Sistema Integrado de Evaluación de Aula</p>
-                <p class="hidden md:block text-white/60 text-sm mt-2 max-w-md leading-relaxed">
-                    Potenciando la enseñanza con inteligencia artificial
-                </p>
+                class="absolute inset-0 bg-gradient-to-br from-teal-950/70 via-slate-950/30 to-emerald-950/50">
             </div>
 
-            <div class="max-w-md w-full mx-auto flex flex-col justify-center h-full lg:py-0 relative z-10">
-              <div class="relative rounded-3xl p-px bg-gradient-to-br from-white/40 via-white/10 to-indigo-300/40 lg:from-teal-400/60 lg:via-transparent lg:to-indigo-400/60 dark:from-teal-500/40 dark:via-transparent dark:to-indigo-500/40 shadow-2xl shadow-black/15 lg:shadow-xl lg:shadow-slate-900/5 dark:shadow-black/20">
-                <div class="rounded-3xl bg-white/95 dark:bg-slate-900/95 lg:bg-white lg:dark:bg-slate-900 backdrop-blur-xl lg:backdrop-blur-none px-5 py-7 sm:px-8 sm:py-10">
-                <div class="flex flex-col items-center mb-5 lg:mb-10">
+            <!-- Animated glow blobs -->
+            <div
+                class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-teal-500/[0.07] rounded-full blur-[120px] animate-blob">
+            </div>
+            <div
+                class="absolute bottom-[-10%] right-[-5%] w-[400px] h-[400px] bg-emerald-500/[0.06] rounded-full blur-[100px] animate-blob animation-delay-2000">
+            </div>
+            <div
+                class="absolute top-[50%] right-[20%] w-[300px] h-[300px] bg-teal-400/[0.04] rounded-full blur-[100px] animate-blob animation-delay-4000">
+            </div>
+
+            <!-- Vertical separator accent -->
+            <div
+                class="absolute top-0 right-0 w-px h-full bg-gradient-to-b from-transparent via-teal-500/20 to-transparent">
+            </div>
+
+            <!-- Top: Logo mark -->
+            <div class="relative z-10 px-10 xl:px-16 pt-10 xl:pt-12">
+                <div class="flex items-center gap-3">
                     <div
-                        class="relative w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center shadow-lg border border-slate-100 dark:border-slate-700 mb-3 lg:mb-6">
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 logo-display" :style="{
+                        class="w-9 h-9 rounded-lg bg-white/[0.07] border border-white/[0.08] flex items-center justify-center">
+                        <div class="w-5 h-5 logo-hero" :style="{
                             'mask-image': `url(${logoDre})`,
                             '-webkit-mask-image': `url(${logoDre})`
                         }"></div>
                     </div>
-                    <h2
-                        class="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-800 dark:text-white tracking-tight text-center">
-                        Iniciar Sesión
-                    </h2>
-                    <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-1.5 sm:mt-2 text-center">
-                        Ingresa tus credenciales para continuar
-                    </p>
+                    <span
+                        class="text-white/55 text-xs font-bold tracking-[0.2em] uppercase">DRE
+                        Huánuco</span>
                 </div>
+            </div>
 
-                <!-- Form -->
-                <form @submit="onSubmit" class="space-y-4 lg:space-y-6" autocomplete="off">
-                    <!-- Honeypot -->
-                    <input type="text" name="username_fake" aria-hidden="true" tabindex="-1"
-                        style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;overflow:hidden;" />
-                    <input type="password" name="password_fake" aria-hidden="true" tabindex="-1"
-                        style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;overflow:hidden;" />
-
-                    <div v-if="error"
-                        class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3.5 rounded-xl text-sm font-medium text-center border border-red-100 dark:border-red-900/50 animate-shake flex items-center justify-center gap-2">
-                        <AlertCircle class="w-4 h-4" />
-                        {{ error }}
-                    </div>
-
-                    <div class="space-y-2">
-                        <label
-                            class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider ml-1">DNI
-                            (Usuario)</label>
-                        <div class="relative group">
-                            <div
-                                class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-teal-500 transition-colors">
-                                <User class="w-5 h-5" />
-                            </div>
-                            <input :value="dniValue" @input="handleDniInput" @keypress="handleDniKeyPress" type="text"
-                                placeholder="Ingresa tu DNI" maxlength="8" autocomplete="one-time-code" readonly
-                                @focus="($event.target as HTMLInputElement).removeAttribute('readonly')"
-                                class="w-full bg-slate-50 dark:bg-slate-800/50 border rounded-xl py-4 pl-11 pr-4 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all text-slate-700 dark:text-slate-200 text-sm sm:text-base font-medium sm:tracking-[0.15em]"
-                                :class="dniError ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'" />
+            <!-- Center: Headline + Illustration side by side -->
+            <div
+                class="relative z-10 flex-1 flex items-center px-10 xl:px-16">
+                <div class="flex items-center gap-10 xl:gap-14 w-full">
+                    <!-- Text -->
+                    <div class="flex-1 min-w-0">
+                        <h1
+                            class="text-[2.5rem] xl:text-[3.25rem] font-extrabold text-white leading-[1.08] tracking-tight">
+                            Sistema Integrado
+                            <span class="block text-teal-300">de
+                                Evaluación</span>
+                            <span class="block">de Aula</span>
+                        </h1>
+                        <div
+                            class="w-14 h-1 bg-amber-400 rounded-full mt-6 mb-5">
                         </div>
-                        <p v-if="dniError"
-                            class="text-red-500 text-[11px] font-medium ml-1 flex items-center gap-1 mt-1">
-                            <AlertCircle class="w-3.5 h-3.5" /> {{ dniError }}
+                        <p
+                            class="text-white/60 text-base xl:text-lg leading-relaxed max-w-md">
+                            Plataforma educativa para la gestión y
+                            generación
+                            de evaluaciones con apoyo de inteligencia
+                            artificial.
                         </p>
                     </div>
 
-                    <div class="space-y-2">
-                        <label
-                            class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider ml-1">Contraseña</label>
-                        <div class="relative group">
+                    <!-- Illustration with morph -->
+                    <div class="shrink-0 w-48 xl:w-56">
+                        <div class="relative">
                             <div
-                                class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-teal-500 transition-colors">
-                                <Lock class="w-5 h-5" />
+                                class="absolute -inset-6 bg-teal-400/[0.10] rounded-full blur-2xl">
                             </div>
-                            <input v-model="passwordValue" :type="passwordFieldType" placeholder="Ingresa tu contraseña"
-                                autocomplete="new-password" readonly
-                                @focus="($event.target as HTMLInputElement).removeAttribute('readonly'); passwordFieldType = 'password'"
-                                @input="passwordFieldType = 'password'"
-                                class="w-full bg-slate-50 dark:bg-slate-800/50 border rounded-xl py-4 pl-11 pr-4 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all text-slate-700 dark:text-slate-200 text-sm sm:text-base font-medium"
-                                :class="passwordError ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'" />
+                            <div
+                                class="relative w-full aspect-square border-2 border-white/20 shadow-2xl overflow-hidden animate-morph bg-emerald-900/30 backdrop-blur-sm flex items-center justify-center p-5">
+                                <img :src="teachingSvg"
+                                    alt="Ilustración educativa"
+                                    class="w-full h-full object-contain drop-shadow-xl" />
+                            </div>
                         </div>
-                        <p v-if="passwordError"
-                            class="text-red-500 text-[11px] font-medium ml-1 flex items-center gap-1 mt-1">
-                            <AlertCircle class="w-3.5 h-3.5" /> {{ passwordError }}
-                        </p>
                     </div>
-
-                    <button type="submit" :disabled="loading"
-                        class="w-full bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 dark:from-teal-600 dark:to-indigo-700 dark:hover:from-teal-500 dark:hover:to-indigo-600 text-white font-bold py-3.5 lg:py-4 rounded-xl shadow-lg shadow-teal-500/20 dark:shadow-teal-500/30 transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-3 mt-4 lg:mt-6">
-                        <Loader2 v-if="loading" class="w-5 h-5 animate-spin" />
-                        <span class="text-sm sm:text-base tracking-wide">{{ loading ? 'Ingresando...' : 'Iniciar Sesión' }}</span>
-                        <LogIn v-if="!loading" class="w-5 h-5" />
-                    </button>
-
-                </form>
                 </div>
-              </div>
+            </div>
 
-                <p class="text-center text-white/50 lg:text-slate-400 lg:dark:text-slate-500 text-xs mt-6 lg:mt-12 pb-2 lg:pb-4">
+            <!-- Bottom: Copyright -->
+            <div
+                class="relative z-10 px-10 xl:px-16 pb-8 xl:pb-10">
+                <p
+                    class="text-white/35 text-[11px] leading-relaxed">
                     © 2026 Dirección Regional de Educación Huánuco
                 </p>
+            </div>
+        </div>
+
+        <!-- ═══ RIGHT: Login Form ═══ -->
+        <div
+            class="flex-1 flex flex-col relative min-h-screen lg:min-h-0">
+
+            <!-- Theme Toggle (desktop only) -->
+            <div
+                class="hidden lg:block absolute top-5 right-5 z-50">
+                <ThemeToggle />
+            </div>
+
+            <!-- ── Mobile: Hero Banner ── -->
+            <div
+                class="lg:hidden relative overflow-hidden bg-slate-950">
+                <!-- Decorations -->
+                <div class="absolute inset-0 hero-grid"></div>
+                <div
+                    class="absolute inset-0 bg-gradient-to-br from-teal-950/70 via-slate-950/30 to-emerald-950/50">
+                </div>
+                <div
+                    class="absolute top-[-25%] left-[-15%] w-56 h-56 sm:w-72 sm:h-72 bg-teal-500/[0.08] rounded-full blur-[80px] animate-blob">
+                </div>
+                <div
+                    class="absolute bottom-[-25%] right-[-15%] w-44 h-44 sm:w-56 sm:h-56 bg-emerald-500/[0.07] rounded-full blur-[60px] animate-blob animation-delay-2000">
+                </div>
+
+                <div
+                    class="relative z-10 px-5 sm:px-7 pt-4 sm:pt-5 pb-5 sm:pb-7 animate-mobile-fade-in">
+
+                    <!-- Top row: Logo + ThemeToggle -->
+                    <div
+                        class="flex items-center justify-between mb-3 sm:mb-4">
+                        <div class="flex items-center gap-2">
+                            <div
+                                class="w-7 h-7 rounded-md bg-white/[0.07] border border-white/[0.08] flex items-center justify-center">
+                                <div class="w-4 h-4 logo-hero"
+                                    :style="{
+                                        'mask-image': `url(${logoDre})`,
+                                        '-webkit-mask-image': `url(${logoDre})`
+                                    }"></div>
+                            </div>
+                            <span
+                                class="text-white/50 text-[10px] font-bold tracking-[0.15em] uppercase">DRE
+                                Huánuco</span>
+                        </div>
+                        <ThemeToggle />
+                    </div>
+
+                    <!-- Content row: Title + Morph Illustration -->
+                    <div
+                        class="flex items-center gap-4 sm:gap-6">
+                        <div class="flex-1 min-w-0">
+                            <h1
+                                class="text-xl sm:text-2xl font-extrabold text-white leading-tight tracking-tight">
+                                SIEVA
+                            </h1>
+                            <p
+                                class="text-white/50 text-xs sm:text-sm mt-0.5 leading-snug">
+                                Sistema Integrado de Evaluación
+                                de Aula
+                            </p>
+                        </div>
+
+                        <!-- Small morph illustration -->
+                        <div
+                            class="shrink-0 w-[76px] h-[76px] sm:w-24 sm:h-24">
+                            <div class="relative w-full h-full">
+                                <div
+                                    class="absolute -inset-3 bg-teal-400/[0.08] rounded-full blur-xl">
+                                </div>
+                                <div
+                                    class="relative w-full h-full border border-white/15 shadow-lg overflow-hidden animate-morph bg-emerald-900/30 backdrop-blur-sm flex items-center justify-center p-2 sm:p-3">
+                                    <img :src="teachingSvg"
+                                        alt="SIEVA"
+                                        class="w-full h-full object-contain drop-shadow-lg" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Form Area ── -->
+            <div
+                class="flex-1 flex flex-col justify-center bg-white dark:bg-slate-900 px-5 sm:px-8 lg:px-12 xl:px-20 py-5 sm:py-6 lg:py-0">
+                <div
+                    class="w-full max-w-sm mx-auto lg:max-w-[26rem] animate-enter">
+
+                    <!-- Form card with border -->
+                    <div
+                        class="form-card rounded-2xl border border-slate-200/80 dark:border-slate-700/60 bg-white dark:bg-slate-800/40 shadow-xl shadow-slate-900/[0.04] dark:shadow-black/20 px-5 py-6 sm:px-8 sm:py-10">
+
+                        <!-- Desktop: logo + title -->
+                        <div
+                            class="hidden lg:flex flex-col items-center mb-8">
+                            <div
+                                class="w-16 h-16 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shadow-sm mb-5">
+                                <div class="w-10 h-10 logo-display"
+                                    :style="{
+                                        'mask-image': `url(${logoDre})`,
+                                        '-webkit-mask-image': `url(${logoDre})`
+                                    }"></div>
+                            </div>
+                            <h2
+                                class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                                Iniciar Sesión</h2>
+                            <p
+                                class="text-slate-500 dark:text-slate-400 text-sm mt-1.5">
+                                Ingresa tus credenciales para
+                                continuar</p>
+                        </div>
+
+                        <!-- Mobile: title -->
+                        <div class="lg:hidden mb-5">
+                            <h2
+                                class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                                Iniciar Sesión</h2>
+                            <p
+                                class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-1">
+                                Ingresa tus credenciales</p>
+                        </div>
+
+                        <!-- Error alert -->
+                        <div v-if="error"
+                            class="mb-4 sm:mb-5 bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-medium border border-red-100 dark:border-red-900/40 animate-shake flex items-center gap-2">
+                            <AlertCircle
+                                class="w-4 h-4 shrink-0" />
+                            {{ error }}
+                        </div>
+
+                        <!-- Login Form -->
+                        <form @submit="onSubmit"
+                            class="space-y-4 sm:space-y-5"
+                            autocomplete="off">
+                            <!-- Honeypots -->
+                            <input type="text" name="username_fake"
+                                aria-hidden="true" tabindex="-1"
+                                style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;overflow:hidden;" />
+                            <input type="password"
+                                name="password_fake"
+                                aria-hidden="true" tabindex="-1"
+                                style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;overflow:hidden;" />
+
+                            <!-- DNI Field -->
+                            <div>
+                                <label
+                                    class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 sm:mb-2 ml-0.5">
+                                    DNI (Usuario)
+                                </label>
+                                <div class="relative group">
+                                    <User
+                                        class="absolute left-3 sm:left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400 dark:text-slate-400 group-focus-within:text-teal-500 transition-colors duration-200" />
+                                    <input :value="dniValue"
+                                        @input="handleDniInput"
+                                        @keypress="handleDniKeyPress"
+                                        type="text"
+                                        placeholder="12345678"
+                                        maxlength="8"
+                                        autocomplete="one-time-code"
+                                        readonly
+                                        @focus="($event.target as HTMLInputElement).removeAttribute('readonly')"
+                                        class="login-input w-full bg-white dark:bg-slate-700/80 border rounded-xl py-3 sm:py-3.5 pl-9 sm:pl-10 pr-4 outline-none text-slate-900 dark:text-white text-sm font-semibold tracking-[0.18em] placeholder:tracking-normal placeholder:font-normal placeholder:text-slate-400 dark:placeholder:text-slate-400 transition-all duration-200"
+                                        :class="dniError ? 'border-red-400 dark:border-red-500' : 'border-slate-300 dark:border-slate-500 focus:border-teal-500 dark:focus:border-teal-400 focus:ring-2 focus:ring-teal-500/25'" />
+                                </div>
+                                <p v-if="dniError"
+                                    class="text-red-500 text-[11px] font-medium mt-1.5 ml-0.5 flex items-center gap-1">
+                                    <AlertCircle
+                                        class="w-3 h-3 shrink-0" />
+                                    {{ dniError }}
+                                </p>
+                            </div>
+
+                            <!-- Password Field -->
+                            <div>
+                                <label
+                                    class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 sm:mb-2 ml-0.5">
+                                    Contraseña
+                                </label>
+                                <div class="relative group">
+                                    <Lock
+                                        class="absolute left-3 sm:left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400 dark:text-slate-400 group-focus-within:text-teal-500 transition-colors duration-200" />
+                                    <input
+                                        v-model="passwordValue"
+                                        :type="passwordFieldType"
+                                        placeholder="Tu contraseña"
+                                        autocomplete="new-password"
+                                        readonly
+                                        @focus="($event.target as HTMLInputElement).removeAttribute('readonly'); passwordFieldType = 'password'"
+                                        @input="passwordFieldType = 'password'"
+                                        class="login-input w-full bg-white dark:bg-slate-700/80 border rounded-xl py-3 sm:py-3.5 pl-9 sm:pl-10 pr-4 outline-none text-slate-900 dark:text-white text-sm font-medium placeholder:text-slate-400 dark:placeholder:text-slate-400 transition-all duration-200"
+                                        :class="passwordError ? 'border-red-400 dark:border-red-500' : 'border-slate-300 dark:border-slate-500 focus:border-teal-500 dark:focus:border-teal-400 focus:ring-2 focus:ring-teal-500/25'" />
+                                </div>
+                                <p v-if="passwordError"
+                                    class="text-red-500 text-[11px] font-medium mt-1.5 ml-0.5 flex items-center gap-1">
+                                    <AlertCircle
+                                        class="w-3 h-3 shrink-0" />
+                                    {{ passwordError }}
+                                </p>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit"
+                                :disabled="loading"
+                                class="login-btn w-full font-bold py-3 sm:py-3.5 rounded-xl transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 mt-1 sm:mt-2 active:scale-[0.98]">
+                                <Loader2 v-if="loading"
+                                    class="w-5 h-5 animate-spin" />
+                                <span
+                                    class="text-sm tracking-wide">{{
+                                    loading ? 'Ingresando...' :
+                                    'Iniciar Sesión'
+                                }}</span>
+                                <LogIn v-if="!loading"
+                                    class="w-4 h-4" />
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Footer -->
+                    <p
+                        class="lg:hidden text-center text-slate-400 dark:text-slate-500 text-[11px] mt-6">
+                        © 2026 Dirección Regional de Educación
+                        Huánuco
+                    </p>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <style scoped>
-.animate-blob {
-    animation: blob 7s infinite;
+/* ── Hero grid pattern ── */
+.hero-grid {
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
 }
 
-.animation-delay-2000 {
-    animation-delay: 2s;
+/* ── Logo masks ── */
+.logo-hero {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.3));
+    mask-size: contain;
+    -webkit-mask-size: contain;
+    mask-repeat: no-repeat;
+    -webkit-mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-position: center;
 }
 
+.logo-mobile {
+    background: linear-gradient(135deg, #0d9488, #0ea5e9);
+    mask-size: contain;
+    -webkit-mask-size: contain;
+    mask-repeat: no-repeat;
+    -webkit-mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-position: center;
+}
+
+.logo-display {
+    background: linear-gradient(135deg, #14b8a6, #0d9488);
+    mask-size: contain;
+    -webkit-mask-size: contain;
+    mask-repeat: no-repeat;
+    -webkit-mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-position: center;
+}
+
+.dark .logo-display {
+    background: linear-gradient(135deg, #5eead4, #2dd4bf);
+}
+
+/* ── Submit button ── */
+.login-btn {
+    background: #0f172a;
+    color: white;
+    box-shadow:
+        0 1px 3px rgba(15, 23, 42, 0.12),
+        0 6px 16px rgba(15, 23, 42, 0.08);
+}
+
+.login-btn:hover:not(:disabled) {
+    background: #1e293b;
+    box-shadow:
+        0 1px 3px rgba(15, 23, 42, 0.16),
+        0 8px 24px rgba(15, 23, 42, 0.12);
+    transform: translateY(-1px);
+}
+
+.dark .login-btn {
+    background: linear-gradient(135deg, #0d9488, #0f766e);
+    box-shadow:
+        0 1px 3px rgba(13, 148, 136, 0.2),
+        0 6px 16px rgba(13, 148, 136, 0.15);
+}
+
+.dark .login-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #14b8a6, #0d9488);
+    box-shadow:
+        0 1px 3px rgba(13, 148, 136, 0.25),
+        0 8px 24px rgba(13, 148, 136, 0.2);
+}
+
+/* ── Input focus glow ── */
+.login-input:focus {
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+}
+
+.dark .login-input:focus {
+    background-color: rgba(51, 65, 85, 0.9);
+    box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.15);
+}
+
+/* ── Blob animation ── */
 @keyframes blob {
     0% {
         transform: translate(0px, 0px) scale(1);
@@ -317,22 +495,19 @@ const handleDniInput = (e: Event) => {
     }
 }
 
-@keyframes float-y {
-
-    0%,
-    100% {
-        transform: translateY(0px);
-    }
-
-    50% {
-        transform: translateY(-10px);
-    }
+.animate-blob {
+    animation: blob 7s infinite;
 }
 
-.animate-float-y {
-    animation: float-y 4s ease-in-out infinite;
+.animation-delay-2000 {
+    animation-delay: 2s;
 }
 
+.animation-delay-4000 {
+    animation-delay: 4s;
+}
+
+/* ── Morph animation (illustration) ── */
 @keyframes morph {
     0% {
         border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
@@ -351,37 +526,24 @@ const handleDniInput = (e: Event) => {
     animation: morph 8s ease-in-out infinite;
 }
 
-@keyframes shake {
-
-    0%,
-    100% {
-        transform: translateX(0);
+/* ── Entrance animation ── */
+@keyframes enter {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
     }
 
-    10%,
-    30%,
-    50%,
-    70%,
-    90% {
-        transform: translateX(-4px);
-    }
-
-    20%,
-    40%,
-    60%,
-    80% {
-        transform: translateX(4px);
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
-.animate-shake {
-    animation: shake 0.4s cubic-bezier(.36, .07, .19, .97) both;
+.animate-enter {
+    animation: enter 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.animation-delay-4000 {
-    animation-delay: 4s;
-}
-
+/* ── Mobile fade-in ── */
 @keyframes mobileFadeIn {
     from {
         opacity: 0;
@@ -398,17 +560,28 @@ const handleDniInput = (e: Event) => {
     animation: mobileFadeIn 0.6s ease-out forwards;
 }
 
-.logo-display {
-    background: linear-gradient(135deg, #14b8a6, #4f46e5);
-    mask-size: contain;
-    -webkit-mask-size: contain;
-    mask-repeat: no-repeat;
-    -webkit-mask-repeat: no-repeat;
-    mask-position: center;
-    -webkit-mask-position: center;
+/* ── Error shake ── */
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    15%,
+    45%,
+    75% {
+        transform: translateX(-4px);
+    }
+
+    30%,
+    60%,
+    90% {
+        transform: translateX(4px);
+    }
 }
 
-.dark .logo-display {
-    background: linear-gradient(135deg, #5eead4, #818cf8);
+.animate-shake {
+    animation: shake 0.4s cubic-bezier(.36, .07, .19, .97) both;
 }
 </style>
