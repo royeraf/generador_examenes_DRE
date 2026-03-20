@@ -9,6 +9,7 @@ import {
   Shield, X, Eye, EyeOff, AlertCircle, KeyRound, CheckCircle,
   ChevronLeft, ChevronRight, Loader2, MoreVertical, Search, MapPin
 } from 'lucide-vue-next'
+import ComboBox from '../components/ComboBox.vue'
 import Swal from 'sweetalert2'
 import { useForm, useField } from 'vee-validate'
 import * as yup from 'yup'
@@ -36,6 +37,24 @@ const provincias = ref<Provincia[]>([])
 const distritos = ref<Distrito[]>([])
 const loadingDistritos = ref(false)
 let isInitialLoad = false
+
+// ComboBox options
+const nivelOptions = [
+  { id: '', label: '— Sin especificar —' },
+  { id: 'inicial', label: 'Inicial' },
+  { id: 'primaria', label: 'Primaria' },
+  { id: 'secundaria', label: 'Secundaria' },
+]
+
+const provinciaOptions = computed(() => [
+  { id: null as null, label: '— Sin especificar —' },
+  ...provincias.value.map(p => ({ id: p.id, label: p.nombre })),
+])
+
+const distritoOptions = computed(() => [
+  { id: null as null, label: '— Sin especificar —' },
+  ...distritos.value.map(d => ({ id: d.id, label: d.nombre })),
+])
 
 // Pagination
 const currentPage = ref(1)
@@ -578,8 +597,9 @@ async function saveResetPassword() {
       <div class="bg-white dark:bg-slate-800 md:rounded-2xl shadow-xl md:border border-slate-100 dark:border-slate-700 -mx-4 md:mx-0">
         
         <!-- Mobile Cards View -->
-        <div class="md:hidden divide-y divide-slate-100 dark:divide-slate-700/50">
-          <template v-if="loading">
+        <div class="md:hidden">
+          <Transition name="table-content" mode="out-in">
+          <div v-if="loading" key="loading" class="divide-y divide-slate-100 dark:divide-slate-700/50">
             <div v-for="n in 5" :key="n" class="p-4 animate-pulse">
               <div class="flex justify-between mb-3">
                 <div class="space-y-2 w-1/2">
@@ -601,10 +621,13 @@ async function saveResetPassword() {
                  <div class="h-7 w-10 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
               </div>
             </div>
-          </template>
-          
-          <template v-else>
-            <div v-for="docente in docentes" :key="docente.id" 
+          </div>
+
+          <div v-else key="data" class="divide-y divide-slate-100 dark:divide-slate-700/50">
+            <div v-if="docentes.length === 0" class="text-center py-10 px-4 text-slate-400 dark:text-slate-500 text-sm">
+              No hay usuarios registrados.
+            </div>
+            <div v-else v-for="docente in docentes" :key="docente.id"
               class="p-4 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/30"
               :class="{ 'opacity-60': !docente.is_active }">
               
@@ -686,11 +709,8 @@ async function saveResetPassword() {
               </div>
 
             </div>
-          </template>
-          
-          <div v-if="docentes.length === 0 && !loading" class="text-center py-10 px-4 text-slate-400 dark:text-slate-500 text-sm">
-            No hay usuarios registrados.
           </div>
+          </Transition>
         </div>
 
         <!-- Desktop Table View -->
@@ -708,8 +728,8 @@ async function saveResetPassword() {
                 <th class="text-right px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 w-[204px] xl:w-[252px]">Acciones</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-              <template v-if="loading">
+            <Transition name="table-content" mode="out-in">
+              <tbody v-if="loading" key="loading" class="divide-y divide-slate-100 dark:divide-slate-700">
                 <tr v-for="n in 5" :key="n" class="animate-pulse">
                   <td class="px-4 py-3">
                     <div class="h-4 w-16 bg-slate-200 dark:bg-slate-700 rounded"></div>
@@ -730,8 +750,8 @@ async function saveResetPassword() {
                     <div class="h-8 w-20 bg-slate-200 dark:bg-slate-700 rounded ml-auto"></div>
                   </td>
                 </tr>
-              </template>
-              <template v-else>
+              </tbody>
+              <tbody v-else key="data" class="divide-y divide-slate-100 dark:divide-slate-700">
                 <tr v-for="docente in docentes" :key="docente.id"
                   class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors"
                   :class="{ 'opacity-60': !docente.is_active }">
@@ -828,13 +848,13 @@ async function saveResetPassword() {
                     </div>
                   </td>
                 </tr>
-              </template>
-              <tr v-if="docentes.length === 0">
-                <td colspan="6" class="text-center py-12 text-slate-400 dark:text-slate-500">
-                  No hay usuarios registrados.
-                </td>
-              </tr>
-            </tbody>
+                <tr v-if="docentes.length === 0">
+                  <td colspan="6" class="text-center py-12 text-slate-400 dark:text-slate-500">
+                    No hay usuarios registrados.
+                  </td>
+                </tr>
+              </tbody>
+            </Transition>
           </table>
         </div>
 
@@ -980,35 +1000,22 @@ async function saveResetPassword() {
               <!-- Nivel Educativo -->
               <div>
                 <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Nivel Educativo</label>
-                <select v-model="nivel_educativo"
-                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all">
-                  <option value="">— Sin especificar —</option>
-                  <option value="inicial">Inicial</option>
-                  <option value="primaria">Primaria</option>
-                  <option value="secundaria">Secundaria</option>
-                </select>
+                <ComboBox v-model="nivel_educativo" :options="nivelOptions" placeholder="— Sin especificar —" />
               </div>
 
               <!-- Provincia + Distrito -->
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Provincia</label>
-                  <select v-model="provincia_id"
-                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all">
-                    <option :value="null">— Sin especificar —</option>
-                    <option v-for="p in provincias" :key="p.id" :value="p.id">{{ p.nombre }}</option>
-                  </select>
+                  <ComboBox v-model="provincia_id" :options="provinciaOptions" placeholder="— Sin especificar —" />
                 </div>
                 <div>
                   <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">
                     Distrito
                     <Loader2 v-if="loadingDistritos" class="inline w-3 h-3 animate-spin ml-1" />
                   </label>
-                  <select v-model="distrito_id" :disabled="!provincia_id || loadingDistritos"
-                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                    <option :value="null">— Sin especificar —</option>
-                    <option v-for="d in distritos" :key="d.id" :value="d.id">{{ d.nombre }}</option>
-                  </select>
+                  <ComboBox v-model="distrito_id" :options="distritoOptions" placeholder="— Sin especificar —"
+                    :disabled="!provincia_id || loadingDistritos" />
                 </div>
               </div>
 
@@ -1316,6 +1323,18 @@ async function saveResetPassword() {
 </template>
 
 <style scoped>
+/* Table content fade on load */
+.table-content-enter-active {
+    transition: opacity 0.2s ease;
+}
+.table-content-leave-active {
+    transition: opacity 0.12s ease;
+}
+.table-content-enter-from,
+.table-content-leave-to {
+    opacity: 0;
+}
+
 /* Bottom Sheet / Modal Animations */
 .details-modal-enter-active,
 .details-modal-leave-active {

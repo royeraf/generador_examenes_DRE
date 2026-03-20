@@ -8,10 +8,25 @@ export interface Docente {
   profesion: string | null
   institucion_educativa: string | null
   nivel_educativo: string | null
+  provincia_id: number | null
+  distrito_id: number | null
+  provincia_nombre: string | null
+  distrito_nombre: string | null
   is_active: boolean
   is_superuser: boolean
   creado_por_id: number | null
   fecha_creacion: string | null
+}
+
+export interface Provincia {
+  id: number
+  nombre: string
+}
+
+export interface Distrito {
+  id: number
+  nombre: string
+  provincia_id: number
 }
 
 export interface Grado {
