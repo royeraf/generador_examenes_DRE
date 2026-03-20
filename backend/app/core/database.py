@@ -58,6 +58,24 @@ async def init_db():
         ExamenLectura, ExamenMatematica
     )
     from app.models.docente import Docente
+    from app.models.ubigeo import Provincia, Distrito
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+        # Migración inline: agregar columnas provincia_id y distrito_id si no existen
+        from sqlalchemy import text, inspect as sa_inspect
+
+        def _add_columns_if_missing(sync_conn):
+            inspector = sa_inspect(sync_conn)
+            columns = [col["name"] for col in inspector.get_columns("docentes")]
+            if "provincia_id" not in columns:
+                sync_conn.execute(text(
+                    "ALTER TABLE docentes ADD COLUMN provincia_id INTEGER REFERENCES provincias(id) ON DELETE SET NULL"
+                ))
+            if "distrito_id" not in columns:
+                sync_conn.execute(text(
+                    "ALTER TABLE docentes ADD COLUMN distrito_id INTEGER REFERENCES distritos(id) ON DELETE SET NULL"
+                ))
+
+        await conn.run_sync(_add_columns_if_missing)

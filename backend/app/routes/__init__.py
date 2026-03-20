@@ -20,6 +20,7 @@ from app.routes.admin import router as admin_router
 from app.routes.matsistem import router as matsistem_router
 from app.routes.auth import router as auth_router
 from app.routes.examenes import router as examenes_router
+from app.routes.ubigeo import router as ubigeo_router
 
 
 def create_api_router() -> APIRouter:
@@ -79,6 +80,15 @@ def create_api_router() -> APIRouter:
         examenes_router,
         prefix="/examenes",
         tags=["Exámenes Guardados"]
+    )
+
+    # ==========================================================================
+    # MÓDULO: UBIGEO (Provincias y Distritos)
+    # ==========================================================================
+    api_router.include_router(
+        ubigeo_router,
+        prefix="/ubigeo",
+        tags=["Ubigeo"]
     )
 
     return api_router

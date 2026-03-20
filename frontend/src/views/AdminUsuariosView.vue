@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
-import { adminUsuariosService, type DocenteCreatePayload, type DocenteUpdatePayload } from '../services/api'
-import type { Docente } from '../types'
+import { adminUsuariosService, ubigeoService, type DocenteCreatePayload, type DocenteUpdatePayload } from '../services/api'
+import type { Docente, Provincia, Distrito } from '../types'
 import {
   Plus, Edit2, Trash2, Home,
   Shield, X, Eye, EyeOff, AlertCircle, KeyRound, CheckCircle,
-  ChevronLeft, ChevronRight, Loader2, MoreVertical, Search
+  ChevronLeft, ChevronRight, Loader2, MoreVertical, Search, MapPin
 } from 'lucide-vue-next'
 import Swal from 'sweetalert2'
 import { useForm, useField } from 'vee-validate'
@@ -30,6 +30,12 @@ const showDetailsModal = ref(false)
 const detailsTarget = ref<Docente | null>(null)
 const searchQuery = ref('')
 let searchTimeout: any = null
+
+// Ubigeo
+const provincias = ref<Provincia[]>([])
+const distritos = ref<Distrito[]>([])
+const loadingDistritos = ref(false)
+let isInitialLoad = false
 
 // Pagination
 const currentPage = ref(1)
@@ -61,6 +67,8 @@ const schema = computed(() => yup.object({
   profesion: yup.string().optional(),
   institucion_educativa: yup.string().optional(),
   nivel_educativo: yup.string().optional(),
+  provincia_id: yup.number().nullable().optional(),
+  distrito_id: yup.number().nullable().optional(),
   password: editingId.value
     ? yup.string().optional().test(
       'min-if-filled',
@@ -84,6 +92,8 @@ const { handleSubmit, resetForm, setValues } = useForm({
     profesion: '',
     institucion_educativa: '',
     nivel_educativo: '',
+    provincia_id: null as number | null,
+    distrito_id: null as number | null,
     password: '',
     is_active: true,
     is_superuser: false,
@@ -96,6 +106,8 @@ const { value: apellidos, errorMessage: apellidosError } = useField<string>('ape
 const { value: profesion } = useField<string>('profesion')
 const { value: institucion_educativa } = useField<string>('institucion_educativa')
 const { value: nivel_educativo } = useField<string>('nivel_educativo')
+const { value: provincia_id } = useField<number | null>('provincia_id')
+const { value: distrito_id } = useField<number | null>('distrito_id')
 const { value: password, errorMessage: passwordError } = useField<string>('password')
 const { value: is_active } = useField<boolean>('is_active')
 const { value: is_superuser } = useField<boolean>('is_superuser')
@@ -143,21 +155,58 @@ function prevPage() {
   }
 }
 
-onMounted(loadDocentes)
+// Watch provincia_id to cascade distritos
+watch(provincia_id, async (newVal) => {
+  if (isInitialLoad) return
+  distrito_id.value = null
+  distritos.value = []
+  if (newVal) {
+    loadingDistritos.value = true
+    try {
+      distritos.value = await ubigeoService.getDistritos(newVal)
+    } finally {
+      loadingDistritos.value = false
+    }
+  }
+})
+
+onMounted(async () => {
+  loadDocentes()
+  try {
+    provincias.value = await ubigeoService.getProvincias()
+  } catch (e) {
+    console.error('Error cargando provincias:', e)
+  }
+})
 
 // Modal
 function openCreate() {
   editingId.value = null
   showPassword.value = false
   serverError.value = ''
+  distritos.value = []
   resetForm()
   showModal.value = true
 }
 
-function openEdit(docente: Docente) {
+async function openEdit(docente: Docente) {
   editingId.value = docente.id
   showPassword.value = false
   serverError.value = ''
+
+  // Pre-load distritos if docente has a provincia
+  if (docente.provincia_id) {
+    loadingDistritos.value = true
+    try {
+      distritos.value = await ubigeoService.getDistritos(docente.provincia_id)
+    } finally {
+      loadingDistritos.value = false
+    }
+  } else {
+    distritos.value = []
+  }
+
+  isInitialLoad = true
   setValues({
     dni: docente.dni,
     nombres: docente.nombres ?? '',
@@ -165,10 +214,13 @@ function openEdit(docente: Docente) {
     profesion: docente.profesion ?? '',
     institucion_educativa: docente.institucion_educativa ?? '',
     nivel_educativo: docente.nivel_educativo ?? '',
+    provincia_id: docente.provincia_id ?? null,
+    distrito_id: docente.distrito_id ?? null,
     password: '',
     is_active: docente.is_active,
     is_superuser: docente.is_superuser,
   })
+  isInitialLoad = false
   showModal.value = true
 }
 
@@ -185,6 +237,23 @@ function openDetails(docente: Docente) {
 const saveDocente = handleSubmit(
   async (values) => {
     serverError.value = ''
+
+    // Confirmar si se está asignando rol de administrador
+    if (values.is_superuser) {
+      const isEditing = !!editingId.value
+      const confirm = await Swal.fire({
+        title: '¿Asignar rol de Administrador?',
+        html: `El usuario <strong>${values.nombres ?? values.dni}</strong> tendrá acceso completo al panel de administración y podrá gestionar otros usuarios.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#6366f1',
+        cancelButtonColor: '#94a3b8',
+        confirmButtonText: isEditing ? 'Sí, guardar como Admin' : 'Sí, crear como Admin',
+        cancelButtonText: 'Cancelar',
+      })
+      if (!confirm.isConfirmed) return
+    }
+
     saving.value = true
     try {
       if (editingId.value) {
@@ -194,11 +263,16 @@ const saveDocente = handleSubmit(
           profesion: values.profesion || undefined,
           institucion_educativa: values.institucion_educativa || undefined,
           nivel_educativo: values.nivel_educativo || undefined,
+          provincia_id: values.provincia_id || null,
+          distrito_id: values.distrito_id || null,
           is_active: values.is_active,
           is_superuser: values.is_superuser,
         }
         if (values.password) payload.password = values.password
         await adminUsuariosService.update(editingId.value, payload)
+        await loadDocentes()
+        closeModal()
+        Swal.fire({ icon: 'success', title: 'Cambios guardados', showConfirmButton: false, timer: 2000 })
       } else {
         const payload: DocenteCreatePayload = {
           dni: values.dni,
@@ -207,16 +281,24 @@ const saveDocente = handleSubmit(
           profesion: values.profesion,
           institucion_educativa: values.institucion_educativa,
           nivel_educativo: values.nivel_educativo,
+          provincia_id: values.provincia_id || null,
+          distrito_id: values.distrito_id || null,
           is_active: values.is_active ?? true,
           is_superuser: values.is_superuser ?? false,
           password: values.password!,
         }
         await adminUsuariosService.create(payload)
+        await loadDocentes()
+        closeModal()
+        Swal.fire({ icon: 'success', title: 'Usuario creado correctamente', showConfirmButton: false, timer: 2000 })
       }
-      await loadDocentes()
-      closeModal()
     } catch (e: any) {
-      serverError.value = e.response?.data?.detail ?? 'Error al guardar el usuario'
+      const detail = e.response?.data?.detail ?? ''
+      if (detail === 'DNI ya registrado') {
+        Swal.fire({ icon: 'error', title: 'DNI ya registrado', text: 'Ya existe un usuario con ese número de DNI.', confirmButtonColor: '#6366f1' })
+      } else {
+        serverError.value = detail || 'Error al guardar el usuario'
+      }
     } finally {
       saving.value = false
     }
@@ -255,13 +337,10 @@ async function toggleActive(docente: Docente) {
     
     // Success notification
     Swal.fire({
-      toast: true,
-      position: 'top-end',
       icon: 'success',
       title: isDeactivating ? 'Usuario desactivado' : 'Usuario activado',
       showConfirmButton: false,
       timer: 2000,
-      timerProgressBar: true
     });
   } catch {
     Swal.fire('Error', 'No se pudo cambiar el estado del usuario', 'error')
@@ -350,8 +429,9 @@ async function saveResetPassword() {
   resetSaving.value = true
   try {
     await adminUsuariosService.update(resetTarget.value!.id, { password: resetPassword.value })
-    resetSuccess.value = true
     resetPassword.value = ''
+    showResetModal.value = false
+    Swal.fire({ icon: 'success', title: 'Contraseña restablecida', showConfirmButton: false, timer: 2000 })
   } catch (e: any) {
     resetPasswordError.value = e.response?.data?.detail ?? 'Error al actualizar la contraseña'
   } finally {
@@ -909,6 +989,29 @@ async function saveResetPassword() {
                 </select>
               </div>
 
+              <!-- Provincia + Distrito -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Provincia</label>
+                  <select v-model="provincia_id"
+                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all">
+                    <option :value="null">— Sin especificar —</option>
+                    <option v-for="p in provincias" :key="p.id" :value="p.id">{{ p.nombre }}</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">
+                    Distrito
+                    <Loader2 v-if="loadingDistritos" class="inline w-3 h-3 animate-spin ml-1" />
+                  </label>
+                  <select v-model="distrito_id" :disabled="!provincia_id || loadingDistritos"
+                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                    <option :value="null">— Sin especificar —</option>
+                    <option v-for="d in distritos" :key="d.id" :value="d.id">{{ d.nombre }}</option>
+                  </select>
+                </div>
+              </div>
+
               <!-- Contraseña -->
               <div>
                 <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">
@@ -961,6 +1064,7 @@ async function saveResetPassword() {
                   <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">Administrador</span>
                 </label>
               </div>
+
 
             </div>
 
@@ -1141,7 +1245,27 @@ async function saveResetPassword() {
                           <span v-else>—</span>
                         </p>
                     </div>
-                    
+                    <div>
+                        <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-1">Provincia</p>
+                        <p class="font-medium text-slate-700 dark:text-slate-200">
+                          <span v-if="detailsTarget.provincia_nombre" class="inline-flex items-center gap-1">
+                            <MapPin class="w-3 h-3 text-teal-500" />
+                            {{ detailsTarget.provincia_nombre }}
+                          </span>
+                          <span v-else>—</span>
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-1">Distrito</p>
+                        <p class="font-medium text-slate-700 dark:text-slate-200">
+                          <span v-if="detailsTarget.distrito_nombre" class="inline-flex items-center gap-1">
+                            <MapPin class="w-3 h-3 text-indigo-500" />
+                            {{ detailsTarget.distrito_nombre }}
+                          </span>
+                          <span v-else>—</span>
+                        </p>
+                    </div>
+
                     <div class="col-span-1 sm:col-span-2 pt-3 mt-3 border-t border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row gap-4">
                         <div class="flex-1">
                            <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-1">Estado</p>

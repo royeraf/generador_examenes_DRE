@@ -10,6 +10,8 @@ class DocenteBase(BaseModel):
     profesion: Optional[str] = None
     institucion_educativa: Optional[str] = None
     nivel_educativo: Optional[str] = None
+    provincia_id: Optional[int] = None
+    distrito_id: Optional[int] = None
     is_active: Optional[bool] = True
     is_superuser: Optional[bool] = False
 
@@ -30,6 +32,8 @@ class DocenteUpdate(BaseModel):
     profesion: Optional[str] = None
     institucion_educativa: Optional[str] = None
     nivel_educativo: Optional[str] = None
+    provincia_id: Optional[int] = None
+    distrito_id: Optional[int] = None
     is_active: Optional[bool] = None
     is_superuser: Optional[bool] = None
     password: Optional[str] = Field(None, min_length=6, max_length=72)
@@ -45,6 +49,8 @@ class DocenteInDBBase(DocenteBase):
 class Docente(DocenteInDBBase):
     creado_por_id: Optional[int] = None
     fecha_creacion: Optional[datetime] = None
+    provincia_nombre: Optional[str] = None
+    distrito_nombre: Optional[str] = None
 
 
 class DocenteInDB(DocenteInDBBase):

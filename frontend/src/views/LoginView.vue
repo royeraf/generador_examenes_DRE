@@ -2,10 +2,11 @@
 import { shallowRef } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
-import { LogIn, User, Lock, Loader2, AlertCircle } from 'lucide-vue-next';
+import { LogIn, User, Lock, Loader2, AlertCircle, Eye, EyeOff } from 'lucide-vue-next';
 import { useForm, useField } from 'vee-validate';
 import * as yup from 'yup';
 import logoDre from '../assets/logo.png';
+import Swal from 'sweetalert2';
 import teachingSvg from '../assets/undraw_visual-explanation_vd4l.svg';
 import ThemeToggle from '../components/ThemeToggle.vue';
 
@@ -40,10 +41,20 @@ const onSubmit = handleSubmit(async (formValues) => {
         await auth.login(formValues.dni, formValues.password);
         router.push('/');
     } catch (e: any) {
-        console.error(e);
-        error.value = e.response?.status === 400
-            ? 'DNI o contraseña incorrectos'
-            : 'Error al iniciar sesión. Intente nuevamente.';
+        const detail = e.response?.data?.detail ?? ''
+        if (detail === 'Usuario inactivo') {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Cuenta desactivada',
+                text: 'Tu cuenta ha sido desactivada. Comunícate con un administrador para recuperar el acceso.',
+                confirmButtonColor: '#6366f1',
+                confirmButtonText: 'Entendido',
+            })
+        } else {
+            error.value = e.response?.status === 400
+                ? 'DNI o contraseña incorrectos'
+                : 'Error al iniciar sesión. Intente nuevamente.'
+        }
     } finally {
         loading.value = false;
     }
@@ -350,8 +361,14 @@ const handleDniInput = (e: Event) => {
                                         readonly
                                         @focus="($event.target as HTMLInputElement).removeAttribute('readonly'); passwordFieldType = 'password'"
                                         @input="passwordFieldType = 'password'"
-                                        class="login-input w-full bg-white dark:bg-slate-700/80 border rounded-xl py-3 sm:py-3.5 pl-9 sm:pl-10 pr-4 outline-none text-slate-900 dark:text-white text-sm font-medium placeholder:text-slate-400 dark:placeholder:text-slate-400 transition-all duration-200"
+                                        class="login-input w-full bg-white dark:bg-slate-700/80 border rounded-xl py-3 sm:py-3.5 pl-9 sm:pl-10 pr-10 outline-none text-slate-900 dark:text-white text-sm font-medium placeholder:text-slate-400 dark:placeholder:text-slate-400 transition-all duration-200"
                                         :class="passwordError ? 'border-red-400 dark:border-red-500' : 'border-slate-300 dark:border-slate-500 focus:border-teal-500 dark:focus:border-teal-400 focus:ring-2 focus:ring-teal-500/25'" />
+                                    <button type="button"
+                                        @click="passwordFieldType = passwordFieldType === 'password' ? 'text' : 'password'"
+                                        class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                                        <Eye v-if="passwordFieldType === 'password'" class="w-4 h-4" />
+                                        <EyeOff v-else class="w-4 h-4" />
+                                    </button>
                                 </div>
                                 <p v-if="passwordError"
                                     class="text-red-500 text-[11px] font-medium mt-1.5 ml-0.5 flex items-center gap-1">

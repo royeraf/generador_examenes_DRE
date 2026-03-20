@@ -18,6 +18,10 @@ class Docente(Base):
     is_active = Column(Boolean, default=True)
     is_superuser = Column(Boolean, default=False)
 
+    # Ubicación geográfica
+    provincia_id = Column(Integer, ForeignKey("provincias.id", ondelete="SET NULL"), nullable=True)
+    distrito_id = Column(Integer, ForeignKey("distritos.id", ondelete="SET NULL"), nullable=True)
+
     # Rastreo de creación
     creado_por_id = Column(Integer, ForeignKey("docentes.id", ondelete="SET NULL"), nullable=True)
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
@@ -26,6 +30,16 @@ class Docente(Base):
     examenes_lectura = relationship("ExamenLectura", back_populates="docente", cascade="all, delete-orphan")
     examenes_matematica = relationship("ExamenMatematica", back_populates="docente", cascade="all, delete-orphan")
     creado_por = relationship("Docente", remote_side=[id], foreign_keys=[creado_por_id])
+    provincia = relationship("Provincia", lazy="joined")
+    distrito = relationship("Distrito", lazy="joined")
+
+    @property
+    def provincia_nombre(self):
+        return self.provincia.nombre if self.provincia else None
+
+    @property
+    def distrito_nombre(self):
+        return self.distrito.nombre if self.distrito else None
 
     def __repr__(self):
         return f"<Docente {self.dni}: {self.nombres}>"

@@ -6,7 +6,9 @@ import type {
   GenerarPreguntasRequest,
   GenerarExamenResponse,
   Capacidad,
-  Docente
+  Docente,
+  Provincia,
+  Distrito
 } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:8000/api');
@@ -373,6 +375,22 @@ export const matematicaService = {
 export default desempenosService;
 
 // =============================================================================
+// SERVICIO DE UBIGEO (Provincias y Distritos)
+// =============================================================================
+
+export const ubigeoService = {
+  async getProvincias(): Promise<Provincia[]> {
+    const response = await apiClient.get<Provincia[]>('/ubigeo/provincias')
+    return response.data
+  },
+
+  async getDistritos(provinciaId: number): Promise<Distrito[]> {
+    const response = await apiClient.get<Distrito[]>(`/ubigeo/provincias/${provinciaId}/distritos`)
+    return response.data
+  },
+}
+
+// =============================================================================
 // ADMIN USUARIOS SERVICE
 // =============================================================================
 
@@ -383,6 +401,8 @@ export interface DocenteCreatePayload {
   profesion?: string
   institucion_educativa?: string
   nivel_educativo?: string
+  provincia_id?: number | null
+  distrito_id?: number | null
   is_active?: boolean
   is_superuser?: boolean
   password: string
@@ -394,6 +414,8 @@ export interface DocenteUpdatePayload {
   profesion?: string
   institucion_educativa?: string
   nivel_educativo?: string
+  provincia_id?: number | null
+  distrito_id?: number | null
   is_active?: boolean
   is_superuser?: boolean
   password?: string
