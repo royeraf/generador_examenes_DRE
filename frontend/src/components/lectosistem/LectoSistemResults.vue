@@ -107,15 +107,15 @@ const getNivelBadgeClass = (nivel: string): string => {
                 </div>
                 <div class="flex gap-2">
                     <button @click="emit('vincular-sistematizador')"
-                        class="flex-1 px-3 py-2 bg-white/90 text-orange-600 hover:bg-orange-50 text-xs font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 shadow-lg">
-                        <Link class="w-3.5 h-3.5 flex-shrink-0" />
-                        <span class="truncate">Vincular</span>
+                        class="flex-1 py-2.5 bg-white/90 hover:bg-white text-orange-600 text-sm font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md">
+                        <Link class="w-4 h-4" />
+                        Vincular
                     </button>
                     <button @click="emit('descargar-word')" :disabled="descargandoWord"
-                        class="flex-1 px-3 py-2 bg-white text-amber-600 hover:bg-amber-50 text-xs font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 shadow-lg">
-                        <Loader2 v-if="descargandoWord" class="w-3.5 h-3.5 animate-spin flex-shrink-0" />
-                        <Download v-else class="w-3.5 h-3.5 flex-shrink-0" />
-                        <span class="truncate">{{ descargandoWord ? 'Generando...' : 'Descargar Word' }}</span>
+                        class="flex-1 py-2.5 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 border border-white/40 disabled:opacity-50">
+                        <Loader2 v-if="descargandoWord" class="w-4 h-4 animate-spin" />
+                        <Download v-else class="w-4 h-4" />
+                        {{ descargandoWord ? 'Generando...' : 'Descargar Word' }}
                     </button>
                 </div>
             </div>
@@ -282,6 +282,7 @@ const getNivelBadgeClass = (nivel: string): string => {
                     <GraduationCap class="w-4 h-4 text-teal-500" />
                 </p>
             </div>
+
         </div>
     </div>
 </template>

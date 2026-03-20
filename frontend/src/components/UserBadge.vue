@@ -3,7 +3,8 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { apiClient } from '../services/api'
-import { LogOut, ChevronDown, User, Shield, KeyRound, X, Loader2, Eye, EyeOff, AlertCircle, CheckCircle, MapPin, Building2, GraduationCap, BadgeCheck, CalendarDays, Info } from 'lucide-vue-next'
+import ThemeToggle from './ThemeToggle.vue'
+import { Palette, LogOut, ChevronDown, User, Shield, KeyRound, X, Loader2, Eye, EyeOff, AlertCircle, CheckCircle, MapPin, Building2, GraduationCap, BadgeCheck, CalendarDays, Info } from 'lucide-vue-next'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -182,6 +183,13 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
             <KeyRound class="w-4 h-4" />
             Cambiar Contraseña
           </button>
+          <div class="w-full flex items-center justify-between px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-xl transition-colors font-medium">
+            <div class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+              <Palette class="w-4 h-4" />
+              Apariencia
+            </div>
+            <ThemeToggle />
+          </div>
           <button
             @click="handleLogout"
             class="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors font-medium"

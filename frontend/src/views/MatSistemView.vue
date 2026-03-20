@@ -3,7 +3,6 @@ import { shallowRef, ref, onMounted, watch, provide } from 'vue';
 import { useRouter } from 'vue-router';
 
 import Sistematizador from '../components/Sistematizador.vue';
-import { useTheme } from '../composables/useTheme';
 import { useMatSistemHistory } from '../composables/useMatSistemHistory';
 import { useMatSistem } from '../composables/useMatSistem';
 import { showDeleteConfirm, Toast } from '../utils/swal';
@@ -36,7 +35,6 @@ import {
 
 const router = useRouter();
 
-const { isDark, toggleTheme } = useTheme();
 const {
   grados,
   desempenos,
@@ -248,12 +246,12 @@ onMounted(async () => {
     <!-- Decorative Background Elements -->
     <EduBackground variant="indigo" />
 
-    <Header title="MatSistem" subtitle="Matemática práctica" :is-dark="isDark" :has-resultado="!!resultado"
+    <Header title="MatSistem" subtitle="Matemática práctica" :has-resultado="!!resultado"
       :loading="loading" :show-results="showResults" :active-tab="activeTab"
       gradient-class="from-indigo-600 via-indigo-500 to-purple-500 shadow-indigo-500/20"
       version-badge-class="bg-purple-400 text-purple-900" subtitle-class="text-indigo-100 dark:text-slate-400"
       mascota-bubble-class="border-purple-300 dark:border-purple-500"
-      mascota-text-class="text-purple-600 dark:text-purple-400" @toggle-theme="toggleTheme"
+      mascota-text-class="text-purple-600 dark:text-purple-400"
       @toggle-results="showResults = !showResults">
       <template #actions-before>
         <button @click="router.push('/')"
@@ -267,40 +265,40 @@ onMounted(async () => {
     <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 w-full">
 
       <!-- Tabs Navigation - Estilo Educativo -->
-      <div class="mb-6 overflow-x-auto pb-2 scrollbar-hide">
+      <div class="mb-6 pb-2">
         <div
-          class="bg-white dark:bg-slate-800 rounded-2xl p-1.5 sm:p-2 shadow-lg border border-gray-100 dark:border-slate-700 flex sm:inline-flex gap-1 sm:gap-2 min-w-max">
+          class="bg-white dark:bg-slate-800 rounded-2xl p-1 sm:p-2 shadow-lg border border-gray-100 dark:border-slate-700 grid grid-cols-3 sm:flex sm:inline-flex gap-1 sm:gap-2 w-full sm:w-auto">
           <button @click="activeTab = 'generador'"
-            class="flex items-center gap-2 px-3 py-2 sm:px-5 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 whitespace-nowrap"
+            class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:px-5 sm:py-3 rounded-xl font-semibold text-[10px] sm:text-sm leading-tight sm:leading-normal transition-all duration-300 text-center"
             :class="activeTab === 'generador'
-              ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-500/30'
+              ? 'bg-gradient-to-r from-indigo-500 to-indigo-600 text-white shadow-md shadow-indigo-500/30'
               : 'text-slate-600 dark:text-slate-400 hover:bg-indigo-50 dark:hover:bg-slate-700'">
             <Brain class="w-4 h-4 sm:w-5 sm:h-5" />
-            <span>Generador de Examen</span>
-            <Sparkles v-if="activeTab === 'generador'" class="w-3 h-3 sm:w-4 sm:h-4 text-amber-300" />
+            <span class="flex items-center justify-center gap-1">Generador <Sparkles v-if="activeTab === 'generador'" class="hidden sm:inline w-3 h-3 text-amber-300" /></span>
           </button>
 
           <button @click="activeTab = 'historial'"
-            class="flex items-center gap-2 px-3 py-2 sm:px-5 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 whitespace-nowrap"
+            class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:px-5 sm:py-3 rounded-xl font-semibold text-[10px] sm:text-sm leading-tight sm:leading-normal transition-all duration-300 text-center"
             :class="activeTab === 'historial'
-              ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-500/30'
+              ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-md shadow-sky-500/30'
               : 'text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-slate-700'">
-            <History class="w-4 h-4 sm:w-5 sm:h-5" />
+            <div class="relative flex items-center justify-center">
+                <History class="w-4 h-4 sm:w-5 sm:h-5" />
+                <span v-if="history.length > 0" class="absolute -top-1.5 -right-2 sm:static sm:ml-1 px-1 py-0.5 text-[8px] sm:text-[10px] font-bold rounded-full"
+                  :class="activeTab === 'historial' ? 'bg-white/20 text-white' : 'bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400'">
+                  {{ history.length }}
+                </span>
+            </div>
             <span>Historial</span>
-            <span v-if="history.length > 0" class="ml-1 px-1.5 py-0.5 text-[10px] font-bold rounded-full"
-              :class="activeTab === 'historial' ? 'bg-white/20 text-white' : 'bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400'">
-              {{ history.length }}
-            </span>
           </button>
 
           <button @click="activeTab = 'sistematizador'"
-            class="flex items-center gap-2 px-3 py-2 sm:px-5 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 whitespace-nowrap"
+            class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:px-5 sm:py-3 rounded-xl font-semibold text-[10px] sm:text-sm leading-tight sm:leading-normal transition-all duration-300 text-center"
             :class="activeTab === 'sistematizador'
-              ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30'
+              ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-amber-500/30'
               : 'text-slate-600 dark:text-slate-400 hover:bg-amber-50 dark:hover:bg-slate-700'">
             <LayoutGrid class="w-4 h-4 sm:w-5 sm:h-5" />
-            <span>Sistematizador</span>
-            <Award v-if="activeTab === 'sistematizador'" class="w-3 h-3 sm:w-4 sm:h-4 text-yellow-300" />
+            <span class="flex items-center justify-center gap-1">Sistematizador <Award v-if="activeTab === 'sistematizador'" class="hidden sm:inline w-3 h-3 text-yellow-300" /></span>
           </button>
         </div>
       </div>

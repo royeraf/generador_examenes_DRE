@@ -3,7 +3,6 @@ import { BookOpen, Calculator, Sparkles, GraduationCap, Users, ArrowRight, Setti
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import UserBadge from '../components/UserBadge.vue';
-import ThemeToggle from '../components/ThemeToggle.vue';
 import logoDre from '../assets/logo.png';
 
 const router = useRouter();
@@ -48,7 +47,6 @@ const auth = useAuthStore();
                 </div>
             </div>
             <div class="flex items-center gap-2 pointer-events-auto">
-                <ThemeToggle />
                 <UserBadge />
             </div>
         </div>

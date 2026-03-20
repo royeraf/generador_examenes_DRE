@@ -10,6 +10,7 @@ import {
   ChevronLeft, ChevronRight, Loader2, MoreVertical, Search, MapPin
 } from 'lucide-vue-next'
 import ComboBox from '../components/ComboBox.vue'
+import Header from '../components/Header.vue'
 import Swal from 'sweetalert2'
 import { useForm, useField } from 'vee-validate'
 import * as yup from 'yup'
@@ -30,6 +31,12 @@ const togglingId = ref<number | null>(null)
 const showDetailsModal = ref(false)
 const detailsTarget = ref<Docente | null>(null)
 const searchQuery = ref('')
+const showStats = ref(localStorage.getItem('adminShowStats') !== 'false')
+
+watch(showStats, (newVal) => {
+  localStorage.setItem('adminShowStats', String(newVal))
+})
+
 let searchTimeout: any = null
 
 // Ubigeo
@@ -461,123 +468,141 @@ async function saveResetPassword() {
 
 <template>
   <div @click="showDeleteFor = null"
-    class="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 dark:from-slate-900 dark:to-slate-950 p-4 md:p-8">
+    class="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 to-gray-100 dark:from-slate-900 dark:to-slate-950">
 
-    <!-- Header -->
-    <div class="max-w-7xl mx-auto">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-8">
-        <div>
-          <h1 class="text-2xl md:text-3xl font-black text-slate-800 dark:text-white leading-tight">
-            Gestión de <span
-              class="bg-gradient-to-r from-teal-500 to-indigo-600 bg-clip-text text-transparent">Usuarios</span>
-          </h1>
-          <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Administra los docentes del sistema</p>
-        </div>
-        <div class="flex items-center gap-2 sm:gap-3">
-          <button @click="openCreate"
-            class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-bold px-4 py-2.5 rounded-xl shadow-lg transition-all duration-200 hover:-translate-y-0.5 text-sm">
-            <Plus class="w-4 h-4" />
-            <span class="hidden xs:inline">Nuevo Usuario</span>
-            <span class="xs:hidden">Nuevo</span>
-          </button>
+    <Header title="Gestión de Usuarios" subtitle="Administración" :has-resultado="false"
+      gradient-class="from-teal-600 via-indigo-600 to-violet-600 shadow-indigo-500/20"
+      subtitle-class="text-indigo-100 dark:text-slate-400">
+      <template #actions-before>
           <button @click="router.push('/')"
-            class="flex items-center gap-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium px-4 py-2.5 rounded-xl shadow border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all text-sm">
-            <Home class="w-4 h-4" />
-            <span class="hidden xs:inline">Inicio</span>
+            class="p-2 sm:p-2.5 rounded-xl bg-white/20 text-white border border-white/30 hover:bg-white/30 transition-all duration-300 mr-1 sm:mr-2"
+            title="Inicio">
+            <Home class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
-        </div>
-      </div>
+      </template>
+    </Header>
+
+    <!-- Main Container -->
+    <div class="flex-1 w-full max-w-7xl mx-auto p-4 md:p-8">
 
       <!-- Stats Cards -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
+      <Transition
+        enter-active-class="transition-all duration-300 ease-out"
+        enter-from-class="opacity-0 -translate-y-4"
+        enter-to-class="opacity-100 translate-y-0"
+        leave-active-class="transition-all duration-200 ease-in"
+        leave-from-class="opacity-100 translate-y-0"
+        leave-to-class="opacity-0 -translate-y-4"
+      >
+        <div v-show="showStats" class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
 
-        <!-- Total -->
-        <div
-          class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-100 dark:border-slate-700 p-3 md:p-4 flex items-center gap-3 md:gap-4">
+          <!-- Total -->
           <div
-            class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-gradient-to-br from-teal-400 to-indigo-500 flex items-center justify-center shadow-lg shrink-0">
-            <svg class="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
+            class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-100 dark:border-slate-700 p-3 md:p-4 flex items-center gap-3 md:gap-4">
+            <div
+              class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-gradient-to-br from-teal-400 to-indigo-500 flex items-center justify-center shadow-lg shrink-0">
+              <svg class="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+            <div class="min-w-0">
+              <p class="text-[10px] md:text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide truncate">Total</p>
+              <p class="text-xl md:text-2xl font-black text-slate-800 dark:text-white leading-none mt-0.5">
+                <span v-if="loading"
+                  class="inline-block w-6 md:w-8 h-5 md:h-6 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></span>
+                <span v-else>{{ stats.total }}</span>
+              </p>
+              <p class="text-[10px] md:text-xs text-slate-400 dark:text-slate-500 mt-0.5 hidden xs:block truncate">registrados</p>
+            </div>
           </div>
-          <div class="min-w-0">
-            <p class="text-[10px] md:text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide truncate">Total</p>
-            <p class="text-xl md:text-2xl font-black text-slate-800 dark:text-white leading-none mt-0.5">
-              <span v-if="loading"
-                class="inline-block w-6 md:w-8 h-5 md:h-6 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></span>
-              <span v-else>{{ stats.total }}</span>
-            </p>
-            <p class="text-[10px] md:text-xs text-slate-400 dark:text-slate-500 mt-0.5 hidden xs:block truncate">registrados</p>
+
+          <!-- Activos -->
+          <div
+            class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-100 dark:border-slate-700 p-3 md:p-4 flex items-center gap-3 md:gap-4">
+            <div
+              class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg shrink-0">
+              <svg class="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div class="min-w-0">
+              <p class="text-[10px] md:text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide truncate">Activos</p>
+              <p class="text-xl md:text-2xl font-black text-slate-800 dark:text-white leading-none mt-0.5">
+                <span v-if="loading"
+                  class="inline-block w-6 md:w-8 h-5 md:h-6 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></span>
+                <span v-else>{{ stats.active }}</span>
+              </p>
+              <p class="text-[10px] md:text-xs text-slate-400 dark:text-slate-500 mt-0.5 hidden xs:block truncate">con acceso</p>
+            </div>
           </div>
+
+          <!-- Inactivos -->
+          <div
+            class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-100 dark:border-slate-700 p-3 md:p-4 flex items-center gap-3 md:gap-4">
+            <div
+              class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-gradient-to-br from-red-400 to-rose-500 flex items-center justify-center shadow-lg shrink-0">
+              <svg class="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+              </svg>
+            </div>
+            <div class="min-w-0">
+              <p class="text-[10px] md:text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide truncate">Inactivos</p>
+              <p class="text-xl md:text-2xl font-black text-slate-800 dark:text-white leading-none mt-0.5">
+                <span v-if="loading"
+                  class="inline-block w-6 md:w-8 h-5 md:h-6 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></span>
+                <span v-else>{{ stats.inactive }}</span>
+              </p>
+              <p class="text-[10px] md:text-xs text-slate-400 dark:text-slate-500 mt-0.5 hidden xs:block truncate">sin acceso</p>
+            </div>
+          </div>
+
+          <!-- Administradores -->
+          <div
+            class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-100 dark:border-slate-700 p-3 md:p-4 flex items-center gap-3 md:gap-4">
+            <div
+              class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center shadow-lg shrink-0">
+              <svg class="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <div class="min-w-0">
+              <p class="text-[10px] md:text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide truncate">Admins</p>
+              <p class="text-xl md:text-2xl font-black text-slate-800 dark:text-white leading-none mt-0.5">
+                <span v-if="loading"
+                  class="inline-block w-6 md:w-8 h-5 md:h-6 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></span>
+                <span v-else>{{ stats.admins }}</span>
+              </p>
+              <p class="text-[10px] md:text-xs text-slate-400 dark:text-slate-500 mt-0.5 hidden xs:block truncate">rol admin</p>
+            </div>
+          </div>
+
+        </div>
+      </Transition>
+
+      <!-- Toolbar -->
+      <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+          <button @click="openCreate"
+            class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-bold px-4 md:px-5 py-2 md:py-2.5 rounded-xl shadow-lg transition-all duration-200 hover:-translate-y-0.5 text-xs sm:text-sm">
+            <Plus class="w-4 h-4" />
+            <span>Nuevo Usuario</span>
+          </button>
+
+          <button @click="showStats = !showStats"
+            class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold px-4 md:px-5 py-2 md:py-2.5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200 text-xs sm:text-sm">
+            <EyeOff v-if="showStats" class="w-4 h-4 text-slate-400" />
+            <Eye v-else class="w-4 h-4 text-slate-400" />
+            <span class="hidden sm:inline">{{ showStats ? 'Ocultar Estadísticas' : 'Ver Estadísticas' }}</span>
+            <span class="sm:hidden">{{ showStats ? 'Ocultar' : 'Ver Estadísticas' }}</span>
+          </button>
         </div>
 
-        <!-- Activos -->
-        <div
-          class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-100 dark:border-slate-700 p-3 md:p-4 flex items-center gap-3 md:gap-4">
-          <div
-            class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg shrink-0">
-            <svg class="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <div class="min-w-0">
-            <p class="text-[10px] md:text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide truncate">Activos</p>
-            <p class="text-xl md:text-2xl font-black text-slate-800 dark:text-white leading-none mt-0.5">
-              <span v-if="loading"
-                class="inline-block w-6 md:w-8 h-5 md:h-6 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></span>
-              <span v-else>{{ stats.active }}</span>
-            </p>
-            <p class="text-[10px] md:text-xs text-slate-400 dark:text-slate-500 mt-0.5 hidden xs:block truncate">con acceso</p>
-          </div>
-        </div>
-
-        <!-- Inactivos -->
-        <div
-          class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-100 dark:border-slate-700 p-3 md:p-4 flex items-center gap-3 md:gap-4">
-          <div
-            class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-gradient-to-br from-red-400 to-rose-500 flex items-center justify-center shadow-lg shrink-0">
-            <svg class="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-            </svg>
-          </div>
-          <div class="min-w-0">
-            <p class="text-[10px] md:text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide truncate">Inactivos</p>
-            <p class="text-xl md:text-2xl font-black text-slate-800 dark:text-white leading-none mt-0.5">
-              <span v-if="loading"
-                class="inline-block w-6 md:w-8 h-5 md:h-6 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></span>
-              <span v-else>{{ stats.inactive }}</span>
-            </p>
-            <p class="text-[10px] md:text-xs text-slate-400 dark:text-slate-500 mt-0.5 hidden xs:block truncate">sin acceso</p>
-          </div>
-        </div>
-
-        <!-- Administradores -->
-        <div
-          class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-100 dark:border-slate-700 p-3 md:p-4 flex items-center gap-3 md:gap-4">
-          <div
-            class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center shadow-lg shrink-0">
-            <svg class="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
-          </div>
-          <div class="min-w-0">
-            <p class="text-[10px] md:text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide truncate">Admins</p>
-            <p class="text-xl md:text-2xl font-black text-slate-800 dark:text-white leading-none mt-0.5">
-              <span v-if="loading"
-                class="inline-block w-6 md:w-8 h-5 md:h-6 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></span>
-              <span v-else>{{ stats.admins }}</span>
-            </p>
-            <p class="text-[10px] md:text-xs text-slate-400 dark:text-slate-500 mt-0.5 hidden xs:block truncate">rol admin</p>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Search Bar -->
-      <div class="mb-6 flex">
+        <!-- Search Bar -->
         <div class="relative w-full md:w-96">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Search class="h-5 w-5 text-slate-400 dark:text-slate-500" />
