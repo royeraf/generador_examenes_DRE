@@ -2,25 +2,28 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, declarative_base
 import os
 
-# Database URL - PostgreSQL
-# Usa asyncpg como driver asíncrono para PostgreSQL
+# Database URL — SQLite por defecto para desarrollo local
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql+asyncpg://postgres:postgres@localhost:5432/lectosistem_dre"
+    "sqlite+aiosqlite:///./desempenos.db"
 )
 
-# Create async engine
-connect_args = {}
-if "render.com" in DATABASE_URL:
-    connect_args["ssl"] = "require"
+# Configurar connect_args según el motor
+if DATABASE_URL.startswith("sqlite"):
+    connect_args = {"check_same_thread": False}
+    engine_kwargs = {}
+elif "render.com" in DATABASE_URL:
+    connect_args = {"ssl": "require"}
+    engine_kwargs = {"pool_pre_ping": True, "pool_size": 10, "max_overflow": 20}
+else:
+    connect_args = {}
+    engine_kwargs = {"pool_pre_ping": True, "pool_size": 10, "max_overflow": 20}
 
 engine = create_async_engine(
     DATABASE_URL,
-    echo=False,  # Set to True for SQL debugging
-    pool_pre_ping=True,  # Verifica conexiones antes de usarlas
-    pool_size=10,
-    max_overflow=20,
-    connect_args=connect_args
+    echo=False,
+    connect_args=connect_args,
+    **engine_kwargs
 )
 
 # Async Session factory
@@ -71,11 +74,11 @@ async def init_db():
             columns = [col["name"] for col in inspector.get_columns("docentes")]
             if "provincia_id" not in columns:
                 sync_conn.execute(text(
-                    "ALTER TABLE docentes ADD COLUMN provincia_id INTEGER REFERENCES provincias(id) ON DELETE SET NULL"
+                    "ALTER TABLE docentes ADD COLUMN provincia_id INTEGER"
                 ))
             if "distrito_id" not in columns:
                 sync_conn.execute(text(
-                    "ALTER TABLE docentes ADD COLUMN distrito_id INTEGER REFERENCES distritos(id) ON DELETE SET NULL"
+                    "ALTER TABLE docentes ADD COLUMN distrito_id INTEGER"
                 ))
 
         await conn.run_sync(_add_columns_if_missing)

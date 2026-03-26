@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BookOpen, Calculator, Sparkles, GraduationCap, Users, ArrowRight, Settings } from 'lucide-vue-next';
+import { BookOpen, Calculator, Sparkles, GraduationCap, Users, ArrowRight, Settings, BarChart3 } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import UserBadge from '../components/UserBadge.vue';
@@ -188,7 +188,7 @@ const auth = useAuthStore();
                         <div class="h-px flex-1 bg-slate-200 dark:bg-slate-700/80"></div>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-2 sm:gap-3">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
 
                         <button @click="router.push('/admin')"
                             class="admin-card group flex flex-col items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3 sm:p-4 hover:shadow-md hover:shadow-teal-500/15 hover:border-teal-300/70 dark:hover:border-teal-600/70 animate-scale-in delay-700">
@@ -226,6 +226,19 @@ const auth = useAuthStore();
                                 <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">
                                     Usuarios</p>
                                 <p class="text-[9px] text-slate-400 dark:text-slate-500 leading-tight">Gestión</p>
+                            </div>
+                        </button>
+
+                        <button @click="router.push('/admin/metricas')"
+                            class="admin-card group flex flex-col items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3 sm:p-4 hover:shadow-md hover:shadow-indigo-500/15 hover:border-indigo-300/70 dark:hover:border-indigo-600/70 animate-scale-in delay-950">
+                            <div
+                                class="admin-icon w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-sm">
+                                <BarChart3 class="w-4 h-4 text-white" />
+                            </div>
+                            <div class="text-center">
+                                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">
+                                    Métricas</p>
+                                <p class="text-[9px] text-slate-400 dark:text-slate-500 leading-tight">Uso del sistema</p>
                             </div>
                         </button>
 
