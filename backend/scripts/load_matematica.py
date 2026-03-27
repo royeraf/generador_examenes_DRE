@@ -16,6 +16,7 @@ import sys
 import os
 import re
 from docx import Document
+import openpyxl
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -50,11 +51,12 @@ else:
 SessionLocal = sessionmaker(bind=engine)
 
 
-# Ruta a la carpeta con los archivos Word
+# Ruta a la carpeta con los archivos Word y Excel
 DOCX_FOLDER = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
     "capacidades_mat"
 )
+EXCEL_DESEMPENOS = os.path.join(DOCX_FOLDER, "desempenos_extraidos.xlsx")
 
 # Definición de las 4 competencias matemáticas
 COMPETENCIAS = [
@@ -297,6 +299,43 @@ def parse_docx_competencia(docx_path: str, competencia_codigo: int) -> dict:
     return result
 
 
+def load_desempenos_from_excel() -> dict:
+    """
+    Lee desempeños desde desempenos_extraidos.xlsx (hojas C1-C4).
+    Retorna dict: { comp_codigo: [ {grado_nombre, cap_orden, descripcion}, ... ] }
+    Solo incluye filas con Estado == 'OK'.
+    """
+    if not os.path.exists(EXCEL_DESEMPENOS):
+        print(f"   ⚠️ No encontrado archivo Excel: {EXCEL_DESEMPENOS}")
+        return {}
+
+    wb = openpyxl.load_workbook(EXCEL_DESEMPENOS)
+    result = {}
+
+    for comp_codigo in range(1, 5):
+        sheet_name = f"C{comp_codigo}"
+        if sheet_name not in wb.sheetnames:
+            continue
+        ws = wb[sheet_name]
+        desempenos = []
+        for row in ws.iter_rows(values_only=True):
+            if not row or row[4] != "OK":
+                continue
+            grado_nombre = str(row[0]).strip().upper() if row[0] else None
+            cap_orden = int(row[1]) if row[1] else None
+            descripcion = str(row[3]).strip() if row[3] else None
+            if grado_nombre and cap_orden and descripcion:
+                desempenos.append({
+                    "grado_nombre": grado_nombre,
+                    "cap_orden": cap_orden,
+                    "descripcion": descripcion
+                })
+        result[comp_codigo] = desempenos
+        print(f"   📊 {sheet_name}: {len(desempenos)} desempeños leídos del Excel")
+
+    return result
+
+
 def load_matematica_data():
     """Carga todos los datos de Matemática en la base de datos."""
     print("=" * 60)
@@ -381,22 +420,21 @@ def load_matematica_data():
         
         db.commit()
         
-        # 4. Procesar cada archivo de competencia
+        # 4. Cargar estándares desde Word y desempeños desde Excel
         print("\n📖 Procesando archivos de competencias...")
-        
+
+        # 4a. Estándares desde Word
         for comp_codigo in range(1, 5):
             docx_filename = f"COMPETENCIA MATEMATICA {comp_codigo}.docx"
             docx_path = os.path.join(DOCX_FOLDER, docx_filename)
-            
+
             if not os.path.exists(docx_path):
                 print(f"   ⚠️ No encontrado: {docx_filename}")
                 continue
-            
-            # Parsear archivo
+
             parsed_data = parse_docx_competencia(docx_path, comp_codigo)
             competencia = competencias_db[comp_codigo]
-            
-            # Guardar estándares
+
             for estandar_data in parsed_data["estandares"]:
                 grado_nombre = estandar_data["grado_info"]["nombre"]
                 if grado_nombre in grados_db:
@@ -407,31 +445,38 @@ def load_matematica_data():
                         competencia_id=competencia.id
                     )
                     db.add(estandar)
-            
-            # Guardar desempeños
-            desempeno_contador = {}  # Para códigos secuenciales por capacidad
-            
-            for desemp_data in parsed_data["desempenos"]:
-                grado_nombre = desemp_data["grado_info"]["nombre"]
-                cap_orden = desemp_data["capacidad_orden"]
+
+        db.commit()
+
+        # 4b. Desempeños desde Excel
+        print("\n📊 Cargando desempeños desde Excel...")
+        excel_data = load_desempenos_from_excel()
+
+        desempeno_contador = {}
+        for comp_codigo, desempenos in excel_data.items():
+            competencia = competencias_db[comp_codigo]
+            for desemp in desempenos:
+                grado_nombre = desemp["grado_nombre"]
+                cap_orden = desemp["cap_orden"]
                 cap_key = (comp_codigo, cap_orden)
-                
-                if grado_nombre in grados_db and cap_key in capacidades_db:
-                    # Generar código secuencial
-                    contador_key = (grado_nombre, cap_key)
-                    if contador_key not in desempeno_contador:
-                        desempeno_contador[contador_key] = 0
-                    desempeno_contador[contador_key] += 1
-                    codigo = str(desempeno_contador[contador_key]).zfill(2)
-                    
-                    desempeno = DesempenoMatematica(
-                        codigo=codigo,
-                        descripcion=desemp_data["descripcion"],
-                        grado_id=grados_db[grado_nombre].id,
-                        capacidad_id=capacidades_db[cap_key].id
-                    )
-                    db.add(desempeno)
-        
+
+                if grado_nombre not in grados_db:
+                    continue
+                if cap_key not in capacidades_db:
+                    continue
+
+                contador_key = (grado_nombre, cap_key)
+                desempeno_contador[contador_key] = desempeno_contador.get(contador_key, 0) + 1
+                codigo = str(desempeno_contador[contador_key]).zfill(2)
+
+                desempeno = DesempenoMatematica(
+                    codigo=codigo,
+                    descripcion=desemp["descripcion"],
+                    grado_id=grados_db[grado_nombre].id,
+                    capacidad_id=capacidades_db[cap_key].id
+                )
+                db.add(desempeno)
+
         db.commit()
         
         # 5. Estadísticas finales
