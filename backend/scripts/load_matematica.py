@@ -242,9 +242,29 @@ def parse_docx_competencia(docx_path: str, competencia_codigo: int) -> dict:
         
         # 5. Procesar sección de desempeños
         if current_section == "desempenos":
-            # Si es bold → es un título de capacidad (no un desempeño)
+            # Detectar formato primaria: párrafo mixto "CAPACIDAD bold: desempeño normal"
+            has_bold_run = any(run.bold and run.text.strip() for run in para.runs)
+            has_normal_run = any(not run.bold and run.text.strip() for run in para.runs)
+            if has_bold_run and has_normal_run and not bold:
+                bold_text = ''.join(run.text for run in para.runs if run.bold).strip().rstrip(':')
+                normal_text = ''.join(run.text for run in para.runs if not run.bold).strip()
+                # Intentar identificar la capacidad del texto bold
+                for idx, cap_nombre in enumerate(capacidades_competencia):
+                    cap_words = cap_nombre.upper().split()[:3]
+                    if all(word in bold_text.upper() for word in cap_words):
+                        current_capacidad_orden = idx + 1
+                        print(f"      ✓ Capacidad {current_capacidad_orden}: {cap_nombre[:50]}...")
+                        break
+                if current_capacidad_orden and len(normal_text) > 20:
+                    result["desempenos"].append({
+                        "grado_info": current_grado,
+                        "capacidad_orden": current_capacidad_orden,
+                        "descripcion": normal_text
+                    })
+                continue
+
+            # Si es bold → es un título de capacidad (formato secundaria)
             if bold:
-                # Intentar detectar qué capacidad es
                 for idx, cap_nombre in enumerate(capacidades_competencia):
                     cap_words = cap_nombre.upper().split()[:3]
                     if all(word in text_upper for word in cap_words):
@@ -252,8 +272,8 @@ def parse_docx_competencia(docx_path: str, competencia_codigo: int) -> dict:
                         print(f"      ✓ Capacidad {current_capacidad_orden}: {cap_nombre[:50]}...")
                         break
                 continue
-            
-            # Si NO es bold y tenemos capacidad actual → es un desempeño
+
+            # Si NO es bold y tenemos capacidad actual → es un desempeño (formato secundaria)
             if current_capacidad_orden and len(text) > 20:
                 result["desempenos"].append({
                     "grado_info": current_grado,
