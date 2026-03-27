@@ -9,10 +9,14 @@ import os
 import sys
 import asyncio
 import subprocess
+from dotenv import load_dotenv
 
 # Agregar el directorio backend al path
 backend_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, backend_dir)
+
+# Cargar .env ANTES de cualquier import de app (database.py lee DATABASE_URL al importarse)
+load_dotenv(os.path.join(backend_dir, ".env"))
 
 
 def run_script(script_name: str) -> bool:
