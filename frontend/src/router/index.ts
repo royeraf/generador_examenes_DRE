@@ -8,6 +8,7 @@ const MatSistemView = () => import('../views/MatSistemView.vue')
 const AdminView = () => import('../views/AdminView.vue')
 const AdminMatView = () => import('../views/AdminMatView.vue')
 const AdminUsuariosView = () => import('../views/AdminUsuariosView.vue')
+const MetricasView = () => import('../views/MetricasView.vue')
 
 const routes = [
   {
@@ -43,6 +44,11 @@ const routes = [
   {
     path: '/admin/usuarios',
     component: AdminUsuariosView,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/metricas',
+    component: MetricasView,
     meta: { requiresAuth: true, requiresAdmin: true },
   },
   {
