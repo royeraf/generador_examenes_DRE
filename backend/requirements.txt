@@ -8,6 +8,7 @@ python-multipart
 sqlalchemy[asyncio]
 asyncpg
 aiosqlite
+aiomysql
 
 # Data validation & config
 pydantic
