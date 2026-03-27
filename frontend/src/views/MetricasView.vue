@@ -5,14 +5,14 @@ import { apiClient } from '../services/api'
 import Header from '../components/Header.vue'
 import Footer from '../components/Footer.vue'
 import {
-  Home, Users, BookOpen, Calculator, TrendingUp,
+  Home, Users, BookOpen, Calculator,
   Award, Clock, BarChart3, RefreshCw, Loader2,
   UserCheck, UserX, FileText, GraduationCap
 } from 'lucide-vue-next'
 import { useTheme } from '../composables/useTheme'
 
 const router = useRouter()
-const { isDark, toggleTheme } = useTheme()
+useTheme()
 
 interface Resumen {
   total_docentes: number
