@@ -64,7 +64,7 @@ async def init_db():
     from app.models.ubigeo import Provincia, Distrito
 
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(lambda sync_conn: Base.metadata.create_all(sync_conn, checkfirst=True))
 
         # Migración inline: agregar columnas provincia_id y distrito_id si no existen
         from sqlalchemy import text, inspect as sa_inspect
