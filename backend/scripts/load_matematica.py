@@ -420,35 +420,7 @@ def load_matematica_data():
         
         db.commit()
         
-        # 4. Cargar estándares desde Word y desempeños desde Excel
-        print("\n📖 Procesando archivos de competencias...")
-
-        # 4a. Estándares desde Word
-        for comp_codigo in range(1, 5):
-            docx_filename = f"COMPETENCIA MATEMATICA {comp_codigo}.docx"
-            docx_path = os.path.join(DOCX_FOLDER, docx_filename)
-
-            if not os.path.exists(docx_path):
-                print(f"   ⚠️ No encontrado: {docx_filename}")
-                continue
-
-            parsed_data = parse_docx_competencia(docx_path, comp_codigo)
-            competencia = competencias_db[comp_codigo]
-
-            for estandar_data in parsed_data["estandares"]:
-                grado_nombre = estandar_data["grado_info"]["nombre"]
-                if grado_nombre in grados_db:
-                    estandar = EstandarMatematica(
-                        descripcion=estandar_data["descripcion"],
-                        ciclo=estandar_data["ciclo"],
-                        grado_id=grados_db[grado_nombre].id,
-                        competencia_id=competencia.id
-                    )
-                    db.add(estandar)
-
-        db.commit()
-
-        # 4b. Desempeños desde Excel
+        # 4. Cargar desempeños desde Excel
         print("\n📊 Cargando desempeños desde Excel...")
         excel_data = load_desempenos_from_excel()
 
