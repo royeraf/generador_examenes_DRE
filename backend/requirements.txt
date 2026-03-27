@@ -9,6 +9,7 @@ sqlalchemy[asyncio]
 asyncpg
 aiosqlite
 aiomysql
+PyMySQL
 
 # Data validation & config
 pydantic
@@ -27,6 +28,8 @@ openai
 PyMuPDF
 python-docx
 filetype
+pandas
+openpyxl
 
 # HTTP
 requests

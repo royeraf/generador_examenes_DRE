@@ -31,13 +31,16 @@ from app.models.db_models import (
 )
 # Import all models so Base.metadata.create_all() can resolve foreign keys
 from app.models.docente import Docente  # noqa: F401
+from app.models.ubigeo import Provincia, Distrito  # noqa: F401
 
 # Motor síncrono para el script de carga
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./desempenos.db")
 if DATABASE_URL.startswith("postgresql+asyncpg://"):
     DATABASE_URL = DATABASE_URL.replace("postgresql+asyncpg://", "postgresql://")
+elif DATABASE_URL.startswith("mysql+aiomysql://"):
+    DATABASE_URL = DATABASE_URL.replace("mysql+aiomysql://", "mysql+pymysql://")
 
-if DATABASE_URL.startswith("postgresql"):
+if DATABASE_URL.startswith("postgresql") or DATABASE_URL.startswith("mysql"):
     engine = create_engine(DATABASE_URL)
 else:
     engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
