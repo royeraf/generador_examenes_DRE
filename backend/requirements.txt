@@ -10,6 +10,7 @@ asyncpg
 aiosqlite
 aiomysql
 PyMySQL
+alembic
 
 # Data validation & config
 pydantic

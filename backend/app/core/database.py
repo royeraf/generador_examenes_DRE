@@ -52,33 +52,15 @@ async def get_db():
 
 
 async def init_db():
-    """Initialize database tables asynchronously."""
-    # Importar modelos aquí para asegurar que se registren en Base.metadata
-    from app.models.db_models import (
-        Grado, Capacidad, Desempeno,
-        CompetenciaMatematica, CapacidadMatematica,
-        EstandarMatematica, DesempenoMatematica,
-        ExamenLectura, ExamenMatematica
+    """Aplica migraciones de Alembic al iniciar la aplicación."""
+    import os
+    from alembic.config import Config
+    from alembic import command
+
+    alembic_cfg = Config(
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "../alembic.ini")
     )
-    from app.models.docente import Docente
-    from app.models.ubigeo import Provincia, Distrito
-
-    async with engine.begin() as conn:
-        await conn.run_sync(lambda sync_conn: Base.metadata.create_all(sync_conn, checkfirst=True))
-
-        # Migración inline: agregar columnas provincia_id y distrito_id si no existen
-        from sqlalchemy import text, inspect as sa_inspect
-
-        def _add_columns_if_missing(sync_conn):
-            inspector = sa_inspect(sync_conn)
-            columns = [col["name"] for col in inspector.get_columns("docentes")]
-            if "provincia_id" not in columns:
-                sync_conn.execute(text(
-                    "ALTER TABLE docentes ADD COLUMN provincia_id INTEGER"
-                ))
-            if "distrito_id" not in columns:
-                sync_conn.execute(text(
-                    "ALTER TABLE docentes ADD COLUMN distrito_id INTEGER"
-                ))
-
-        await conn.run_sync(_add_columns_if_missing)
+    # Ejecutar en un thread para no bloquear el event loop
+    import asyncio
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, lambda: command.upgrade(alembic_cfg, "head"))
