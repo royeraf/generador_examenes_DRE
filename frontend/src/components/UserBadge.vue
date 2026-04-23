@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { apiClient } from '../services/api'
 import ThemeToggle from './ThemeToggle.vue'
-import { Palette, LogOut, ChevronDown, User, Shield, KeyRound, X, Loader2, Eye, EyeOff, AlertCircle, CheckCircle, MapPin, Building2, GraduationCap, BadgeCheck, CalendarDays, Info } from 'lucide-vue-next'
+import { Palette, LogOut, ChevronDown, User, Shield, KeyRound, X, Loader2, Eye, EyeOff, AlertCircle, CheckCircle, MapPin, Building2, BadgeCheck, CalendarDays, Info } from 'lucide-vue-next'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -17,12 +17,6 @@ const showPerfilModal = ref(false)
 const openPerfilModal = () => {
   isOpen.value = false
   showPerfilModal.value = true
-}
-
-const levelLabel: Record<string, string> = {
-  inicial: 'Inicial',
-  primaria: 'Primaria',
-  secundaria: 'Secundaria',
 }
 
 function formatFecha(fecha: string) {
@@ -44,11 +38,24 @@ const passwordForm = ref({
   confirm: '',
 })
 
+const ROL_LABELS: Record<string, string> = {
+  especialista_dre_comunicacion: 'Esp. DRE Comunicación',
+  especialista_dre_matematica: 'Esp. DRE Matemática',
+  responsable_ugel: 'Responsable UGEL',
+  director: 'Director',
+  auxiliar: 'Auxiliar',
+  docente: 'Docente',
+  estudiante: 'Estudiante',
+}
+function rolLabel(codigo?: string | null) {
+  return ROL_LABELS[codigo ?? ''] ?? codigo ?? '—'
+}
+
 const initials = computed(() => {
   const user = auth.user
   if (!user) return '?'
   const names = [user.nombres, user.apellidos].filter((n): n is string => !!n)
-  if (names.length === 0) return user.dni.slice(0, 2).toUpperCase()
+  if (names.length === 0) return (user.dni ?? user.codigo_estudiante ?? 'US').slice(0, 2).toUpperCase()
   return names.map(n => n.charAt(0).toUpperCase()).join('').slice(0, 2)
 })
 
@@ -156,13 +163,13 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
               </span>
             </div>
           </div>
-          <div v-if="auth.user?.profesion || auth.user?.institucion_educativa" class="mt-3 space-y-1">
+          <div v-if="auth.user?.profesion || auth.user?.institucion_nombre" class="mt-3 space-y-1">
             <p v-if="auth.user?.profesion" class="text-xs text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
               <User class="w-3 h-3 text-slate-400 shrink-0" />
               {{ auth.user.profesion }}
             </p>
-            <p v-if="auth.user?.institucion_educativa" class="text-xs text-slate-500 dark:text-slate-400 truncate pl-4">
-              {{ auth.user.institucion_educativa }}
+            <p v-if="auth.user?.institucion_nombre" class="text-xs text-slate-500 dark:text-slate-400 truncate pl-4">
+              {{ auth.user.institucion_nombre }}
             </p>
           </div>
         </div>
@@ -285,18 +292,11 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
               <div class="grid grid-cols-2 gap-3">
                 <div class="col-span-2">
                   <p class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mb-0.5">Institución Educativa</p>
-                  <p class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ auth.user?.institucion_educativa || '—' }}</p>
+                  <p class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ auth.user?.institucion_nombre || '—' }}</p>
                 </div>
                 <div>
-                  <p class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mb-0.5">Nivel Educativo</p>
-                  <p class="text-sm font-medium text-slate-700 dark:text-slate-200">
-                    <span v-if="auth.user?.nivel_educativo"
-                      class="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full text-xs">
-                      <GraduationCap class="w-3 h-3" />
-                      {{ levelLabel[auth.user.nivel_educativo] ?? auth.user.nivel_educativo }}
-                    </span>
-                    <span v-else>—</span>
-                  </p>
+                  <p class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mb-0.5">UGEL</p>
+                  <p class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ auth.user?.ugel_nombre || '—' }}</p>
                 </div>
               </div>
             </div>
@@ -344,8 +344,8 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
                 <div>
                   <p class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mb-0.5">Rol</p>
                   <div class="flex items-center gap-1.5">
-                    <Shield class="w-3.5 h-3.5" :class="auth.user?.is_superuser ? 'text-indigo-500' : 'text-slate-400'" />
-                    <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ auth.user?.is_superuser ? 'Administrador' : 'Docente' }}</span>
+                    <Shield class="w-3.5 h-3.5 text-slate-400" />
+                    <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ rolLabel(auth.user?.rol_codigo) }}</span>
                   </div>
                 </div>
                 <div v-if="auth.user?.fecha_creacion" class="col-span-2">

@@ -6,9 +6,11 @@ from pydantic import BaseModel, Field
 
 from app.core.database import get_db
 from app.models.db_models import Grado, Capacidad, Desempeno, ExamenLectura
+from app.models.usuario import Usuario
 from app.services.lectosistem_service import lectosistem_service
 from app.services import file_service
 from app.services.word_generator import generar_examen_word
+from app.api.dependencies import require_modulo
 
 router = APIRouter()
 
@@ -145,7 +147,8 @@ async def listar_niveles_logro():
 async def generar_preguntas_lectura(
     request: GenerarPreguntasRequest,
     req: Request,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    _: Usuario = Depends(require_modulo("lectosistem"))
 ):
     """
     Genera preguntas de comprensión lectora basadas en desempeños seleccionados.
@@ -272,7 +275,10 @@ class ExamenWordRequest(BaseModel):
 
 
 @router.post("/descargar-word")
-async def descargar_examen_word(request: ExamenWordRequest):
+async def descargar_examen_word(
+    request: ExamenWordRequest,
+    _: Usuario = Depends(require_modulo("lectosistem"))
+):
     """
     Genera y descarga el examen en formato Word (.docx).
     

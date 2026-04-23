@@ -11,7 +11,7 @@ from datetime import datetime
 
 from app.core.database import get_db
 from app.models.db_models import ExamenLectura, ExamenMatematica
-from app.models.docente import Docente as DocenteModel
+from app.models.usuario import Usuario as DocenteModel
 from app.api.dependencies import get_current_active_user
 
 router = APIRouter()

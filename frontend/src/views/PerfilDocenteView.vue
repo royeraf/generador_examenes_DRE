@@ -1,16 +1,10 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
-import { Home, User, MapPin, Building2, GraduationCap, BadgeCheck, Shield, CalendarDays, Info } from 'lucide-vue-next'
+import { Home, User, MapPin, Building2, BadgeCheck, Shield, CalendarDays, Info } from 'lucide-vue-next'
 
 const router = useRouter()
 const auth = useAuthStore()
-
-const levelLabel: Record<string, string> = {
-  inicial: 'Inicial',
-  primaria: 'Primaria',
-  secundaria: 'Secundaria',
-}
 
 function formatFecha(fecha: string) {
   return new Date(fecha).toLocaleDateString('es-PE', {
@@ -18,6 +12,19 @@ function formatFecha(fecha: string) {
     month: 'long',
     year: 'numeric',
   })
+}
+
+const ROL_LABELS: Record<string, string> = {
+  especialista_dre_comunicacion: 'Esp. DRE Comunicación',
+  especialista_dre_matematica: 'Esp. DRE Matemática',
+  responsable_ugel: 'Responsable UGEL',
+  director: 'Director',
+  auxiliar: 'Auxiliar',
+  docente: 'Docente',
+  estudiante: 'Estudiante',
+}
+function rolLabel(codigo?: string | null) {
+  return ROL_LABELS[codigo ?? ''] ?? codigo ?? '—'
 }
 </script>
 
@@ -59,9 +66,8 @@ function formatFecha(fecha: string) {
               {{ [auth.user?.nombres, auth.user?.apellidos].filter(Boolean).join(' ') || 'Sin nombre registrado' }}
             </h2>
             <p class="text-indigo-100 text-sm font-mono mt-0.5">DNI: {{ auth.user?.dni }}</p>
-            <span v-if="auth.user?.is_superuser"
-              class="inline-flex items-center gap-1 text-[11px] font-bold bg-white/20 px-2 py-0.5 rounded-full mt-1">
-              <Shield class="w-3 h-3" /> Administrador
+            <span class="inline-flex items-center gap-1 text-[11px] font-bold bg-white/20 px-2 py-0.5 rounded-full mt-1">
+              <Shield class="w-3 h-3" /> {{ rolLabel(auth.user?.rol_codigo) }}
             </span>
           </div>
         </div>
@@ -101,18 +107,11 @@ function formatFecha(fecha: string) {
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div class="sm:col-span-2">
                 <p class="text-[11px] font-semibold text-slate-400 dark:text-slate-500 mb-0.5">Institución Educativa</p>
-                <p class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ auth.user?.institucion_educativa || '—' }}</p>
+                <p class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ auth.user?.institucion_nombre || '—' }}</p>
               </div>
               <div>
-                <p class="text-[11px] font-semibold text-slate-400 dark:text-slate-500 mb-0.5">Nivel Educativo</p>
-                <p class="text-sm font-medium text-slate-700 dark:text-slate-200">
-                  <span v-if="auth.user?.nivel_educativo"
-                    class="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full text-xs font-semibold">
-                    <GraduationCap class="w-3 h-3" />
-                    {{ levelLabel[auth.user.nivel_educativo] ?? auth.user.nivel_educativo }}
-                  </span>
-                  <span v-else>—</span>
-                </p>
+                <p class="text-[11px] font-semibold text-slate-400 dark:text-slate-500 mb-0.5">UGEL</p>
+                <p class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ auth.user?.ugel_nombre || '—' }}</p>
               </div>
             </div>
           </div>
@@ -160,9 +159,9 @@ function formatFecha(fecha: string) {
               <div>
                 <p class="text-[11px] font-semibold text-slate-400 dark:text-slate-500 mb-0.5">Rol</p>
                 <div class="flex items-center gap-1.5">
-                  <Shield class="w-3.5 h-3.5" :class="auth.user?.is_superuser ? 'text-indigo-500' : 'text-slate-400'" />
+                  <Shield class="w-3.5 h-3.5 text-slate-400" />
                   <span class="text-sm font-medium text-slate-700 dark:text-slate-200">
-                    {{ auth.user?.is_superuser ? 'Administrador' : 'Docente' }}
+                    {{ rolLabel(auth.user?.rol_codigo) }}
                   </span>
                 </div>
               </div>

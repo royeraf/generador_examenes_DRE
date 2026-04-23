@@ -1,0 +1,396 @@
+"""
+Rutas de gestión organizacional: UGELes e Instituciones Educativas.
+"""
+from typing import Optional, List
+from fastapi import APIRouter, HTTPException, Depends, Query
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, func, or_
+from pydantic import BaseModel
+from datetime import datetime
+
+from app.core.database import get_db
+from app.models.db_models import Ugel, InstitucionEducativa, Grado
+from app.models.usuario import Usuario
+from app.models.enums import RolCodigo
+from app.api.dependencies import get_current_active_user, require_role
+
+router = APIRouter()
+
+DRE_ROLES = (RolCodigo.ESPECIALISTA_DRE_COMUNICACION, RolCodigo.ESPECIALISTA_DRE_MATEMATICA)
+DRE_UGEL_ROLES = (*DRE_ROLES, RolCodigo.RESPONSABLE_UGEL)
+
+
+# ─── Schemas ─────────────────────────────────────────────────────────────────
+
+class UgelCreate(BaseModel):
+    codigo: str
+    nombre: str
+    provincia_id: Optional[int] = None
+    is_active: bool = True
+
+
+class UgelUpdate(BaseModel):
+    codigo: Optional[str] = None
+    nombre: Optional[str] = None
+    provincia_id: Optional[int] = None
+    is_active: Optional[bool] = None
+
+
+class UgelResponse(BaseModel):
+    id: int
+    codigo: str
+    nombre: str
+    provincia_id: Optional[int] = None
+    provincia_nombre: Optional[str] = None
+    is_active: bool
+    fecha_creacion: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+NIVELES_VALIDOS = {"inicial", "primaria", "secundaria"}
+
+
+class IECreate(BaseModel):
+    codigo_modular: str
+    nombre: str
+    nivel_educativo: List[str]  # ["inicial"], ["primaria","secundaria"], etc.
+    direccion: Optional[str] = None
+    ugel_id: int
+    distrito_id: Optional[int] = None
+    is_active: bool = True
+
+
+class IEUpdate(BaseModel):
+    codigo_modular: Optional[str] = None
+    nombre: Optional[str] = None
+    nivel_educativo: Optional[List[str]] = None
+    direccion: Optional[str] = None
+    ugel_id: Optional[int] = None
+    distrito_id: Optional[int] = None
+    is_active: Optional[bool] = None
+
+
+class IEResponse(BaseModel):
+    id: int
+    codigo_modular: str
+    nombre: str
+    nivel_educativo: List[str]
+    direccion: Optional[str] = None
+    ugel_id: int
+    ugel_nombre: Optional[str] = None
+    distrito_id: Optional[int] = None
+    distrito_nombre: Optional[str] = None
+    is_active: bool
+    fecha_creacion: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class GradoResponse(BaseModel):
+    id: int
+    nombre: str
+    numero: int
+    nivel: str
+    orden: int
+
+    class Config:
+        from_attributes = True
+
+
+# ─── UGEL endpoints ───────────────────────────────────────────────────────────
+
+@router.get("/ugeles", response_model=List[UgelResponse])
+async def listar_ugeles(
+    search: Optional[str] = Query(None),
+    solo_activas: bool = Query(False),
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(get_current_active_user),
+):
+    q = select(Ugel)
+    if solo_activas:
+        q = q.where(Ugel.is_active == True)
+    if search:
+        q = q.where(Ugel.nombre.ilike(f"%{search}%"))
+    result = await db.execute(q.order_by(Ugel.nombre))
+    ugeles = result.scalars().all()
+    return [
+        UgelResponse(
+            id=u.id, codigo=u.codigo, nombre=u.nombre,
+            provincia_id=u.provincia_id,
+            provincia_nombre=u.provincia.nombre if u.provincia else None,
+            is_active=u.is_active, fecha_creacion=u.fecha_creacion,
+        )
+        for u in ugeles
+    ]
+
+
+@router.post("/ugeles", response_model=UgelResponse)
+async def crear_ugel(
+    data: UgelCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(require_role(*DRE_ROLES)),
+):
+    existing = await db.execute(select(Ugel).where(Ugel.codigo == data.codigo))
+    if existing.scalars().first():
+        raise HTTPException(400, "Ya existe una UGEL con ese código")
+    ugel = Ugel(**data.model_dump())
+    db.add(ugel)
+    await db.flush()
+    await db.refresh(ugel)
+    return UgelResponse(
+        id=ugel.id, codigo=ugel.codigo, nombre=ugel.nombre,
+        provincia_id=ugel.provincia_id, provincia_nombre=None,
+        is_active=ugel.is_active, fecha_creacion=ugel.fecha_creacion,
+    )
+
+
+@router.put("/ugeles/{ugel_id}", response_model=UgelResponse)
+async def actualizar_ugel(
+    ugel_id: int,
+    data: UgelUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(require_role(*DRE_ROLES)),
+):
+    result = await db.execute(select(Ugel).where(Ugel.id == ugel_id))
+    ugel = result.scalars().first()
+    if not ugel:
+        raise HTTPException(404, "UGEL no encontrada")
+    for field, value in data.model_dump(exclude_unset=True).items():
+        setattr(ugel, field, value)
+    await db.flush()
+    await db.refresh(ugel)
+    return UgelResponse(
+        id=ugel.id, codigo=ugel.codigo, nombre=ugel.nombre,
+        provincia_id=ugel.provincia_id,
+        provincia_nombre=ugel.provincia.nombre if ugel.provincia else None,
+        is_active=ugel.is_active, fecha_creacion=ugel.fecha_creacion,
+    )
+
+
+@router.delete("/ugeles/{ugel_id}")
+async def eliminar_ugel(
+    ugel_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(require_role(*DRE_ROLES)),
+):
+    result = await db.execute(select(Ugel).where(Ugel.id == ugel_id))
+    ugel = result.scalars().first()
+    if not ugel:
+        raise HTTPException(404, "UGEL no encontrada")
+    await db.delete(ugel)
+    await db.flush()
+    return {"ok": True}
+
+
+# ─── Institución Educativa endpoints ─────────────────────────────────────────
+
+@router.get("/instituciones", response_model=List[IEResponse])
+async def listar_instituciones(
+    ugel_id: Optional[int] = Query(None),
+    search: Optional[str] = Query(None),
+    solo_activas: bool = Query(False),
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(get_current_active_user),
+):
+    q = select(InstitucionEducativa)
+    if solo_activas:
+        q = q.where(InstitucionEducativa.is_active == True)
+    if ugel_id:
+        q = q.where(InstitucionEducativa.ugel_id == ugel_id)
+    elif current_user.rol_codigo == RolCodigo.RESPONSABLE_UGEL and current_user.ugel_id:
+        q = q.where(InstitucionEducativa.ugel_id == current_user.ugel_id)
+    if search:
+        q = q.where(
+            or_(
+                InstitucionEducativa.nombre.ilike(f"%{search}%"),
+                InstitucionEducativa.codigo_modular.ilike(f"%{search}%"),
+            )
+        )
+    result = await db.execute(q.order_by(InstitucionEducativa.nombre))
+    ies = result.scalars().all()
+
+    # Cargar ugeles para los nombres
+    ugel_ids = list({ie.ugel_id for ie in ies})
+    ugel_map: dict = {}
+    if ugel_ids:
+        ugel_result = await db.execute(select(Ugel).where(Ugel.id.in_(ugel_ids)))
+        ugel_map = {u.id: u.nombre for u in ugel_result.scalars().all()}
+
+    return [
+        IEResponse(
+            id=ie.id, codigo_modular=ie.codigo_modular, nombre=ie.nombre,
+            nivel_educativo=ie.nivel_educativo, direccion=ie.direccion,
+            ugel_id=ie.ugel_id, ugel_nombre=ugel_map.get(ie.ugel_id),
+            distrito_id=ie.distrito_id,
+            distrito_nombre=ie.distrito.nombre if ie.distrito else None,
+            is_active=ie.is_active, fecha_creacion=ie.fecha_creacion,
+        )
+        for ie in ies
+    ]
+
+
+@router.get("/instituciones/{ie_id}", response_model=IEResponse)
+async def obtener_institucion(
+    ie_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(get_current_active_user),
+):
+    result = await db.execute(select(InstitucionEducativa).where(InstitucionEducativa.id == ie_id))
+    ie = result.scalars().first()
+    if not ie:
+        raise HTTPException(404, "Institución no encontrada")
+    return IEResponse(
+        id=ie.id, codigo_modular=ie.codigo_modular, nombre=ie.nombre,
+        nivel_educativo=ie.nivel_educativo, direccion=ie.direccion,
+        ugel_id=ie.ugel_id,
+        ugel_nombre=ie.ugel.nombre if ie.ugel else None,
+        distrito_id=ie.distrito_id,
+        distrito_nombre=ie.distrito.nombre if ie.distrito else None,
+        is_active=ie.is_active, fecha_creacion=ie.fecha_creacion,
+    )
+
+
+@router.post("/instituciones", response_model=IEResponse)
+async def crear_institucion(
+    data: IECreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(require_role(*DRE_UGEL_ROLES)),
+):
+    existing = await db.execute(
+        select(InstitucionEducativa).where(InstitucionEducativa.codigo_modular == data.codigo_modular)
+    )
+    if existing.scalars().first():
+        raise HTTPException(400, "Ya existe una IE con ese código modular")
+
+    # Responsable UGEL solo puede crear IEs en su UGEL
+    if current_user.rol_codigo == RolCodigo.RESPONSABLE_UGEL:
+        if data.ugel_id != current_user.ugel_id:
+            raise HTTPException(403, "Solo puedes crear instituciones en tu UGEL")
+
+    ie = InstitucionEducativa(**data.model_dump())
+    db.add(ie)
+    await db.flush()
+    await db.refresh(ie)
+    return IEResponse(
+        id=ie.id, codigo_modular=ie.codigo_modular, nombre=ie.nombre,
+        nivel_educativo=ie.nivel_educativo, direccion=ie.direccion,
+        ugel_id=ie.ugel_id, ugel_nombre=None,
+        distrito_id=ie.distrito_id, distrito_nombre=None,
+        is_active=ie.is_active, fecha_creacion=ie.fecha_creacion,
+    )
+
+
+@router.put("/instituciones/{ie_id}", response_model=IEResponse)
+async def actualizar_institucion(
+    ie_id: int,
+    data: IEUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(require_role(*DRE_UGEL_ROLES)),
+):
+    result = await db.execute(select(InstitucionEducativa).where(InstitucionEducativa.id == ie_id))
+    ie = result.scalars().first()
+    if not ie:
+        raise HTTPException(404, "Institución no encontrada")
+
+    if current_user.rol_codigo == RolCodigo.RESPONSABLE_UGEL:
+        if ie.ugel_id != current_user.ugel_id:
+            raise HTTPException(403, "No tienes acceso a esta institución")
+
+    for field, value in data.model_dump(exclude_unset=True).items():
+        setattr(ie, field, value)
+    await db.flush()
+    await db.refresh(ie)
+    return IEResponse(
+        id=ie.id, codigo_modular=ie.codigo_modular, nombre=ie.nombre,
+        nivel_educativo=ie.nivel_educativo, direccion=ie.direccion,
+        ugel_id=ie.ugel_id,
+        ugel_nombre=ie.ugel.nombre if ie.ugel else None,
+        distrito_id=ie.distrito_id,
+        distrito_nombre=ie.distrito.nombre if ie.distrito else None,
+        is_active=ie.is_active, fecha_creacion=ie.fecha_creacion,
+    )
+
+
+@router.delete("/instituciones/{ie_id}")
+async def eliminar_institucion(
+    ie_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(require_role(*DRE_UGEL_ROLES)),
+):
+    result = await db.execute(select(InstitucionEducativa).where(InstitucionEducativa.id == ie_id))
+    ie = result.scalars().first()
+    if not ie:
+        raise HTTPException(404, "Institución no encontrada")
+    if current_user.rol_codigo == RolCodigo.RESPONSABLE_UGEL and ie.ugel_id != current_user.ugel_id:
+        raise HTTPException(403, "No tienes acceso a esta institución")
+    await db.delete(ie)
+    await db.flush()
+    return {"ok": True}
+
+
+# ─── Mi UGEL / Mi Institución ────────────────────────────────────────────────
+
+@router.get("/mi-ugel", response_model=UgelResponse)
+async def mi_ugel(
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(require_role(RolCodigo.RESPONSABLE_UGEL)),
+):
+    if not current_user.ugel_id:
+        raise HTTPException(400, "No tienes una UGEL asignada")
+    result = await db.execute(select(Ugel).where(Ugel.id == current_user.ugel_id))
+    ugel = result.scalars().first()
+    if not ugel:
+        raise HTTPException(404, "UGEL no encontrada")
+    return UgelResponse(
+        id=ugel.id, codigo=ugel.codigo, nombre=ugel.nombre,
+        provincia_id=ugel.provincia_id,
+        provincia_nombre=ugel.provincia.nombre if ugel.provincia else None,
+        is_active=ugel.is_active, fecha_creacion=ugel.fecha_creacion,
+    )
+
+
+@router.get("/mi-institucion", response_model=IEResponse)
+async def mi_institucion(
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(get_current_active_user),
+):
+    allowed = {
+        RolCodigo.DIRECTOR, RolCodigo.AUXILIAR,
+        RolCodigo.ESPECIALISTA_DRE_COMUNICACION, RolCodigo.ESPECIALISTA_DRE_MATEMATICA,
+        RolCodigo.RESPONSABLE_UGEL,
+    }
+    if RolCodigo(current_user.rol_codigo) not in allowed:
+        raise HTTPException(403, "No tienes acceso")
+    if not current_user.institucion_educativa_id:
+        raise HTTPException(400, "No tienes una institución asignada")
+    result = await db.execute(
+        select(InstitucionEducativa).where(
+            InstitucionEducativa.id == current_user.institucion_educativa_id
+        )
+    )
+    ie = result.scalars().first()
+    if not ie:
+        raise HTTPException(404, "Institución no encontrada")
+    return IEResponse(
+        id=ie.id, codigo_modular=ie.codigo_modular, nombre=ie.nombre,
+        nivel_educativo=ie.nivel_educativo, direccion=ie.direccion,
+        ugel_id=ie.ugel_id,
+        ugel_nombre=ie.ugel.nombre if ie.ugel else None,
+        distrito_id=ie.distrito_id,
+        distrito_nombre=ie.distrito.nombre if ie.distrito else None,
+        is_active=ie.is_active, fecha_creacion=ie.fecha_creacion,
+    )
+
+
+# ─── Grados ──────────────────────────────────────────────────────────────────
+
+@router.get("/grados", response_model=List[GradoResponse])
+async def listar_grados(
+    db: AsyncSession = Depends(get_db),
+    _: Usuario = Depends(get_current_active_user),
+):
+    result = await db.execute(select(Grado).order_by(Grado.orden))
+    return result.scalars().all()

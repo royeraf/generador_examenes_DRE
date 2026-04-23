@@ -1,22 +1,78 @@
 // Types for desempeños-based question generation
 
-export interface Docente {
+export type RolCodigo =
+  | 'especialista_dre_comunicacion'
+  | 'especialista_dre_matematica'
+  | 'responsable_ugel'
+  | 'director'
+  | 'auxiliar'
+  | 'docente'
+  | 'estudiante'
+
+export type NivelLogroCode = 'pre_inicio' | 'inicio' | 'proceso' | 'satisfactorio' | 'destacado'
+
+export interface Rol {
   id: number
-  dni: string
+  codigo: RolCodigo
+  nombre: string
+  nivel: number
+}
+
+export interface Ugel {
+  id: number
+  codigo: string
+  nombre: string
+  provincia_id: number | null
+  provincia_nombre?: string | null
+  is_active: boolean
+  fecha_creacion?: string | null
+}
+
+export interface InstitucionEducativa {
+  id: number
+  codigo_modular: string
+  nombre: string
+  nivel_educativo: string[]
+  direccion?: string | null
+  ugel_id: number
+  ugel_nombre?: string | null
+  distrito_id: number | null
+  distrito_nombre?: string | null
+  is_active: boolean
+  fecha_creacion?: string | null
+}
+
+export interface Usuario {
+  id: number
+  dni: string | null
+  codigo_estudiante: string | null
   nombres: string | null
   apellidos: string | null
   profesion: string | null
-  institucion_educativa: string | null
-  nivel_educativo: string | null
+  email: string | null
+  telefono: string | null
   provincia_id: number | null
   distrito_id: number | null
+  ugel_id: number | null
+  institucion_educativa_id: number | null
+  grado_id: number | null
+  seccion: string | null
   provincia_nombre: string | null
   distrito_nombre: string | null
+  ugel_nombre: string | null
+  institucion_nombre: string | null
+  grado_nombre: string | null
   is_active: boolean
-  is_superuser: boolean
+  rol_codigo: RolCodigo | null
   creado_por_id: number | null
   fecha_creacion: string | null
+  ultimo_acceso: string | null
+  permisos_modulos: string[] | null
+  modulos_efectivos?: string[]
 }
+
+// Alias de compatibilidad
+export type Docente = Usuario
 
 export interface Provincia {
   id: number

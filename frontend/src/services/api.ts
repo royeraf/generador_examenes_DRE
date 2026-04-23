@@ -395,30 +395,32 @@ export const ubigeoService = {
 // =============================================================================
 
 export interface DocenteCreatePayload {
-  dni: string
+  dni?: string | null
   nombres?: string
   apellidos?: string
   profesion?: string
-  institucion_educativa?: string
-  nivel_educativo?: string
+  rol_codigo: string
+  ugel_id?: number | null
+  institucion_educativa_id?: number | null
   provincia_id?: number | null
   distrito_id?: number | null
   is_active?: boolean
-  is_superuser?: boolean
   password: string
+  permisos_modulos?: string[] | null
 }
 
 export interface DocenteUpdatePayload {
   nombres?: string
   apellidos?: string
   profesion?: string
-  institucion_educativa?: string
-  nivel_educativo?: string
+  rol_codigo?: string
+  ugel_id?: number | null
+  institucion_educativa_id?: number | null
   provincia_id?: number | null
   distrito_id?: number | null
   is_active?: boolean
-  is_superuser?: boolean
   password?: string
+  permisos_modulos?: string[] | null
 }
 
 export interface PaginatedResponse<T> {
@@ -427,6 +429,34 @@ export interface PaginatedResponse<T> {
   page: number
   size: number
   pages: number
+}
+
+// =============================================================================
+// ROLES CONFIG SERVICE
+// =============================================================================
+
+export interface RolConfig {
+  id: number
+  codigo: string
+  nombre: string
+  descripcion: string | null
+  nivel: number
+  orden: number
+  modulos_default: string[] | null
+  modulos_efectivos: string[]
+}
+
+export const rolesConfigService = {
+  async getAll(): Promise<RolConfig[]> {
+    const response = await apiClient.get<RolConfig[]>('/admin/roles-config')
+    return response.data
+  },
+  async update(rolCodigo: string, modulosDefault: string[] | null): Promise<RolConfig> {
+    const response = await apiClient.put<RolConfig>(`/admin/roles-config/${rolCodigo}`, {
+      modulos_default: modulosDefault,
+    })
+    return response.data
+  },
 }
 
 export const adminUsuariosService = {
@@ -499,3 +529,246 @@ export const examenesService = {
   },
 };
 
+// =============================================================================
+// SERVICIO DE ORGANIZACIÓN (UGELes e IEs)
+// =============================================================================
+
+import type { Ugel, InstitucionEducativa, Grado as GradoType } from '../types'
+
+export interface UgelCreatePayload {
+  codigo: string
+  nombre: string
+  provincia_id?: number | null
+  is_active?: boolean
+}
+
+export interface IECreatePayload {
+  codigo_modular: string
+  nombre: string
+  nivel_educativo: string[]
+  direccion?: string | null
+  ugel_id: number
+  distrito_id?: number | null
+  is_active?: boolean
+}
+
+export const organizacionService = {
+  async getUgeles(soloActivas = false): Promise<Ugel[]> {
+    const response = await apiClient.get<Ugel[]>('/organizacion/ugeles', {
+      params: { solo_activas: soloActivas },
+    })
+    return response.data
+  },
+  async createUgel(data: UgelCreatePayload): Promise<Ugel> {
+    const response = await apiClient.post<Ugel>('/organizacion/ugeles', data)
+    return response.data
+  },
+  async updateUgel(id: number, data: Partial<UgelCreatePayload>): Promise<Ugel> {
+    const response = await apiClient.put<Ugel>(`/organizacion/ugeles/${id}`, data)
+    return response.data
+  },
+  async deleteUgel(id: number): Promise<void> {
+    await apiClient.delete(`/organizacion/ugeles/${id}`)
+  },
+
+  async getInstituciones(ugelId?: number, soloActivas = false): Promise<InstitucionEducativa[]> {
+    const response = await apiClient.get<InstitucionEducativa[]>('/organizacion/instituciones', {
+      params: { ugel_id: ugelId, solo_activas: soloActivas },
+    })
+    return response.data
+  },
+  async getInstitucion(id: number): Promise<InstitucionEducativa> {
+    const response = await apiClient.get<InstitucionEducativa>(`/organizacion/instituciones/${id}`)
+    return response.data
+  },
+  async createInstitucion(data: IECreatePayload): Promise<InstitucionEducativa> {
+    const response = await apiClient.post<InstitucionEducativa>('/organizacion/instituciones', data)
+    return response.data
+  },
+  async updateInstitucion(id: number, data: Partial<IECreatePayload>): Promise<InstitucionEducativa> {
+    const response = await apiClient.put<InstitucionEducativa>(`/organizacion/instituciones/${id}`, data)
+    return response.data
+  },
+  async deleteInstitucion(id: number): Promise<void> {
+    await apiClient.delete(`/organizacion/instituciones/${id}`)
+  },
+
+  async getMiUgel(): Promise<Ugel> {
+    const response = await apiClient.get<Ugel>('/organizacion/mi-ugel')
+    return response.data
+  },
+  async getMiInstitucion(): Promise<InstitucionEducativa> {
+    const response = await apiClient.get<InstitucionEducativa>('/organizacion/mi-institucion')
+    return response.data
+  },
+  async getGrados(): Promise<GradoType[]> {
+    const response = await apiClient.get<GradoType[]>('/organizacion/grados')
+    return response.data
+  },
+}
+
+// =============================================================================
+// SERVICIO DE REGISTRO Y CÓDIGOS DE CLASE
+// =============================================================================
+
+export interface CodigoClase {
+  id: number
+  codigo: string
+  grado_id: number
+  grado_nombre: string | null
+  seccion: string
+  max_estudiantes: number
+  is_active: boolean
+  fecha_creacion: string | null
+  fecha_expiracion: string | null
+  institucion_nombre: string | null
+  total_estudiantes: number
+}
+
+export interface CodigoClaseCreatePayload {
+  grado_id: number
+  seccion: string
+  max_estudiantes?: number
+  fecha_expiracion?: string | null
+}
+
+export interface RegistroEstudiantePayload {
+  codigo_clase: string
+  nombres: string
+  apellidos: string
+  dni?: string | null
+  password: string
+}
+
+export const codigosClaseService = {
+  async getAll(): Promise<CodigoClase[]> {
+    const response = await apiClient.get<CodigoClase[]>('/codigos-clase')
+    return response.data
+  },
+  async create(data: CodigoClaseCreatePayload): Promise<CodigoClase> {
+    const response = await apiClient.post<CodigoClase>('/codigos-clase', data)
+    return response.data
+  },
+  async toggle(id: number): Promise<{ id: number; is_active: boolean }> {
+    const response = await apiClient.put(`/codigos-clase/${id}/toggle`)
+    return response.data
+  },
+  async delete(id: number): Promise<void> {
+    await apiClient.delete(`/codigos-clase/${id}`)
+  },
+}
+
+export const registroService = {
+  async registrarEstudiante(data: RegistroEstudiantePayload) {
+    const response = await apiClient.post('/registro/estudiante', data)
+    return response.data
+  },
+  async validarCodigo(codigo: string) {
+    const response = await apiClient.get(`/registro/validar-codigo/${codigo}`)
+    return response.data
+  },
+}
+
+
+// =============================================================================
+// SERVICIO DE ASIGNACIONES DE EXÁMENES
+// =============================================================================
+
+export interface AsignacionPayload {
+  tipo_examen: 'lectura' | 'matematica'
+  examen_id: number
+  grado_id: number
+  seccion?: string | null
+  fecha_inicio?: string | null
+  fecha_fin?: string | null
+  duracion_minutos?: number | null
+  intentos_permitidos?: number
+}
+
+export interface Asignacion {
+  id: number
+  tipo_examen: string
+  grado_id: number
+  seccion: string | null
+  fecha_inicio: string | null
+  fecha_fin: string | null
+  duracion_minutos: number | null
+  intentos_permitidos: number
+  is_active: boolean
+  fecha_creacion: string
+}
+
+export const asignacionesService = {
+  async asignar(data: AsignacionPayload): Promise<Asignacion> {
+    const response = await apiClient.post<Asignacion>('/examenes/asignar', data)
+    return response.data
+  },
+  async getAsignaciones(): Promise<Asignacion[]> {
+    const response = await apiClient.get<Asignacion[]>('/examenes/asignaciones')
+    return response.data
+  },
+  async getResultados(id: number) {
+    const response = await apiClient.get(`/examenes/asignaciones/${id}/resultados`)
+    return response.data
+  },
+  async deleteAsignacion(id: number): Promise<void> {
+    await apiClient.delete(`/examenes/asignaciones/${id}`)
+  },
+}
+
+// =============================================================================
+// SERVICIO DE GESTIÓN DE ESTUDIANTES POR DOCENTE
+// =============================================================================
+
+export interface EstudianteDocente {
+  id: number
+  codigo_estudiante: string | null
+  nombres: string | null
+  apellidos: string | null
+  dni: string | null
+  grado_id: number | null
+  grado_nombre: string | null
+  seccion: string | null
+  is_active: boolean
+  fecha_creacion: string | null
+}
+
+export interface RegistrarEstudianteDirectoPayload {
+  nombres: string
+  apellidos: string
+  dni?: string | null
+  password: string
+  grado_id: number
+  seccion: string
+}
+
+export interface RegistroEstudianteDirectoResponse {
+  id: number
+  codigo_estudiante: string
+  nombres: string | null
+  apellidos: string | null
+  grado: string | null
+  seccion: string | null
+  institucion: string | null
+}
+
+export const docenteEstudiantesService = {
+  async getMisEstudiantes(params?: { grado_id?: number; seccion?: string; q?: string }): Promise<EstudianteDocente[]> {
+    const response = await apiClient.get<EstudianteDocente[]>('/docente/mis-estudiantes', { params })
+    return response.data
+  },
+
+  async registrar(data: RegistrarEstudianteDirectoPayload): Promise<RegistroEstudianteDirectoResponse> {
+    const response = await apiClient.post<RegistroEstudianteDirectoResponse>('/docente/registrar-estudiante', data)
+    return response.data
+  },
+
+  async actualizar(id: number, data: RegistrarEstudianteDirectoPayload): Promise<EstudianteDocente> {
+    const response = await apiClient.put<EstudianteDocente>(`/docente/mis-estudiantes/${id}`, data)
+    return response.data
+  },
+
+  async eliminar(id: number): Promise<void> {
+    await apiClient.delete(`/docente/mis-estudiantes/${id}`)
+  },
+}

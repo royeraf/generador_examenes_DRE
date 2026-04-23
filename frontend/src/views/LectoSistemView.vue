@@ -7,7 +7,8 @@ import Footer from '../components/Footer.vue';
 import { useLectoSistem } from '../composables/useLectoSistem';
 import { useExamHistory } from '../composables/useExamHistory';
 import { showDeleteConfirm, Toast } from '../utils/swal';
-import { desempenosService } from '../services/api';
+import { desempenosService, asignacionesService } from '../services/api';
+import type { AsignacionPayload } from '../services/api';
 import {
   Brain,
   Sparkles,
@@ -23,6 +24,8 @@ import {
   Home,
   Loader2,
   Download,
+  Users,
+  X,
 } from 'lucide-vue-next';
 
 const router = useRouter();
@@ -99,6 +102,38 @@ const loadingPreview = shallowRef<string | null>(null);
 const loadingLink = shallowRef<string | null>(null);
 const loadingWordDownload = shallowRef<string | null>(null);
 const downloadingPreviewWord = ref(false);
+
+// Asignar examen modal
+const asignarModal = ref<{ examenId: number; gradoId: number | null } | null>(null);
+const asignarForm = ref({ seccion: '', duracion_minutos: '', fecha_fin: '' });
+const loadingAsignar = ref(false);
+
+function abrirAsignar(entry: ExamenHistoryEntry) {
+  asignarModal.value = { examenId: parseInt(entry.id), gradoId: entry.gradoId };
+  asignarForm.value = { seccion: '', duracion_minutos: '', fecha_fin: '' };
+}
+
+async function confirmarAsignar() {
+  if (!asignarModal.value) return;
+  loadingAsignar.value = true;
+  try {
+    const payload: AsignacionPayload = {
+      tipo_examen: 'lectura',
+      examen_id: asignarModal.value.examenId,
+      grado_id: asignarModal.value.gradoId ?? 0,
+      seccion: asignarForm.value.seccion || null,
+      duracion_minutos: asignarForm.value.duracion_minutos ? parseInt(asignarForm.value.duracion_minutos) : null,
+      fecha_fin: asignarForm.value.fecha_fin || null,
+    };
+    await asignacionesService.asignar(payload);
+    asignarModal.value = null;
+    Toast.fire({ icon: 'success', title: 'Examen asignado correctamente' });
+  } catch (e: any) {
+    Toast.fire({ icon: 'error', title: e.response?.data?.detail ?? 'Error al asignar' });
+  } finally {
+    loadingAsignar.value = false;
+  }
+}
 
 // Auto-save exams to history
 watch(resultado, async (newVal) => {
@@ -421,6 +456,11 @@ onMounted(async () => {
                   <Link v-else class="w-3.5 h-3.5" />
                   Vincular
                 </button>
+                <button @click="abrirAsignar(entry)"
+                  class="flex items-center justify-center px-2 py-2 text-xs text-violet-500 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-lg transition-colors"
+                  title="Asignar a estudiantes">
+                  <Users class="w-3.5 h-3.5" />
+                </button>
                 <button @click="confirmarEliminar(entry.id)" :disabled="!!loadingDelete"
                   class="flex items-center justify-center px-2 py-2 text-xs text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors disabled:opacity-50">
                   <Loader2 v-if="loadingDelete === entry.id" class="w-3.5 h-3.5 animate-spin" />
@@ -447,6 +487,53 @@ onMounted(async () => {
     <ExamPreviewModal :entry="previewEntry" :loading-delete="loadingDelete === previewEntry?.id"
       :is-loading="!!loadingPreview" :downloading-word="downloadingPreviewWord" @close="previewEntry = null"
       @vincular="onPreviewVincular" @eliminar="onPreviewEliminar" @descargar-word="descargarWordDesdePreview" />
+
+    <!-- Asignar Examen Modal -->
+    <Teleport to="body">
+      <div v-if="asignarModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm border border-slate-200 dark:border-slate-700">
+          <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-700">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
+                <Users class="w-4 h-4 text-white" />
+              </div>
+              <h3 class="font-bold text-slate-800 dark:text-white text-sm">Asignar a estudiantes</h3>
+            </div>
+            <button @click="asignarModal = null" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400">
+              <X class="w-4 h-4" />
+            </button>
+          </div>
+          <div class="px-5 py-4 space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Sección (opcional)</label>
+              <input v-model="asignarForm.seccion" type="text" placeholder="Ej: A, B, C..."
+                class="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-400 focus:border-violet-400 outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Duración (minutos, opcional)</label>
+              <input v-model="asignarForm.duracion_minutos" type="number" min="5" max="180" placeholder="Sin límite de tiempo"
+                class="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-400 focus:border-violet-400 outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Fecha límite (opcional)</label>
+              <input v-model="asignarForm.fecha_fin" type="date"
+                class="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-400 focus:border-violet-400 outline-none" />
+            </div>
+          </div>
+          <div class="px-5 py-4 border-t border-slate-100 dark:border-slate-700 flex gap-3">
+            <button @click="asignarModal = null"
+              class="flex-1 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+              Cancelar
+            </button>
+            <button @click="confirmarAsignar" :disabled="loadingAsignar"
+              class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 text-white text-sm font-bold hover:from-violet-600 hover:to-purple-700 transition-all disabled:opacity-60 flex items-center justify-center gap-2">
+              <Loader2 v-if="loadingAsignar" class="w-4 h-4 animate-spin" />
+              Asignar
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 

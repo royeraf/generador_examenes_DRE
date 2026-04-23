@@ -18,9 +18,9 @@ const error = shallowRef('');
 const passwordFieldType = shallowRef('text');
 
 const loginSchema = yup.object({
-    dni: yup.string()
-        .required('El DNI es obligatorio')
-        .matches(/^\d{8}$/, 'El DNI debe tener 8 dígitos numéricos'),
+    identifier: yup.string()
+        .required('El usuario es obligatorio')
+        .min(4, 'Ingresa tu DNI (8 dígitos) o código de estudiante'),
     password: yup.string()
         .required('La contraseña es obligatoria')
         .max(72, 'La contraseña no puede exceder los 72 caracteres'),
@@ -28,18 +28,18 @@ const loginSchema = yup.object({
 
 const { handleSubmit } = useForm({
     validationSchema: loginSchema,
-    initialValues: { dni: '', password: '' }
+    initialValues: { identifier: '', password: '' }
 });
 
-const { value: dniValue, errorMessage: dniError, handleChange: handleDniChange } = useField<string>('dni');
+const { value: identifierValue, errorMessage: identifierError } = useField<string>('identifier');
 const { value: passwordValue, errorMessage: passwordError } = useField<string>('password');
 
 const onSubmit = handleSubmit(async (formValues) => {
     loading.value = true;
     error.value = '';
     try {
-        await auth.login(formValues.dni, formValues.password);
-        router.push('/');
+        await auth.login(formValues.identifier, formValues.password);
+        router.push(auth.homeRoute);
     } catch (e: any) {
         const detail = e.response?.data?.detail ?? ''
         if (detail === 'Usuario inactivo') {
@@ -52,26 +52,13 @@ const onSubmit = handleSubmit(async (formValues) => {
             })
         } else {
             error.value = e.response?.status === 400
-                ? 'DNI o contraseña incorrectos'
+                ? 'Credenciales incorrectas'
                 : 'Error al iniciar sesión. Intente nuevamente.'
         }
     } finally {
         loading.value = false;
     }
 });
-
-const handleDniKeyPress = (e: KeyboardEvent) => {
-    if (!/^\d$/.test(e.key) && !['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter'].includes(e.key)) {
-        e.preventDefault();
-    }
-};
-
-const handleDniInput = (e: Event) => {
-    const target = e.target as HTMLInputElement;
-    const val = target.value.replace(/\D/g, '').slice(0, 8);
-    target.value = val;
-    handleDniChange(val);
-};
 </script>
 
 <template>
@@ -315,32 +302,30 @@ const handleDniInput = (e: Event) => {
                                 aria-hidden="true" tabindex="-1"
                                 style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;overflow:hidden;" />
 
-                            <!-- DNI Field -->
+                            <!-- Identificador Field (DNI o código estudiante) -->
                             <div>
                                 <label
                                     class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5 sm:mb-2 ml-0.5">
-                                    DNI (Usuario)
+                                    DNI o Código de Estudiante
                                 </label>
                                 <div class="relative group">
                                     <User
                                         class="absolute left-3 sm:left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400 dark:text-slate-400 group-focus-within:text-teal-500 transition-colors duration-200" />
-                                    <input :value="dniValue"
-                                        @input="handleDniInput"
-                                        @keypress="handleDniKeyPress"
+                                    <input v-model="identifierValue"
                                         type="text"
-                                        placeholder="12345678"
-                                        maxlength="8"
-                                        autocomplete="one-time-code"
+                                        placeholder="12345678 o EST0001"
+                                        maxlength="10"
+                                        autocomplete="username"
                                         readonly
                                         @focus="($event.target as HTMLInputElement).removeAttribute('readonly')"
                                         class="login-input w-full bg-white dark:bg-slate-700/80 border rounded-xl py-3 sm:py-3.5 pl-9 sm:pl-10 pr-4 outline-none text-slate-900 dark:text-white text-sm font-semibold tracking-[0.18em] placeholder:tracking-normal placeholder:font-normal placeholder:text-slate-400 dark:placeholder:text-slate-400 transition-all duration-200"
-                                        :class="dniError ? 'border-red-400 dark:border-red-500' : 'border-slate-300 dark:border-slate-500 focus:border-teal-500 dark:focus:border-teal-400 focus:ring-2 focus:ring-teal-500/25'" />
+                                        :class="identifierError ? 'border-red-400 dark:border-red-500' : 'border-slate-300 dark:border-slate-500 focus:border-teal-500 dark:focus:border-teal-400 focus:ring-2 focus:ring-teal-500/25'" />
                                 </div>
-                                <p v-if="dniError"
+                                <p v-if="identifierError"
                                     class="text-red-500 text-[11px] font-medium mt-1.5 ml-0.5 flex items-center gap-1">
                                     <AlertCircle
                                         class="w-3 h-3 shrink-0" />
-                                    {{ dniError }}
+                                    {{ identifierError }}
                                 </p>
                             </div>
 
@@ -393,6 +378,14 @@ const handleDniInput = (e: Event) => {
                                     class="w-4 h-4" />
                             </button>
                         </form>
+
+                        <!-- Link registro estudiante -->
+                        <p class="text-center text-xs text-slate-500 dark:text-slate-400 mt-5">
+                            ¿Estudiante sin cuenta?
+                            <router-link to="/registro" class="text-teal-600 dark:text-teal-400 font-semibold hover:underline">
+                                Registrarse con código de clase
+                            </router-link>
+                        </p>
                     </div>
 
                     <!-- Footer -->

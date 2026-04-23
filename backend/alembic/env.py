@@ -18,12 +18,14 @@ load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file_
 # Importar Base y todos los modelos para que estén registrados
 from app.core.database import Base  # noqa: E402
 from app.models.db_models import (  # noqa: E402, F401
+    Rol, Ugel, InstitucionEducativa, CodigoClase,
     Grado, Capacidad, Desempeno,
     CompetenciaMatematica, CapacidadMatematica,
     EstandarMatematica, DesempenoMatematica,
     ExamenLectura, ExamenMatematica,
+    AsignacionExamen, IntentoExamen, ProgresoEstudiante,
 )
-from app.models.docente import Docente  # noqa: E402, F401
+from app.models.usuario import Usuario  # noqa: E402, F401
 from app.models.ubigeo import Provincia, Distrito  # noqa: E402, F401
 
 config = context.config

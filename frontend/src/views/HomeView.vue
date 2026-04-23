@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { BookOpen, Calculator, Sparkles, GraduationCap, Users, ArrowRight, Settings, BarChart3 } from 'lucide-vue-next';
+import { ref, onMounted } from 'vue';
+import { BookOpen, Calculator, Sparkles, GraduationCap, Users, ArrowRight, Settings, BarChart3, Building2, MapPin, QrCode, ClipboardList, Loader2 } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import UserBadge from '../components/UserBadge.vue';
@@ -7,11 +8,59 @@ import logoDre from '../assets/logo.png';
 
 const router = useRouter();
 const auth = useAuthStore();
+
+// isLoading siempre arranca en true para que todos los v-if se resuelvan en
+// un solo ciclo de render (después de fetchMe), asegurando que las animaciones
+// de entrada se disparen juntas y en el orden correcto.
+const isLoading = ref(true);
+
+console.log('[HomeView] setup:', {
+  hasUser: !!auth.user,
+  userRole: auth.userRole,
+  isLoading: isLoading.value,
+  token: !!auth.token,
+  canAccessLecto: auth.canAccessLectosistem,
+  isAdmin: auth.isAdmin,
+});
+
+onMounted(async () => {
+  console.log('[HomeView] onMounted START');
+  if (!auth.token) {
+    console.log('[HomeView] No token, redirecting to login');
+    router.push('/login');
+    return;
+  }
+  // Siempre refrescar datos del usuario al montar HomeView.
+  try {
+    await auth.fetchMe();
+    console.log('[HomeView] fetchMe OK:', {
+      userRole: auth.userRole,
+      canAccessLecto: auth.canAccessLectosistem,
+      isAdmin: auth.isAdmin,
+    });
+  } catch (err) {
+    console.error('[HomeView] fetchMe FAILED:', err);
+    if (!auth.isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+  } finally {
+    isLoading.value = false;
+    console.log('[HomeView] isLoading set to false');
+  }
+});
 </script>
 
 <template>
     <div
         class="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 to-gray-100 dark:from-slate-900 dark:to-slate-950 relative overflow-hidden transition-colors duration-500">
+
+        <!-- Overlay de carga mientras se recupera el rol del usuario -->
+        <div v-if="isLoading"
+            class="absolute inset-0 z-[200] flex flex-col items-center justify-center bg-slate-50/90 dark:bg-slate-900/90 backdrop-blur-sm">
+            <Loader2 class="w-8 h-8 animate-spin text-teal-500 mb-2" />
+            <p class="text-sm text-slate-500 dark:text-slate-400">Cargando...</p>
+        </div>
 
         <!-- Background blobs -->
         <div class="absolute inset-0 overflow-hidden pointer-events-none">
@@ -51,8 +100,10 @@ const auth = useAuthStore();
             </div>
         </div>
 
-        <!-- Main content -->
-        <div class="relative z-10 flex flex-col flex-1 justify-center px-4 pt-20 pb-8 sm:pt-24 sm:pb-10">
+        <!-- Main content: v-if garantiza que se inserta al DOM solo después de que
+             fetchMe() completa, de modo que todas las animaciones CSS de entrada
+             se disparan juntas desde cero. -->
+        <div v-if="!isLoading" class="relative z-10 flex flex-col flex-1 justify-center px-4 pt-20 pb-8 sm:pt-24 sm:pb-10">
             <div class="max-w-3xl w-full mx-auto space-y-6 sm:space-y-8">
 
                 <!-- Header -->
@@ -76,7 +127,7 @@ const auth = useAuthStore();
                 <div class="grid sm:grid-cols-2 gap-3 sm:gap-4">
 
                     <!-- LectoSistem -->
-                    <button @click="router.push('/lectosistem')" class="module-card-teal group relative bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 text-left overflow-hidden flex flex-col gap-4 animate-slide-left delay-450
+                    <button v-if="auth.canAccessLectosistem" @click="router.push('/lectosistem')" class="module-card-teal group relative bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 text-left overflow-hidden flex flex-col gap-4 animate-slide-left delay-450
                                border border-slate-100 dark:border-slate-700 hover:border-teal-200 dark:hover:border-teal-700/60
                                shadow-lg shadow-slate-900/8 dark:shadow-black/30 hover:shadow-xl hover:shadow-teal-500/15 dark:hover:shadow-teal-500/10">
 
@@ -125,7 +176,7 @@ const auth = useAuthStore();
                     </button>
 
                     <!-- MatSistem -->
-                    <button @click="router.push('/matsistem')" class="module-card-indigo group relative bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 text-left overflow-hidden flex flex-col gap-4 animate-slide-right delay-550
+                    <button v-if="auth.canAccessMatsistem" @click="router.push('/matsistem')" class="module-card-indigo group relative bg-white dark:bg-slate-800 rounded-2xl p-5 sm:p-6 text-left overflow-hidden flex flex-col gap-4 animate-slide-right delay-550
                                border border-slate-100 dark:border-slate-700 hover:border-indigo-200 dark:hover:border-indigo-700/60
                                shadow-lg shadow-slate-900/8 dark:shadow-black/30 hover:shadow-xl hover:shadow-indigo-500/15 dark:hover:shadow-indigo-500/10">
 
@@ -176,72 +227,255 @@ const auth = useAuthStore();
 
                 </div>
 
-                <!-- Admin panel -->
-                <div v-if="auth.isAdmin">
-
+                <!-- Panel: Docente / Auxiliar -->
+                <div v-if="auth.isDocente || auth.isAuxiliar">
                     <div class="flex items-center gap-3 mb-3 animate-fade-blur delay-650">
                         <div class="h-px flex-1 bg-slate-200 dark:bg-slate-700/80"></div>
-                        <span
-                            class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-                            <Settings class="w-3 h-3" /> Administración
+                        <span class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                            <Settings class="w-3 h-3" /> Gestión
                         </span>
                         <div class="h-px flex-1 bg-slate-200 dark:bg-slate-700/80"></div>
                     </div>
-
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-
-                        <button @click="router.push('/admin')"
+                    <div class="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3">
+                        <button @click="router.push('/mis-estudiantes')"
                             class="admin-card group flex flex-col items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3 sm:p-4 hover:shadow-md hover:shadow-teal-500/15 hover:border-teal-300/70 dark:hover:border-teal-600/70 animate-scale-in delay-700">
-                            <div
-                                class="admin-icon w-8 h-8 rounded-lg bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center shadow-sm">
-                                <BookOpen class="w-4 h-4 text-white" />
-                            </div>
-                            <div class="text-center">
-                                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">
-                                    Comunicación</p>
-                                <p class="text-[9px] text-slate-400 dark:text-slate-500 leading-tight">Desempeños</p>
-                            </div>
-                        </button>
-
-                        <button @click="router.push('/admin/mat')"
-                            class="admin-card group flex flex-col items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3 sm:p-4 hover:shadow-md hover:shadow-indigo-500/15 hover:border-indigo-300/70 dark:hover:border-indigo-600/70 animate-scale-in delay-800">
-                            <div
-                                class="admin-icon w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-sm">
-                                <Calculator class="w-4 h-4 text-white" />
-                            </div>
-                            <div class="text-center">
-                                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">
-                                    Matemática</p>
-                                <p class="text-[9px] text-slate-400 dark:text-slate-500 leading-tight">Desempeños</p>
-                            </div>
-                        </button>
-
-                        <button @click="router.push('/admin/usuarios')"
-                            class="admin-card group flex flex-col items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3 sm:p-4 hover:shadow-md hover:shadow-violet-500/15 hover:border-violet-300/70 dark:hover:border-violet-600/70 animate-scale-in delay-900">
-                            <div
-                                class="admin-icon w-8 h-8 rounded-lg bg-gradient-to-br from-violet-400 to-pink-500 flex items-center justify-center shadow-sm">
+                            <div class="admin-icon w-8 h-8 rounded-lg bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center shadow-sm">
                                 <Users class="w-4 h-4 text-white" />
                             </div>
                             <div class="text-center">
-                                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">
-                                    Usuarios</p>
-                                <p class="text-[9px] text-slate-400 dark:text-slate-500 leading-tight">Gestión</p>
+                                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Mis Estudiantes</p>
+                                <p class="text-[9px] text-slate-400 dark:text-slate-500 leading-tight">Registrar y gestionar</p>
                             </div>
                         </button>
-
-                        <button @click="router.push('/admin/metricas')"
-                            class="admin-card group flex flex-col items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3 sm:p-4 hover:shadow-md hover:shadow-indigo-500/15 hover:border-indigo-300/70 dark:hover:border-indigo-600/70 animate-scale-in delay-950">
-                            <div
-                                class="admin-icon w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-sm">
+                        <button v-if="auth.canAccessCodigosClase" @click="router.push('/codigos-clase')"
+                            class="admin-card group flex flex-col items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3 sm:p-4 hover:shadow-md hover:shadow-indigo-500/15 hover:border-indigo-300/70 dark:hover:border-indigo-600/70 animate-scale-in delay-700">
+                            <div class="admin-icon w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-sm">
+                                <QrCode class="w-4 h-4 text-white" />
+                            </div>
+                            <div class="text-center">
+                                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Códigos de Clase</p>
+                                <p class="text-[9px] text-slate-400 dark:text-slate-500 leading-tight">Auto-registro</p>
+                            </div>
+                        </button>
+                        <button v-if="auth.canAccessAsignaciones" @click="router.push('/asignaciones')"
+                            class="admin-card group flex flex-col items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3 sm:p-4 hover:shadow-md hover:shadow-violet-500/15 hover:border-violet-300/70 dark:hover:border-violet-600/70 animate-scale-in delay-750">
+                            <div class="admin-icon w-8 h-8 rounded-lg bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center shadow-sm">
+                                <ClipboardList class="w-4 h-4 text-white" />
+                            </div>
+                            <div class="text-center">
+                                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Asignaciones</p>
+                                <p class="text-[9px] text-slate-400 dark:text-slate-500 leading-tight">Ver resultados</p>
+                            </div>
+                        </button>
+                        <button v-if="auth.canAccessMetricas" @click="router.push('/admin/metricas')"
+                            class="admin-card group flex flex-col items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3 sm:p-4 hover:shadow-md hover:shadow-indigo-500/15 hover:border-indigo-300/70 dark:hover:border-indigo-600/70 animate-scale-in delay-800">
+                            <div class="admin-icon w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-sm">
                                 <BarChart3 class="w-4 h-4 text-white" />
                             </div>
                             <div class="text-center">
-                                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">
-                                    Métricas</p>
+                                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Métricas</p>
                                 <p class="text-[9px] text-slate-400 dark:text-slate-500 leading-tight">Uso del sistema</p>
                             </div>
                         </button>
+                    </div>
+                </div>
 
+                <!-- Panel: Director -->
+                <div v-if="auth.isDirector">
+                    <div class="flex items-center gap-3 mb-3 animate-fade-blur delay-650">
+                        <div class="h-px flex-1 bg-slate-200 dark:bg-slate-700/80"></div>
+                        <span class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                            <Settings class="w-3 h-3" /> Administración IE
+                        </span>
+                        <div class="h-px flex-1 bg-slate-200 dark:bg-slate-700/80"></div>
+                    </div>
+                    <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3">
+                        <button @click="router.push('/mi-institucion')"
+                            class="admin-card group flex flex-col items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3 sm:p-4 hover:shadow-md hover:shadow-teal-500/15 hover:border-teal-300/70 dark:hover:border-teal-600/70 animate-scale-in delay-700">
+                            <div class="admin-icon w-8 h-8 rounded-lg bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center shadow-sm">
+                                <Building2 class="w-4 h-4 text-white" />
+                            </div>
+                            <div class="text-center">
+                                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Mi Institución</p>
+                                <p class="text-[9px] text-slate-400 dark:text-slate-500 leading-tight">Detalle y estadísticas</p>
+                            </div>
+                        </button>
+                        <button @click="router.push('/codigos-clase')"
+                            class="admin-card group flex flex-col items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3 sm:p-4 hover:shadow-md hover:shadow-indigo-500/15 hover:border-indigo-300/70 dark:hover:border-indigo-600/70 animate-scale-in delay-750">
+                            <div class="admin-icon w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-sm">
+                                <QrCode class="w-4 h-4 text-white" />
+                            </div>
+                            <div class="text-center">
+                                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Códigos de Clase</p>
+                                <p class="text-[9px] text-slate-400 dark:text-slate-500 leading-tight">Registro estudiantes</p>
+                            </div>
+                        </button>
+                        <button @click="router.push('/asignaciones')"
+                            class="admin-card group flex flex-col items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3 sm:p-4 hover:shadow-md hover:shadow-rose-500/15 hover:border-rose-300/70 dark:hover:border-rose-600/70 animate-scale-in delay-850">
+                            <div class="admin-icon w-8 h-8 rounded-lg bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center shadow-sm">
+                                <ClipboardList class="w-4 h-4 text-white" />
+                            </div>
+                            <div class="text-center">
+                                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Asignaciones</p>
+                                <p class="text-[9px] text-slate-400 dark:text-slate-500 leading-tight">Ver resultados</p>
+                            </div>
+                        </button>
+                        <button @click="router.push('/admin/usuarios')"
+                            class="admin-card group flex flex-col items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3 sm:p-4 hover:shadow-md hover:shadow-violet-500/15 hover:border-violet-300/70 dark:hover:border-violet-600/70 animate-scale-in delay-900">
+                            <div class="admin-icon w-8 h-8 rounded-lg bg-gradient-to-br from-violet-400 to-pink-500 flex items-center justify-center shadow-sm">
+                                <Users class="w-4 h-4 text-white" />
+                            </div>
+                            <div class="text-center">
+                                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Usuarios</p>
+                                <p class="text-[9px] text-slate-400 dark:text-slate-500 leading-tight">Docentes y estudiantes</p>
+                            </div>
+                        </button>
+                        <button @click="router.push('/admin/metricas')"
+                            class="admin-card group flex flex-col items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3 sm:p-4 hover:shadow-md hover:shadow-indigo-500/15 hover:border-indigo-300/70 dark:hover:border-indigo-600/70 animate-scale-in delay-950">
+                            <div class="admin-icon w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-sm">
+                                <BarChart3 class="w-4 h-4 text-white" />
+                            </div>
+                            <div class="text-center">
+                                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Métricas</p>
+                                <p class="text-[9px] text-slate-400 dark:text-slate-500 leading-tight">Uso del sistema</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Panel: Responsable UGEL -->
+                <div v-if="auth.isResponsableUGEL">
+                    <div class="flex items-center gap-3 mb-3 animate-fade-blur delay-650">
+                        <div class="h-px flex-1 bg-slate-200 dark:bg-slate-700/80"></div>
+                        <span class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                            <Settings class="w-3 h-3" /> Administración UGEL
+                        </span>
+                        <div class="h-px flex-1 bg-slate-200 dark:bg-slate-700/80"></div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 sm:gap-3">
+                        <button @click="router.push('/mi-ugel')"
+                            class="admin-card group flex flex-col items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3 sm:p-4 hover:shadow-md hover:shadow-teal-500/15 hover:border-teal-300/70 dark:hover:border-teal-600/70 animate-scale-in delay-700">
+                            <div class="admin-icon w-8 h-8 rounded-lg bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center shadow-sm">
+                                <MapPin class="w-4 h-4 text-white" />
+                            </div>
+                            <div class="text-center">
+                                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Mi UGEL</p>
+                                <p class="text-[9px] text-slate-400 dark:text-slate-500 leading-tight">Detalle y estadísticas</p>
+                            </div>
+                        </button>
+                        <button @click="router.push('/admin/instituciones')"
+                            class="admin-card group flex flex-col items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3 sm:p-4 hover:shadow-md hover:shadow-indigo-500/15 hover:border-indigo-300/70 dark:hover:border-indigo-600/70 animate-scale-in delay-750">
+                            <div class="admin-icon w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-sm">
+                                <Building2 class="w-4 h-4 text-white" />
+                            </div>
+                            <div class="text-center">
+                                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Instituciones</p>
+                                <p class="text-[9px] text-slate-400 dark:text-slate-500 leading-tight">IEs de mi UGEL</p>
+                            </div>
+                        </button>
+                        <button @click="router.push('/admin/metricas')"
+                            class="admin-card group flex flex-col items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3 sm:p-4 hover:shadow-md hover:shadow-violet-500/15 hover:border-violet-300/70 dark:hover:border-violet-600/70 animate-scale-in delay-800">
+                            <div class="admin-icon w-8 h-8 rounded-lg bg-gradient-to-br from-violet-400 to-pink-500 flex items-center justify-center shadow-sm">
+                                <BarChart3 class="w-4 h-4 text-white" />
+                            </div>
+                            <div class="text-center">
+                                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Métricas</p>
+                                <p class="text-[9px] text-slate-400 dark:text-slate-500 leading-tight">Uso del sistema</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Panel: Especialistas DRE -->
+                <div v-if="auth.isEspecialista">
+                    <div class="flex items-center gap-3 mb-3 animate-fade-blur delay-650">
+                        <div class="h-px flex-1 bg-slate-200 dark:bg-slate-700/80"></div>
+                        <span class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                            <Settings class="w-3 h-3" /> Administración DRE
+                        </span>
+                        <div class="h-px flex-1 bg-slate-200 dark:bg-slate-700/80"></div>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+                        <button v-if="auth.canAccessAdminDesempenos" @click="router.push('/admin')"
+                            class="admin-card group flex flex-col items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3 sm:p-4 hover:shadow-md hover:shadow-slate-900/10 hover:border-slate-300/80 dark:hover:border-slate-500/80 animate-scale-in delay-700">
+                            <div class="admin-icon w-8 h-8 rounded-lg bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center shadow-sm">
+                                <BookOpen class="w-4 h-4 text-white" />
+                            </div>
+                            <div class="text-center">
+                                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Comunicación</p>
+                                <p class="text-[9px] text-slate-400 dark:text-slate-500 leading-tight">Desempeños</p>
+                            </div>
+                        </button>
+                        <button v-if="auth.canAccessAdminDesempenos" @click="router.push('/admin/mat')"
+                            class="admin-card group flex flex-col items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3 sm:p-4 hover:shadow-md hover:shadow-slate-900/10 hover:border-slate-300/80 dark:hover:border-slate-500/80 animate-scale-in delay-700">
+                            <div class="admin-icon w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-sm">
+                                <Calculator class="w-4 h-4 text-white" />
+                            </div>
+                            <div class="text-center">
+                                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Matemática</p>
+                                <p class="text-[9px] text-slate-400 dark:text-slate-500 leading-tight">Desempeños</p>
+                            </div>
+                        </button>
+                        <button v-if="auth.canAccessAdminUgeles" @click="router.push('/admin/ugeles')"
+                            class="admin-card group flex flex-col items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3 sm:p-4 hover:shadow-md hover:shadow-slate-900/10 hover:border-slate-300/80 dark:hover:border-slate-500/80 animate-scale-in delay-700">
+                            <div class="admin-icon w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center shadow-sm">
+                                <MapPin class="w-4 h-4 text-white" />
+                            </div>
+                            <div class="text-center">
+                                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">UGELes</p>
+                                <p class="text-[9px] text-slate-400 dark:text-slate-500 leading-tight">Gestión</p>
+                            </div>
+                        </button>
+                        <button v-if="auth.canAccessAdminInstituciones" @click="router.push('/admin/instituciones')"
+                            class="admin-card group flex flex-col items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3 sm:p-4 hover:shadow-md hover:shadow-slate-900/10 hover:border-slate-300/80 dark:hover:border-slate-500/80 animate-scale-in delay-700">
+                            <div class="admin-icon w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-400 to-blue-500 flex items-center justify-center shadow-sm">
+                                <Building2 class="w-4 h-4 text-white" />
+                            </div>
+                            <div class="text-center">
+                                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Instituciones</p>
+                                <p class="text-[9px] text-slate-400 dark:text-slate-500 leading-tight">IEs del sistema</p>
+                            </div>
+                        </button>
+                        <button v-if="auth.canAccessAdminUsuarios" @click="router.push('/admin/usuarios')"
+                            class="admin-card group flex flex-col items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3 sm:p-4 hover:shadow-md hover:shadow-slate-900/10 hover:border-slate-300/80 dark:hover:border-slate-500/80 animate-scale-in delay-700">
+                            <div class="admin-icon w-8 h-8 rounded-lg bg-gradient-to-br from-violet-400 to-pink-500 flex items-center justify-center shadow-sm">
+                                <Users class="w-4 h-4 text-white" />
+                            </div>
+                            <div class="text-center">
+                                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Usuarios</p>
+                                <p class="text-[9px] text-slate-400 dark:text-slate-500 leading-tight">Gestión</p>
+                            </div>
+                        </button>
+                        <button v-if="auth.canAccessMetricas" @click="router.push('/admin/metricas')"
+                            class="admin-card group flex flex-col items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3 sm:p-4 hover:shadow-md hover:shadow-slate-900/10 hover:border-slate-300/80 dark:hover:border-slate-500/80 animate-scale-in delay-700">
+                            <div class="admin-icon w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-sm">
+                                <BarChart3 class="w-4 h-4 text-white" />
+                            </div>
+                            <div class="text-center">
+                                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Métricas</p>
+                                <p class="text-[9px] text-slate-400 dark:text-slate-500 leading-tight">Uso del sistema</p>
+                            </div>
+                        </button>
+                        <button v-if="auth.canAccessCodigosClase" @click="router.push('/codigos-clase')"
+                            class="admin-card group flex flex-col items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3 sm:p-4 hover:shadow-md hover:shadow-slate-900/10 hover:border-slate-300/80 dark:hover:border-slate-500/80 animate-scale-in delay-700">
+                            <div class="admin-icon w-8 h-8 rounded-lg bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center shadow-sm">
+                                <QrCode class="w-4 h-4 text-white" />
+                            </div>
+                            <div class="text-center">
+                                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Códigos de Clase</p>
+                                <p class="text-[9px] text-slate-400 dark:text-slate-500 leading-tight">Registro estudiantes</p>
+                            </div>
+                        </button>
+                        <button v-if="auth.canAccessAsignaciones" @click="router.push('/asignaciones')"
+                            class="admin-card group flex flex-col items-center gap-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-3 sm:p-4 hover:shadow-md hover:shadow-slate-900/10 hover:border-slate-300/80 dark:hover:border-slate-500/80 animate-scale-in delay-700">
+                            <div class="admin-icon w-8 h-8 rounded-lg bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center shadow-sm">
+                                <ClipboardList class="w-4 h-4 text-white" />
+                            </div>
+                            <div class="text-center">
+                                <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Asignaciones</p>
+                                <p class="text-[9px] text-slate-400 dark:text-slate-500 leading-tight">Ver resultados</p>
+                            </div>
+                        </button>
                     </div>
                 </div>
 
@@ -407,7 +641,7 @@ const auth = useAuthStore();
 @keyframes scaleIn {
     from {
         opacity: 0;
-        transform: scale(0.8) translateY(12px);
+        transform: scale(0.9) translateY(12px);
     }
 
     to {
@@ -419,8 +653,8 @@ const auth = useAuthStore();
 @keyframes fadeBlur {
     from {
         opacity: 0;
-        filter: blur(6px);
-        transform: translateY(8px);
+        filter: blur(4px);
+        transform: translateY(6px);
     }
 
     to {
@@ -431,37 +665,16 @@ const auth = useAuthStore();
 }
 
 /* ── Delays ───────────────────────────────────────── */
-.delay-0 {
-    animation-delay: 0ms;
-}
-
-.delay-150 {
-    animation-delay: 150ms;
-}
-
-.delay-300 {
-    animation-delay: 300ms;
-}
-
-.delay-450 {
-    animation-delay: 450ms;
-}
-
-.delay-550 {
-    animation-delay: 550ms;
-}
-
-.delay-650 {
-    animation-delay: 650ms;
-}
-
-.delay-700 {
-    animation-delay: 700ms;
-}
-
-.delay-800 {
-    animation-delay: 800ms;
-}
+.delay-0   { animation-delay: 0ms; }
+.delay-150 { animation-delay: 150ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-450 { animation-delay: 450ms; }
+.delay-550 { animation-delay: 550ms; }
+.delay-650 { animation-delay: 650ms; }
+.delay-700 { animation-delay: 700ms; }
+.delay-750 { animation-delay: 750ms; }
+.delay-800 { animation-delay: 800ms; }
+.delay-850 { animation-delay: 850ms; }
 
 .delay-900 {
     animation-delay: 900ms;
@@ -506,7 +719,7 @@ const auth = useAuthStore();
 .module-card-teal,
 .module-card-indigo {
     will-change: transform;
-    transition: transform 75ms ease-out;
+    transition: transform 160ms cubic-bezier(0.34, 1.4, 0.64, 1), box-shadow 160ms ease-out;
 }
 
 .module-card-teal:hover {
@@ -518,20 +731,54 @@ const auth = useAuthStore();
 }
 
 .admin-card {
+    position: relative;
+    overflow: hidden;
     will-change: transform;
-    transition: transform 75ms ease-out;
+    transition: transform 160ms cubic-bezier(0.34, 1.4, 0.64, 1),
+                box-shadow 160ms ease-out,
+                border-color 160ms ease-out;
 }
 
 .admin-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-5px);
+}
+
+/* Shine sweep al hacer hover en tarjeta admin */
+.admin-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        115deg,
+        transparent 0%,
+        transparent 38%,
+        rgba(255, 255, 255, 0.13) 50%,
+        transparent 62%,
+        transparent 100%
+    );
+    transform: translateX(-110%);
+    pointer-events: none;
+    border-radius: inherit;
+    transition: transform 0ms;
+}
+
+.admin-card:hover::after {
+    transform: translateX(110%);
+    transition: transform 480ms ease-out;
 }
 
 .admin-card .admin-icon {
-    transition: transform 75ms ease-out;
+    transition: transform 180ms cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 180ms ease-out;
+    box-shadow: 0 2px 6px -1px rgba(0, 0, 0, 0.18);
 }
 
 .admin-card:hover .admin-icon {
-    transform: scale(1.1);
+    transform: scale(1.18) rotate(-6deg);
+    box-shadow:
+        0 0 0 3px rgba(255, 255, 255, 0.14),
+        0 0 14px rgba(255, 255, 255, 0.18),
+        0 4px 12px rgba(0, 0, 0, 0.22);
 }
 
 /* ── Module card hover effects ────────────────────── */
@@ -586,7 +833,7 @@ const auth = useAuthStore();
 }
 
 .module-card-teal:hover .card-icon-teal {
-    transform: scale(1.06);
+    transform: scale(1.08) rotate(-6deg);
     box-shadow:
         0 0 0 3px rgba(20, 184, 166, 0.22),
         0 0 14px rgba(20, 184, 166, 0.38),
@@ -599,7 +846,7 @@ const auth = useAuthStore();
 }
 
 .module-card-indigo:hover .card-icon-indigo {
-    transform: scale(1.06);
+    transform: scale(1.08) rotate(-6deg);
     box-shadow:
         0 0 0 3px rgba(99, 102, 241, 0.22),
         0 0 14px rgba(99, 102, 241, 0.38),

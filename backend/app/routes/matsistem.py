@@ -19,6 +19,8 @@ from app.models.db_models import (
     DesempenoMatematica,
     ExamenMatematica
 )
+from app.models.usuario import Usuario
+from app.api.dependencies import require_modulo
 
 
 router = APIRouter()
@@ -549,7 +551,8 @@ class GenerarExamenMatRequest(BaseModel):
 async def generar_examen_matematica(
     request: GenerarExamenMatRequest,
     req: Request,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    _: Usuario = Depends(require_modulo("matsistem"))
 ):
     """
     Genera un examen de matemática con situación problemática integradora.

@@ -5,11 +5,32 @@ from pydantic import BaseModel
 from typing import List, Optional
 
 from app.core.database import get_db
-from app.models.db_models import Grado, Capacidad, Desempeno
-from app.models.docente import Docente as DocenteModel
-from app.schemas.docente import Docente, DocenteAdminCreate, DocenteUpdate
-from app.services.docente_service import docente_service
-from app.api.dependencies import get_current_superuser
+from app.models.db_models import Grado, Capacidad, Desempeno, Rol
+from app.models.usuario import Usuario as DocenteModel
+from app.schemas.usuario import Usuario as Docente, UsuarioAdminCreate as DocenteAdminCreate, UsuarioUpdate as DocenteUpdate
+from app.services.usuario_service import usuario_service as docente_service
+from app.api.dependencies import get_current_superuser, get_current_active_user, require_role
+from app.models.enums import RolCodigo
+
+# Dependencia para gestión de usuarios: DRE + UGEL + Director
+_GESTORES_ROLES = (
+    RolCodigo.ESPECIALISTA_DRE_COMUNICACION,
+    RolCodigo.ESPECIALISTA_DRE_MATEMATICA,
+    RolCodigo.RESPONSABLE_UGEL,
+    RolCodigo.DIRECTOR,
+)
+get_gestor = require_role(*_GESTORES_ROLES)
+
+
+def _scope(current_user: DocenteModel) -> dict:
+    """Retorna filtros de scope según el rol del usuario."""
+    rol = RolCodigo(current_user.rol_codigo)
+    if rol in {RolCodigo.ESPECIALISTA_DRE_COMUNICACION, RolCodigo.ESPECIALISTA_DRE_MATEMATICA}:
+        return {}
+    if rol == RolCodigo.RESPONSABLE_UGEL:
+        return {"ugel_id": current_user.ugel_id}
+    # Director
+    return {"institucion_educativa_id": current_user.institucion_educativa_id}
 
 router = APIRouter()
 
@@ -269,12 +290,14 @@ async def list_docentes(
     size: int = 10,
     q: Optional[str] = None,
     db: AsyncSession = Depends(get_db),
-    current_user: DocenteModel = Depends(get_current_superuser)
+    current_user: DocenteModel = Depends(get_gestor)
 ):
-    """Listar usuarios con paginación y búsqueda opcional."""
+    """Listar usuarios con paginación y búsqueda opcional. Scoped por rol."""
     skip = (page - 1) * size
-    items, total = await docente_service.get_paginated_docentes(db, skip=skip, limit=size, search_query=q)
-    
+    scope = _scope(current_user)
+    items, total = await docente_service.get_paginated_usuarios(
+        db, skip=skip, limit=size, search_query=q, **scope
+    )
     return PaginatedResponse(
         items=items,
         total=total,
@@ -288,11 +311,15 @@ async def list_docentes(
 async def create_docente(
     docente_in: DocenteAdminCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: DocenteModel = Depends(get_current_superuser)
+    current_user: DocenteModel = Depends(get_gestor)
 ):
-    """Crear un nuevo usuario (solo admin)."""
+    """Crear un nuevo usuario. Valida jerarquía de roles."""
     try:
-        return await docente_service.create_docente(db, docente_in, creado_por_id=current_user.id)
+        return await docente_service.create_usuario(
+            db, docente_in,
+            creado_por_id=current_user.id,
+            creado_por_rol=current_user.rol_codigo,
+        )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -301,7 +328,7 @@ async def create_docente(
 async def get_docente(
     docente_id: int,
     db: AsyncSession = Depends(get_db),
-    _: DocenteModel = Depends(get_current_superuser)
+    _: DocenteModel = Depends(get_gestor)
 ):
     """Obtener un usuario por ID."""
     from app.repositories.docente_repository import docente_repository
@@ -316,10 +343,10 @@ async def update_docente(
     docente_id: int,
     docente_in: DocenteUpdate,
     db: AsyncSession = Depends(get_db),
-    _: DocenteModel = Depends(get_current_superuser)
+    _: DocenteModel = Depends(get_gestor)
 ):
     """Actualizar un usuario."""
-    docente = await docente_service.update_docente(db, docente_id, docente_in)
+    docente = await docente_service.update_usuario(db, docente_id, docente_in)
     if not docente:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     return docente
@@ -329,12 +356,12 @@ async def update_docente(
 async def delete_docente(
     docente_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: DocenteModel = Depends(get_current_superuser)
+    current_user: DocenteModel = Depends(get_gestor)
 ):
     """Eliminar un usuario. No se puede eliminar a sí mismo."""
     if current_user.id == docente_id:
         raise HTTPException(status_code=400, detail="No puedes eliminar tu propio usuario")
-    deleted = await docente_service.delete_docente(db, docente_id)
+    deleted = await docente_service.delete_usuario(db, docente_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     return {"message": "Usuario eliminado correctamente"}
@@ -411,7 +438,6 @@ async def get_metricas(
             DocenteModel.nombres,
             DocenteModel.apellidos,
             DocenteModel.dni,
-            DocenteModel.institucion_educativa,
             func.count(ExamenLectura.id).label('examenes_lectura')
         )
         .outerjoin(ExamenLectura, ExamenLectura.docente_id == DocenteModel.id)
@@ -440,9 +466,9 @@ async def get_metricas(
     top_docentes = sorted([
         {
             'id': d.id,
-            'nombre': f"{d.nombres or ''} {d.apellidos or ''}".strip() or d.dni,
+            'nombre': f"{d.nombres or ''} {d.apellidos or ''}".strip() or d.dni or d.codigo_estudiante,
             'dni': d.dni,
-            'institucion': d.institucion_educativa or '—',
+            'institucion': d.institucion_nombre or '—',
             'lectura': top_lec.get(d.id, 0),
             'matematica': top_mat.get(d.id, 0),
             'total': top_lec.get(d.id, 0) + top_mat.get(d.id, 0),
@@ -525,11 +551,90 @@ async def get_metricas(
     }
 
 
+
+# --- Roles Config Endpoints ---
+
+class RolConfigResponse(BaseModel):
+    id: int
+    codigo: str
+    nombre: str
+    descripcion: Optional[str] = None
+    nivel: int
+    orden: int
+    modulos_default: Optional[List[str]] = None
+    modulos_efectivos: List[str]
+
+    class Config:
+        from_attributes = True
+
+
+class RolConfigUpdate(BaseModel):
+    modulos_default: Optional[List[str]] = None
+
+
+@router.get("/roles-config", response_model=List[RolConfigResponse])
+async def get_roles_config(
+    db: AsyncSession = Depends(get_db),
+    _: DocenteModel = Depends(get_current_superuser),
+):
+    """Obtener configuración de módulos de todos los roles."""
+    from app.models.enums import ROLE_MODULOS_DEFAULT
+    result = await db.execute(select(Rol).order_by(Rol.orden))
+    roles = result.scalars().all()
+    out = []
+    for rol in roles:
+        efectivos = rol.modulos_default if rol.modulos_default else ROLE_MODULOS_DEFAULT.get(rol.codigo, [])
+        out.append(RolConfigResponse(
+            id=rol.id,
+            codigo=rol.codigo,
+            nombre=rol.nombre,
+            descripcion=rol.descripcion,
+            nivel=rol.nivel,
+            orden=rol.orden,
+            modulos_default=rol.modulos_default,
+            modulos_efectivos=efectivos,
+        ))
+    return out
+
+
+@router.put("/roles-config/{rol_codigo}", response_model=RolConfigResponse)
+async def update_rol_config(
+    rol_codigo: str,
+    data: RolConfigUpdate,
+    db: AsyncSession = Depends(get_db),
+    _: DocenteModel = Depends(get_current_superuser),
+):
+    """Actualizar los módulos por defecto de un rol."""
+    from app.models.enums import ROLE_MODULOS_DEFAULT, MODULOS_DISPONIBLES
+    result = await db.execute(select(Rol).where(Rol.codigo == rol_codigo))
+    rol = result.scalars().first()
+    if not rol:
+        raise HTTPException(status_code=404, detail="Rol no encontrado")
+    if data.modulos_default is not None:
+        invalidos = [m for m in data.modulos_default if m not in MODULOS_DISPONIBLES]
+        if invalidos:
+            raise HTTPException(status_code=400, detail=f"Módulos inválidos: {invalidos}")
+    rol.modulos_default = data.modulos_default
+    await db.commit()
+    await db.refresh(rol)
+    efectivos = rol.modulos_default if rol.modulos_default else ROLE_MODULOS_DEFAULT.get(rol.codigo, [])
+    return RolConfigResponse(
+        id=rol.id,
+        codigo=rol.codigo,
+        nombre=rol.nombre,
+        descripcion=rol.descripcion,
+        nivel=rol.nivel,
+        orden=rol.orden,
+        modulos_default=rol.modulos_default,
+        modulos_efectivos=efectivos,
+    )
+
+
 @router.patch("/docentes/{docente_id}/toggle-active", response_model=Docente)
 async def toggle_active(
     docente_id: int,
     db: AsyncSession = Depends(get_db),
-    current_user: DocenteModel = Depends(get_current_superuser)
+    current_user: DocenteModel = Depends(get_gestor)
 ):
     """Activar o desactivar un usuario."""
     if current_user.id == docente_id:

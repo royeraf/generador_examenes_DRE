@@ -2,12 +2,12 @@
 import { ref, watch, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
-import { adminUsuariosService, ubigeoService, type DocenteCreatePayload, type DocenteUpdatePayload } from '../services/api'
-import type { Docente, Provincia, Distrito } from '../types'
+import { adminUsuariosService, ubigeoService, organizacionService, rolesConfigService, type DocenteCreatePayload, type DocenteUpdatePayload, type RolConfig } from '../services/api'
+import type { Docente, Provincia, Distrito, Ugel, InstitucionEducativa } from '../types'
 import {
   Plus, Edit2, Trash2, Home,
   Shield, X, Eye, EyeOff, AlertCircle, KeyRound, CheckCircle,
-  ChevronLeft, ChevronRight, Loader2, MoreVertical, Search, MapPin
+  ChevronLeft, ChevronRight, Loader2, MoreVertical, Search, MapPin, Save, RotateCcw
 } from 'lucide-vue-next'
 import ComboBox from '../components/ComboBox.vue'
 import Header from '../components/Header.vue'
@@ -17,6 +17,84 @@ import * as yup from 'yup'
 
 const router = useRouter()
 const auth = useAuthStore()
+
+// Tabs
+const activeTab = ref<'usuarios' | 'roles'>('usuarios')
+
+// Datos de roles del sistema
+const ROLES_SISTEMA = [
+  { codigo: 'especialista_dre_comunicacion', nombre: 'Especialista DRE Comunicación', descripcion: 'Gestiona desempeños de comunicación, administra UGELes, instituciones y usuarios a nivel regional.', nivel: 1, etiqueta: 'DRE COM', gradiente: 'from-teal-400 to-emerald-500' },
+  { codigo: 'especialista_dre_matematica',   nombre: 'Especialista DRE Matemática',   descripcion: 'Gestiona desempeños de matemática, administra UGELes, instituciones y usuarios a nivel regional.',   nivel: 1, etiqueta: 'DRE MAT', gradiente: 'from-indigo-400 to-purple-500' },
+  { codigo: 'responsable_ugel',              nombre: 'Responsable UGEL',              descripcion: 'Supervisa las instituciones educativas de su UGEL y accede a métricas del ámbito.',                   nivel: 2, etiqueta: 'UGEL',    gradiente: 'from-blue-400 to-cyan-500'   },
+  { codigo: 'director',                      nombre: 'Director IE',                   descripcion: 'Administra su institución educativa, gestiona docentes y accede a módulos de evaluación.',            nivel: 3, etiqueta: 'Director', gradiente: 'from-violet-400 to-purple-500'},
+  { codigo: 'auxiliar',                      nombre: 'Auxiliar',                      descripcion: 'Genera y gestiona evaluaciones dentro de la institución educativa.',                                  nivel: 4, etiqueta: 'Auxiliar', gradiente: 'from-amber-400 to-orange-500' },
+  { codigo: 'docente',                       nombre: 'Docente',                       descripcion: 'Genera evaluaciones para sus estudiantes usando los módulos disponibles.',                            nivel: 5, etiqueta: 'Docente',  gradiente: 'from-rose-400 to-pink-500'   },
+  { codigo: 'estudiante',                    nombre: 'Estudiante',                    descripcion: 'Accede al portal estudiantil para tomar evaluaciones asignadas por su docente.',                      nivel: 6, etiqueta: 'Alumno',   gradiente: 'from-slate-400 to-slate-500' },
+]
+
+// Roles config desde backend
+const rolesConfig = ref<RolConfig[]>([])
+const loadingRoles = ref(false)
+// Estado de edición por rol: { [codigo]: string[] }
+const rolesEditDraft = ref<Record<string, string[]>>({})
+const rolesEditMode = ref<Record<string, boolean>>({})
+const savingRol = ref<Record<string, boolean>>({})
+
+async function loadRolesConfig() {
+  loadingRoles.value = true
+  try {
+    rolesConfig.value = await rolesConfigService.getAll()
+  } catch (e) {
+    console.error('Error cargando roles config:', e)
+  } finally {
+    loadingRoles.value = false
+  }
+}
+
+function modulosDelRol(codigo: string): string[] {
+  const rc = rolesConfig.value.find(r => r.codigo === codigo)
+  if (rc) return rc.modulos_efectivos
+  return ROLE_MODULOS_DEFAULT[codigo] ?? []
+}
+
+function startEditRol(codigo: string) {
+  rolesEditDraft.value[codigo] = [...modulosDelRol(codigo)]
+  rolesEditMode.value[codigo] = true
+}
+
+function cancelEditRol(codigo: string) {
+  rolesEditMode.value[codigo] = false
+  delete rolesEditDraft.value[codigo]
+}
+
+function toggleRolModulo(rolCodigo: string, moduloId: string) {
+  const draft = rolesEditDraft.value[rolCodigo] ?? []
+  const idx = draft.indexOf(moduloId)
+  if (idx >= 0) draft.splice(idx, 1)
+  else draft.push(moduloId)
+  rolesEditDraft.value[rolCodigo] = [...draft]
+}
+
+async function saveRolConfig(codigo: string) {
+  savingRol.value[codigo] = true
+  try {
+    const updated = await rolesConfigService.update(codigo, rolesEditDraft.value[codigo] ?? null)
+    const idx = rolesConfig.value.findIndex(r => r.codigo === codigo)
+    if (idx >= 0) rolesConfig.value[idx] = updated
+    else rolesConfig.value.push(updated)
+    rolesEditMode.value[codigo] = false
+    delete rolesEditDraft.value[codigo]
+    Swal.fire({ icon: 'success', title: 'Permisos actualizados', showConfirmButton: false, timer: 1800 })
+  } catch (e: any) {
+    Swal.fire({ icon: 'error', title: 'Error', text: e.response?.data?.detail || 'No se pudo guardar', confirmButtonColor: '#6366f1' })
+  } finally {
+    savingRol.value[codigo] = false
+  }
+}
+
+function usuariosPorRol(codigo: string): number {
+  return docentes.value.filter(d => d.rol_codigo === codigo).length
+}
 
 // State
 const docentes = ref<Docente[]>([])
@@ -45,13 +123,89 @@ const distritos = ref<Distrito[]>([])
 const loadingDistritos = ref(false)
 let isInitialLoad = false
 
-// ComboBox options
-const nivelOptions = [
-  { id: '', label: '— Sin especificar —' },
-  { id: 'inicial', label: 'Inicial' },
-  { id: 'primaria', label: 'Primaria' },
-  { id: 'secundaria', label: 'Secundaria' },
+// Organización
+const ugeles = ref<Ugel[]>([])
+const instituciones = ref<InstitucionEducativa[]>([])
+const loadingOrganizacion = ref(false)
+
+// Módulos
+const TODOS_MODULOS = [
+  { id: 'lectosistem',          label: 'LectoSistem' },
+  { id: 'matsistem',            label: 'MatSistem' },
+  { id: 'asignaciones',         label: 'Asignaciones' },
+  { id: 'codigos_clase',        label: 'Códigos de Clase' },
+  { id: 'metricas',             label: 'Métricas' },
+  { id: 'admin_desempenos',     label: 'Desempeños (Curricular)' },
+  { id: 'admin_ugeles',         label: 'Gestión UGELes' },
+  { id: 'admin_instituciones',  label: 'Gestión Instituciones' },
+  { id: 'admin_usuarios',       label: 'Gestión Usuarios' },
 ]
+const ROLE_MODULOS_DEFAULT: Record<string, string[]> = {
+  especialista_dre_comunicacion: ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas', 'admin_desempenos', 'admin_ugeles', 'admin_instituciones', 'admin_usuarios'],
+  especialista_dre_matematica:   ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas', 'admin_desempenos', 'admin_ugeles', 'admin_instituciones', 'admin_usuarios'],
+  responsable_ugel:              ['metricas', 'admin_instituciones', 'admin_usuarios'],
+  director:                      ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas', 'admin_usuarios'],
+  auxiliar:                      ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas'],
+  docente:                       ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas'],
+  estudiante:                    [],
+}
+// null = usar defaults del rol; array = override explícito
+const modulosSeleccionados = ref<string[] | null>(null)
+const usandoDefaultModulos = ref(true)
+
+function toggleModulo(id: string) {
+  if (usandoDefaultModulos.value) return
+  if (!modulosSeleccionados.value) modulosSeleccionados.value = []
+  const idx = modulosSeleccionados.value.indexOf(id)
+  if (idx >= 0) modulosSeleccionados.value.splice(idx, 1)
+  else modulosSeleccionados.value.push(id)
+}
+
+function resetModulosADefault() {
+  usandoDefaultModulos.value = true
+  modulosSeleccionados.value = null
+}
+
+function activarModulosPersonalizados() {
+  usandoDefaultModulos.value = false
+  const defaultsRol = ROLE_MODULOS_DEFAULT[rol_codigo.value ?? ''] ?? []
+  modulosSeleccionados.value = [...defaultsRol]
+}
+
+function moduloActivo(id: string): boolean {
+  if (usandoDefaultModulos.value) {
+    return (ROLE_MODULOS_DEFAULT[rol_codigo.value ?? ''] ?? []).includes(id)
+  }
+  return modulosSeleccionados.value?.includes(id) ?? false
+}
+
+// Role display helpers
+const ROL_LABELS: Record<string, string> = {
+  especialista_dre_comunicacion: 'Esp. DRE Comunicación',
+  especialista_dre_matematica: 'Esp. DRE Matemática',
+  responsable_ugel: 'Responsable UGEL',
+  director: 'Director',
+  auxiliar: 'Auxiliar',
+  docente: 'Docente',
+  estudiante: 'Estudiante',
+}
+const ROL_COLORS: Record<string, string> = {
+  especialista_dre_comunicacion: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300',
+  especialista_dre_matematica: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300',
+  responsable_ugel: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300',
+  director: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+  auxiliar: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
+  docente: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300',
+  estudiante: 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300',
+}
+function rolLabel(codigo?: string | null) {
+  return ROL_LABELS[codigo ?? ''] ?? codigo ?? '—'
+}
+function rolColor(codigo?: string | null) {
+  return ROL_COLORS[codigo ?? ''] ?? 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
+}
+
+// ComboBox options
 
 const provinciaOptions = computed(() => [
   { id: null as null, label: '— Sin especificar —' },
@@ -76,7 +230,7 @@ const stats = computed(() => {
   const total = docentes.value.length
   const active = docentes.value.filter(d => d.is_active).length
   const inactive = total - active
-  const admins = docentes.value.filter(d => d.is_superuser).length
+  const admins = docentes.value.filter(d => d.rol_codigo?.includes('dre')).length
   return { total, active, inactive, admins }
 })
 
@@ -91,8 +245,9 @@ const schema = computed(() => yup.object({
   nombres: yup.string().required('Los nombres son obligatorios'),
   apellidos: yup.string().required('Los apellidos son obligatorios'),
   profesion: yup.string().optional(),
-  institucion_educativa: yup.string().optional(),
-  nivel_educativo: yup.string().optional(),
+  rol_codigo: yup.string().required('El rol es obligatorio'),
+  ugel_id: yup.number().nullable().optional(),
+  institucion_educativa_id: yup.number().nullable().optional(),
   provincia_id: yup.number().nullable().optional(),
   distrito_id: yup.number().nullable().optional(),
   password: editingId.value
@@ -106,8 +261,16 @@ const schema = computed(() => yup.object({
       .required('La contraseña es obligatoria')
       .min(6, 'La contraseña debe tener al menos 6 caracteres'),
   is_active: yup.boolean().optional(),
-  is_superuser: yup.boolean().optional(),
 }))
+
+const ROLES_OPTIONS = [
+  { value: 'especialista_dre_comunicacion', label: 'Especialista DRE — Comunicación' },
+  { value: 'especialista_dre_matematica', label: 'Especialista DRE — Matemática' },
+  { value: 'responsable_ugel', label: 'Responsable UGEL' },
+  { value: 'director', label: 'Director' },
+  { value: 'auxiliar', label: 'Auxiliar' },
+  { value: 'docente', label: 'Docente' },
+]
 
 const { handleSubmit, resetForm, setValues } = useForm({
   validationSchema: schema,
@@ -116,13 +279,13 @@ const { handleSubmit, resetForm, setValues } = useForm({
     nombres: '',
     apellidos: '',
     profesion: '',
-    institucion_educativa: '',
-    nivel_educativo: '',
+    rol_codigo: 'docente',
+    ugel_id: null as number | null,
+    institucion_educativa_id: null as number | null,
     provincia_id: null as number | null,
     distrito_id: null as number | null,
     password: '',
     is_active: true,
-    is_superuser: false,
   },
 })
 
@@ -130,13 +293,13 @@ const { value: dni, errorMessage: dniError } = useField<string>('dni')
 const { value: nombres, errorMessage: nombresError } = useField<string>('nombres')
 const { value: apellidos, errorMessage: apellidosError } = useField<string>('apellidos')
 const { value: profesion } = useField<string>('profesion')
-const { value: institucion_educativa } = useField<string>('institucion_educativa')
-const { value: nivel_educativo } = useField<string>('nivel_educativo')
+const { value: rol_codigo, errorMessage: rolError } = useField<string>('rol_codigo')
+const { value: ugel_id } = useField<number | null>('ugel_id')
+const { value: institucion_educativa_id } = useField<number | null>('institucion_educativa_id')
 const { value: provincia_id } = useField<number | null>('provincia_id')
 const { value: distrito_id } = useField<number | null>('distrito_id')
 const { value: password, errorMessage: passwordError } = useField<string>('password')
 const { value: is_active } = useField<boolean>('is_active')
-const { value: is_superuser } = useField<boolean>('is_superuser')
 
 // Load
 async function loadDocentes(resetPage = false) {
@@ -198,10 +361,25 @@ watch(provincia_id, async (newVal) => {
 
 onMounted(async () => {
   loadDocentes()
+  loadRolesConfig()
   try {
     provincias.value = await ubigeoService.getProvincias()
   } catch (e) {
     console.error('Error cargando provincias:', e)
+  }
+  // Load UGELes e IEs para los selectores del formulario
+  loadingOrganizacion.value = true
+  try {
+    const [ugelesData, iesData] = await Promise.all([
+      organizacionService.getUgeles(true),
+      organizacionService.getInstituciones(undefined, true),
+    ])
+    ugeles.value = ugelesData
+    instituciones.value = iesData
+  } catch (e) {
+    console.error('Error cargando organización:', e)
+  } finally {
+    loadingOrganizacion.value = false
   }
 })
 
@@ -211,6 +389,8 @@ function openCreate() {
   showPassword.value = false
   serverError.value = ''
   distritos.value = []
+  modulosSeleccionados.value = null
+  usandoDefaultModulos.value = true
   resetForm()
   showModal.value = true
 }
@@ -232,19 +412,28 @@ async function openEdit(docente: Docente) {
     distritos.value = []
   }
 
+  // Pre-populate módulos
+  if (docente.permisos_modulos !== null && docente.permisos_modulos !== undefined) {
+    usandoDefaultModulos.value = false
+    modulosSeleccionados.value = [...docente.permisos_modulos]
+  } else {
+    usandoDefaultModulos.value = true
+    modulosSeleccionados.value = null
+  }
+
   isInitialLoad = true
   setValues({
-    dni: docente.dni,
+    dni: docente.dni ?? '',
     nombres: docente.nombres ?? '',
     apellidos: docente.apellidos ?? '',
     profesion: docente.profesion ?? '',
-    institucion_educativa: docente.institucion_educativa ?? '',
-    nivel_educativo: docente.nivel_educativo ?? '',
+    rol_codigo: docente.rol_codigo ?? 'docente',
+    ugel_id: docente.ugel_id ?? null,
+    institucion_educativa_id: docente.institucion_educativa_id ?? null,
     provincia_id: docente.provincia_id ?? null,
     distrito_id: docente.distrito_id ?? null,
     password: '',
     is_active: docente.is_active,
-    is_superuser: docente.is_superuser,
   })
   isInitialLoad = false
   showModal.value = true
@@ -263,36 +452,21 @@ function openDetails(docente: Docente) {
 const saveDocente = handleSubmit(
   async (values) => {
     serverError.value = ''
-
-    // Confirmar si se está asignando rol de administrador
-    if (values.is_superuser) {
-      const isEditing = !!editingId.value
-      const confirm = await Swal.fire({
-        title: '¿Asignar rol de Administrador?',
-        html: `El usuario <strong>${values.nombres ?? values.dni}</strong> tendrá acceso completo al panel de administración y podrá gestionar otros usuarios.`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#6366f1',
-        cancelButtonColor: '#94a3b8',
-        confirmButtonText: isEditing ? 'Sí, guardar como Admin' : 'Sí, crear como Admin',
-        cancelButtonText: 'Cancelar',
-      })
-      if (!confirm.isConfirmed) return
-    }
-
     saving.value = true
     try {
+      const permisosPayload = usandoDefaultModulos.value ? null : (modulosSeleccionados.value ?? [])
       if (editingId.value) {
         const payload: DocenteUpdatePayload = {
           nombres: values.nombres || undefined,
           apellidos: values.apellidos || undefined,
           profesion: values.profesion || undefined,
-          institucion_educativa: values.institucion_educativa || undefined,
-          nivel_educativo: values.nivel_educativo || undefined,
+          rol_codigo: values.rol_codigo,
+          ugel_id: values.ugel_id || null,
+          institucion_educativa_id: values.institucion_educativa_id || null,
           provincia_id: values.provincia_id || null,
           distrito_id: values.distrito_id || null,
           is_active: values.is_active,
-          is_superuser: values.is_superuser,
+          permisos_modulos: permisosPayload,
         }
         if (values.password) payload.password = values.password
         await adminUsuariosService.update(editingId.value, payload)
@@ -301,17 +475,18 @@ const saveDocente = handleSubmit(
         Swal.fire({ icon: 'success', title: 'Cambios guardados', showConfirmButton: false, timer: 2000 })
       } else {
         const payload: DocenteCreatePayload = {
-          dni: values.dni,
+          dni: values.dni || null,
           nombres: values.nombres,
           apellidos: values.apellidos,
           profesion: values.profesion,
-          institucion_educativa: values.institucion_educativa,
-          nivel_educativo: values.nivel_educativo,
+          rol_codigo: values.rol_codigo,
+          ugel_id: values.ugel_id || null,
+          institucion_educativa_id: values.institucion_educativa_id || null,
           provincia_id: values.provincia_id || null,
           distrito_id: values.distrito_id || null,
           is_active: values.is_active ?? true,
-          is_superuser: values.is_superuser ?? false,
           password: values.password!,
+          permisos_modulos: permisosPayload,
         }
         await adminUsuariosService.create(payload)
         await loadDocentes()
@@ -405,16 +580,10 @@ async function deleteDocente(docente: Docente) {
   }
 }
 
-const levelLabel: Record<string, string> = {
-  inicial: 'Inicial',
-  primaria: 'Primaria',
-  secundaria: 'Secundaria',
-}
-
 function creadorNombre(creado_por_id: number): string {
   const creador = docentes.value.find(d => d.id === creado_por_id)
   if (!creador) return `#${creado_por_id}`
-  return [creador.nombres, creador.apellidos].filter(Boolean).join(' ') || creador.dni
+  return [creador.nombres, creador.apellidos].filter(Boolean).join(' ') || creador.dni || `#${creado_por_id}`
 }
 
 function formatFecha(fecha: string): string {
@@ -575,15 +744,35 @@ async function saveResetPassword() {
                   class="inline-block w-6 md:w-8 h-5 md:h-6 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></span>
                 <span v-else>{{ stats.admins }}</span>
               </p>
-              <p class="text-[10px] md:text-xs text-slate-400 dark:text-slate-500 mt-0.5 hidden xs:block truncate">rol admin</p>
+              <p class="text-[10px] md:text-xs text-slate-400 dark:text-slate-500 mt-0.5 hidden xs:block truncate">especialistas DRE</p>
             </div>
           </div>
 
         </div>
       </Transition>
 
+      <!-- Tab Navigation -->
+      <div class="flex gap-1 mb-6 bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm w-fit">
+        <button @click="activeTab = 'usuarios'"
+          :class="['flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all',
+            activeTab === 'usuarios'
+              ? 'bg-gradient-to-r from-teal-500 to-indigo-600 text-white shadow'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200']">
+          <Shield class="w-3.5 h-3.5" />
+          Usuarios
+        </button>
+        <button @click="activeTab = 'roles'"
+          :class="['flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all',
+            activeTab === 'roles'
+              ? 'bg-gradient-to-r from-teal-500 to-indigo-600 text-white shadow'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200']">
+          <KeyRound class="w-3.5 h-3.5" />
+          Roles y Permisos
+        </button>
+      </div>
+
       <!-- Toolbar -->
-      <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div v-if="activeTab === 'usuarios'" class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         
         <!-- Action Buttons -->
         <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
@@ -619,7 +808,7 @@ async function saveResetPassword() {
       </div>
 
       <!-- User List Container -->
-      <div class="bg-white dark:bg-slate-800 md:rounded-2xl shadow-xl md:border border-slate-100 dark:border-slate-700 -mx-4 md:mx-0">
+      <div v-if="activeTab === 'usuarios'" class="bg-white dark:bg-slate-800 md:rounded-2xl shadow-xl md:border border-slate-100 dark:border-slate-700 -mx-4 md:mx-0">
         
         <!-- Mobile Cards View -->
         <div class="md:hidden">
@@ -667,11 +856,9 @@ async function saveResetPassword() {
                   </div>
                 </div>
                 <div class="flex flex-col items-end gap-1.5 shrink-0">
-                  <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full" :class="docente.is_superuser
-                    ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
-                    : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'">
+                  <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full" :class="rolColor(docente.rol_codigo)">
                     <Shield class="w-3 h-3" />
-                    {{ docente.is_superuser ? 'Admin' : 'Docente' }}
+                    {{ rolLabel(docente.rol_codigo) }}
                   </span>
                 </div>
               </div>
@@ -803,11 +990,9 @@ async function saveResetPassword() {
                     <span v-else class="text-slate-400 text-xs">—</span>
                   </td>
                   <td class="px-4 py-3 text-center">
-                    <span class="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full" :class="docente.is_superuser
-                      ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
-                      : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'">
+                    <span class="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full" :class="rolColor(docente.rol_codigo)">
                       <Shield class="w-3 h-3" />
-                      {{ docente.is_superuser ? 'Admin' : 'Docente' }}
+                      {{ rolLabel(docente.rol_codigo) }}
                     </span>
                   </td>
                   <td class="px-4 py-3">
@@ -922,6 +1107,150 @@ async function saveResetPassword() {
           </div>
         </div>
       </div>
+      <!-- Roles y Permisos Section -->
+      <div v-if="activeTab === 'roles'" class="space-y-6">
+
+        <div v-if="loadingRoles" class="flex justify-center py-12">
+          <Loader2 class="w-6 h-6 animate-spin text-teal-500" />
+        </div>
+
+        <template v-else>
+          <!-- Role Cards con edición inline -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div v-for="rol in ROLES_SISTEMA" :key="rol.codigo"
+              class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow overflow-hidden flex flex-col">
+              <div :class="['h-1.5 bg-gradient-to-r shrink-0', rol.gradiente]"></div>
+              <div class="p-4 sm:p-5 flex flex-col flex-1 gap-3">
+                <!-- Header -->
+                <div class="flex items-start justify-between gap-2">
+                  <div>
+                    <div class="flex items-center gap-2 mb-0.5">
+                      <span :class="['text-[9px] font-black px-2 py-0.5 rounded-full text-white bg-gradient-to-r', rol.gradiente]">
+                        Nivel {{ rol.nivel }}
+                      </span>
+                    </div>
+                    <h3 class="text-sm font-bold text-slate-800 dark:text-white leading-tight">{{ rol.nombre }}</h3>
+                  </div>
+                  <div class="flex flex-col items-end gap-1.5 shrink-0">
+                    <span class="text-[10px] font-semibold bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 px-2 py-1 rounded-lg whitespace-nowrap">
+                      {{ usuariosPorRol(rol.codigo) }} usuarios
+                    </span>
+                    <button v-if="!rolesEditMode[rol.codigo]"
+                      @click="startEditRol(rol.codigo)"
+                      class="flex items-center gap-1 text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+                      <Edit2 class="w-2.5 h-2.5" /> Editar
+                    </button>
+                  </div>
+                </div>
+                <!-- Descripción -->
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed flex-1">{{ rol.descripcion }}</p>
+
+                <!-- Módulos — Vista o Edición -->
+                <div>
+                  <p class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">
+                    Módulos por defecto
+                  </p>
+
+                  <!-- Vista (no editable) -->
+                  <div v-if="!rolesEditMode[rol.codigo]" class="flex flex-wrap gap-1">
+                    <span v-if="modulosDelRol(rol.codigo).length === 0"
+                      class="text-[10px] italic text-slate-400 dark:text-slate-500">Sin acceso a módulos</span>
+                    <span v-for="mId in modulosDelRol(rol.codigo)" :key="mId"
+                      class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300 border border-teal-100 dark:border-teal-800/50 leading-tight">
+                      {{ TODOS_MODULOS.find(m => m.id === mId)?.label ?? mId }}
+                    </span>
+                  </div>
+
+                  <!-- Edición -->
+                  <div v-else class="space-y-2">
+                    <div class="grid grid-cols-1 gap-1.5">
+                      <label v-for="m in TODOS_MODULOS" :key="m.id"
+                        :class="['flex items-center gap-2 px-2 py-1.5 rounded-lg border text-[11px] font-medium transition-colors cursor-pointer',
+                          (rolesEditDraft[rol.codigo] ?? []).includes(m.id)
+                            ? 'bg-teal-50 dark:bg-teal-900/20 border-teal-300 dark:border-teal-700 text-teal-700 dark:text-teal-300'
+                            : 'bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400']">
+                        <input type="checkbox" class="sr-only"
+                          :checked="(rolesEditDraft[rol.codigo] ?? []).includes(m.id)"
+                          @change="toggleRolModulo(rol.codigo, m.id)" />
+                        <span :class="['w-3 h-3 rounded-sm border flex-shrink-0 flex items-center justify-center transition-colors',
+                          (rolesEditDraft[rol.codigo] ?? []).includes(m.id)
+                            ? 'bg-teal-500 border-teal-500'
+                            : 'bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-500']">
+                          <svg v-if="(rolesEditDraft[rol.codigo] ?? []).includes(m.id)" class="w-2 h-2 text-white" viewBox="0 0 10 8" fill="none">
+                            <path d="M1 4l3 3 5-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </span>
+                        {{ m.label }}
+                      </label>
+                    </div>
+                    <!-- Acciones -->
+                    <div class="flex items-center gap-2 pt-1">
+                      <button @click="saveRolConfig(rol.codigo)" :disabled="savingRol[rol.codigo]"
+                        :class="['flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all',
+                          savingRol[rol.codigo]
+                            ? 'bg-slate-100 dark:bg-slate-700 text-slate-400 cursor-not-allowed'
+                            : 'bg-teal-500 hover:bg-teal-600 text-white']">
+                        <Loader2 v-if="savingRol[rol.codigo]" class="w-3 h-3 animate-spin" />
+                        <Save v-else class="w-3 h-3" />
+                        Guardar
+                      </button>
+                      <button @click="cancelEditRol(rol.codigo)" :disabled="savingRol[rol.codigo]"
+                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-all">
+                        <RotateCcw class="w-3 h-3" />
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Module Access Matrix (read-only overview) -->
+          <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-700">
+              <h3 class="text-sm font-bold text-slate-800 dark:text-white">Matriz de Acceso a Módulos</h3>
+              <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Resumen actual — edita cada tarjeta arriba para cambiar permisos</p>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-xs">
+                <thead>
+                  <tr class="border-b border-slate-100 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800/60">
+                    <th class="text-left px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 min-w-[180px]">Módulo</th>
+                    <th v-for="rol in ROLES_SISTEMA" :key="rol.codigo" class="px-3 py-3 text-center">
+                      <div class="flex flex-col items-center gap-1.5">
+                        <div :class="['w-6 h-6 rounded-lg bg-gradient-to-br flex items-center justify-center text-white font-black text-[8px]', rol.gradiente]">
+                          {{ rol.etiqueta.slice(0, 2) }}
+                        </div>
+                        <span class="text-[9px] font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap leading-tight max-w-[56px]">{{ rol.etiqueta }}</span>
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50 dark:divide-slate-700/40">
+                  <tr v-for="modulo in TODOS_MODULOS" :key="modulo.id"
+                    class="hover:bg-slate-50/70 dark:hover:bg-slate-700/20 transition-colors">
+                    <td class="px-4 py-3 font-medium text-slate-700 dark:text-slate-300">{{ modulo.label }}</td>
+                    <td v-for="rol in ROLES_SISTEMA" :key="rol.codigo" class="px-3 py-3 text-center">
+                      <span v-if="modulosDelRol(rol.codigo).includes(modulo.id)"
+                        class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-teal-100 dark:bg-teal-900/40 mx-auto">
+                        <svg class="w-3 h-3 text-teal-600 dark:text-teal-400" viewBox="0 0 10 8" fill="none">
+                          <path d="M1 4l3 3 5-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </span>
+                      <span v-else class="inline-flex items-center justify-center w-5 h-5 mx-auto">
+                        <div class="w-1.5 h-1.5 rounded-full bg-slate-200 dark:bg-slate-600"></div>
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </template>
+
+      </div><!-- /roles tab -->
+
     </div>
 
     <!-- Modal -->
@@ -953,7 +1282,7 @@ async function saveResetPassword() {
             </div>
 
             <!-- Modal Body -->
-            <div class="p-4 sm:p-6 space-y-4 overflow-y-auto">
+            <div class="flex-1 min-h-0 p-4 sm:p-6 space-y-4 overflow-y-auto">
 
               <!-- Error del servidor -->
               <div v-if="serverError"
@@ -1014,18 +1343,75 @@ async function saveResetPassword() {
                   class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
               </div>
 
-              <!-- Institución Educativa -->
+              <!-- Rol -->
               <div>
-                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Institución
-                  Educativa</label>
-                <input v-model="institucion_educativa" type="text" placeholder="IE 32001 Hermilio Valdizán"
-                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
+                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Rol *</label>
+                <select v-model="rol_codigo"
+                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all">
+                  <option v-for="r in ROLES_OPTIONS" :key="r.value" :value="r.value">{{ r.label }}</option>
+                </select>
+                <p v-if="rolError" class="mt-1 text-xs text-red-500">{{ rolError }}</p>
               </div>
 
-              <!-- Nivel Educativo -->
-              <div>
-                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Nivel Educativo</label>
-                <ComboBox v-model="nivel_educativo" :options="nivelOptions" placeholder="— Sin especificar —" />
+              <!-- UGEL (solo para responsable_ugel) -->
+              <div v-if="rol_codigo === 'responsable_ugel'">
+                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">
+                  UGEL
+                  <Loader2 v-if="loadingOrganizacion" class="inline w-3 h-3 animate-spin ml-1" />
+                </label>
+                <select v-model="ugel_id"
+                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all">
+                  <option :value="null">— Sin especificar —</option>
+                  <option v-for="u in ugeles" :key="u.id" :value="u.id">{{ u.nombre }}</option>
+                </select>
+              </div>
+
+              <!-- IE (para director, auxiliar, docente) -->
+              <div v-if="['director','auxiliar','docente'].includes(rol_codigo)">
+                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">
+                  Institución Educativa
+                  <Loader2 v-if="loadingOrganizacion" class="inline w-3 h-3 animate-spin ml-1" />
+                </label>
+                <select v-model="institucion_educativa_id"
+                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all">
+                  <option :value="null">— Sin especificar —</option>
+                  <option v-for="ie in instituciones" :key="ie.id" :value="ie.id">{{ ie.nombre }}</option>
+                </select>
+              </div>
+
+              <!-- Módulos -->
+              <div v-if="rol_codigo !== 'estudiante'">
+                <div class="flex items-center justify-between mb-1.5">
+                  <label class="text-xs font-bold text-slate-600 dark:text-slate-300">Acceso a módulos</label>
+                  <button type="button" @click="usandoDefaultModulos ? activarModulosPersonalizados() : resetModulosADefault()"
+                    class="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+                    {{ usandoDefaultModulos ? 'Personalizar' : 'Restablecer defaults del rol' }}
+                  </button>
+                </div>
+                <p v-if="usandoDefaultModulos" class="text-[10px] text-slate-400 dark:text-slate-500 mb-2">
+                  Usando defaults del rol seleccionado
+                </p>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  <label v-for="m in TODOS_MODULOS" :key="m.id"
+                    :class="['flex items-center gap-2 px-2.5 py-2 rounded-lg border text-xs font-medium transition-colors cursor-pointer',
+                      moduloActivo(m.id)
+                        ? 'bg-teal-50 dark:bg-teal-900/20 border-teal-300 dark:border-teal-700 text-teal-700 dark:text-teal-300'
+                        : 'bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400',
+                      usandoDefaultModulos ? 'opacity-70 cursor-default' : ''
+                    ]">
+                    <input type="checkbox" class="sr-only"
+                      :checked="moduloActivo(m.id)"
+                      :disabled="usandoDefaultModulos"
+                      @change="toggleModulo(m.id)" />
+                    <span :class="['w-3 h-3 rounded-sm border flex-shrink-0 flex items-center justify-center transition-colors',
+                      moduloActivo(m.id) ? 'bg-teal-500 border-teal-500' : 'bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-500']">
+                      <svg v-if="moduloActivo(m.id)" class="w-2 h-2 text-white" viewBox="0 0 10 8" fill="none">
+                        <path d="M1 4l3 3 5-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </span>
+                    {{ m.label }}
+                  </label>
+                </div>
               </div>
 
               <!-- Provincia + Distrito -->
@@ -1068,8 +1454,8 @@ async function saveResetPassword() {
                 </p>
               </div>
 
-              <!-- Roles y estado -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <!-- Estado -->
+              <div>
                 <label class="flex items-center gap-2.5 cursor-pointer group">
                   <div class="relative">
                     <input type="checkbox" v-model="is_active" class="sr-only peer" />
@@ -1081,19 +1467,6 @@ async function saveResetPassword() {
                     </div>
                   </div>
                   <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">Activo</span>
-                </label>
-
-                <label class="flex items-center gap-2.5 cursor-pointer group">
-                  <div class="relative">
-                    <input type="checkbox" v-model="is_superuser" class="sr-only peer" />
-                    <div
-                      class="w-10 h-5 bg-slate-200 dark:bg-slate-600 rounded-full peer-checked:bg-indigo-500 transition-colors">
-                    </div>
-                    <div
-                      class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform peer-checked:translate-x-5">
-                    </div>
-                  </div>
-                  <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">Administrador</span>
                 </label>
               </div>
 
@@ -1155,7 +1528,7 @@ async function saveResetPassword() {
             </div>
 
             <!-- Body -->
-            <div class="p-4 sm:p-5 space-y-4 overflow-y-auto">
+            <div class="flex-1 min-h-0 p-4 sm:p-5 space-y-4 overflow-y-auto">
 
               <p
                 class="text-xs text-slate-500 dark:text-slate-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/50 rounded-xl p-3">
@@ -1245,7 +1618,7 @@ async function saveResetPassword() {
                </div>
             </div>
 
-            <div class="p-4 sm:p-6 overflow-y-auto">
+            <div class="flex-1 min-h-0 p-4 sm:p-6 overflow-y-auto">
                 <!-- Data Grid -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
                     <div>
@@ -1266,16 +1639,11 @@ async function saveResetPassword() {
                     </div>
                     <div>
                         <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-1">Inst. Educativa</p>
-                        <p class="font-medium text-slate-700 dark:text-slate-200">{{ detailsTarget.institucion_educativa || '—' }}</p>
+                        <p class="font-medium text-slate-700 dark:text-slate-200">{{ detailsTarget.institucion_nombre || '—' }}</p>
                     </div>
                     <div>
-                        <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-1">Nivel Educativo</p>
-                        <p class="font-medium text-slate-700 dark:text-slate-200">
-                          <span v-if="detailsTarget.nivel_educativo" class="inline-flex bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full text-xs">
-                             {{ levelLabel[detailsTarget.nivel_educativo] ?? detailsTarget.nivel_educativo }}
-                          </span>
-                          <span v-else>—</span>
-                        </p>
+                        <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-1">UGEL</p>
+                        <p class="font-medium text-slate-700 dark:text-slate-200">{{ detailsTarget.ugel_nombre || '—' }}</p>
                     </div>
                     <div>
                         <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-1">Provincia</p>
@@ -1309,8 +1677,8 @@ async function saveResetPassword() {
                         <div class="flex-1">
                            <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-1">Rol</p>
                            <div class="flex items-center gap-1.5">
-                             <Shield class="w-3.5 h-3.5" :class="detailsTarget.is_superuser ? 'text-indigo-500' : 'text-slate-500'" />
-                             <span class="font-medium text-slate-700 dark:text-slate-200 text-sm">{{ detailsTarget.is_superuser ? 'Administrador' : 'Docente regular' }}</span>
+                             <Shield class="w-3.5 h-3.5" :class="rolColor(detailsTarget.rol_codigo)" />
+                             <span class="font-medium text-slate-700 dark:text-slate-200 text-sm">{{ rolLabel(detailsTarget.rol_codigo) }}</span>
                            </div>
                         </div>
                     </div>

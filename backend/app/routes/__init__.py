@@ -21,6 +21,10 @@ from app.routes.matsistem import router as matsistem_router
 from app.routes.auth import router as auth_router
 from app.routes.examenes import router as examenes_router
 from app.routes.ubigeo import router as ubigeo_router
+from app.routes.organizacion import router as organizacion_router
+from app.routes.registro import router as registro_router
+from app.routes.estudiantes import router as estudiantes_router
+from app.routes.metricas import router as metricas_router
 
 
 def create_api_router() -> APIRouter:
@@ -89,6 +93,40 @@ def create_api_router() -> APIRouter:
         ubigeo_router,
         prefix="/ubigeo",
         tags=["Ubigeo"]
+    )
+
+    # ==========================================================================
+    # MÓDULO: ORGANIZACIÓN (UGELes e IEs)
+    # ==========================================================================
+    api_router.include_router(
+        organizacion_router,
+        prefix="/organizacion",
+        tags=["Organización"]
+    )
+
+    # ==========================================================================
+    # MÓDULO: REGISTRO Y CÓDIGOS DE CLASE
+    # ==========================================================================
+    api_router.include_router(
+        registro_router,
+        tags=["Registro"]
+    )
+
+    # ==========================================================================
+    # MÓDULO: PORTAL ESTUDIANTIL
+    # ==========================================================================
+    api_router.include_router(
+        estudiantes_router,
+        tags=["Portal Estudiantil"]
+    )
+
+    # ==========================================================================
+    # MÓDULO: MÉTRICAS SCOPED
+    # ==========================================================================
+    api_router.include_router(
+        metricas_router,
+        prefix="/metricas",
+        tags=["Métricas"]
     )
 
     return api_router

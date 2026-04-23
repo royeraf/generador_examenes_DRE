@@ -1,5 +1,5 @@
 import { apiClient } from './api'
-import type { Docente } from '../types'
+import type { Usuario } from '../types'
 
 export interface Token {
   access_token: string
@@ -7,9 +7,10 @@ export interface Token {
 }
 
 export const authService = {
-  async login(dni: string, password: string): Promise<Token> {
+  async login(identifier: string, password: string): Promise<Token> {
     const formData = new FormData()
-    formData.append('username', dni)
+    // identifier puede ser DNI o código de estudiante (EST0001)
+    formData.append('username', identifier)
     formData.append('password', password)
 
     const response = await apiClient.post<Token>('/auth/login', formData, {
@@ -24,8 +25,8 @@ export const authService = {
     return response.data
   },
 
-  async getMe(): Promise<Docente> {
-    const response = await apiClient.get<Docente>('/auth/me')
+  async getMe(): Promise<Usuario> {
+    const response = await apiClient.get<Usuario>('/auth/me')
     return response.data
   },
 
