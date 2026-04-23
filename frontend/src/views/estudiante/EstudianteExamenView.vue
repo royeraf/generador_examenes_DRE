@@ -64,6 +64,13 @@ const progreso = computed(() => {
 
 onMounted(async () => {
   try {
+    const modo = route.query.modo
+    if (modo === 'resultados') {
+      const res = await apiClient.get(`/estudiante/examenes/${asignacionId}/resultado`)
+      resultado.value = res.data
+      return
+    }
+
     // Iniciar el intento
     const res = await apiClient.post(`/estudiante/examenes/${asignacionId}/iniciar`)
     const data = res.data

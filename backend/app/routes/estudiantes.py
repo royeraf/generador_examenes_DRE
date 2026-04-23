@@ -259,6 +259,33 @@ def _preparar_preguntas(preguntas_raw: list) -> list:
     return out
 
 
+@router.get("/estudiante/examenes/{asignacion_id}/resultado")
+async def obtener_resultado_examen(
+    asignacion_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(get_estudiante_user),
+):
+    """Devuelve los resultados del último intento completado."""
+    ult_result = await db.execute(
+        select(IntentoExamen).where(
+            IntentoExamen.asignacion_id == asignacion_id,
+            IntentoExamen.estudiante_id == current_user.id,
+            IntentoExamen.estado == "completado",
+        ).order_by(IntentoExamen.numero_intento.desc())
+    )
+    ultimo = ult_result.scalars().first()
+    if not ultimo:
+        raise HTTPException(404, "No hay resultados para este examen")
+        
+    return {
+        "puntaje_total": ultimo.puntaje_total,
+        "preguntas_correctas": ultimo.preguntas_correctas,
+        "preguntas_total": ultimo.preguntas_total,
+        "nivel_logro": ultimo.nivel_logro,
+    }
+
+
+
 @router.post("/estudiante/intentos/{intento_id}/finalizar")
 async def finalizar_intento(
     intento_id: int,

@@ -145,7 +145,7 @@ function formatFecha(fecha: string | null) {
             >
               {{ examen.mis_intentos > 0 ? 'Reintentar' : 'Comenzar' }}
             </button>
-            <button v-else @click="router.push(`/estudiante/examen/${examen.id}`)"
+            <button v-else @click="router.push(`/estudiante/examen/${examen.id}?modo=resultados`)"
               class="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-sm rounded-xl transition-all">
               Ver resultados
             </button>

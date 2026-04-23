@@ -48,6 +48,9 @@ const greeting = computed(() => {
       <div class="mb-8">
         <p class="text-slate-500 dark:text-slate-400 text-sm">{{ greeting }},</p>
         <h1 class="text-2xl font-bold text-slate-800 dark:text-white mt-0.5">{{ auth.displayName || auth.user?.codigo_estudiante }}</h1>
+        <p v-if="auth.displayName && auth.user?.codigo_estudiante" class="text-sm font-mono text-slate-500 dark:text-slate-400 mt-1">
+          Código: {{ auth.user.codigo_estudiante }}
+        </p>
         <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
           {{ auth.user?.institucion_nombre }}
         </p>
@@ -90,21 +93,7 @@ const greeting = computed(() => {
         </button>
       </div>
 
-      <!-- Info del perfil -->
-      <div class="mt-6 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-5 shadow-sm">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-indigo-600 flex items-center justify-center">
-            <User class="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <p class="font-semibold text-slate-800 dark:text-white text-sm">{{ auth.displayName || 'Estudiante' }}</p>
-            <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">{{ auth.user?.codigo_estudiante }}</p>
-            <p v-if="auth.user?.grado_nombre" class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
-              {{ auth.user.grado_nombre }}<span v-if="auth.user?.seccion"> — Sección {{ auth.user.seccion }}</span>
-            </p>
-          </div>
-        </div>
-      </div>
+
     </main>
   </div>
 </template>
