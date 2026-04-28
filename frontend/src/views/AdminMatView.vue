@@ -533,20 +533,20 @@ const deleteItem = async (id: number) => {
                     <template v-if="activeTab === 'competencias'">
                         <div class="grid grid-cols-4 gap-4">
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 mb-1">Código</label>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Código</label>
                                 <input v-model.number="editItem.codigo" type="number" :disabled="isEditing"
-                                    class="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white disabled:opacity-50">
+                                    class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-900 dark:text-white disabled:opacity-50">
                             </div>
                             <div class="col-span-3">
-                                <label class="block text-xs font-bold text-slate-500 mb-1">Nombre</label>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Nombre</label>
                                 <input v-model="editItem.nombre" type="text" :disabled="isEditing"
-                                    class="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white disabled:opacity-50">
+                                    class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-900 dark:text-white disabled:opacity-50">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1">Descripción</label>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Descripción</label>
                             <textarea v-model="editItem.descripcion" rows="6" :disabled="isEditing"
-                                class="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white disabled:opacity-50"></textarea>
+                                class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-900 dark:text-white disabled:opacity-50"></textarea>
                         </div>
                     </template>
 
@@ -554,12 +554,12 @@ const deleteItem = async (id: number) => {
                     <template v-if="activeTab === 'capacidades'">
                         <div class="grid grid-cols-4 gap-4">
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 mb-1">Orden</label>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Orden</label>
                                 <input v-model.number="editItem.orden" type="number" :disabled="isEditing"
-                                    class="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white disabled:opacity-50">
+                                    class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-900 dark:text-white disabled:opacity-50">
                             </div>
                             <div class="col-span-3">
-                                <label class="block text-xs font-bold text-slate-500 mb-1">Competencia</label>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Competencia</label>
                                 <div v-if="isEditing" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-sm font-medium text-slate-500 dark:text-slate-400">
                                     {{ competencias.find(c => c.id === editItem.competencia_id)?.nombre || '-' }}
                                 </div>
@@ -567,9 +567,9 @@ const deleteItem = async (id: number) => {
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1">Nombre</label>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Nombre</label>
                             <input v-model="editItem.nombre" type="text" :disabled="isEditing"
-                                class="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white disabled:opacity-50">
+                                class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-900 dark:text-white disabled:opacity-50">
                         </div>
                     </template>
 
@@ -577,12 +577,12 @@ const deleteItem = async (id: number) => {
                     <template v-if="activeTab === 'desempenos'">
                         <div class="grid grid-cols-3 gap-4">
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 mb-1">Código</label>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Código</label>
                                 <input v-model="editItem.codigo" type="text" :disabled="isEditing"
-                                    class="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white disabled:opacity-50">
+                                    class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-900 dark:text-white disabled:opacity-50">
                             </div>
                             <div class="col-span-2">
-                                <label class="block text-xs font-bold text-slate-500 mb-1">Capacidad</label>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Capacidad</label>
                                 <div v-if="isEditing" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-600 rounded-xl text-sm font-medium text-slate-500 dark:text-slate-400">
                                     {{ capacidadesFiltradas.find(c => c.id === editItem.capacidad_id)?.nombre || '-' }}
                                 </div>
@@ -590,9 +590,9 @@ const deleteItem = async (id: number) => {
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1">Descripción</label>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Descripción</label>
                             <textarea v-model="editItem.descripcion" rows="6" :disabled="isEditing"
-                                class="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white disabled:opacity-50"></textarea>
+                                class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-900 dark:text-white disabled:opacity-50"></textarea>
                         </div>
                     </template>
                 </div>

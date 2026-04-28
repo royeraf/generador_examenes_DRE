@@ -177,18 +177,18 @@ async function eliminar(ugel: Ugel) {
                 <div>
                   <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Código</label>
                   <input v-model="form.codigo" type="text" placeholder="Ej: UGEL01"
-                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
+                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
                 </div>
                 <div>
                   <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Nombre</label>
                   <input v-model="form.nombre" type="text" placeholder="Nombre de la UGEL"
-                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
+                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
                 </div>
               </div>
               <div>
                 <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Provincia</label>
                 <select v-model="form.provincia_id"
-                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm outline-none focus:ring-2 focus:ring-teal-500/50">
+                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-teal-500/50">
                   <option :value="null">— Sin especificar —</option>
                   <option v-for="p in provincias" :key="p.id" :value="p.id">{{ p.nombre }}</option>
                 </select>

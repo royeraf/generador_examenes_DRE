@@ -174,7 +174,7 @@ async function eliminar(ie: InstitucionEducativa) {
         <div class="relative">
           <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input v-model="searchQuery" type="text" placeholder="Buscar..."
-            class="pl-9 pr-4 py-2 text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/50 w-48" />
+            class="pl-9 pr-4 py-2 text-sm text-slate-900 dark:text-white bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/50 w-48" />
         </div>
         <button @click="openCreate"
           class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-bold text-sm rounded-xl shadow transition-all">
@@ -251,12 +251,12 @@ async function eliminar(ie: InstitucionEducativa) {
             <div>
               <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Código Modular</label>
               <input v-model="form.codigo_modular" type="text" placeholder="Ej: 1234567"
-                class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
+                class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Nombre</label>
               <input v-model="form.nombre" type="text" placeholder="Nombre de la institución"
-                class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
+                class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
             </div>
             <!-- Niveles educativos — multi-selección -->
             <div>
@@ -286,14 +286,14 @@ async function eliminar(ie: InstitucionEducativa) {
             <div>
               <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">UGEL</label>
               <select v-model="form.ugel_id"
-                class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm outline-none focus:ring-2 focus:ring-teal-500/50">
+                class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-teal-500/50">
                 <option v-for="u in ugeles" :key="u.id" :value="u.id">{{ u.nombre }}</option>
               </select>
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Dirección <span class="font-normal text-slate-400">(opcional)</span></label>
               <input v-model="form.direccion" type="text"
-                class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
+                class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
             </div>
             <label class="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" v-model="form.is_active" class="rounded" />

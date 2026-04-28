@@ -268,7 +268,7 @@ const deleteItem = async (id: number) => {
                                             {{ (item as Grado).numero }}
                                         </td>
                                         <td class="p-4 text-sm capitalize">
-                                            <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">
+                                            <span class="px-2 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded text-xs font-bold">
                                                 {{ (item as Grado).nivel }}
                                             </span>
                                         </td>
@@ -342,26 +342,26 @@ const deleteItem = async (id: number) => {
                     <!-- Grados Fields -->
                     <template v-if="activeTab === 'grados'">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1">Nombre</label>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Nombre</label>
                             <input v-model="editItem.nombre" type="text"
-                                class="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                                class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-900 dark:text-white">
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 mb-1">Número</label>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Número</label>
                                 <input v-model.number="editItem.numero" type="number"
-                                    class="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                                    class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-900 dark:text-white">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 mb-1">Orden</label>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Orden</label>
                                 <input v-model.number="editItem.orden" type="number"
-                                    class="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                                    class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-900 dark:text-white">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1">Nivel</label>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Nivel</label>
                             <select v-model="editItem.nivel"
-                                class="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                                class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-900 dark:text-white">
                                 <option value="primaria">Primaria</option>
                                 <option value="secundaria">Secundaria</option>
                             </select>
@@ -371,23 +371,23 @@ const deleteItem = async (id: number) => {
                     <!-- Capacidades Fields -->
                     <template v-if="activeTab === 'capacidades'">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1">Nombre</label>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Nombre</label>
                             <input v-model="editItem.nombre" type="text"
-                                class="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                                class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-900 dark:text-white">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1">Tipo</label>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Tipo</label>
                             <select v-model="editItem.tipo"
-                                class="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                                class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-900 dark:text-white">
                                 <option value="literal">Literal</option>
                                 <option value="inferencial">Inferencial</option>
                                 <option value="critico">Crítico</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1">Descripción</label>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Descripción</label>
                             <textarea v-model="editItem.descripcion" rows="3"
-                                class="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white"></textarea>
+                                class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-900 dark:text-white"></textarea>
                         </div>
                     </template>
 
@@ -395,23 +395,23 @@ const deleteItem = async (id: number) => {
                     <template v-if="activeTab === 'desempenos'">
                         <div class="grid grid-cols-3 gap-4">
                             <div class="col-span-1">
-                                <label class="block text-xs font-bold text-slate-500 mb-1">Código</label>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Código</label>
                                 <input v-model="editItem.codigo" type="text" placeholder="Ej: 01"
-                                    class="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                                    class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-900 dark:text-white">
                             </div>
                             <div class="col-span-2">
-                                <label class="block text-xs font-bold text-slate-500 mb-1">Capacidad</label>
+                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Capacidad</label>
                                 <select v-model="editItem.capacidad_id"
-                                    class="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                                    class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-900 dark:text-white">
                                     <option v-for="c in capacidades" :key="c.id" :value="c.id">{{ c.nombre }} ({{ c.tipo
                                         }})</option>
                                 </select>
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 mb-1">Descripción</label>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Descripción</label>
                             <textarea v-model="editItem.descripcion" rows="4"
-                                class="w-full px-3 py-2 border rounded-lg dark:bg-slate-700 dark:border-slate-600 dark:text-white"></textarea>
+                                class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-900 dark:text-white"></textarea>
                         </div>
                         <!-- Hidden Grado ID stored in state -->
                     </template>

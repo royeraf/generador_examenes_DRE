@@ -91,7 +91,7 @@ const nivelColor: Record<string, string> = {
           </div>
           <div>
             <p class="text-[10px] font-semibold text-slate-400 mb-0.5">Estado</p>
-            <span :class="institucion.is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-slate-100 text-slate-500'"
+            <span :class="institucion.is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400'"
               class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-bold">
               {{ institucion.is_active ? 'Activa' : 'Inactiva' }}
             </span>
