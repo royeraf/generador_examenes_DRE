@@ -5,7 +5,7 @@ import App from './App.vue'
 import router from './router'
 
 // Import theme composable to apply dark mode class immediately
-import './composables/useTheme'
+import './shared/composables/useTheme'
 
 const app = createApp(App)
 app.use(createPinia())

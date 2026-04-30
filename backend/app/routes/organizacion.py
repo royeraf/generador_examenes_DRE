@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from datetime import datetime
 
 from app.core.database import get_db
-from app.models.db_models import Ugel, InstitucionEducativa, Grado
+from app.models.db_models import Ugel, InstitucionEducativa, Grado, ExamenLectura, ExamenMatematica, AsignacionExamen, IntentoExamen
 from app.models.usuario import Usuario
 from app.models.enums import RolCodigo
 from app.api.dependencies import get_current_active_user, require_role
@@ -383,6 +383,139 @@ async def mi_institucion(
         distrito_nombre=ie.distrito.nombre if ie.distrito else None,
         is_active=ie.is_active, fecha_creacion=ie.fecha_creacion,
     )
+
+
+# ─── Analytics de IE ─────────────────────────────────────────────────────────
+
+@router.get("/instituciones/{ie_id}/analytics")
+async def ie_analytics(
+    ie_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(get_current_active_user),
+):
+    """Estadísticas operacionales de una IE: exámenes, asignaciones, completados."""
+    rol = RolCodigo(current_user.rol_codigo)
+    GESTORES_IE = {RolCodigo.DIRECTOR, RolCodigo.AUXILIAR}
+
+    # Verificar acceso según rol
+    if rol in GESTORES_IE:
+        if current_user.institucion_educativa_id != ie_id:
+            raise HTTPException(403, "Solo puedes consultar tu propia institución")
+    elif rol == RolCodigo.RESPONSABLE_UGEL:
+        ie_r = await db.execute(
+            select(InstitucionEducativa.ugel_id).where(InstitucionEducativa.id == ie_id)
+        )
+        ugel_id_ie = ie_r.scalar()
+        if ugel_id_ie != current_user.ugel_id:
+            raise HTTPException(403, "Esta IE no pertenece a tu UGEL")
+    elif rol not in {RolCodigo.ESPECIALISTA_DRE_COMUNICACION, RolCodigo.ESPECIALISTA_DRE_MATEMATICA}:
+        raise HTTPException(403, "No tienes acceso")
+
+    # IDs de usuarios de esta IE
+    user_ids_r = await db.execute(
+        select(Usuario.id).where(Usuario.institucion_educativa_id == ie_id)
+    )
+    user_ids = [r[0] for r in user_ids_r.all()]
+
+    # Conteo de usuarios por tipo
+    from app.models.db_models import Rol as RolModel
+    est_r = await db.execute(
+        select(func.count()).select_from(Usuario)
+        .join(RolModel, RolModel.id == Usuario.rol_id)
+        .where(Usuario.institucion_educativa_id == ie_id, RolModel.codigo == "estudiante")
+    )
+    total_estudiantes = est_r.scalar() or 0
+
+    doc_r = await db.execute(
+        select(func.count()).select_from(Usuario)
+        .join(RolModel, RolModel.id == Usuario.rol_id)
+        .where(
+            Usuario.institucion_educativa_id == ie_id,
+            RolModel.codigo.in_(["docente", "auxiliar", "director"]),
+        )
+    )
+    total_docentes = doc_r.scalar() or 0
+
+    # Exámenes generados por usuarios de esta IE
+    lec_r = await db.execute(
+        select(func.count()).select_from(ExamenLectura)
+        .where(ExamenLectura.docente_id.in_(user_ids))
+    )
+    total_lectura = lec_r.scalar() or 0
+
+    mat_r = await db.execute(
+        select(func.count()).select_from(ExamenMatematica)
+        .where(ExamenMatematica.docente_id.in_(user_ids))
+    )
+    total_matematica = mat_r.scalar() or 0
+
+    # Asignaciones y completados en esta IE
+    asig_r = await db.execute(
+        select(func.count()).select_from(AsignacionExamen)
+        .where(AsignacionExamen.institucion_educativa_id == ie_id)
+    )
+    total_asignaciones = asig_r.scalar() or 0
+
+    comp_r = await db.execute(
+        select(func.count()).select_from(IntentoExamen)
+        .where(
+            IntentoExamen.estado == "completado",
+            IntentoExamen.asignacion_id.in_(
+                select(AsignacionExamen.id).where(AsignacionExamen.institucion_educativa_id == ie_id)
+            ),
+        )
+    )
+    total_completados = comp_r.scalar() or 0
+
+    # Exámenes recientes de esta IE (últimos 6, lectura + matemática)
+    rec_lec_r = await db.execute(
+        select(ExamenLectura, Usuario)
+        .join(Usuario, Usuario.id == ExamenLectura.docente_id)
+        .where(ExamenLectura.docente_id.in_(user_ids))
+        .order_by(ExamenLectura.fecha_creacion.desc())
+        .limit(6)
+    )
+    recientes = []
+    for ex, doc in rec_lec_r:
+        recientes.append({
+            "id": ex.id,
+            "titulo": ex.titulo or f"Examen {ex.grado_nombre}",
+            "grado": ex.grado_nombre or "—",
+            "area": "lectura",
+            "fecha": ex.fecha_creacion.isoformat() if ex.fecha_creacion else None,
+            "docente": f"{doc.nombres or ''} {doc.apellidos or ''}".strip() or doc.dni,
+        })
+
+    rec_mat_r = await db.execute(
+        select(ExamenMatematica, Usuario)
+        .join(Usuario, Usuario.id == ExamenMatematica.docente_id)
+        .where(ExamenMatematica.docente_id.in_(user_ids))
+        .order_by(ExamenMatematica.fecha_creacion.desc())
+        .limit(6)
+    )
+    for ex, doc in rec_mat_r:
+        recientes.append({
+            "id": ex.id,
+            "titulo": ex.titulo or f"Examen {ex.grado_nombre}",
+            "grado": ex.grado_nombre or "—",
+            "area": "matematica",
+            "fecha": ex.fecha_creacion.isoformat() if ex.fecha_creacion else None,
+            "docente": f"{doc.nombres or ''} {doc.apellidos or ''}".strip() or doc.dni,
+        })
+
+    recientes.sort(key=lambda x: x["fecha"] or "", reverse=True)
+    recientes = recientes[:6]
+
+    return {
+        "total_estudiantes": total_estudiantes,
+        "total_docentes": total_docentes,
+        "total_examenes_lectura": total_lectura,
+        "total_examenes_matematica": total_matematica,
+        "total_examenes": total_lectura + total_matematica,
+        "total_asignaciones": total_asignaciones,
+        "total_completados": total_completados,
+        "recientes": recientes,
+    }
 
 
 # ─── Grados ──────────────────────────────────────────────────────────────────

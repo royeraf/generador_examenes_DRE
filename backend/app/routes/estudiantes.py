@@ -427,12 +427,28 @@ async def listar_asignaciones(
     db: AsyncSession = Depends(get_db),
     current_user: Usuario = Depends(require_modulo("asignaciones")),
 ):
-    """Lista las asignaciones creadas por el usuario."""
-    result = await db.execute(
-        select(AsignacionExamen)
-        .where(AsignacionExamen.asignado_por_id == current_user.id)
-        .order_by(AsignacionExamen.fecha_creacion.desc())
-    )
+    """Lista asignaciones scoped por rol: director/auxiliar ve su IE, UGEL ve sus IEs, DRE ve todo."""
+    from app.models.db_models import InstitucionEducativa
+    rol = RolCodigo(current_user.rol_codigo)
+    ie_id = current_user.institucion_educativa_id
+    ugel_id = current_user.ugel_id
+    DRE_ROLES = {RolCodigo.ESPECIALISTA_DRE_COMUNICACION, RolCodigo.ESPECIALISTA_DRE_MATEMATICA}
+    GESTORES_IE = {RolCodigo.DIRECTOR, RolCodigo.AUXILIAR}
+
+    if rol in DRE_ROLES:
+        q = select(AsignacionExamen)
+    elif rol == RolCodigo.RESPONSABLE_UGEL and ugel_id:
+        ie_ids_r = await db.execute(
+            select(InstitucionEducativa.id).where(InstitucionEducativa.ugel_id == ugel_id)
+        )
+        ie_ids = [r[0] for r in ie_ids_r.all()]
+        q = select(AsignacionExamen).where(AsignacionExamen.institucion_educativa_id.in_(ie_ids))
+    elif rol in GESTORES_IE and ie_id:
+        q = select(AsignacionExamen).where(AsignacionExamen.institucion_educativa_id == ie_id)
+    else:
+        q = select(AsignacionExamen).where(AsignacionExamen.asignado_por_id == current_user.id)
+
+    result = await db.execute(q.order_by(AsignacionExamen.fecha_creacion.desc()))
     asignaciones = result.scalars().all()
     out = []
     for a in asignaciones:
@@ -444,7 +460,6 @@ async def listar_asignaciones(
         )
         completados = cnt_r.scalar() or 0
 
-        # Fetch exam title
         titulo = None
         grado_nombre = None
         if a.tipo_examen == "lectura" and a.examen_lectura_id:
@@ -464,6 +479,23 @@ async def listar_asignaciones(
             if row:
                 titulo, grado_nombre = row.titulo, row.grado_nombre
 
+        # Nombre del creador (solo si no es el propio usuario)
+        asignado_por_nombre = None
+        if a.asignado_por_id != current_user.id:
+            cr_r = await db.execute(
+                select(Usuario.nombres, Usuario.apellidos, Usuario.dni)
+                .where(Usuario.id == a.asignado_por_id)
+            )
+            cr = cr_r.first()
+            if cr:
+                asignado_por_nombre = f"{cr.nombres or ''} {cr.apellidos or ''}".strip() or cr.dni
+
+        puede_eliminar = (
+            a.asignado_por_id == current_user.id
+            or rol in GESTORES_IE
+            or rol in DRE_ROLES
+        )
+
         out.append({
             "id": a.id,
             "tipo_examen": a.tipo_examen,
@@ -478,6 +510,9 @@ async def listar_asignaciones(
             "is_active": a.is_active,
             "completados": completados,
             "fecha_creacion": a.fecha_creacion.isoformat() if a.fecha_creacion else None,
+            "asignado_por_id": a.asignado_por_id,
+            "asignado_por_nombre": asignado_por_nombre,
+            "puede_eliminar": puede_eliminar,
         })
     return out
 
@@ -488,12 +523,21 @@ async def resultados_asignacion(
     db: AsyncSession = Depends(get_db),
     current_user: Usuario = Depends(require_modulo("asignaciones")),
 ):
-    """Ver resultados de estudiantes para una asignación específica."""
+    """Ver resultados de una asignación. Directores ven toda su IE, DRE ve todo."""
     result = await db.execute(select(AsignacionExamen).where(AsignacionExamen.id == asig_id))
     asig = result.scalars().first()
     if not asig:
         raise HTTPException(404, "Asignación no encontrada")
-    if asig.asignado_por_id != current_user.id:
+
+    rol = RolCodigo(current_user.rol_codigo)
+    DRE_ROLES = {RolCodigo.ESPECIALISTA_DRE_COMUNICACION, RolCodigo.ESPECIALISTA_DRE_MATEMATICA}
+    GESTORES_IE = {RolCodigo.DIRECTOR, RolCodigo.AUXILIAR}
+
+    is_creator = asig.asignado_por_id == current_user.id
+    is_gestor_ie = rol in GESTORES_IE and asig.institucion_educativa_id == current_user.institucion_educativa_id
+    is_dre = rol in DRE_ROLES
+
+    if not (is_creator or is_gestor_ie or is_dre):
         raise HTTPException(403, "No tienes acceso a esta asignación")
 
     intentos_r = await db.execute(
@@ -533,7 +577,16 @@ async def eliminar_asignacion(
     asig = result.scalars().first()
     if not asig:
         raise HTTPException(404, "Asignación no encontrada")
-    if asig.asignado_por_id != current_user.id:
+
+    rol = RolCodigo(current_user.rol_codigo)
+    DRE_ROLES = {RolCodigo.ESPECIALISTA_DRE_COMUNICACION, RolCodigo.ESPECIALISTA_DRE_MATEMATICA}
+    GESTORES_IE = {RolCodigo.DIRECTOR, RolCodigo.AUXILIAR}
+
+    is_creator = asig.asignado_por_id == current_user.id
+    is_gestor_ie = rol in GESTORES_IE and asig.institucion_educativa_id == current_user.institucion_educativa_id
+    is_dre = rol in DRE_ROLES
+
+    if not (is_creator or is_gestor_ie or is_dre):
         raise HTTPException(403, "No tienes acceso")
     await db.delete(asig)
     await db.flush()

@@ -1,38 +1,38 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
-import type { RolCodigo } from '../types'
+import type { RolCodigo } from '../shared/types'
 
 // Vistas existentes
-const LoginView = () => import('../views/LoginView.vue')
-const HomeView = () => import('../views/HomeView.vue')
-const LectoSistemView = () => import('../views/LectoSistemView.vue')
-const MatSistemView = () => import('../views/MatSistemView.vue')
-const AdminView = () => import('../views/AdminView.vue')
-const AdminMatView = () => import('../views/AdminMatView.vue')
-const AdminUsuariosView = () => import('../views/AdminUsuariosView.vue')
-const MetricasView = () => import('../views/MetricasView.vue')
+const LoginView = () => import('../modules/auth/LoginView.vue')
+const HomeView = () => import('../modules/home/HomeView.vue')
+const LectoSistemView = () => import('../modules/lectosistem/LectoSistemView.vue')
+const MatSistemView = () => import('../modules/matsistem/MatSistemView.vue')
+const AdminView = () => import('../modules/admin/AdminView.vue')
+const AdminMatView = () => import('../modules/admin/AdminMatView.vue')
+const AdminUsuariosView = () => import('../modules/admin/AdminUsuariosView.vue')
+const MetricasView = () => import('../modules/metricas/MetricasView.vue')
 
 // Asignaciones (docente)
-const AsignacionesView = () => import('../views/AsignacionesView.vue')
+const AsignacionesView = () => import('../modules/asignaciones/AsignacionesView.vue')
 
 // Vistas nuevas - Organizacionales
-const AdminUgelesView = () => import('../views/AdminUgelesView.vue')
-const AdminInstitucionesView = () => import('../views/AdminInstitucionesView.vue')
-const MiUgelView = () => import('../views/MiUgelView.vue')
-const MiInstitucionView = () => import('../views/MiInstitucionView.vue')
-const CodigosClaseView = () => import('../views/CodigosClaseView.vue')
+const AdminUgelesView = () => import('../modules/admin/AdminUgelesView.vue')
+const AdminInstitucionesView = () => import('../modules/admin/AdminInstitucionesView.vue')
+const MiUgelView = () => import('../modules/admin/MiUgelView.vue')
+const MiInstitucionView = () => import('../modules/admin/MiInstitucionView.vue')
+const CodigosClaseView = () => import('../modules/codigos_clase/CodigosClaseView.vue')
 
 // Vistas nuevas - Registro público
-const RegistroEstudianteView = () => import('../views/RegistroEstudianteView.vue')
+const RegistroEstudianteView = () => import('../modules/auth/RegistroEstudianteView.vue')
 
 // Gestión de estudiantes por docente
-const MisEstudiantesView = () => import('../views/MisEstudiantesView.vue')
+const MisEstudiantesView = () => import('../modules/admin/MisEstudiantesView.vue')
 
 // Vistas nuevas - Portal estudiantil
-const EstudianteDashboardView = () => import('../views/estudiante/EstudianteDashboardView.vue')
-const EstudianteExamenesView = () => import('../views/estudiante/EstudianteExamenesView.vue')
-const EstudianteExamenView = () => import('../views/estudiante/EstudianteExamenView.vue')
-const EstudianteProgresoView = () => import('../views/estudiante/EstudianteProgresoView.vue')
+const EstudianteDashboardView = () => import('../modules/estudiante/EstudianteDashboardView.vue')
+const EstudianteExamenesView = () => import('../modules/estudiante/EstudianteExamenesView.vue')
+const EstudianteExamenView = () => import('../modules/estudiante/EstudianteExamenView.vue')
+const EstudianteProgresoView = () => import('../modules/estudiante/EstudianteProgresoView.vue')
 
 declare module 'vue-router' {
   interface RouteMeta {
