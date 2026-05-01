@@ -10,11 +10,49 @@ from typing import Optional, List, Any
 from datetime import datetime
 
 from app.core.database import get_db
-from app.models.db_models import ExamenLectura, ExamenMatematica
+from app.models.db_models import ExamenLectura, ExamenMatematica, PreguntaExamen
 from app.models.usuario import Usuario as DocenteModel
 from app.api.dependencies import get_current_active_user
 
 router = APIRouter()
+
+
+# =============================================================================
+# HELPERS — normalización de preguntas
+# =============================================================================
+
+def _extraer_pregunta(p: dict, tabla_map: dict) -> dict:
+    """Parsea una pregunta del JSON de IA a campos planos."""
+    num = p.get("numero", 0)
+    opciones = {o["letra"]: o["texto"] for o in p.get("opciones", [])}
+    info = tabla_map.get(num, {})
+    return {
+        "numero": num,
+        "enunciado": p.get("enunciado", ""),
+        "opcion_a": opciones.get("A", ""),
+        "opcion_b": opciones.get("B", ""),
+        "opcion_c": opciones.get("C", ""),
+        "opcion_d": opciones.get("D", ""),
+        "respuesta_correcta": info.get("respuesta_correcta", ""),
+        "nivel": p.get("nivel") or info.get("nivel"),
+        "desempeno_codigo": p.get("desempeno_codigo") or info.get("desempeno"),
+        "desempeno_descripcion": info.get("desempeno"),
+        "justificacion": info.get("justificacion"),
+    }
+
+
+def _insertar_preguntas_lectura(db, examen_id: int, preguntas: list, tabla: list) -> None:
+    tabla_map = {r.get("pregunta"): r for r in tabla}
+    for p in preguntas:
+        campos = _extraer_pregunta(p, tabla_map)
+        db.add(PreguntaExamen(examen_lectura_id=examen_id, **campos))
+
+
+def _insertar_preguntas_matematica(db, examen_id: int, preguntas: list, tabla: list) -> None:
+    tabla_map = {r.get("pregunta"): r for r in tabla}
+    for p in preguntas:
+        campos = _extraer_pregunta(p, tabla_map)
+        db.add(PreguntaExamen(examen_matematica_id=examen_id, **campos))
 
 
 # =============================================================================
@@ -143,6 +181,11 @@ async def guardar_examen_lectura(
         **examen_in.model_dump(exclude_none=False)
     )
     db.add(db_examen)
+    await db.flush()
+
+    # Poblar preguntas_examen desde el JSON generado por IA
+    _insertar_preguntas_lectura(db, db_examen.id, examen_in.preguntas or [], examen_in.tabla_respuestas or [])
+
     await db.commit()
     await db.refresh(db_examen)
     return db_examen
@@ -245,6 +288,11 @@ async def guardar_examen_matematica(
         **examen_in.model_dump(exclude_none=False)
     )
     db.add(db_examen)
+    await db.flush()
+
+    # Poblar preguntas_examen desde el JSON generado por IA
+    _insertar_preguntas_matematica(db, db_examen.id, examen_in.preguntas or [], examen_in.tabla_respuestas or [])
+
     await db.commit()
     await db.refresh(db_examen)
     return db_examen

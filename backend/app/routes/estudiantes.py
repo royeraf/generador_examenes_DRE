@@ -12,6 +12,7 @@ from app.core.database import get_db
 from app.models.db_models import (
     AsignacionExamen, IntentoExamen, ProgresoEstudiante,
     ExamenLectura, ExamenMatematica,
+    PreguntaExamen, RespuestaIntento,
 )
 from app.models.usuario import Usuario
 from app.models.enums import RolCodigo
@@ -141,13 +142,13 @@ async def listar_examenes_estudiante(
 
         # Obtener título del examen
         titulo = f"Examen de {a.tipo_examen.capitalize()}"
-        if a.tipo_examen == "lectura" and a.examen_lectura_id:
-            ex_r = await db.execute(select(ExamenLectura.titulo).where(ExamenLectura.id == a.examen_lectura_id))
+        if a.tipo_examen == "lectura":
+            ex_r = await db.execute(select(ExamenLectura.titulo).where(ExamenLectura.id == a.examen_id))
             t = ex_r.scalar()
             if t:
                 titulo = t
-        elif a.tipo_examen == "matematica" and a.examen_matematica_id:
-            ex_r = await db.execute(select(ExamenMatematica.titulo).where(ExamenMatematica.id == a.examen_matematica_id))
+        elif a.tipo_examen == "matematica":
+            ex_r = await db.execute(select(ExamenMatematica.titulo).where(ExamenMatematica.id == a.examen_id))
             t = ex_r.scalar()
             if t:
                 titulo = t
@@ -208,30 +209,42 @@ async def iniciar_examen(
     await db.flush()
     await db.refresh(intento)
 
-    # Obtener preguntas del examen
-    if asig.tipo_examen == "lectura" and asig.examen_lectura_id:
-        ex_r = await db.execute(select(ExamenLectura).where(ExamenLectura.id == asig.examen_lectura_id))
+    # Obtener preguntas desde la tabla normalizada
+    if asig.tipo_examen == "lectura":
+        ex_r = await db.execute(select(ExamenLectura).where(ExamenLectura.id == asig.examen_id))
         examen = ex_r.scalars().first()
         if not examen:
             raise HTTPException(404, "Examen de lectura no encontrado")
+        preguntas_r = await db.execute(
+            select(PreguntaExamen)
+            .where(PreguntaExamen.examen_lectura_id == asig.examen_id)
+            .order_by(PreguntaExamen.numero)
+        )
+        preguntas = preguntas_r.scalars().all()
         return {
             "titulo": examen.titulo or "Examen de Comunicación",
             "instrucciones": examen.instrucciones or "",
             "lectura": examen.lectura or "",
-            "preguntas": _preparar_preguntas(examen.preguntas or []),
+            "preguntas": _preparar_preguntas_db(preguntas),
             "duracion_minutos": asig.duracion_minutos,
             "intento_id": intento.id,
         }
-    elif asig.tipo_examen == "matematica" and asig.examen_matematica_id:
-        ex_r = await db.execute(select(ExamenMatematica).where(ExamenMatematica.id == asig.examen_matematica_id))
+    elif asig.tipo_examen == "matematica":
+        ex_r = await db.execute(select(ExamenMatematica).where(ExamenMatematica.id == asig.examen_id))
         examen = ex_r.scalars().first()
         if not examen:
             raise HTTPException(404, "Examen de matemática no encontrado")
+        preguntas_r = await db.execute(
+            select(PreguntaExamen)
+            .where(PreguntaExamen.examen_matematica_id == asig.examen_id)
+            .order_by(PreguntaExamen.numero)
+        )
+        preguntas = preguntas_r.scalars().all()
         return {
             "titulo": examen.titulo or "Examen de Matemática",
             "instrucciones": "",
             "lectura": examen.situacion_problematica or "",
-            "preguntas": _preparar_preguntas(examen.preguntas or []),
+            "preguntas": _preparar_preguntas_db(preguntas),
             "duracion_minutos": asig.duracion_minutos,
             "intento_id": intento.id,
         }
@@ -239,24 +252,23 @@ async def iniciar_examen(
         raise HTTPException(400, "Tipo de examen no soportado")
 
 
-def _preparar_preguntas(preguntas_raw: list) -> list:
-    """Normaliza la lista de preguntas para el cliente."""
-    out = []
-    for p in preguntas_raw:
-        opciones = []
-        for o in p.get("opciones", []):
-            opciones.append({
-                "letra": o.get("letra", ""),
-                "texto": o.get("texto", ""),
-            })
-        out.append({
-            "numero": p.get("numero", 0),
-            "enunciado": p.get("enunciado", ""),
-            "opciones": opciones,
-            "nivel": p.get("nivel", ""),
-            "desempeno_codigo": p.get("desempeno_codigo", ""),
-        })
-    return out
+def _preparar_preguntas_db(preguntas: list) -> list:
+    """Convierte filas de PreguntaExamen al formato que espera el cliente."""
+    return [
+        {
+            "numero": p.numero,
+            "enunciado": p.enunciado,
+            "opciones": [
+                {"letra": "A", "texto": p.opcion_a},
+                {"letra": "B", "texto": p.opcion_b},
+                {"letra": "C", "texto": p.opcion_c},
+                {"letra": "D", "texto": p.opcion_d},
+            ],
+            "nivel": p.nivel or "",
+            "desempeno_codigo": p.desempeno_codigo or "",
+        }
+        for p in preguntas
+    ]
 
 
 @router.get("/estudiante/examenes/{asignacion_id}/resultado")
@@ -301,30 +313,45 @@ async def finalizar_intento(
     if intento.estado == "completado":
         raise HTTPException(400, "Este intento ya fue completado")
 
-    # Obtener tabla de respuestas
+    # Obtener asignación y preguntas normalizadas
     asig_r = await db.execute(select(AsignacionExamen).where(AsignacionExamen.id == intento.asignacion_id))
     asig = asig_r.scalars().first()
-    tabla_respuestas = []
 
-    if asig.tipo_examen == "lectura" and asig.examen_lectura_id:
-        ex_r = await db.execute(select(ExamenLectura.tabla_respuestas).where(ExamenLectura.id == asig.examen_lectura_id))
-        tabla_respuestas = ex_r.scalar() or []
-    elif asig.tipo_examen == "matematica" and asig.examen_matematica_id:
-        ex_r = await db.execute(select(ExamenMatematica.tabla_respuestas).where(ExamenMatematica.id == asig.examen_matematica_id))
-        tabla_respuestas = ex_r.scalar() or []
+    filtro_pregunta = (
+        PreguntaExamen.examen_lectura_id == asig.examen_id
+        if asig.tipo_examen == "lectura"
+        else PreguntaExamen.examen_matematica_id == asig.examen_id
+    )
+    preguntas_r = await db.execute(select(PreguntaExamen).where(filtro_pregunta))
+    preguntas_map = {p.numero: p for p in preguntas_r.scalars().all()}
 
-    # Calificar
-    respuestas_list = [{"pregunta_numero": r.pregunta_numero, "respuesta": r.respuesta} for r in data.respuestas]
-    resultado = _calificar(respuestas_list, tabla_respuestas)
+    # Calificar y crear RespuestaIntento por cada respuesta enviada
+    correctas = 0
+    for r in data.respuestas:
+        pregunta = preguntas_map.get(r.pregunta_numero)
+        if not pregunta:
+            continue
+        es_correcta = r.respuesta.upper() == pregunta.respuesta_correcta.upper()
+        if es_correcta:
+            correctas += 1
+        db.add(RespuestaIntento(
+            intento_id=intento.id,
+            pregunta_id=pregunta.id,
+            respuesta_dada=r.respuesta.upper(),
+            es_correcta=es_correcta,
+        ))
+
+    total = len(preguntas_map)
+    puntaje = round((correctas / total * 100) if total > 0 else 0, 2)
+    nivel_logro = _puntaje_a_nivel(puntaje)
 
     # Actualizar intento
     intento.estado = "completado"
     intento.fecha_fin = datetime.now(timezone.utc)
-    intento.respuestas = {str(r.pregunta_numero): r.respuesta for r in data.respuestas}
-    intento.puntaje_total = resultado["puntaje"]
-    intento.preguntas_correctas = resultado["correctas"]
-    intento.preguntas_total = resultado["total"]
-    intento.nivel_logro = resultado["nivel_logro"]
+    intento.puntaje_total = puntaje
+    intento.preguntas_correctas = correctas
+    intento.preguntas_total = total
+    intento.nivel_logro = nivel_logro
 
     # Actualizar progreso
     area = "comunicacion" if asig.tipo_examen == "lectura" else "matematica"
@@ -356,10 +383,10 @@ async def finalizar_intento(
     await db.flush()
 
     return {
-        "puntaje_total": resultado["puntaje"],
-        "preguntas_correctas": resultado["correctas"],
-        "preguntas_total": resultado["total"],
-        "nivel_logro": resultado["nivel_logro"],
+        "puntaje_total": puntaje,
+        "preguntas_correctas": correctas,
+        "preguntas_total": total,
+        "nivel_logro": nivel_logro,
     }
 
 
@@ -462,18 +489,18 @@ async def listar_asignaciones(
 
         titulo = None
         grado_nombre = None
-        if a.tipo_examen == "lectura" and a.examen_lectura_id:
+        if a.tipo_examen == "lectura":
             r = await db.execute(
                 select(ExamenLectura.titulo, ExamenLectura.grado_nombre)
-                .where(ExamenLectura.id == a.examen_lectura_id)
+                .where(ExamenLectura.id == a.examen_id)
             )
             row = r.first()
             if row:
                 titulo, grado_nombre = row.titulo, row.grado_nombre
-        elif a.tipo_examen == "matematica" and a.examen_matematica_id:
+        elif a.tipo_examen == "matematica":
             r = await db.execute(
                 select(ExamenMatematica.titulo, ExamenMatematica.grado_nombre)
-                .where(ExamenMatematica.id == a.examen_matematica_id)
+                .where(ExamenMatematica.id == a.examen_id)
             )
             row = r.first()
             if row:

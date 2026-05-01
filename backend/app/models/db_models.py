@@ -329,9 +329,8 @@ class AsignacionExamen(Base):
     __tablename__ = "asignaciones_examen"
 
     id = Column(Integer, primary_key=True, index=True)
-    tipo_examen = Column(String(20), nullable=False)  # "lectura" o "matematica"
-    examen_lectura_id = Column(Integer, ForeignKey("examenes_lectura.id", ondelete="SET NULL"), nullable=True)
-    examen_matematica_id = Column(Integer, ForeignKey("examenes_matematica.id", ondelete="SET NULL"), nullable=True)
+    tipo_examen = Column(String(20), nullable=False)  # "lectura" | "matematica"
+    examen_id = Column(Integer, nullable=False)        # FK lógica a examenes_lectura.id o examenes_matematica.id según tipo_examen
     asignado_por_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
 
     institucion_educativa_id = Column(Integer, ForeignKey("instituciones_educativas.id"), nullable=True)
@@ -347,8 +346,6 @@ class AsignacionExamen(Base):
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
 
     asignado_por = relationship("Usuario", foreign_keys=[asignado_por_id])
-    examen_lectura = relationship("ExamenLectura")
-    examen_matematica = relationship("ExamenMatematica")
     institucion_educativa = relationship("InstitucionEducativa")
     grado = relationship("Grado")
     intentos = relationship("IntentoExamen", back_populates="asignacion", cascade="all, delete-orphan")
@@ -414,3 +411,59 @@ class ProgresoEstudiante(Base):
 
     def __repr__(self):
         return f"<ProgresoEstudiante estudiante={self.estudiante_id} area={self.area}>"
+
+
+# =============================================================================
+# NORMALIZACIÓN: PREGUNTAS Y RESPUESTAS
+# =============================================================================
+
+class PreguntaExamen(Base):
+    """Pregunta individual de un examen (lectura o matemática).
+    Reemplaza el JSON 'preguntas' almacenado en ExamenLectura/ExamenMatematica."""
+    __tablename__ = "preguntas_examen"
+
+    id = Column(Integer, primary_key=True, index=True)
+    # FK lógica al examen — exactamente una debe ser no nula
+    examen_lectura_id = Column(Integer, ForeignKey("examenes_lectura.id", ondelete="CASCADE"), nullable=True)
+    examen_matematica_id = Column(Integer, ForeignKey("examenes_matematica.id", ondelete="CASCADE"), nullable=True)
+
+    numero = Column(Integer, nullable=False)
+    enunciado = Column(Text, nullable=False)
+    opcion_a = Column(Text, nullable=False)
+    opcion_b = Column(Text, nullable=False)
+    opcion_c = Column(Text, nullable=False)
+    opcion_d = Column(Text, nullable=False)
+    respuesta_correcta = Column(String(1), nullable=False)  # A | B | C | D
+    nivel = Column(String(20), nullable=True)               # literal | inferencial | critico
+    desempeno_codigo = Column(String(50), nullable=True)
+    desempeno_descripcion = Column(Text, nullable=True)
+    justificacion = Column(Text, nullable=True)
+
+    examen_lectura = relationship("ExamenLectura", foreign_keys=[examen_lectura_id])
+    examen_matematica = relationship("ExamenMatematica", foreign_keys=[examen_matematica_id])
+    respuestas = relationship("RespuestaIntento", back_populates="pregunta", cascade="all, delete-orphan")
+
+    def __repr__(self):
+        return f"<PreguntaExamen #{self.numero} lec={self.examen_lectura_id} mat={self.examen_matematica_id}>"
+
+
+class RespuestaIntento(Base):
+    """Respuesta individual de un estudiante en un intento de examen.
+    Reemplaza el JSON 'respuestas' en IntentoExamen."""
+    __tablename__ = "respuestas_intento"
+
+    id = Column(Integer, primary_key=True, index=True)
+    intento_id = Column(Integer, ForeignKey("intentos_examen.id", ondelete="CASCADE"), nullable=False)
+    pregunta_id = Column(Integer, ForeignKey("preguntas_examen.id", ondelete="CASCADE"), nullable=False)
+    respuesta_dada = Column(String(1), nullable=False)   # A | B | C | D
+    es_correcta = Column(Boolean, nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("intento_id", "pregunta_id", name="uq_respuesta_intento"),
+    )
+
+    intento = relationship("IntentoExamen", foreign_keys=[intento_id])
+    pregunta = relationship("PreguntaExamen", back_populates="respuestas")
+
+    def __repr__(self):
+        return f"<RespuestaIntento intento={self.intento_id} pregunta={self.pregunta_id} ok={self.es_correcta}>"

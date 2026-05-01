@@ -1,38 +1,18 @@
 @startuml SIEVA_DB_Schema
-!theme plain
-skinparam linetype ortho
-skinparam backgroundColor #FAFAFA
-skinparam packageStyle rectangle
-skinparam entity {
-  BorderColor #334155
-  BackgroundColor #F8FAFC
-  FontColor #1E293B
-  FontSize 11
-}
-skinparam package {
-  BorderColor #94A3B8
-  FontColor #475569
-  FontSize 12
-  FontStyle bold
-}
-skinparam arrow {
-  Color #64748B
-  Thickness 1.2
-}
 hide circle
+skinparam shadowing false
+skinparam linetype ortho
 
 ' ============================================================
 ' UBIGEO
 ' ============================================================
 package "Ubigeo" #EFF6FF {
-
-  entity "provincias" as Provincia {
+  entity provincias {
     * id : INTEGER <<PK>>
     --
-    * nombre : VARCHAR(100) <<UQ>>
+    * nombre : VARCHAR(100)
   }
-
-  entity "distritos" as Distrito {
+  entity distritos {
     * id : INTEGER <<PK>>
     --
     * nombre : VARCHAR(100)
@@ -43,40 +23,33 @@ package "Ubigeo" #EFF6FF {
 ' ============================================================
 ' ORGANIZACIÓN
 ' ============================================================
-package "Organización" #F0FDF4 {
-
-  entity "roles" as Rol {
+package "Organizacion" #F0FDF4 {
+  entity roles {
     * id : INTEGER <<PK>>
     --
-    * codigo : VARCHAR(50) <<UQ>>
+    * codigo : VARCHAR(50)
     * nombre : VARCHAR(100)
-    descripcion : TEXT
     * nivel : INTEGER
     * orden : INTEGER
     modulos_default : JSON
   }
-
-  entity "ugeles" as Ugel {
+  entity ugeles {
     * id : INTEGER <<PK>>
     --
-    * codigo : VARCHAR(20) <<UQ>>
+    * codigo : VARCHAR(20)
     * nombre : VARCHAR(200)
     provincia_id : INTEGER <<FK>>
     is_active : BOOLEAN
-    fecha_creacion : DATETIME
   }
-
-  entity "instituciones_educativas" as IE {
+  entity instituciones_educativas {
     * id : INTEGER <<PK>>
     --
-    * codigo_modular : VARCHAR(20) <<UQ>>
+    * codigo_modular : VARCHAR(20)
     * nombre : VARCHAR(300)
-    * nivel_educativo : JSON
-    direccion : TEXT
+    nivel_educativo : JSON
     * ugel_id : INTEGER <<FK>>
     distrito_id : INTEGER <<FK>>
     is_active : BOOLEAN
-    fecha_creacion : DATETIME
   }
 }
 
@@ -84,14 +57,13 @@ package "Organización" #F0FDF4 {
 ' USUARIOS
 ' ============================================================
 package "Usuarios" #FFFBEB {
-
-  entity "usuarios" as Usuario {
+  entity usuarios {
     * id : INTEGER <<PK>>
     --
-    dni : VARCHAR(8) <<UQ>>
-    codigo_estudiante : VARCHAR(10) <<UQ>>
-    nombres : VARCHAR(100)
-    apellidos : VARCHAR(100)
+    dni : VARCHAR(8)
+    codigo_estudiante : VARCHAR(10)
+    * nombres : VARCHAR(100)
+    * apellidos : VARCHAR(100)
     profesion : VARCHAR(100)
     * password_hash : VARCHAR(200)
     is_active : BOOLEAN
@@ -101,20 +73,17 @@ package "Usuarios" #FFFBEB {
     institucion_educativa_id : INTEGER <<FK>>
     grado_id : INTEGER <<FK>>
     seccion : VARCHAR(10)
-    provincia_id : INTEGER <<FK>>
-    distrito_id : INTEGER <<FK>>
-    creado_por_id : INTEGER <<FK>> <<self>>
+    creado_por_id : INTEGER <<FK>>
     * fecha_creacion : DATETIME
     ultimo_acceso : DATETIME
   }
 }
 
 ' ============================================================
-' CURRÍCULUM — COMUNICACIÓN (LectoSistem)
+' CURRICULO COMUNICACION
 ' ============================================================
-package "Currículo Comunicación" #FAF5FF {
-
-  entity "grados" as Grado {
+package "Curriculo Comunicacion" #FAF5FF {
+  entity grados {
     * id : INTEGER <<PK>>
     --
     * nombre : VARCHAR(100)
@@ -122,16 +91,14 @@ package "Currículo Comunicación" #FAF5FF {
     * nivel : VARCHAR(20)
     * orden : INTEGER
   }
-
-  entity "capacidades" as Capacidad {
+  entity capacidades {
     * id : INTEGER <<PK>>
     --
     * nombre : VARCHAR(200)
     * tipo : VARCHAR(20)
     descripcion : TEXT
   }
-
-  entity "desempenos" as Desempeno {
+  entity desempenos {
     * id : INTEGER <<PK>>
     --
     * codigo : VARCHAR(10)
@@ -142,28 +109,24 @@ package "Currículo Comunicación" #FAF5FF {
 }
 
 ' ============================================================
-' CURRÍCULUM — MATEMÁTICA (MatSistem)
+' CURRICULO MATEMATICA
 ' ============================================================
-package "Currículo Matemática" #FFF1F2 {
-
-  entity "competencias_matematica" as CompMat {
+package "Curriculo Matematica" #FFF1F2 {
+  entity competencias_matematica {
     * id : INTEGER <<PK>>
     --
-    * codigo : INTEGER <<UQ>>
+    * codigo : INTEGER
     * nombre : VARCHAR(200)
     descripcion : TEXT
   }
-
-  entity "capacidades_matematica" as CapMat {
+  entity capacidades_matematica {
     * id : INTEGER <<PK>>
     --
     * orden : INTEGER
     * nombre : VARCHAR(300)
-    descripcion : TEXT
     * competencia_id : INTEGER <<FK>>
   }
-
-  entity "estandares_matematica" as EstMat {
+  entity estandares_matematica {
     * id : INTEGER <<PK>>
     --
     * descripcion : TEXT
@@ -171,8 +134,7 @@ package "Currículo Matemática" #FFF1F2 {
     * grado_id : INTEGER <<FK>>
     * competencia_id : INTEGER <<FK>>
   }
-
-  entity "desempenos_matematica" as DesMat {
+  entity desempenos_matematica {
     * id : INTEGER <<PK>>
     --
     * codigo : VARCHAR(10)
@@ -183,39 +145,32 @@ package "Currículo Matemática" #FFF1F2 {
 }
 
 ' ============================================================
-' EXÁMENES GENERADOS
+' EXAMENES GENERADOS
 ' ============================================================
-package "Exámenes" #EFF6FF {
-
-  entity "examenes_lectura" as ExLectura {
+package "Examenes Generados" #DBEAFE {
+  entity examenes_lectura {
     * id : INTEGER <<PK>>
     --
     * docente_id : INTEGER <<FK>>
     grado_id : INTEGER <<FK>>
     titulo : VARCHAR(300)
-    grado_nombre : VARCHAR(100)
     nivel_dificultad : VARCHAR(50)
     modelo_ia : VARCHAR(50)
-    saludo : TEXT
-    instrucciones : TEXT
     lectura : TEXT
     preguntas : JSON
     tabla_respuestas : JSON
     desempenos_usados : TEXT
     * fecha_creacion : DATETIME
   }
-
-  entity "examenes_matematica" as ExMat {
+  entity examenes_matematica {
     * id : INTEGER <<PK>>
     --
     * docente_id : INTEGER <<FK>>
     grado_id : INTEGER <<FK>>
     competencia_id : INTEGER <<FK>>
     titulo : VARCHAR(300)
-    grado_nombre : VARCHAR(100)
     nivel_dificultad : VARCHAR(50)
     modelo_ia : VARCHAR(50)
-    saludo : TEXT
     situacion_problematica : TEXT
     preguntas : JSON
     tabla_respuestas : JSON
@@ -228,8 +183,19 @@ package "Exámenes" #EFF6FF {
 ' ASIGNACIONES Y PROGRESO
 ' ============================================================
 package "Asignaciones y Progreso" #FEFCE8 {
-
-  entity "asignaciones_examen" as Asignacion {
+  entity codigos_clase {
+    * id : INTEGER <<PK>>
+    --
+    * codigo : VARCHAR(10)
+    * creado_por_id : INTEGER <<FK>>
+    * institucion_educativa_id : INTEGER <<FK>>
+    * grado_id : INTEGER <<FK>>
+    * seccion : VARCHAR(10)
+    max_estudiantes : INTEGER
+    is_active : BOOLEAN
+    fecha_expiracion : DATETIME
+  }
+  entity asignaciones_examen {
     * id : INTEGER <<PK>>
     --
     * tipo_examen : VARCHAR(20)
@@ -247,8 +213,7 @@ package "Asignaciones y Progreso" #FEFCE8 {
     is_active : BOOLEAN
     fecha_creacion : DATETIME
   }
-
-  entity "intentos_examen" as Intento {
+  entity intentos_examen {
     * id : INTEGER <<PK>>
     --
     * asignacion_id : INTEGER <<FK>>
@@ -264,10 +229,8 @@ package "Asignaciones y Progreso" #FEFCE8 {
     nivel_logro : VARCHAR(50)
     resultados_por_desempeno : JSON
     fecha_creacion : DATETIME
-    .. UQ(asignacion_id, estudiante_id, numero_intento) ..
   }
-
-  entity "progreso_estudiante" as Progreso {
+  entity progreso_estudiante {
     * id : INTEGER <<PK>>
     --
     * estudiante_id : INTEGER <<FK>>
@@ -277,81 +240,50 @@ package "Asignaciones y Progreso" #FEFCE8 {
     nivel_logro_actual : VARCHAR(50)
     dominio_desempenos : JSON
     ultima_actividad : DATETIME
-    fecha_creacion : DATETIME
-    .. UQ(estudiante_id, area) ..
-  }
-
-  entity "codigos_clase" as Codigo {
-    * id : INTEGER <<PK>>
-    --
-    * codigo : VARCHAR(10) <<UQ>>
-    * creado_por_id : INTEGER <<FK>>
-    * institucion_educativa_id : INTEGER <<FK>>
-    * grado_id : INTEGER <<FK>>
-    * seccion : VARCHAR(10)
-    max_estudiantes : INTEGER
-    is_active : BOOLEAN
-    fecha_creacion : DATETIME
-    fecha_expiracion : DATETIME
   }
 }
 
 ' ============================================================
 ' RELACIONES
 ' ============================================================
+provincias               ||--o{ distritos                 : ""
+provincias               ||--o{ ugeles                    : ""
+ugeles                   ||--|{ instituciones_educativas   : ""
+distritos                ||--o{ instituciones_educativas   : ""
 
-' -- Ubigeo --
-Provincia ||--o{ Distrito : "contiene"
+roles                    ||--|{ usuarios                   : ""
+ugeles                   ||--o{ usuarios                   : ""
+instituciones_educativas ||--o{ usuarios                   : ""
+grados                   ||--o{ usuarios                   : ""
+usuarios                 ||--o{ usuarios                   : "creado_por"
 
-' -- Organización --
-Provincia ||--o{ Ugel      : "alberga"
-Ugel      ||--o{ IE        : "agrupa"
-Distrito  ||--o{ IE        : "ubica"
+grados                   ||--o{ desempenos                 : ""
+capacidades              ||--o{ desempenos                 : ""
 
-' -- Usuarios --
-Rol      ||--o{ Usuario   : "define"
-Ugel     ||--o{ Usuario   : "asignado a"
-IE       ||--o{ Usuario   : "pertenece a"
-Grado    ||--o{ Usuario   : "cursa"
-Provincia ||--o{ Usuario  : "de"
-Distrito  ||--o{ Usuario  : "de"
-Usuario  |o--o{ Usuario   : "creó (creado_por)"
+competencias_matematica  ||--|{ capacidades_matematica     : ""
+competencias_matematica  ||--o{ estandares_matematica      : ""
+grados                   ||--o{ estandares_matematica      : ""
+grados                   ||--o{ desempenos_matematica      : ""
+capacidades_matematica   ||--o{ desempenos_matematica      : ""
 
-' -- Currículo Comunicación --
-Grado     ||--o{ Desempeno : "tiene"
-Capacidad ||--o{ Desempeno : "clasifica"
+usuarios                 ||--o{ examenes_lectura           : "genera"
+grados                   ||--o{ examenes_lectura           : ""
+usuarios                 ||--o{ examenes_matematica        : "genera"
+grados                   ||--o{ examenes_matematica        : ""
+competencias_matematica  ||--o{ examenes_matematica        : ""
 
-' -- Currículo Matemática --
-CompMat ||--o{ CapMat   : "incluye"
-CompMat ||--o{ EstMat   : "evalúa"
-Grado   ||--o{ EstMat   : "para"
-Grado   ||--o{ DesMat   : "tiene"
-CapMat  ||--o{ DesMat   : "clasifica"
+usuarios                 ||--o{ codigos_clase              : "crea"
+instituciones_educativas ||--o{ codigos_clase              : ""
+grados                   ||--o{ codigos_clase              : ""
 
-' -- Exámenes --
-Usuario  ||--o{ ExLectura : "genera"
-Grado    ||--o{ ExLectura : "para"
-Usuario  ||--o{ ExMat     : "genera"
-Grado    ||--o{ ExMat     : "para"
-CompMat  ||--o{ ExMat     : "sobre"
+examenes_lectura         ||--o{ asignaciones_examen        : ""
+examenes_matematica      ||--o{ asignaciones_examen        : ""
+usuarios                 ||--o{ asignaciones_examen        : "asigna"
+instituciones_educativas ||--o{ asignaciones_examen        : ""
+grados                   ||--o{ asignaciones_examen        : ""
 
-' -- Asignaciones --
-ExLectura   ||--o{ Asignacion : "asignado en"
-ExMat       ||--o{ Asignacion : "asignado en"
-Usuario     ||--o{ Asignacion : "asigna"
-IE          ||--o{ Asignacion : "destino"
-Grado       ||--o{ Asignacion : "grado"
-
-' -- Intentos --
-Asignacion ||--o{ Intento  : "genera"
-Usuario    ||--o{ Intento  : "rinde"
-
-' -- Progreso --
-Usuario ||--o{ Progreso : "acumula"
-
-' -- Códigos de Clase --
-Usuario ||--o{ Codigo : "crea"
-IE      ||--o{ Codigo : "de"
-Grado   ||--o{ Codigo : "para"
+asignaciones_examen      ||--|{ intentos_examen            : ""
+usuarios                 ||--o{ intentos_examen            : "rinde"
+usuarios                 ||--o{ progreso_estudiante        : ""
 
 @enduml
