@@ -49,6 +49,7 @@ export function useExamHistory() {
                 saludo: resultado.saludo,
                 instrucciones: resultado.examen.instrucciones,
                 lectura: resultado.examen.lectura,
+                lecturas: (resultado as any).lecturas ?? null,
                 preguntas: resultado.examen.preguntas,
                 tabla_respuestas: resultado.examen.tabla_respuestas,
                 desempenos_usados: resultado.desempenos_usados

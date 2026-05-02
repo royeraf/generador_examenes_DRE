@@ -56,7 +56,8 @@ class GenerarPreguntasRequest(BaseModel):
         description="Nivel de dificultad: basico (simple, sencillo), intermedio (demanda cognitiva media), avanzado (complejo, alta demanda cognitiva)"
     )
     cantidad: int = Field(default=3, ge=1, le=10, description="Cantidad de preguntas a generar")
-    texto_base: Optional[str] = Field(None, description="Texto de lectura para basar las preguntas")
+    texto_base: Optional[str] = Field(None, description="Texto de lectura único (retrocompatibilidad)")
+    textos_base: Optional[list[dict]] = Field(None, description="Lista de textos: [{titulo, texto}]")
     desempeno_ids: Optional[list[int]] = Field(None, description="IDs de desempeños seleccionados")
     modelo: Optional[str] = Field("gemini", description="Modelo de IA a usar: gemini o chatgpt")
     tipo_textual: Optional[str] = Field(None, description="Tipo textual: narrativo, descriptivo, instructivo, argumentativo, expositivo")
@@ -155,12 +156,17 @@ async def generar_preguntas_lectura(
     Si el request incluye un token JWT válido, el exámen se guarda automáticamente.
     """
     try:
+        # Normalizar: si llega texto_base (legacy) convertir a textos_base
+        textos_base = request.textos_base
+        if not textos_base and request.texto_base:
+            textos_base = [{"titulo": "", "texto": request.texto_base}]
+
         result = await lectosistem_service.generar_preguntas_por_desempenos(
             db=db,
             grado_id=request.grado_id,
             desempeno_ids=request.desempeno_ids or [],
             cantidad=request.cantidad,
-            texto_base=request.texto_base,
+            textos_base=textos_base,
             modelo=request.modelo,
             nivel_dificultad=request.nivel_dificultad,
             tipo_textual=request.tipo_textual,

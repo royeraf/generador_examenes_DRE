@@ -351,6 +351,23 @@ class EstudianteListItem(BaseModel):
         from_attributes = True
 
 
+class ImportarEstudianteFila(BaseModel):
+    dni: str = Field(..., min_length=8, max_length=8, pattern=r"^\d{8}$")
+    nombres: str = Field(..., min_length=2, max_length=100)
+    apellidos: str = Field(..., min_length=2, max_length=100)
+
+
+class ImportarEstudiantesRequest(BaseModel):
+    grado_id: int
+    seccion: str = Field(..., min_length=1, max_length=10)
+    estudiantes: List[ImportarEstudianteFila] = Field(..., min_length=1, max_length=500)
+
+
+class ImportarEstudiantesResponse(BaseModel):
+    creados: int
+    pendientes_generacion_usuario: int
+
+
 @router.post("/docente/registrar-estudiante", response_model=RegistroEstudianteResponse, status_code=201)
 async def registrar_estudiante_directo(
     data: RegistroDirectoRequest,
@@ -413,6 +430,75 @@ async def registrar_estudiante_directo(
         grado=grado.nombre if grado else None,
         seccion=data.seccion,
         institucion=ie.nombre if ie else None,
+    )
+
+
+@router.post("/docente/importar-estudiantes", response_model=ImportarEstudiantesResponse, status_code=201)
+async def importar_estudiantes_desde_nomina(
+    data: ImportarEstudiantesRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(get_current_active_user),
+):
+    """Importa una nómina base de estudiantes sin habilitar todavía sus cuentas.
+    Los usuarios quedan inactivos y sin código hasta que el docente los genere manualmente."""
+    if current_user.rol_codigo not in [r.value for r in CREADORES_ROLES]:
+        raise HTTPException(403, "Solo docentes, auxiliares, directores o especialistas DRE pueden usar este endpoint")
+
+    if not current_user.institucion_educativa_id:
+        raise HTTPException(400, "No tienes una institución educativa asignada")
+
+    grado_result = await db.execute(select(Grado).where(Grado.id == data.grado_id))
+    grado = grado_result.scalars().first()
+    if not grado:
+        raise HTTPException(400, "El grado seleccionado no existe")
+
+    dnis = [fila.dni.strip() for fila in data.estudiantes]
+    duplicated_dnis = sorted({dni for dni in dnis if dnis.count(dni) > 1})
+    if duplicated_dnis:
+        raise HTTPException(
+            400,
+            f"El archivo contiene DNI repetidos: {', '.join(duplicated_dnis[:10])}",
+        )
+
+    existing_result = await db.execute(
+        select(Usuario.dni).where(Usuario.dni.in_(dnis))
+    )
+    existing_dnis = sorted({dni for dni in existing_result.scalars().all() if dni})
+    if existing_dnis:
+        raise HTTPException(
+            400,
+            f"Los siguientes DNI ya están registrados: {', '.join(existing_dnis[:10])}",
+        )
+
+    rol_result = await db.execute(select(Rol).where(Rol.codigo == RolCodigo.ESTUDIANTE.value))
+    rol = rol_result.scalars().first()
+    if not rol:
+        raise HTTPException(500, "Rol estudiante no configurado")
+
+    creados = 0
+    for fila in data.estudiantes:
+        estudiante = Usuario(
+            dni=fila.dni.strip(),
+            codigo_estudiante=None,
+            nombres=fila.nombres.strip(),
+            apellidos=fila.apellidos.strip(),
+            password_hash=get_password_hash(f"PENDIENTE-{fila.dni.strip()}"),
+            rol_id=rol.id,
+            ugel_id=current_user.ugel_id,
+            institucion_educativa_id=current_user.institucion_educativa_id,
+            grado_id=data.grado_id,
+            seccion=data.seccion.strip(),
+            creado_por_id=current_user.id,
+            is_active=False,
+        )
+        db.add(estudiante)
+        creados += 1
+
+    await db.flush()
+
+    return ImportarEstudiantesResponse(
+        creados=creados,
+        pendientes_generacion_usuario=creados,
     )
 
 
@@ -521,7 +607,10 @@ async def actualizar_estudiante(
 
     if data.password:
         from app.core.security import get_password_hash as _hash
+        if not estudiante.codigo_estudiante:
+            estudiante.codigo_estudiante = await _siguiente_codigo_estudiante(db)
         estudiante.password_hash = _hash(data.password)
+        estudiante.is_active = True
 
     await db.flush()
     await db.refresh(estudiante)

@@ -12,6 +12,37 @@ export interface NivelDificultadOption {
   icono: string;
 }
 
+export interface TextoBaseItem {
+  id: number;
+  titulo: string;
+  texto: string;
+  uploadingFile: boolean;
+  uploadError: string | null;
+  filesMetadata: { archivos: { filename: string; palabras: number; caracteres: number }[]; total_palabras: number; total_caracteres: number } | null;
+}
+
+const TEXTOS_STORAGE_KEY = 'lectosistem_textos_base';
+const USE_TEXTO_STORAGE_KEY = 'lectosistem_use_texto_base';
+
+type PersistedTexto = Pick<TextoBaseItem, 'titulo' | 'texto' | 'filesMetadata'>;
+
+function loadTextosFromStorage(makeTexto: () => TextoBaseItem): TextoBaseItem[] {
+  try {
+    const raw = localStorage.getItem(TEXTOS_STORAGE_KEY);
+    if (!raw) return [makeTexto()];
+    const parsed: PersistedTexto[] = JSON.parse(raw);
+    if (!Array.isArray(parsed) || parsed.length === 0) return [makeTexto()];
+    return parsed.map(p => ({
+      ...makeTexto(),
+      titulo: p.titulo ?? '',
+      texto: p.texto ?? '',
+      filesMetadata: p.filesMetadata ?? null,
+    }));
+  } catch {
+    return [makeTexto()];
+  }
+}
+
 export const NIVELES_DIFICULTAD: NivelDificultadOption[] = [
   {
     id: 'basico',
@@ -64,12 +95,28 @@ export function useLectoSistem() {
   const cantidadLiteral = shallowRef(1);
   const cantidadInferencial = shallowRef(1);
   const cantidadCritico = shallowRef(1);
-  const textoBase = shallowRef('');
-  const useTextoBase = shallowRef(false);
-  const selectedFiles = ref<File[]>([]);
-  const filesMetadata = ref<{ archivos: { filename: string; palabras: number; caracteres: number }[]; total_palabras: number; total_caracteres: number } | null>(null);
-  const uploadingFile = shallowRef(false);
-  const uploadError = shallowRef<string | null>(null);
+  const useTextoBase = shallowRef(localStorage.getItem(USE_TEXTO_STORAGE_KEY) === 'true');
+
+  let _nextTextoId = 1;
+  const _makeTexto = (): TextoBaseItem => ({ id: _nextTextoId++, titulo: '', texto: '', uploadingFile: false, uploadError: null, filesMetadata: null });
+  const textosBase = ref<TextoBaseItem[]>(loadTextosFromStorage(_makeTexto));
+  // Sincronizar _nextTextoId con los IDs ya asignados al cargar
+  _nextTextoId = textosBase.value.length + 1;
+
+  watch(textosBase, (val) => {
+    const toSave: PersistedTexto[] = val.map(t => ({ titulo: t.titulo, texto: t.texto, filesMetadata: t.filesMetadata }));
+    localStorage.setItem(TEXTOS_STORAGE_KEY, JSON.stringify(toSave));
+  }, { deep: true });
+
+  watch(useTextoBase, (val) => {
+    localStorage.setItem(USE_TEXTO_STORAGE_KEY, String(val));
+  });
+
+  const addTexto = () => { textosBase.value.push(_makeTexto()); };
+  const removeTexto = (idx: number) => {
+    if (textosBase.value.length > 1) textosBase.value.splice(idx, 1);
+  };
+  const clearTextos = () => { _nextTextoId = 1; textosBase.value = [_makeTexto()]; };
 
   const loading = shallowRef(false);
   const loadingDesempenos = shallowRef(false);
@@ -81,6 +128,7 @@ export function useLectoSistem() {
     desempenos_usados: string;
     saludo: string;
     examen: Examen;
+    lecturas?: { titulo: string; texto: string }[];
     total_preguntas: number;
   } | null>(null);
   const showResults = shallowRef(false);
@@ -183,51 +231,42 @@ export function useLectoSistem() {
     selectedDesempenoIds.value = selectedDesempenoIds.value.filter(id => !ids.includes(id));
   };
 
-  const handleFileUpload = async (event: Event) => {
+  const handleFileUploadAt = async (idx: number, event: Event) => {
+    const item = textosBase.value[idx];
+    if (!item) return;
     const input = event.target as HTMLInputElement;
     const files = input.files;
-    if (!files || files.length === 0) {
-      selectedFiles.value = [];
-      filesMetadata.value = null;
-      textoBase.value = '';
-      return;
-    }
+    if (!files || files.length === 0) return;
     const fileArray: File[] = Array.from(files);
     for (const file of fileArray) {
       const extension = file.name.split('.').pop()?.toLowerCase();
       if (!['pdf', 'docx', 'doc'].includes(extension || '')) {
-        uploadError.value = `Archivo "${file.name}" no soportado. Solo PDF o Word.`;
+        item.uploadError = `Archivo "${file.name}" no soportado. Solo PDF o Word.`;
         input.value = '';
-        selectedFiles.value = [];
         return;
       }
     }
-    selectedFiles.value = fileArray;
-    uploadingFile.value = true;
-    uploadError.value = null;
+    item.uploadingFile = true;
+    item.uploadError = null;
     try {
       const result = await desempenosService.uploadTextoBase(fileArray);
-      textoBase.value = result.texto;
-      filesMetadata.value = {
-        archivos: result.archivos,
-        total_palabras: result.total_palabras,
-        total_caracteres: result.total_caracteres
-      };
+      item.texto = result.texto;
+      item.filesMetadata = { archivos: result.archivos, total_palabras: result.total_palabras, total_caracteres: result.total_caracteres };
     } catch (e: any) {
-      uploadError.value = e.response?.data?.detail || 'Error al procesar los archivos';
-      selectedFiles.value = [];
-      textoBase.value = '';
+      item.uploadError = e.response?.data?.detail || 'Error al procesar los archivos';
+      item.texto = '';
       input.value = '';
     } finally {
-      uploadingFile.value = false;
+      item.uploadingFile = false;
     }
   };
 
-  const clearFiles = () => {
-    selectedFiles.value = [];
-    filesMetadata.value = null;
-    textoBase.value = '';
-    uploadError.value = null;
+  const clearFilesAt = (idx: number) => {
+    const item = textosBase.value[idx];
+    if (!item) return;
+    item.texto = '';
+    item.uploadError = null;
+    item.filesMetadata = null;
   };
 
   const generarPreguntas = async () => {
@@ -255,7 +294,9 @@ export function useLectoSistem() {
         nivel_dificultad: selectedNivelDificultad.value,
         tipo_textual: selectedTipoTextual.value || undefined,
         formato_textual: selectedFormatoTextual.value || undefined,
-        texto_base: useTextoBase.value ? textoBase.value : undefined
+        textos_base: useTextoBase.value
+          ? textosBase.value.filter(t => t.texto.trim()).map(t => ({ titulo: t.titulo.trim(), texto: t.texto.trim() }))
+          : undefined
       });
     } catch (e: any) {
       error.value = e.response?.data?.detail || 'Error al generar el examen';
@@ -312,12 +353,13 @@ export function useLectoSistem() {
     cantidadCritico,
     isBreakdownValid,
     totalBreakdown,
-    textoBase,
     useTextoBase,
-    selectedFiles,
-    filesMetadata,
-    uploadingFile,
-    uploadError,
+    textosBase,
+    addTexto,
+    removeTexto,
+    clearTextos,
+    handleFileUploadAt,
+    clearFilesAt,
     // New fields
     selectedTipoTextual,
     selectedFormatoTextual,
@@ -340,8 +382,6 @@ export function useLectoSistem() {
     loadInitialData,
     selectAllCapacidad,
     deselectAllCapacidad,
-    handleFileUpload,
-    clearFiles,
     generarPreguntas,
     descargarExamenWord,
     getCapacidadLabel,

@@ -11,6 +11,7 @@ import type { AsignacionPayload } from '../../shared/services/api';
 import Footer from '../../shared/components/Footer.vue';
 import Header from '../../shared/components/Header.vue';
 import EduBackground from '../../shared/components/EduBackground.vue';
+import Checkbox from '../../shared/components/Checkbox.vue';
 import MatSistemConfig from './components/MatSistemConfig.vue';
 import MatSistemDesempenos from './components/MatSistemDesempenos.vue';
 import MatSistemResults from './components/MatSistemResults.vue';
@@ -100,16 +101,42 @@ const downloadingPreviewWord = ref(false);
 
 // Asignar examen modal
 const asignarModal = ref<{ examenId: number; gradoId: number | null } | null>(null);
-const asignarForm = ref({ seccion: '', duracion_minutos: '', fecha_fin: '' });
+const asignarForm = ref({
+  seccion: '',
+  duracion_minutos: '',
+  fecha: '',
+  hora_inicio: '',
+  hora_fin: '',
+  mezclar_preguntas: true,
+  mezclar_alternativas: true,
+});
 const loadingAsignar = ref(false);
 
 function abrirAsignar(entry: ExamenHistoryEntry) {
   asignarModal.value = { examenId: parseInt(entry.id), gradoId: entry.gradoId };
-  asignarForm.value = { seccion: '', duracion_minutos: '', fecha_fin: '' };
+  asignarForm.value = {
+    seccion: '',
+    duracion_minutos: '',
+    fecha: '',
+    hora_inicio: '',
+    hora_fin: '',
+    mezclar_preguntas: true,
+    mezclar_alternativas: true,
+  };
+}
+
+function construirFechaISO(fecha: string, hora: string): string | null {
+  if (!fecha || !hora) return null;
+  return new Date(`${fecha}T${hora}:00`).toISOString();
 }
 
 async function confirmarAsignar() {
   if (!asignarModal.value) return;
+  if ((asignarForm.value.fecha || asignarForm.value.hora_inicio || asignarForm.value.hora_fin)
+    && (!asignarForm.value.fecha || !asignarForm.value.hora_inicio || !asignarForm.value.hora_fin)) {
+    Toast.fire({ icon: 'error', title: 'Completa fecha, hora de inicio y hora de fin' });
+    return;
+  }
   loadingAsignar.value = true;
   try {
     const payload: AsignacionPayload = {
@@ -118,7 +145,10 @@ async function confirmarAsignar() {
       grado_id: asignarModal.value.gradoId ?? 0,
       seccion: asignarForm.value.seccion || null,
       duracion_minutos: asignarForm.value.duracion_minutos ? parseInt(asignarForm.value.duracion_minutos) : null,
-      fecha_fin: asignarForm.value.fecha_fin || null,
+      fecha_inicio: construirFechaISO(asignarForm.value.fecha, asignarForm.value.hora_inicio),
+      fecha_fin: construirFechaISO(asignarForm.value.fecha, asignarForm.value.hora_fin),
+      mezclar_preguntas: asignarForm.value.mezclar_preguntas,
+      mezclar_alternativas: asignarForm.value.mezclar_alternativas,
     };
     await asignacionesService.asignar(payload);
     asignarModal.value = null;
@@ -512,10 +542,43 @@ onMounted(async () => {
               <input v-model="asignarForm.duracion_minutos" type="number" min="5" max="180" placeholder="Sin límite de tiempo"
                 class="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-400 focus:border-violet-400 outline-none" />
             </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Fecha límite (opcional)</label>
-              <input v-model="asignarForm.fecha_fin" type="date"
-                class="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-400 focus:border-violet-400 outline-none" />
+            <div class="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/40">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Día de aplicación</label>
+                <input v-model="asignarForm.fecha" type="date"
+                  class="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-400 focus:border-violet-400 outline-none" />
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Hora inicio</label>
+                  <input v-model="asignarForm.hora_inicio" type="time"
+                    class="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-400 focus:border-violet-400 outline-none" />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Hora fin</label>
+                  <input v-model="asignarForm.hora_fin" type="time"
+                    class="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-400 focus:border-violet-400 outline-none" />
+                </div>
+              </div>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">Si defines horario, el examen solo estará disponible ese día dentro de ese rango de horas.</p>
+            </div>
+            <div class="space-y-2 rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/40">
+              <Checkbox v-model="asignarForm.mezclar_preguntas"
+                class="group flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 transition-all duration-150 dark:border-slate-700 dark:bg-slate-800/80"
+                color="checked:bg-violet-600 checked:border-violet-600 dark:checked:bg-violet-500 dark:checked:border-violet-500 focus:ring-violet-500/50">
+                <span>
+                  <strong class="block text-sm font-bold text-slate-700 dark:text-slate-200">Aleatorizar preguntas</strong>
+                  <span class="text-xs text-slate-500 dark:text-slate-400">El estudiante verá las preguntas en orden aleatorio.</span>
+                </span>
+              </Checkbox>
+              <Checkbox v-model="asignarForm.mezclar_alternativas"
+                class="group flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 transition-all duration-150 dark:border-slate-700 dark:bg-slate-800/80"
+                color="checked:bg-violet-600 checked:border-violet-600 dark:checked:bg-violet-500 dark:checked:border-violet-500 focus:ring-violet-500/50">
+                <span>
+                  <strong class="block text-sm font-bold text-slate-700 dark:text-slate-200">Aleatorizar alternativas</strong>
+                  <span class="text-xs text-slate-500 dark:text-slate-400">Las opciones A, B, C y D se mezclarán en cada pregunta.</span>
+                </span>
+              </Checkbox>
             </div>
           </div>
           <div class="px-5 py-4 border-t border-slate-100 dark:border-slate-700 flex gap-3">

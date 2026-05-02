@@ -280,6 +280,7 @@ class ExamenLectura(Base):
     saludo = Column(Text, nullable=True)
     instrucciones = Column(Text, nullable=True)
     lectura = Column(Text, nullable=True)
+    lecturas = Column(JSON, nullable=True)  # [{"titulo": str, "texto": str}]
     preguntas = Column(JSON, nullable=True)
     tabla_respuestas = Column(JSON, nullable=True)
     desempenos_usados = Column(Text, nullable=True)
@@ -342,6 +343,8 @@ class AsignacionExamen(Base):
     duracion_minutos = Column(Integer, nullable=True)
     intentos_permitidos = Column(Integer, default=1)
     mostrar_resultados = Column(Boolean, default=True)
+    mezclar_preguntas = Column(Boolean, default=False, nullable=False)
+    mezclar_alternativas = Column(Boolean, default=False, nullable=False)
     is_active = Column(Boolean, default=True)
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
 
@@ -457,6 +460,7 @@ class RespuestaIntento(Base):
     pregunta_id = Column(Integer, ForeignKey("preguntas_examen.id", ondelete="CASCADE"), nullable=False)
     respuesta_dada = Column(String(1), nullable=False)   # A | B | C | D
     es_correcta = Column(Boolean, nullable=False)
+    retroalimentacion_ia = Column(Text, nullable=True)
 
     __table_args__ = (
         UniqueConstraint("intento_id", "pregunta_id", name="uq_respuesta_intento"),

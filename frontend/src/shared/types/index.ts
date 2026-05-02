@@ -120,6 +120,7 @@ export interface GenerarPreguntasRequest {
   nivel_dificultad: 'basico' | 'intermedio' | 'avanzado';
   cantidad: number;
   texto_base?: string;
+  textos_base?: { titulo: string; texto: string }[];
   desempeno_ids?: number[];
   tipo_textual?: string;
   formato_textual?: string;
@@ -169,6 +170,7 @@ export interface GenerarExamenResponse {
   desempenos_usados: string;
   saludo: string;
   examen: Examen;
+  lecturas?: { titulo: string; texto: string }[];
   total_preguntas: number;
 }
 

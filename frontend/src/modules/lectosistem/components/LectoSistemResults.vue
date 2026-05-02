@@ -8,6 +8,7 @@ interface Resultado {
     desempenos_usados: string;
     saludo: string;
     examen: Examen;
+    lecturas?: { titulo: string; texto: string }[];
     total_preguntas: number;
 }
 
@@ -135,7 +136,7 @@ const getNivelBadgeClass = (nivel: string): string => {
                     </p>
                 </div>
 
-                <!-- Lectura -->
+                <!-- Lectura(s) -->
                 <div
                     class="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-900 dark:to-slate-950 rounded-xl p-5 border-2 border-amber-100 dark:border-slate-700">
                     <h4 class="text-sm font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
@@ -143,9 +144,25 @@ const getNivelBadgeClass = (nivel: string): string => {
                             class="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center">
                             <BookOpen class="w-4 h-4 text-white" />
                         </div>
-                        Lectura
+                        {{ resultado.lecturas && resultado.lecturas.length > 1 ? `Lecturas (${resultado.lecturas.length})` : 'Lectura' }}
                     </h4>
-                    <p
+
+                    <!-- Múltiples lecturas -->
+                    <div v-if="resultado.lecturas && resultado.lecturas.length > 1" class="space-y-4">
+                        <div v-for="(lectura, idx) in resultado.lecturas" :key="idx"
+                            class="bg-white/60 dark:bg-black/20 rounded-lg overflow-hidden border border-amber-200 dark:border-slate-600">
+                            <div class="flex items-center gap-2 px-4 py-2 bg-amber-100/70 dark:bg-slate-800 border-b border-amber-200 dark:border-slate-600">
+                                <span class="w-6 h-6 rounded-full bg-amber-500 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">{{ idx + 1 }}</span>
+                                <span class="text-xs font-bold text-amber-800 dark:text-amber-300">
+                                    {{ lectura.titulo || `Texto ${idx + 1}` }}
+                                </span>
+                            </div>
+                            <p class="text-slate-700 dark:text-slate-300 text-sm leading-7 whitespace-pre-line p-4">{{ lectura.texto }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Lectura única (generada por AI o texto base único) -->
+                    <p v-else
                         class="text-slate-700 dark:text-slate-300 text-sm leading-7 whitespace-pre-line bg-white/50 dark:bg-black/20 p-4 rounded-lg">
                         {{ resultado.examen.lectura }}
                     </p>

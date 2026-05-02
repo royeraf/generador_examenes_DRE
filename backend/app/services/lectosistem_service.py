@@ -283,7 +283,7 @@ Responde ÚNICAMENTE con un JSON válido que siga esta estructura exacta, sin co
         grado_id: int,
         desempeno_ids: list[int],
         cantidad: int = 3,
-        texto_base: Optional[str] = None,
+        textos_base: Optional[list[dict]] = None,
         modelo: str = "gemini",
         nivel_dificultad: str = "intermedio",
         tipo_textual: Optional[str] = None,
@@ -390,7 +390,7 @@ Responde ÚNICAMENTE con un JSON válido que siga esta estructura exacta, sin co
                 desc = formatos_info.get(formato_textual.lower(), formato_textual)
                 instruccion_diversidad += f"- FORMATO TEXTUAL REQUERIDO: {formato_textual.upper()}. ({desc})\n"
                 
-            if not texto_base:
+            if not textos_base:
                 instruccion_diversidad += "Genera el texto de la lectura cumpliendo ESTRICTAMENTE estas características."
             else:
                 instruccion_diversidad += "Asegúrate de que las preguntas y el análisis respeten estas características del texto base."
@@ -408,17 +408,26 @@ Debes generar EXACTAMENTE:
 Selecciona de la lista de desempeños proporcionada aquellos que mejor se ajusten a cada nivel solicitado. Si no hay un desempeño explícito para un nivel, ADAPTA el enfoque de la pregunta para cumplir con el nivel exigido, pero manteniendo la coherencia con el grado.
 """
         
-        # Texto de lectura
+        # Texto(s) de lectura
         texto_lectura = ""
-        if texto_base:
-            texto_lectura = f"""
-TEXTO DE LECTURA:
+        if textos_base:
+            if len(textos_base) == 1:
+                t = textos_base[0]
+                titulo_label = f'"{t["titulo"]}"' if t.get("titulo") else ""
+                texto_lectura = f"""
+TEXTO DE LECTURA {titulo_label}:
 \"\"\"
-{texto_base}
+{t["texto"]}
 \"\"\"
 """
+            else:
+                bloques = []
+                for i, t in enumerate(textos_base, 1):
+                    titulo_label = f': "{t["titulo"]}"' if t.get("titulo") else ""
+                    bloques.append(f'TEXTO {i}{titulo_label}:\n"""\n{t["texto"]}\n"""')
+                texto_lectura = "\nTEXTOS DE LECTURA PROPORCIONADOS (genera preguntas que cubran TODOS estos textos, distribuyendo las preguntas entre los textos):\n\n" + "\n\n".join(bloques) + "\nIMPORTANTE: En el campo 'lectura' del JSON, escribe '[Ver textos proporcionados]'. Las preguntas deben referenciar el texto correspondiente en su enunciado si es necesario.\n"
         elif tipo_textual or formato_textual:
-             texto_lectura = "Debes GENERAR un texto original que cumpla con el TIPO y FORMATO especificados arriba."
+            texto_lectura = "Debes GENERAR un texto original que cumpla con el TIPO y FORMATO especificados arriba."
 
         
         # Prompt basado en el formato del usuario
@@ -496,12 +505,30 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
                         continue
                     raise ValueError(f"Error al parsear respuesta JSON de la IA después de {max_retries} intentos: {je}")
                 
+                examen = data.get("examen", {})
+                if textos_base:
+                    lecturas_out = textos_base
+                    # Mostrar todos los textos originales, no solo el que eligió el AI
+                    if len(textos_base) == 1:
+                        examen["lectura"] = textos_base[0]["texto"]
+                    else:
+                        parts = []
+                        for i, t in enumerate(textos_base, 1):
+                            titulo = t.get("titulo", "").strip()
+                            header = f"TEXTO {i}: {titulo}" if titulo else f"TEXTO {i}"
+                            parts.append(f"{'─' * 40}\n{header}\n{'─' * 40}\n{t['texto']}")
+                        examen["lectura"] = "\n\n".join(parts)
+                else:
+                    lectura_ia = examen.get("lectura", "")
+                    lecturas_out = [{"titulo": "", "texto": lectura_ia}] if lectura_ia else []
+
                 return {
                     "grado": grado.nombre,
                     "desempenos_usados": desempenos_texto,
                     "saludo": data.get("saludo", ""),
-                    "examen": data.get("examen", {}),
-                    "total_preguntas": len(data.get("examen", {}).get("preguntas", []))
+                    "examen": examen,
+                    "lecturas": lecturas_out,
+                    "total_preguntas": len(examen.get("preguntas", []))
                 }
                 
             except json.JSONDecodeError as e:

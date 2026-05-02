@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import * as XLSX from 'xlsx'
+import { ref, computed, onMounted, useTemplateRef } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   docenteEstudiantesService,
   organizacionService,
   type EstudianteDocente,
+  type ImportarEstudianteFilaPayload,
   type RegistrarEstudianteDirectoPayload,
 } from '../../shared/services/api'
 import type { Grado } from '../../shared/types'
@@ -12,7 +14,7 @@ import Header from '../../shared/components/Header.vue'
 import Swal from 'sweetalert2'
 import {
   Plus, Edit2, Trash2, Home, Search, X, Eye, EyeOff,
-  GraduationCap, Loader2, AlertCircle, CheckCircle, Users
+  GraduationCap, Loader2, AlertCircle, CheckCircle, Users, Download, Upload, FileSpreadsheet
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -27,6 +29,11 @@ const saving = ref(false)
 const serverError = ref('')
 const successCodigo = ref('')
 const showSuccessModal = ref(false)
+const showImportModal = ref(false)
+const importing = ref(false)
+const selectedImportFileName = ref('')
+const nominaFileInput = useTemplateRef<HTMLInputElement>('nominaFileInput')
+const currentEditStudent = ref<EstudianteDocente | null>(null)
 
 // Filtros
 const filtroQ = ref('')
@@ -43,6 +50,10 @@ const form = ref<RegistrarEstudianteDirectoPayload>({
   seccion: '',
 })
 const showPass = ref(false)
+const importForm = ref({
+  grado_id: 0,
+  seccion: '',
+})
 
 // ── Computed ─────────────────────────────────────────────────────────────────
 const formError = computed(() => {
@@ -76,6 +87,17 @@ const estudiantesFiltrados = computed(() => {
   })
 })
 
+const importFormError = computed(() => {
+  if (!importForm.value.grado_id) return 'Selecciona el grado de la nómina'
+  if (!importForm.value.seccion.trim()) return 'La sección es requerida'
+  if (!selectedImportFileName.value) return 'Selecciona el archivo Excel de la nómina'
+  return ''
+})
+
+const editingPendingUser = computed(() =>
+  Boolean(editingId.value && currentEditStudent.value && !currentEditStudent.value.codigo_estudiante)
+)
+
 // ── Lifecycle ────────────────────────────────────────────────────────────────
 onMounted(async () => {
   await Promise.all([cargarEstudiantes(), cargarGrados()])
@@ -100,6 +122,7 @@ async function cargarGrados() {
 
 // ── Modal ────────────────────────────────────────────────────────────────────
 function openCreate() {
+  currentEditStudent.value = null
   editingId.value = null
   serverError.value = ''
   showPass.value = false
@@ -108,6 +131,7 @@ function openCreate() {
 }
 
 function openEdit(e: EstudianteDocente) {
+  currentEditStudent.value = e
   editingId.value = e.id
   serverError.value = ''
   showPass.value = false
@@ -122,7 +146,25 @@ function openEdit(e: EstudianteDocente) {
   showModal.value = true
 }
 
-function closeModal() { showModal.value = false }
+function closeModal() {
+  showModal.value = false
+  currentEditStudent.value = null
+}
+
+function openImportModal() {
+  importForm.value = {
+    grado_id: grados.value[0]?.id || 0,
+    seccion: '',
+  }
+  selectedImportFileName.value = ''
+  showImportModal.value = true
+}
+
+function closeImportModal() {
+  showImportModal.value = false
+  selectedImportFileName.value = ''
+  if (nominaFileInput.value) nominaFileInput.value.value = ''
+}
 
 // ── CRUD ─────────────────────────────────────────────────────────────────────
 async function guardar() {
@@ -154,6 +196,128 @@ async function guardar() {
     serverError.value = e.response?.data?.detail ?? 'Error al guardar'
   } finally {
     saving.value = false
+  }
+}
+
+function descargarPlantillaNomina() {
+  const wsData = [
+    ['dni', 'nombres', 'apellidos'],
+    ['12345678', 'María Fernanda', 'García López'],
+  ]
+  const ws = XLSX.utils.aoa_to_sheet(wsData)
+  ws['!cols'] = [{ wch: 14 }, { wch: 24 }, { wch: 28 }]
+
+  const instructions = XLSX.utils.aoa_to_sheet([
+    ['Indicaciones'],
+    ['1. Completa únicamente las columnas dni, nombres y apellidos.'],
+    ['2. El DNI debe tener 8 dígitos y no debe repetirse.'],
+    ['3. El grado y la sección se seleccionan en la plataforma antes de importar.'],
+    ['4. Después de subir la nómina, el usuario del estudiante se genera manualmente.'],
+  ])
+  instructions['!cols'] = [{ wch: 90 }]
+
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, 'Nomina')
+  XLSX.utils.book_append_sheet(wb, instructions, 'Indicaciones')
+  XLSX.writeFile(wb, `plantilla_nomina_estudiantes_${new Date().toISOString().split('T')[0]}.xlsx`)
+}
+
+function seleccionarArchivoNomina() {
+  nominaFileInput.value?.click()
+}
+
+async function onNominaFileChange(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) {
+    selectedImportFileName.value = ''
+    return
+  }
+  selectedImportFileName.value = file.name
+}
+
+function obtenerFilasNomina(rows: unknown[][]): ImportarEstudianteFilaPayload[] {
+  if (rows.length < 2) {
+    throw new Error('El archivo no contiene filas de estudiantes')
+  }
+
+  const headers = rows[0]?.map(cell => String(cell ?? '').trim().toLowerCase()) ?? []
+  const dniIndex = headers.indexOf('dni')
+  const nombresIndex = headers.indexOf('nombres')
+  const apellidosIndex = headers.indexOf('apellidos')
+
+  if (dniIndex === -1 || nombresIndex === -1 || apellidosIndex === -1) {
+    throw new Error('La plantilla debe incluir las columnas dni, nombres y apellidos')
+  }
+
+  const estudiantesImportados: ImportarEstudianteFilaPayload[] = []
+  const errores: string[] = []
+
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i] ?? []
+    const dni = String(row[dniIndex] ?? '').trim()
+    const nombres = String(row[nombresIndex] ?? '').trim()
+    const apellidos = String(row[apellidosIndex] ?? '').trim()
+
+    if (!dni && !nombres && !apellidos) continue
+
+    if (!dni || !nombres || !apellidos) {
+      errores.push(`Fila ${i + 1}: completa dni, nombres y apellidos`)
+      continue
+    }
+    if (!/^\d{8}$/.test(dni)) {
+      errores.push(`Fila ${i + 1}: el DNI debe tener 8 dígitos`)
+      continue
+    }
+
+    estudiantesImportados.push({ dni, nombres, apellidos })
+  }
+
+  if (errores.length > 0) {
+    throw new Error(errores.slice(0, 5).join('\n'))
+  }
+  if (estudiantesImportados.length === 0) {
+    throw new Error('No se encontraron estudiantes válidos en el archivo')
+  }
+
+  return estudiantesImportados
+}
+
+async function importarNomina() {
+  if (importFormError.value) return
+
+  const file = nominaFileInput.value?.files?.[0]
+  if (!file) return
+
+  importing.value = true
+  try {
+    const data = new Uint8Array(await file.arrayBuffer())
+    const workbook = XLSX.read(data, { type: 'array' })
+    const firstSheetName = workbook.SheetNames[0]
+    if (!firstSheetName) throw new Error('El archivo Excel no contiene hojas')
+
+    const worksheet = workbook.Sheets[firstSheetName]
+    if (!worksheet) throw new Error('No se pudo leer la hoja principal del archivo')
+    const rows = XLSX.utils.sheet_to_json<unknown[]>(worksheet, { header: 1, defval: '' })
+    const estudiantesImportados = obtenerFilasNomina(rows)
+
+    const response = await docenteEstudiantesService.importarNomina({
+      grado_id: importForm.value.grado_id,
+      seccion: importForm.value.seccion.trim(),
+      estudiantes: estudiantesImportados,
+    })
+
+    closeImportModal()
+    await cargarEstudiantes()
+    Swal.fire({
+      icon: 'success',
+      title: 'Nómina importada',
+      text: `Se cargaron ${response.creados} estudiantes. Sus usuarios quedan pendientes para generación manual.`,
+    })
+  } catch (error: any) {
+    Swal.fire('Error', error?.response?.data?.detail ?? error?.message ?? 'No se pudo importar la nómina', 'error')
+  } finally {
+    importing.value = false
   }
 }
 
@@ -212,19 +376,41 @@ function formatFecha(f: string | null) {
     <div class="flex-1 w-full max-w-6xl mx-auto p-4 md:p-8">
 
       <!-- Toolbar -->
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
-        <button @click="openCreate"
-          class="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-bold px-5 py-2.5 rounded-xl shadow-lg transition-all hover:-translate-y-0.5 text-sm">
-          <Plus class="w-4 h-4" />
-          Registrar Estudiante
-        </button>
+      <div class="mb-5 space-y-3">
 
-        <!-- Filtros -->
-        <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-          <div class="relative">
+        <!-- Fila 1: acciones -->
+        <div class="flex items-center justify-between gap-3">
+          <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">
+            {{ estudiantesFiltrados.length }} estudiante(s)
+          </p>
+          <div class="flex items-center gap-2">
+            <button @click="descargarPlantillaNomina"
+              class="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-teal-300 dark:hover:border-teal-700 transition-all text-left">
+              <Download class="w-4 h-4 text-teal-500 flex-shrink-0" />
+              <span>
+                <span class="block text-xs font-bold text-slate-700 dark:text-slate-200 leading-tight">Plantilla Excel</span>
+                <span class="block text-[10px] text-slate-400 dark:text-slate-500 leading-tight">Formato para importar nómina</span>
+              </span>
+            </button>
+            <button @click="openImportModal"
+              class="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-semibold text-sm hover:border-teal-300 dark:hover:border-teal-700 transition-all">
+              <Upload class="w-4 h-4 text-teal-500" />
+              Importar
+            </button>
+            <button @click="openCreate"
+              class="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-bold px-4 py-2 rounded-xl shadow transition-all text-sm">
+              <Plus class="w-4 h-4" />
+              Registrar
+            </button>
+          </div>
+        </div>
+
+        <!-- Fila 2: filtros -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <div class="relative flex-1 min-w-40">
             <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-            <input v-model="filtroQ" type="text" placeholder="Buscar..."
-              class="pl-9 pr-4 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm outline-none focus:ring-2 focus:ring-teal-400/40 w-44" />
+            <input v-model="filtroQ" type="text" placeholder="Buscar por nombre, código o DNI…"
+              class="w-full pl-9 pr-4 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm outline-none focus:ring-2 focus:ring-teal-400/40" />
           </div>
           <select v-model="filtroGrado"
             class="px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm outline-none focus:ring-2 focus:ring-teal-400/40">
@@ -237,6 +423,7 @@ function formatFecha(f: string | null) {
             <option v-for="s in seccionesDisponibles" :key="s" :value="s">{{ s }}</option>
           </select>
         </div>
+
       </div>
 
       <!-- Loading -->
@@ -244,30 +431,42 @@ function formatFecha(f: string | null) {
         <Loader2 class="w-8 h-8 text-teal-500 animate-spin" />
       </div>
 
+      <div v-if="!loading" class="mb-4 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
+        <FileSpreadsheet class="mt-0.5 h-4 w-4 shrink-0" />
+        <p>La nómina Excel solo debe incluir <strong>dni, nombres y apellidos</strong>. Después de importar, el usuario del estudiante queda pendiente y se genera manualmente al asignarle una contraseña.</p>
+      </div>
+
       <!-- Empty State -->
-      <div v-else-if="estudiantes.length === 0"
+      <div v-if="!loading && estudiantes.length === 0"
         class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-100 dark:border-slate-700 p-12 text-center">
         <div class="w-16 h-16 rounded-2xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center mx-auto mb-4">
           <Users class="w-8 h-8 text-teal-500" />
         </div>
         <h3 class="text-lg font-bold text-slate-700 dark:text-white mb-2">Sin estudiantes registrados</h3>
         <p class="text-slate-500 dark:text-slate-400 text-sm mb-5">
-          Registra estudiantes directamente o comparte un código de clase para auto-registro.
+          Registra estudiantes directamente, importa la nómina Excel o comparte un código de clase para auto-registro.
         </p>
-        <button @click="openCreate"
-          class="inline-flex items-center gap-2 bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-bold px-5 py-2.5 rounded-xl shadow transition-all hover:-translate-y-0.5 text-sm">
-          <Plus class="w-4 h-4" /> Registrar primer estudiante
-        </button>
+        <div class="flex flex-wrap items-center justify-center gap-2">
+          <button @click="openCreate"
+            class="inline-flex items-center gap-2 bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-bold px-5 py-2.5 rounded-xl shadow transition-all hover:-translate-y-0.5 text-sm">
+            <Plus class="w-4 h-4" /> Registrar primer estudiante
+          </button>
+          <button @click="openImportModal"
+            class="inline-flex items-center gap-2 border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition-all hover:-translate-y-0.5 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 rounded-xl">
+            <Upload class="w-4 h-4 text-teal-500" /> Importar nómina
+          </button>
+        </div>
       </div>
 
       <!-- Tabla -->
-      <div v-else class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-100 dark:border-slate-700 overflow-hidden">
+      <div v-else-if="!loading" class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-100 dark:border-slate-700 overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
               <tr class="bg-slate-50 dark:bg-slate-900/40 border-b border-slate-100 dark:border-slate-700">
                 <th class="text-left px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Estudiante</th>
                 <th class="text-left px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Código</th>
+                <th class="text-left px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Estado</th>
                 <th class="text-left px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">DNI</th>
                 <th class="text-left px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Grado</th>
                 <th class="text-left px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Sección</th>
@@ -292,7 +491,17 @@ function formatFecha(f: string | null) {
                 </td>
                 <td class="px-4 py-3">
                   <span class="font-mono text-xs bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300 px-2 py-0.5 rounded-full">
-                    {{ est.codigo_estudiante || '—' }}
+                    {{ est.codigo_estudiante || 'Pendiente' }}
+                  </span>
+                </td>
+                <td class="px-4 py-3">
+                  <span
+                    class="px-2 py-0.5 rounded-full text-xs font-bold"
+                    :class="est.is_active && est.codigo_estudiante
+                      ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300'
+                      : 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300'"
+                  >
+                    {{ est.is_active && est.codigo_estudiante ? 'Usuario generado' : 'Pendiente' }}
                   </span>
                 </td>
                 <td class="px-4 py-3 text-slate-600 dark:text-slate-300">{{ est.dni || '—' }}</td>
@@ -317,7 +526,7 @@ function formatFecha(f: string | null) {
                 </td>
               </tr>
               <tr v-if="estudiantesFiltrados.length === 0">
-                <td colspan="7" class="px-4 py-8 text-center text-slate-500 dark:text-slate-400 text-sm">
+                <td colspan="8" class="px-4 py-8 text-center text-slate-500 dark:text-slate-400 text-sm">
                   Sin resultados para los filtros seleccionados
                 </td>
               </tr>
@@ -360,17 +569,22 @@ function formatFecha(f: string | null) {
                 {{ serverError }}
               </div>
 
+              <div v-if="editingPendingUser" class="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
+                <AlertCircle class="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                Este estudiante fue importado desde la nómina. Para generar su usuario manualmente, asígnale una contraseña y guarda los cambios.
+              </div>
+
               <!-- Nombres y Apellidos -->
               <div class="grid grid-cols-2 gap-3">
                 <div>
                   <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Nombres <span class="text-red-400">*</span></label>
                   <input v-model="form.nombres" type="text" placeholder="Ej: María"
-                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3 text-sm outline-none focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500 transition-all" />
+                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500 transition-all" />
                 </div>
                 <div>
                   <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Apellidos <span class="text-red-400">*</span></label>
                   <input v-model="form.apellidos" type="text" placeholder="Ej: García López"
-                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3 text-sm outline-none focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500 transition-all" />
+                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500 transition-all" />
                 </div>
               </div>
 
@@ -378,7 +592,7 @@ function formatFecha(f: string | null) {
               <div>
                 <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">DNI <span class="text-slate-400 font-normal">(opcional)</span></label>
                 <input v-model="form.dni" type="text" placeholder="12345678" maxlength="8"
-                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3 text-sm outline-none focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500 transition-all" />
+                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500 transition-all" />
               </div>
 
               <!-- Grado y Sección -->
@@ -386,7 +600,7 @@ function formatFecha(f: string | null) {
                 <div>
                   <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Grado <span class="text-red-400">*</span></label>
                   <select v-model="form.grado_id"
-                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3 text-sm outline-none focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500 transition-all">
+                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500 transition-all">
                     <option :value="0" disabled>Seleccionar...</option>
                     <option v-for="g in grados" :key="g.id" :value="g.id">{{ g.nombre }}</option>
                   </select>
@@ -394,18 +608,18 @@ function formatFecha(f: string | null) {
                 <div>
                   <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Sección <span class="text-red-400">*</span></label>
                   <input v-model="form.seccion" type="text" placeholder="Ej: A"
-                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3 text-sm outline-none focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500 transition-all" />
+                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500 transition-all" />
                 </div>
               </div>
 
               <!-- Contraseña -->
               <div>
                 <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">
-                  Contraseña <span v-if="editingId" class="text-slate-400 font-normal">(dejar vacío para no cambiar)</span><span v-else class="text-red-400">*</span>
+                  Contraseña <span v-if="editingId" class="text-slate-400 font-normal">{{ editingPendingUser ? '(asígnala para generar el usuario)' : '(dejar vacío para no cambiar)' }}</span><span v-else class="text-red-400">*</span>
                 </label>
                 <div class="relative">
                   <input v-model="form.password" :type="showPass ? 'text' : 'password'" placeholder="Mínimo 4 caracteres"
-                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 pl-3 pr-9 text-sm outline-none focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500 transition-all" />
+                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 pl-3 pr-9 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500 transition-all" />
                   <button type="button" @click="showPass = !showPass" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
                     <Eye v-if="!showPass" class="w-3.5 h-3.5" /><EyeOff v-else class="w-3.5 h-3.5" />
                   </button>
@@ -426,7 +640,94 @@ function formatFecha(f: string | null) {
               <button @click="guardar" :disabled="saving || !!formError"
                 class="flex-1 flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-bold text-sm rounded-xl shadow transition-all disabled:opacity-60">
                 <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
-                {{ editingId ? 'Guardar Cambios' : 'Registrar' }}
+                {{ editingPendingUser ? 'Guardar y Generar Usuario' : editingId ? 'Guardar Cambios' : 'Registrar' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
+    <!-- ── Modal: Importar nómina ── -->
+    <Teleport to="body">
+      <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0"
+        enter-to-class="opacity-100" leave-active-class="transition duration-150" leave-from-class="opacity-100"
+        leave-to-class="opacity-0">
+        <div v-if="showImportModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" @click.self="closeImportModal">
+          <div class="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-slate-800">
+            <div class="flex items-center justify-between border-b border-slate-100 p-5 dark:border-slate-700">
+              <div class="flex items-center gap-3">
+                <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-teal-400 to-emerald-500">
+                  <FileSpreadsheet class="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h2 class="text-base font-bold text-slate-800 dark:text-white">Importar nómina Excel</h2>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">Sube `dni`, `nombres` y `apellidos`. El usuario se genera después manualmente.</p>
+                </div>
+              </div>
+              <button @click="closeImportModal" class="rounded-xl p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700">
+                <X class="h-4 w-4" />
+              </button>
+            </div>
+
+            <div class="space-y-4 p-5">
+              <div class="rounded-2xl border border-teal-100 bg-teal-50 p-4 text-xs text-teal-700 dark:border-teal-900/40 dark:bg-teal-950/30 dark:text-teal-200">
+                <p class="font-bold">Columnas obligatorias del Excel</p>
+                <p class="mt-1">`dni`, `nombres`, `apellidos`</p>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="mb-1 block text-xs font-bold text-slate-600 dark:text-slate-300">Grado</label>
+                  <select v-model="importForm.grado_id"
+                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none transition-all focus:border-teal-500 focus:ring-2 focus:ring-teal-500/40 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200">
+                    <option :value="0" disabled>Seleccionar...</option>
+                    <option v-for="g in grados" :key="g.id" :value="g.id">{{ g.nombre }}</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="mb-1 block text-xs font-bold text-slate-600 dark:text-slate-300">Sección</label>
+                  <input v-model="importForm.seccion" type="text" placeholder="Ej: A"
+                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none transition-all focus:border-teal-500 focus:ring-2 focus:ring-teal-500/40 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200" />
+                </div>
+              </div>
+
+              <input ref="nominaFileInput" type="file" accept=".xlsx,.xls" class="hidden" @change="onNominaFileChange" />
+
+              <div class="rounded-2xl border border-dashed border-slate-300 p-4 dark:border-slate-600">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p class="text-sm font-bold text-slate-700 dark:text-slate-200">Archivo seleccionado</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">{{ selectedImportFileName || 'Ningún archivo seleccionado' }}</p>
+                  </div>
+                  <div class="flex gap-2">
+                    <button @click="descargarPlantillaNomina"
+                      class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600">
+                      <Download class="h-4 w-4 text-teal-500" />
+                      Modelo
+                    </button>
+                    <button @click="seleccionarArchivoNomina"
+                      class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 px-4 py-2 text-sm font-bold text-white shadow transition-all hover:from-teal-600 hover:to-emerald-700">
+                      <Upload class="h-4 w-4" />
+                      Seleccionar
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <p v-if="importFormError" class="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+                <AlertCircle class="h-3.5 w-3.5 shrink-0" /> {{ importFormError }}
+              </p>
+            </div>
+
+            <div class="flex gap-2 px-5 pb-5">
+              <button @click="closeImportModal" class="rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600">
+                Cancelar
+              </button>
+              <button @click="importarNomina" :disabled="importing || !!importFormError"
+                class="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 py-2.5 text-sm font-bold text-white shadow transition-all hover:from-teal-600 hover:to-emerald-700 disabled:opacity-60">
+                <Loader2 v-if="importing" class="h-4 w-4 animate-spin" />
+                Importar nómina
               </button>
             </div>
           </div>

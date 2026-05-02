@@ -26,11 +26,15 @@ import {
   Download,
   Users,
   X,
+  CloudUpload,
+  Plus,
+  AlertTriangle,
 } from 'lucide-vue-next';
 
 const router = useRouter();
 import Header from '../../shared/components/Header.vue';
 import EduBackground from '../../shared/components/EduBackground.vue';
+import Checkbox from '../../shared/components/Checkbox.vue';
 import LectoSistemConfig from './components/LectoSistemConfig.vue';
 import LectoSistemDesempenos from './components/LectoSistemDesempenos.vue';
 import LectoSistemResults from './components/LectoSistemResults.vue';
@@ -47,10 +51,11 @@ const {
   nivelesDificultad,
   cantidadPreguntas,
   useTextoBase,
-  selectedFiles,
-  filesMetadata,
-  uploadingFile,
-  uploadError,
+  textosBase,
+  addTexto,
+  removeTexto,
+  handleFileUploadAt,
+  clearFilesAt,
   loading,
   loadingDesempenos,
   loadingGrados,
@@ -62,8 +67,6 @@ const {
   selectedDesempenosCount,
   gradoOptions,
   loadInitialData,
-  handleFileUpload,
-  clearFiles,
   generarPreguntas,
   descargarExamenWord,
   selectAllCapacidad,
@@ -104,17 +107,44 @@ const loadingWordDownload = shallowRef<string | null>(null);
 const downloadingPreviewWord = ref(false);
 
 // Asignar examen modal
+const showTextosModal = shallowRef(false);
 const asignarModal = ref<{ examenId: number; gradoId: number | null } | null>(null);
-const asignarForm = ref({ seccion: '', duracion_minutos: '', fecha_fin: '' });
+const asignarForm = ref({
+  seccion: '',
+  duracion_minutos: '',
+  fecha: '',
+  hora_inicio: '',
+  hora_fin: '',
+  mezclar_preguntas: true,
+  mezclar_alternativas: true,
+});
 const loadingAsignar = ref(false);
 
 function abrirAsignar(entry: ExamenHistoryEntry) {
   asignarModal.value = { examenId: parseInt(entry.id), gradoId: entry.gradoId };
-  asignarForm.value = { seccion: '', duracion_minutos: '', fecha_fin: '' };
+  asignarForm.value = {
+    seccion: '',
+    duracion_minutos: '',
+    fecha: '',
+    hora_inicio: '',
+    hora_fin: '',
+    mezclar_preguntas: true,
+    mezclar_alternativas: true,
+  };
+}
+
+function construirFechaISO(fecha: string, hora: string): string | null {
+  if (!fecha || !hora) return null;
+  return new Date(`${fecha}T${hora}:00`).toISOString();
 }
 
 async function confirmarAsignar() {
   if (!asignarModal.value) return;
+  if ((asignarForm.value.fecha || asignarForm.value.hora_inicio || asignarForm.value.hora_fin)
+    && (!asignarForm.value.fecha || !asignarForm.value.hora_inicio || !asignarForm.value.hora_fin)) {
+    Toast.fire({ icon: 'error', title: 'Completa fecha, hora de inicio y hora de fin' });
+    return;
+  }
   loadingAsignar.value = true;
   try {
     const payload: AsignacionPayload = {
@@ -123,7 +153,10 @@ async function confirmarAsignar() {
       grado_id: asignarModal.value.gradoId ?? 0,
       seccion: asignarForm.value.seccion || null,
       duracion_minutos: asignarForm.value.duracion_minutos ? parseInt(asignarForm.value.duracion_minutos) : null,
-      fecha_fin: asignarForm.value.fecha_fin || null,
+      fecha_inicio: construirFechaISO(asignarForm.value.fecha, asignarForm.value.hora_inicio),
+      fecha_fin: construirFechaISO(asignarForm.value.fecha, asignarForm.value.hora_fin),
+      mezclar_preguntas: asignarForm.value.mezclar_preguntas,
+      mezclar_alternativas: asignarForm.value.mezclar_alternativas,
     };
     await asignacionesService.asignar(payload);
     asignarModal.value = null;
@@ -347,8 +380,8 @@ onMounted(async () => {
           v-model:modelo-nivel-dificultad="selectedNivelDificultad" :grado-options="gradoOptions"
           v-model:modelo-grado-id="selectedGradoId" :loading-grados="loadingGrados"
           v-model:modelo-cantidad-preguntas="cantidadPreguntas" v-model:modelo-use-texto-base="useTextoBase"
-          :selected-files="selectedFiles" :files-metadata="filesMetadata" :uploading-file="uploadingFile"
-          :upload-error="uploadError" @file-upload="handleFileUpload" @clear-files="clearFiles"
+          :textos-base="textosBase"
+          @open-textos-modal="showTextosModal = true"
           :tipo-textual-options="tipoTextualOptions" v-model:modelo-tipo-textual="selectedTipoTextual"
           :formato-textual-options="formatoTextualOptions" v-model:modelo-formato-textual="selectedFormatoTextual"
           v-model:modelo-cantidad-literal="cantidadLiteral" v-model:modelo-cantidad-inferencial="cantidadInferencial"
@@ -514,10 +547,43 @@ onMounted(async () => {
               <input v-model="asignarForm.duracion_minutos" type="number" min="5" max="180" placeholder="Sin límite de tiempo"
                 class="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-400 focus:border-violet-400 outline-none" />
             </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Fecha límite (opcional)</label>
-              <input v-model="asignarForm.fecha_fin" type="date"
-                class="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-400 focus:border-violet-400 outline-none" />
+            <div class="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/40">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Día de aplicación</label>
+                <input v-model="asignarForm.fecha" type="date"
+                  class="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-400 focus:border-violet-400 outline-none" />
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Hora inicio</label>
+                  <input v-model="asignarForm.hora_inicio" type="time"
+                    class="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-400 focus:border-violet-400 outline-none" />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Hora fin</label>
+                  <input v-model="asignarForm.hora_fin" type="time"
+                    class="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-400 focus:border-violet-400 outline-none" />
+                </div>
+              </div>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">Si defines horario, el examen solo estará disponible ese día dentro de ese rango de horas.</p>
+            </div>
+            <div class="space-y-2 rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/40">
+              <Checkbox v-model="asignarForm.mezclar_preguntas"
+                class="group flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 transition-all duration-150 dark:border-slate-700 dark:bg-slate-800/80"
+                color="checked:bg-violet-600 checked:border-violet-600 dark:checked:bg-violet-500 dark:checked:border-violet-500 focus:ring-violet-500/50">
+                <span>
+                  <strong class="block text-sm font-bold text-slate-700 dark:text-slate-200">Aleatorizar preguntas</strong>
+                  <span class="text-xs text-slate-500 dark:text-slate-400">El estudiante verá las preguntas en orden aleatorio.</span>
+                </span>
+              </Checkbox>
+              <Checkbox v-model="asignarForm.mezclar_alternativas"
+                class="group flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 transition-all duration-150 dark:border-slate-700 dark:bg-slate-800/80"
+                color="checked:bg-violet-600 checked:border-violet-600 dark:checked:bg-violet-500 dark:checked:border-violet-500 focus:ring-violet-500/50">
+                <span>
+                  <strong class="block text-sm font-bold text-slate-700 dark:text-slate-200">Aleatorizar alternativas</strong>
+                  <span class="text-xs text-slate-500 dark:text-slate-400">Las opciones A, B, C y D se mezclarán en cada pregunta.</span>
+                </span>
+              </Checkbox>
             </div>
           </div>
           <div class="px-5 py-4 border-t border-slate-100 dark:border-slate-700 flex gap-3">
@@ -534,6 +600,121 @@ onMounted(async () => {
         </div>
       </div>
     </Teleport>
+
+    <!-- Modal Gestión de Textos Base -->
+    <Teleport to="body">
+      <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0"
+        enter-to-class="opacity-100" leave-active-class="transition duration-150"
+        leave-from-class="opacity-100" leave-to-class="opacity-0">
+        <div v-if="showTextosModal"
+          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          @click.self="showTextosModal = false">
+          <div class="bg-white dark:bg-slate-800 w-full max-w-3xl max-h-[88vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden">
+
+            <!-- Header -->
+            <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-700 shrink-0">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center">
+                  <FileText class="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <h2 class="text-sm font-bold text-slate-800 dark:text-white">Textos Base</h2>
+                  <p class="text-xs text-slate-400 dark:text-slate-500">{{ textosBase.filter(t => t.texto).length }} de {{ textosBase.length }} con contenido</p>
+                </div>
+              </div>
+              <button @click="showTextosModal = false" class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl transition-colors">
+                <X class="w-5 h-5" />
+              </button>
+            </div>
+
+            <!-- Body -->
+            <div class="flex-1 min-h-0 overflow-y-auto px-5 py-4">
+              <div class="grid sm:grid-cols-2 gap-3 mb-3">
+              <div v-for="(item, idx) in textosBase" :key="item.id"
+                class="rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/40 overflow-hidden flex flex-col">
+
+                <!-- Cabecera del panel -->
+                <div class="flex items-center gap-2 px-3 py-2 bg-slate-100 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-600">
+                  <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex-shrink-0">Texto {{ idx + 1 }}</span>
+                  <input :value="item.titulo"
+                    @input="textosBase[idx]!.titulo = ($event.target as HTMLInputElement).value"
+                    type="text" placeholder="Título (opcional)"
+                    class="flex-1 bg-transparent text-xs text-slate-700 dark:text-slate-200 placeholder-slate-400 outline-none" />
+                  <button v-if="textosBase.length > 1" @click="removeTexto(idx)"
+                    class="p-1 text-red-400 hover:text-red-500 rounded transition-colors flex-shrink-0">
+                    <Trash2 class="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                <div class="p-3 space-y-2">
+                  <!-- Zona de subida (si no hay texto) -->
+                  <div v-if="!item.texto && !item.uploadingFile" class="relative">
+                    <input type="file" accept=".pdf,.docx,.doc" multiple
+                      @change="(e) => handleFileUploadAt(idx, e)"
+                      class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                    <div class="flex items-center justify-center py-3 px-3 bg-gradient-to-br from-sky-50 to-teal-50 dark:from-slate-800 dark:to-slate-900 border-2 border-dashed border-sky-300 dark:border-slate-600 rounded-lg hover:border-teal-400 transition-all">
+                      <div class="text-center">
+                        <CloudUpload class="w-5 h-5 text-teal-500 mx-auto mb-1" />
+                        <span class="text-teal-600 dark:text-slate-400 text-xs font-medium flex items-center gap-1 justify-center">
+                          <FileText class="w-3 h-3" /> PDF o Word
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div v-if="item.uploadingFile" class="flex items-center justify-center gap-2 py-3 bg-teal-50 dark:bg-slate-800 rounded-lg">
+                    <Loader2 class="w-4 h-4 text-teal-600 animate-spin" />
+                    <span class="text-teal-600 dark:text-teal-400 text-xs font-medium">Procesando...</span>
+                  </div>
+
+                  <!-- Archivos cargados -->
+                  <div v-if="item.texto && item.filesMetadata" class="space-y-1.5">
+                    <div v-for="(arch, ai) in item.filesMetadata.archivos" :key="ai"
+                      class="flex items-center gap-2 p-2 bg-teal-50 dark:bg-emerald-900/20 border border-teal-200 dark:border-emerald-800 rounded-lg text-xs">
+                      <FileText class="w-4 h-4 text-teal-600 dark:text-emerald-400 flex-shrink-0" />
+                      <span class="flex-1 truncate text-slate-700 dark:text-slate-200 font-medium">{{ arch.filename }}</span>
+                      <span class="text-teal-600 font-bold bg-teal-100 dark:bg-teal-900/30 px-1.5 py-0.5 rounded-full">{{ arch.palabras }}p</span>
+                    </div>
+                    <button @click="clearFilesAt(idx)" class="text-xs text-red-500 hover:text-red-600 flex items-center gap-1 font-medium">
+                      <X class="w-3 h-3" /> Quitar archivos
+                    </button>
+                  </div>
+
+                  <!-- Textarea -->
+                  <textarea
+                    :value="item.texto"
+                    @input="textosBase[idx]!.texto = ($event.target as HTMLTextAreaElement).value"
+                    :rows="item.texto ? 7 : 5"
+                    placeholder="O escribe / pega el texto directamente aquí..."
+                    class="w-full text-xs text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 resize-none outline-none focus:ring-2 focus:ring-sky-400/40 focus:border-sky-400 transition-all" />
+
+                  <p v-if="item.uploadError" class="text-red-500 text-xs flex items-center gap-1">
+                    <AlertTriangle class="w-3 h-3" /> {{ item.uploadError }}
+                  </p>
+                </div>
+              </div>
+              </div>
+
+              <!-- Agregar texto -->
+              <button @click="addTexto"
+                class="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-dashed border-sky-300 dark:border-slate-600 text-sky-600 dark:text-slate-400 hover:border-sky-400 hover:bg-sky-50 dark:hover:bg-slate-700/50 text-xs font-semibold transition-all">
+                <Plus class="w-3.5 h-3.5" /> Agregar otro texto
+              </button>
+            </div>
+
+            <!-- Footer -->
+            <div class="px-5 py-4 border-t border-slate-100 dark:border-slate-700 shrink-0 flex items-center justify-end">
+              <button @click="showTextosModal = false"
+                class="px-5 py-2 bg-gradient-to-r from-sky-500 to-teal-600 hover:from-sky-600 hover:to-teal-700 text-white font-bold text-sm rounded-xl shadow transition-all">
+                Listo
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
   </div>
 </template>
 

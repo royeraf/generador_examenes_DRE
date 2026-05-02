@@ -696,6 +696,8 @@ export interface AsignacionPayload {
   fecha_fin?: string | null
   duracion_minutos?: number | null
   intentos_permitidos?: number
+  mezclar_preguntas?: boolean
+  mezclar_alternativas?: boolean
 }
 
 export interface Asignacion {
@@ -707,8 +709,20 @@ export interface Asignacion {
   fecha_fin: string | null
   duracion_minutos: number | null
   intentos_permitidos: number
+  mezclar_preguntas?: boolean
+  mezclar_alternativas?: boolean
   is_active: boolean
   fecha_creacion: string
+}
+
+export interface UpdateAsignacionPayload {
+  fecha_inicio: string | null
+  fecha_fin: string | null
+  duracion_minutos: number | null
+  intentos_permitidos: number
+  mezclar_preguntas: boolean
+  mezclar_alternativas: boolean
+  is_active: boolean
 }
 
 export const asignacionesService = {
@@ -723,6 +737,9 @@ export const asignacionesService = {
   async getResultados(id: number) {
     const response = await apiClient.get(`/examenes/asignaciones/${id}/resultados`)
     return response.data
+  },
+  async updateAsignacion(id: number, data: UpdateAsignacionPayload): Promise<void> {
+    await apiClient.put(`/examenes/asignaciones/${id}`, data)
   },
   async deleteAsignacion(id: number): Promise<void> {
     await apiClient.delete(`/examenes/asignaciones/${id}`)
@@ -755,6 +772,18 @@ export interface RegistrarEstudianteDirectoPayload {
   seccion: string
 }
 
+export interface ImportarEstudianteFilaPayload {
+  dni: string
+  nombres: string
+  apellidos: string
+}
+
+export interface ImportarEstudiantesPayload {
+  grado_id: number
+  seccion: string
+  estudiantes: ImportarEstudianteFilaPayload[]
+}
+
 export interface RegistroEstudianteDirectoResponse {
   id: number
   codigo_estudiante: string
@@ -765,6 +794,11 @@ export interface RegistroEstudianteDirectoResponse {
   institucion: string | null
 }
 
+export interface ImportarEstudiantesResponse {
+  creados: number
+  pendientes_generacion_usuario: number
+}
+
 export const docenteEstudiantesService = {
   async getMisEstudiantes(params?: { grado_id?: number; seccion?: string; q?: string }): Promise<EstudianteDocente[]> {
     const response = await apiClient.get<EstudianteDocente[]>('/docente/mis-estudiantes', { params })
@@ -773,6 +807,11 @@ export const docenteEstudiantesService = {
 
   async registrar(data: RegistrarEstudianteDirectoPayload): Promise<RegistroEstudianteDirectoResponse> {
     const response = await apiClient.post<RegistroEstudianteDirectoResponse>('/docente/registrar-estudiante', data)
+    return response.data
+  },
+
+  async importarNomina(data: ImportarEstudiantesPayload): Promise<ImportarEstudiantesResponse> {
+    const response = await apiClient.post<ImportarEstudiantesResponse>('/docente/importar-estudiantes', data)
     return response.data
   },
 

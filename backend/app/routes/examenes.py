@@ -69,6 +69,7 @@ class ExamenLecturaCreate(BaseModel):
     saludo: Optional[str] = None
     instrucciones: Optional[str] = None
     lectura: Optional[str] = None
+    lecturas: Optional[Any] = None  # [{"titulo": str, "texto": str}]
     preguntas: Optional[Any] = None
     tabla_respuestas: Optional[Any] = None
     desempenos_usados: Optional[str] = None
@@ -101,6 +102,7 @@ class ExamenLecturaResponse(BaseModel):
     saludo: Optional[str] = None
     instrucciones: Optional[str] = None
     lectura: Optional[str] = None
+    lecturas: Optional[Any] = None
     preguntas: Optional[Any] = None
     tabla_respuestas: Optional[Any] = None
     desempenos_usados: Optional[str] = None

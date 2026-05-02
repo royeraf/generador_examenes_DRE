@@ -1,16 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Signal, Sprout, Leaf, TreeDeciduous, Check, GraduationCap, Hash, FileUp, CloudUpload, Loader2, FileText, X, AlertTriangle, BookOpen, LayoutGrid } from 'lucide-vue-next';
+import { Signal, Sprout, Leaf, TreeDeciduous, Check, GraduationCap, Hash, FileUp, FileText, BookOpen, LayoutGrid } from 'lucide-vue-next';
 import ComboBox from '../../../shared/components/ComboBox.vue';
 import Checkbox from '../../../shared/components/Checkbox.vue';
-import type { NivelDificultadOption } from '../composables/useLectoSistem';
-
-// Define Props
-interface FilesMetadata {
-    archivos: { filename: string; palabras: number; caracteres: number }[];
-    total_palabras: number;
-    total_caracteres: number;
-}
+import type { NivelDificultadOption, TextoBaseItem } from '../composables/useLectoSistem';
 
 const props = defineProps<{
     nivelesDificultad: NivelDificultadOption[];
@@ -20,17 +13,11 @@ const props = defineProps<{
     loadingGrados?: boolean;
     modeloCantidadPreguntas: number;
     modeloUseTextoBase: boolean;
-    selectedFiles: File[];
-    filesMetadata: FilesMetadata | null;
-    uploadingFile: boolean;
-    uploadError: string | null;
-    // New props for textual diversity
+    textosBase: TextoBaseItem[];
     tipoTextualOptions?: { id: string; label: string }[];
     modeloTipoTextual?: string | null;
     formatoTextualOptions?: { id: string; label: string }[];
     modeloFormatoTextual?: string | null;
-
-    // New props for question breakdown
     modeloCantidadLiteral: number;
     modeloCantidadInferencial: number;
     modeloCantidadCritico: number;
@@ -38,67 +25,55 @@ const props = defineProps<{
     totalBreakdown: number;
 }>();
 
-// Define Emits
 const emit = defineEmits<{
     (e: 'update:modeloNivelDificultad', value: string): void;
     (e: 'update:modeloGradoId', value: number | null): void;
     (e: 'update:modeloCantidadPreguntas', value: number): void;
     (e: 'update:modeloUseTextoBase', value: boolean): void;
-    (e: 'file-upload', event: Event): void;
-    (e: 'clear-files'): void;
     (e: 'update:modeloTipoTextual', value: string | null): void;
     (e: 'update:modeloFormatoTextual', value: string | null): void;
     (e: 'update:modeloCantidadLiteral', value: number): void;
     (e: 'update:modeloCantidadInferencial', value: number): void;
     (e: 'update:modeloCantidadCritico', value: number): void;
+    (e: 'open-textos-modal'): void;
 }>();
 
-// Computed for v-models
 const selectedNivelDificultad = computed({
     get: () => props.modeloNivelDificultad,
     set: (val) => emit('update:modeloNivelDificultad', val)
 });
-
 const selectedGradoId = computed({
     get: () => props.modeloGradoId,
     set: (val) => emit('update:modeloGradoId', val)
 });
-
 const quantity = computed({
     get: () => props.modeloCantidadPreguntas,
     set: (val) => emit('update:modeloCantidadPreguntas', val)
 });
-
 const useTextoBase = computed({
     get: () => props.modeloUseTextoBase,
     set: (val) => emit('update:modeloUseTextoBase', val)
 });
-
 const selectedTipoTextual = computed({
     get: () => props.modeloTipoTextual ?? null,
     set: (val) => emit('update:modeloTipoTextual', val)
 });
-
 const selectedFormatoTextual = computed({
     get: () => props.modeloFormatoTextual ?? null,
     set: (val) => emit('update:modeloFormatoTextual', val)
 });
-
 const qLiteral = computed({
     get: () => props.modeloCantidadLiteral,
     set: (val) => emit('update:modeloCantidadLiteral', val)
 });
-
 const qInferencial = computed({
     get: () => props.modeloCantidadInferencial,
     set: (val) => emit('update:modeloCantidadInferencial', val)
 });
-
 const qCritico = computed({
     get: () => props.modeloCantidadCritico,
     set: (val) => emit('update:modeloCantidadCritico', val)
 });
-
 </script>
 
 <template>
@@ -313,64 +288,40 @@ const qCritico = computed({
                 </div>
             </div>
 
-            <!-- File Upload -->
-            <div
-                class="bg-white dark:bg-slate-800 rounded-2xl p-5 border-2 border-sky-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-sky-200 transition-all duration-300">
+            <!-- Textos base — botón compacto que abre el modal -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border-2 border-sky-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-sky-200 transition-all duration-300">
                 <Checkbox v-model="useTextoBase" class="items-center mb-3">
                     <div class="flex items-center gap-2">
-                        <div
-                            class="w-8 h-8 bg-gradient-to-br from-sky-400 to-sky-600 rounded-lg flex items-center justify-center">
+                        <div class="w-8 h-8 bg-gradient-to-br from-sky-400 to-sky-600 rounded-lg flex items-center justify-center">
                             <FileUp class="w-4 h-4 text-white" />
                         </div>
-                        <span class="text-sm font-bold text-slate-700 dark:text-slate-300">Usar Texto Base</span>
+                        <span class="text-sm font-bold text-slate-700 dark:text-slate-300">Usar Textos Base</span>
                     </div>
                 </Checkbox>
 
-                <div v-if="useTextoBase" class="space-y-2">
-                    <div v-if="selectedFiles.length === 0 && !uploadingFile" class="relative">
-                        <input type="file" accept=".pdf,.docx,.doc" multiple @change="(e) => emit('file-upload', e)"
-                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                        <div
-                            class="flex items-center justify-center py-4 px-3 bg-gradient-to-br from-sky-50 to-teal-50 dark:from-slate-900 dark:to-slate-950 border-2 border-dashed border-sky-300 dark:border-slate-600 rounded-xl hover:border-teal-400 hover:from-teal-50 hover:to-teal-100 dark:hover:from-slate-800 dark:hover:to-slate-900 transition-all duration-300">
-                            <div class="text-center">
-                                <CloudUpload class="w-6 h-6 text-teal-500 mx-auto mb-1" />
-                                <span class="text-teal-600 dark:text-slate-400 text-xs font-medium flex items-center gap-1"><FileText class="w-3 h-3" /> PDF o Word</span>
-                            </div>
-                        </div>
+                <template v-if="useTextoBase">
+                    <!-- Resumen de textos cargados -->
+                    <div class="flex flex-wrap gap-1.5 mb-3">
+                        <span v-for="(item, idx) in textosBase" :key="item.id"
+                            :class="item.texto
+                                ? 'bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400'
+                                : 'bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400'"
+                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs font-medium">
+                            <FileText class="w-3 h-3" />
+                            {{ item.titulo || `Texto ${idx + 1}` }}
+                            <span v-if="item.texto" class="text-[10px] opacity-70">
+                                ({{ item.texto.split(' ').length }}p)
+                            </span>
+                        </span>
                     </div>
-
-                    <div v-if="uploadingFile"
-                        class="flex items-center justify-center gap-2 py-4 bg-teal-50 dark:bg-slate-900 rounded-xl">
-                        <Loader2 class="w-5 h-5 text-teal-600 animate-spin" />
-                        <span class="text-teal-600 dark:text-teal-400 text-sm font-medium">Procesando...</span>
-                    </div>
-
-                    <div v-if="selectedFiles.length > 0 && !uploadingFile && filesMetadata" class="space-y-2">
-                        <div v-for="(archivo, index) in filesMetadata.archivos" :key="index"
-                            class="flex items-center gap-2 p-3 bg-gradient-to-r from-teal-50 to-emerald-50 dark:bg-emerald-900/20 border-2 border-teal-200 dark:border-emerald-800 rounded-xl text-xs">
-                            <FileText class="w-5 h-5 text-teal-600 dark:text-emerald-400" />
-                            <span class="flex-1 truncate text-slate-700 dark:text-slate-200 font-medium">{{
-                                archivo.filename }}</span>
-                            <span class="text-teal-600 font-bold bg-teal-100 px-2 py-0.5 rounded-full">{{
-                                archivo.palabras }}p</span>
-                        </div>
-                        <button @click="emit('clear-files')"
-                            class="text-xs text-red-500 hover:text-red-600 flex items-center gap-1 font-medium">
-                            <X class="w-3 h-3" /> Quitar archivo
-                        </button>
-                    </div>
-
-                    <div v-if="uploadError"
-                        class="p-3 bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-xl">
-                        <p class="text-red-600 dark:text-red-400 text-xs flex items-center gap-1 font-medium">
-                            <AlertTriangle class="w-4 h-4" />
-                            {{ uploadError }}
-                        </p>
-                    </div>
-                </div>
+                    <button @click="emit('open-textos-modal')"
+                        class="w-full flex items-center justify-center gap-2 py-2 rounded-xl border border-sky-300 dark:border-slate-600 bg-sky-50 dark:bg-slate-700/50 text-sky-700 dark:text-sky-400 hover:bg-sky-100 dark:hover:bg-slate-700 text-xs font-semibold transition-all">
+                        <LayoutGrid class="w-3.5 h-3.5" /> Gestionar textos
+                    </button>
+                </template>
 
                 <p v-else class="text-slate-400 dark:text-slate-500 text-xs mt-2 flex items-center gap-1">
-                    <BookOpen class="w-3 h-3" /> Activa para usar lectura personalizada
+                    <BookOpen class="w-3 h-3" /> Activa para usar lecturas personalizadas
                 </p>
             </div>
         </div>

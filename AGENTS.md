@@ -74,6 +74,7 @@ bun run build        # runs vue-tsc + vite build — MUST pass before considerin
 ```
 
 The frontend build (`bun run build`) is the TypeScript check. Run it after every change.
+Use `bun` always for frontend tasks in this repository. Do not replace `bun` commands with `npm`.
 TypeScript strict mode is enabled (`strict: true`, `noUnusedLocals`, `noUnusedParameters`). The build will fail on any type error.
 
 ---
@@ -100,6 +101,8 @@ After any frontend change:
 ```bash
 cd frontend && bun run build
 ```
+
+For frontend verification in this repository, always use `bun run build`.
 
 After modifying DB models, always generate a migration:
 ```bash
@@ -181,6 +184,7 @@ Reglas críticas que nunca se rompen:
 - **Font weights en botones**: siempre `font-bold` o `font-semibold`, nunca `font-medium`.
 - **Tipografía**: Fredoka para `h1–h6` (via CSS global), Nunito para todo lo demás.
 - El build de TypeScript valida el frontend — correr `bun run build` es el test.
+- En frontend se usa `bun` siempre; no usar `npm run build` como sustituto.
 
 ---
 
@@ -199,6 +203,7 @@ Usuarios de prueba disponibles en `USUARIOS_PRUEBA.md` — contraseña: `Test202
 
 - Títulos: `feat:`, `fix:`, `style:`, `refactor:`, `docs:` — seguir Conventional Commits.
 - Correr `bun run build` en frontend antes de hacer PR — debe pasar sin errores.
+- Usar `bun` en todos los comandos de frontend del PR; no sustituirlo por `npm`.
 - Probar en modo oscuro si el cambio toca UI.
 - Las rutas del backend nuevas deben registrarse en `backend/app/routes/__init__.py`.
 - Los endpoints nuevos en `estudiantes.py` o `organizacion.py` que cambien scope de datos deben actualizar también `metricas.py` si aplica.
