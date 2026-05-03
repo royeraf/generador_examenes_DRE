@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatFecha } from '../../shared/utils/dateUtils'
 import { ref, onMounted } from 'vue'
 import { organizacionService } from '../../shared/services/api'
 import type { InstitucionEducativa } from '../../shared/types'
@@ -41,10 +42,7 @@ const nivelColor: Record<string, string> = {
   secundaria: 'from-indigo-500 to-purple-600',
 }
 
-function formatFecha(iso: string | null): string {
-  if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })
-}
+// formatFecha importado de shared/utils/dateUtils
 
 const completadosPct = () => {
   if (!analytics.value || !analytics.value.total_asignaciones) return 0

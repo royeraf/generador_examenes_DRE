@@ -7,6 +7,7 @@ import { useMatSistemHistory } from './composables/useMatSistemHistory';
 import { useMatSistem } from './composables/useMatSistem';
 import { showDeleteConfirm, Toast } from '../../shared/utils/swal';
 import { desempenosService, asignacionesService } from '../../shared/services/api';
+import { construirFechaISO, formatFechaHora } from '../../shared/utils/dateUtils';
 import type { AsignacionPayload } from '../../shared/services/api';
 import Footer from '../../shared/components/Footer.vue';
 import Header from '../../shared/components/Header.vue';
@@ -125,10 +126,7 @@ function abrirAsignar(entry: ExamenHistoryEntry) {
   };
 }
 
-function construirFechaISO(fecha: string, hora: string): string | null {
-  if (!fecha || !hora) return null;
-  return new Date(`${fecha}T${hora}:00`).toISOString();
-}
+// construirFechaISO importado de shared/utils/dateUtils
 
 async function confirmarAsignar() {
   if (!asignarModal.value) return;
@@ -254,10 +252,7 @@ async function confirmarLimpiarHistorial() {
   }
 }
 
-function formatFecha(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-}
+// formatFechaHora importado de shared/utils/dateUtils
 
 async function descargarWordHistorial(index: number) {
   const summaryEntry = history.value[index];
@@ -448,7 +443,7 @@ onMounted(async () => {
                 </h4>
                 <div class="flex items-center gap-2 mt-1 text-[11px] text-slate-500 dark:text-slate-400">
                   <Clock class="w-3 h-3" />
-                  {{ formatFecha(entry.fechaCreacion) }}
+                  {{ formatFechaHora(entry.fechaCreacion) }}
                 </div>
               </div>
 
@@ -534,8 +529,21 @@ onMounted(async () => {
           <div class="px-5 py-4 space-y-4">
             <div>
               <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Sección (opcional)</label>
-              <input v-model="asignarForm.seccion" type="text" placeholder="Ej: A, B, C..."
-                class="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-400 focus:border-violet-400 outline-none" />
+              <select v-model="asignarForm.seccion"
+                class="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-400 focus:border-violet-400 outline-none">
+                <option value="">— Todas las secciones —</option>
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+                <option value="E">E</option>
+                <option value="F">F</option>
+                <option value="G">G</option>
+                <option value="H">H</option>
+                <option value="I">I</option>
+                <option value="J">J</option>
+                <option value="Única">Única</option>
+              </select>
             </div>
             <div>
               <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Duración (minutos, opcional)</label>

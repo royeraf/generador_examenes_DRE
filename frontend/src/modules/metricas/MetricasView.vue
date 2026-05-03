@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatFecha } from '../../shared/utils/dateUtils'
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { apiClient } from '../../shared/services/api'
@@ -56,11 +57,7 @@ async function fetchMetricas() {
 
 onMounted(fetchMetricas)
 
-function formatFecha(iso: string | null): string {
-  if (!iso) return '—'
-  const d = new Date(iso)
-  return d.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })
-}
+// formatFecha importado de shared/utils/dateUtils
 
 const completadosPct = computed(() => {
   if (!resumen.value || !resumen.value.total_asignaciones) return 0

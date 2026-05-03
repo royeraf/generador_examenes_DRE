@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatFechaLarga } from '../../shared/utils/dateUtils'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { Home, User, MapPin, Building2, BadgeCheck, Shield, CalendarDays, Info } from 'lucide-vue-next'
@@ -6,13 +7,7 @@ import { Home, User, MapPin, Building2, BadgeCheck, Shield, CalendarDays, Info }
 const router = useRouter()
 const auth = useAuthStore()
 
-function formatFecha(fecha: string) {
-  return new Date(fecha).toLocaleDateString('es-PE', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  })
-}
+// formatFechaLarga importado de shared/utils/dateUtils
 
 const ROL_LABELS: Record<string, string> = {
   especialista_dre_comunicacion: 'Esp. DRE Comunicación',
@@ -170,7 +165,7 @@ function rolLabel(codigo?: string | null) {
                 <div class="flex items-center gap-1.5">
                   <CalendarDays class="w-3.5 h-3.5 text-slate-400" />
                   <span class="text-sm font-medium text-slate-700 dark:text-slate-200">
-                    {{ formatFecha(auth.user.fecha_creacion) }}
+                    {{ formatFechaLarga(auth.user.fecha_creacion) }}
                   </span>
                 </div>
               </div>

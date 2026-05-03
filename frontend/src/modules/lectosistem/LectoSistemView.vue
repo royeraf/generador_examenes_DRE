@@ -7,6 +7,7 @@ import { useLectoSistem } from './composables/useLectoSistem';
 import { useExamHistory } from './composables/useExamHistory';
 import { showDeleteConfirm, Toast } from '../../shared/utils/swal';
 import { desempenosService, asignacionesService } from '../../shared/services/api';
+import { construirFechaISO, formatFechaHora } from '../../shared/utils/dateUtils';
 import type { AsignacionPayload } from '../../shared/services/api';
 import {
   Bot, Sparkles, LayoutGrid, Award, History, Trash2, Eye, Link, Clock,
@@ -119,10 +120,7 @@ function abrirAsignar(entry: ExamenHistoryEntry) {
   };
 }
 
-function construirFechaISO(fecha: string, hora: string): string | null {
-  if (!fecha || !hora) return null;
-  return new Date(`${fecha}T${hora}:00`).toISOString();
-}
+// construirFechaISO importado de shared/utils/dateUtils
 
 async function confirmarAsignar() {
   if (!asignarModal.value) return;
@@ -254,10 +252,7 @@ async function confirmarLimpiarHistorial() {
   }
 }
 
-function formatFecha(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-}
+// formatFechaHora importado de shared/utils/dateUtils
 
 async function descargarWordHistorial(index: number) {
   const summaryEntry = history.value[index];
@@ -365,10 +360,16 @@ onMounted(async () => {
     <!-- NotebookLM Style Header -->
     <header class="shrink-0 h-[60px] flex items-center justify-between px-2 sm:px-6 gap-2">
       <div class="flex items-center gap-3 shrink-0">
-        <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center">
-          <Bot class="w-5 h-5 text-teal-600 dark:text-teal-400" />
+        <div class="min-w-0">
+          <h1 class="text-base sm:text-xl font-bold text-slate-800 dark:text-white tracking-tight flex items-center gap-2 truncate">
+            <span class="hidden sm:inline">LectoSistem</span>
+            <Bot class="w-7 h-7 sm:w-6 sm:h-6 text-teal-500 animate-robot-lecto flex-shrink-0" />
+          </h1>
+          <p class="hidden sm:flex text-[10px] sm:text-xs font-medium items-center gap-1 truncate text-slate-500 dark:text-slate-400">
+            <GraduationCap class="w-3 h-3 flex-shrink-0" />
+            <span class="truncate">Generador de comprensión lectora</span>
+          </p>
         </div>
-        <span class="font-medium text-slate-800 dark:text-white text-base tracking-tight hidden lg:inline">LectoSistem: Generador AI</span>
       </div>
 
       <!-- Center Pill -->
@@ -537,7 +538,7 @@ onMounted(async () => {
             <div v-for="(entry, index) in history" :key="entry.id" class="bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-700 p-4 flex flex-col gap-3">
               <div>
                 <h4 class="text-sm font-medium text-slate-800 dark:text-white truncate">{{ entry.resultado.examen.titulo }}</h4>
-                <div class="text-[11px] text-slate-500 mt-1">{{ formatFecha(entry.fechaCreacion) }}</div>
+                <div class="text-[11px] text-slate-500 mt-1">{{ formatFechaHora(entry.fechaCreacion) }}</div>
               </div>
               <div class="text-[11px] text-slate-500 dark:text-slate-400">
                 <div>Grado: {{ entry.gradoLabel }}</div>
@@ -605,7 +606,7 @@ onMounted(async () => {
           <div class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md shadow-2xl border border-slate-300 dark:border-slate-600 flex flex-col">
             <div class="px-5 py-4 border-b border-slate-300 dark:border-slate-600 flex items-center justify-between"><h3 class="text-slate-800 dark:text-white font-medium text-lg">Asignar Examen</h3><button @click="asignarModal = null" class="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white"><X class="w-5 h-5"/></button></div>
             <div class="p-5 space-y-4">
-              <div><label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Sección (opcional)</label><input v-model="asignarForm.seccion" type="text" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-slate-800 dark:text-white text-sm outline-none focus:border-sky-500" placeholder="Ej: A, B, Única"></div>
+              <div><label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Sección (opcional)</label><select v-model="asignarForm.seccion" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-slate-800 dark:text-white text-sm outline-none focus:border-sky-500"><option value="">— Todas las secciones —</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option><option value="J">J</option><option value="Única">Única</option></select></div>
               <div><label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Duración (minutos)</label><input v-model="asignarForm.duracion_minutos" type="number" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-slate-800 dark:text-white text-sm outline-none focus:border-sky-500" placeholder="Sin límite"></div>
               <div><label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Fecha Programada</label><input v-model="asignarForm.fecha" type="date" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-slate-800 dark:text-white text-sm outline-none focus:border-sky-500"></div>
               <div class="grid grid-cols-2 gap-3">
@@ -624,3 +625,22 @@ onMounted(async () => {
     </Teleport>
   </div>
 </template>
+
+<style scoped>
+@keyframes robot-float-lecto {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  25% {
+    transform: translateY(-2px) rotate(-8deg) scale(1.1);
+  }
+  75% {
+    transform: translateY(-2px) rotate(8deg) scale(1.1);
+  }
+}
+
+.animate-robot-lecto {
+  animation: robot-float-lecto 4s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+</style>

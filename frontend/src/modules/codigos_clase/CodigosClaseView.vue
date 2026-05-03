@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatFecha } from '../../shared/utils/dateUtils'
 import { ref, onMounted } from 'vue'
 import { codigosClaseService, organizacionService, type CodigoClase, type CodigoClaseCreatePayload } from '../../shared/services/api'
 import type { Grado } from '../../shared/types'
@@ -97,10 +98,7 @@ function copiar(codigo: string) {
   Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Código copiado', timer: 1500, showConfirmButton: false })
 }
 
-function formatFecha(fecha: string | null) {
-  if (!fecha) return '—'
-  return new Date(fecha).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })
-}
+// formatFecha importado de shared/utils/dateUtils
 </script>
 
 <template>
@@ -211,8 +209,21 @@ function formatFecha(fecha: string | null) {
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Sección</label>
-              <input v-model="form.seccion" type="text" placeholder="Ej: A, B, C"
-                class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
+              <select v-model="form.seccion"
+                class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all">
+                <option value="" disabled>Seleccione sección...</option>
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+                <option value="E">E</option>
+                <option value="F">F</option>
+                <option value="G">G</option>
+                <option value="H">H</option>
+                <option value="I">I</option>
+                <option value="J">J</option>
+                <option value="Única">Única</option>
+              </select>
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Máx. estudiantes</label>

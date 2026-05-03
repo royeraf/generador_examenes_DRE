@@ -378,7 +378,7 @@ async def get_metricas(
     _: DocenteModel = Depends(get_current_superuser)
 ):
     """Métricas de uso del sistema para el administrador."""
-    from datetime import datetime, timedelta
+    from datetime import datetime, timedelta, timezone
 
     # ── Totales de docentes ──────────────────────────────────────────────
     r = await db.execute(select(func.count()).select_from(DocenteModel))
@@ -395,7 +395,7 @@ async def get_metricas(
     total_matematica = r.scalar() or 0
 
     # ── Exámenes por mes (últimos 6 meses) ───────────────────────────────
-    hace_6_meses = datetime.utcnow() - timedelta(days=180)
+    hace_6_meses = datetime.now(timezone.utc) - timedelta(days=180)
 
     r_lec = await db.execute(
         select(
@@ -422,7 +422,7 @@ async def get_metricas(
     # Construir los últimos 6 meses
     meses = []
     for i in range(5, -1, -1):
-        d = datetime.utcnow().replace(day=1) - timedelta(days=i * 30)
+        d = datetime.now(timezone.utc).replace(day=1) - timedelta(days=i * 30)
         key = d.strftime('%Y-%m')
         meses.append({
             'mes': key,

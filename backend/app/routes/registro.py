@@ -4,7 +4,7 @@ Rutas para auto-registro de estudiantes y gestión de códigos de clase.
 import random
 import string
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
@@ -228,7 +228,7 @@ async def registrar_estudiante(
     if not cc or not cc.is_active:
         raise HTTPException(400, "Código de clase inválido o inactivo")
 
-    if cc.fecha_expiracion and cc.fecha_expiracion < datetime.utcnow():
+    if cc.fecha_expiracion and cc.fecha_expiracion < datetime.now(timezone.utc):
         raise HTTPException(400, "El código de clase ha expirado")
 
     # Verificar DNI duplicado si se proveyó
@@ -306,7 +306,7 @@ async def validar_codigo_clase(
     cc = result.scalars().first()
     if not cc or not cc.is_active:
         raise HTTPException(400, "Código inválido o inactivo")
-    if cc.fecha_expiracion and cc.fecha_expiracion < datetime.utcnow():
+    if cc.fecha_expiracion and cc.fecha_expiracion < datetime.now(timezone.utc):
         raise HTTPException(400, "Código expirado")
 
     grado_result = await db.execute(select(Grado).where(Grado.id == cc.grado_id))

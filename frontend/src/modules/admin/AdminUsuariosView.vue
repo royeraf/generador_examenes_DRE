@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatFecha } from '../../shared/utils/dateUtils'
 import { ref, watch, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
@@ -586,13 +587,7 @@ function creadorNombre(creado_por_id: number): string {
   return [creador.nombres, creador.apellidos].filter(Boolean).join(' ') || creador.dni || `#${creado_por_id}`
 }
 
-function formatFecha(fecha: string): string {
-  return new Date(fecha).toLocaleDateString('es-PE', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  })
-}
+// formatFecha importado de shared/utils/dateUtils
 
 // --- Reset de contraseña (admin) ---
 const showResetModal = ref(false)

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatFecha } from '../../shared/utils/dateUtils'
 import * as XLSX from 'xlsx'
 import { ref, computed, onMounted, useTemplateRef } from 'vue'
 import { useRouter } from 'vue-router'
@@ -348,10 +349,7 @@ function nombreGrado(id: number | null) {
   return grados.value.find(g => g.id === id)?.nombre ?? `Grado ${id}`
 }
 
-function formatFecha(f: string | null) {
-  if (!f) return '—'
-  return new Date(f).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })
-}
+// formatFecha importado de shared/utils/dateUtils
 </script>
 
 <template>
@@ -607,8 +605,21 @@ function formatFecha(f: string | null) {
                 </div>
                 <div>
                   <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Sección <span class="text-red-400">*</span></label>
-                  <input v-model="form.seccion" type="text" placeholder="Ej: A"
-                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500 transition-all" />
+                  <select v-model="form.seccion"
+                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500 transition-all">
+                    <option value="" disabled>Seleccione sección...</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                    <option value="E">E</option>
+                    <option value="F">F</option>
+                    <option value="G">G</option>
+                    <option value="H">H</option>
+                    <option value="I">I</option>
+                    <option value="J">J</option>
+                    <option value="Única">Única</option>
+                  </select>
                 </div>
               </div>
 
@@ -687,8 +698,21 @@ function formatFecha(f: string | null) {
                 </div>
                 <div>
                   <label class="mb-1 block text-xs font-bold text-slate-600 dark:text-slate-300">Sección</label>
-                  <input v-model="importForm.seccion" type="text" placeholder="Ej: A"
-                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none transition-all focus:border-teal-500 focus:ring-2 focus:ring-teal-500/40 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200" />
+                  <select v-model="importForm.seccion"
+                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none transition-all focus:border-teal-500 focus:ring-2 focus:ring-teal-500/40 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200">
+                    <option value="" disabled>Seleccione sección...</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                    <option value="E">E</option>
+                    <option value="F">F</option>
+                    <option value="G">G</option>
+                    <option value="H">H</option>
+                    <option value="I">I</option>
+                    <option value="J">J</option>
+                    <option value="Única">Única</option>
+                  </select>
                 </div>
               </div>
 

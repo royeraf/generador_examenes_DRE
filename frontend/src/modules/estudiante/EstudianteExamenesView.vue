@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatFechaHoraCorta } from '../../shared/utils/dateUtils'
 import { ref, shallowRef, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { apiClient } from '../../shared/services/api'
@@ -101,10 +102,7 @@ const nivelLabels: Record<string, string> = {
   satisfactorio: 'Satisfactorio', destacado: 'Destacado',
 }
 
-function formatFecha(fecha: string | null) {
-  if (!fecha) return '—'
-  return new Date(fecha).toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })
-}
+// formatFechaHoraCorta importado de shared/utils/dateUtils
 </script>
 
 <template>
@@ -178,8 +176,8 @@ function formatFecha(fecha: string | null) {
               </div>
 
               <div class="flex items-center gap-4 mt-3 text-xs text-slate-500 dark:text-slate-400">
-                <span v-if="examen.fecha_inicio">Desde: {{ formatFecha(examen.fecha_inicio) }}</span>
-                <span v-if="examen.fecha_fin">Hasta: {{ formatFecha(examen.fecha_fin) }}</span>
+                <span v-if="examen.fecha_inicio">Desde: {{ formatFechaHoraCorta(examen.fecha_inicio) }}</span>
+                <span v-if="examen.fecha_fin">Hasta: {{ formatFechaHoraCorta(examen.fecha_fin) }}</span>
                 <span>Intento {{ examen.mis_intentos }}/{{ examen.intentos_permitidos }}</span>
                 <span v-if="examen.completado && examen.puntaje != null">
                   Puntaje: <span class="font-semibold text-teal-600 dark:text-teal-400">{{ examen.puntaje.toFixed(1) }}%</span>

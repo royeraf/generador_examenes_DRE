@@ -5,6 +5,7 @@ import {
     Check, LayoutGrid, Sparkles, Target, Loader2, Download
 } from 'lucide-vue-next';
 import type { ExamenHistoryEntry } from '../../../shared/types';
+import { formatFechaHora } from '../../../shared/utils/dateUtils';
 
 defineProps<{
     entry: ExamenHistoryEntry | null;
@@ -32,10 +33,7 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
     return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400';
 };
 
-function formatFecha(iso: string): string {
-    const d = new Date(iso);
-    return d.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-}
+// formatFechaHora importado de shared/utils/dateUtils
 </script>
 
 <template>
@@ -73,7 +71,7 @@ function formatFecha(iso: string): string {
                                         </span>
                                         <span class="flex items-center gap-1">
                                             <Clock class="w-3 h-3" />
-                                            {{ formatFecha(entry.fechaCreacion) }}
+                                            {{ formatFechaHora(entry.fechaCreacion) }}
                                         </span>
                                     </div>
                                     <div v-else class="flex gap-4 mt-2">

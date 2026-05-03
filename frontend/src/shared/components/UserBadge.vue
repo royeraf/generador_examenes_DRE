@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
+import { formatFechaLarga } from '../utils/dateUtils'
 import { apiClient } from '../services/api'
 import ThemeToggle from './ThemeToggle.vue'
 import { Palette, LogOut, ChevronDown, User, Shield, KeyRound, X, Loader2, Eye, EyeOff, AlertCircle, CheckCircle, MapPin, Building2, BadgeCheck, CalendarDays, Info } from 'lucide-vue-next'
@@ -19,9 +20,7 @@ const openPerfilModal = () => {
   showPerfilModal.value = true
 }
 
-function formatFecha(fecha: string) {
-  return new Date(fecha).toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' })
-}
+// formatFechaLarga importado de shared/utils/dateUtils
 
 // Password change modal
 const showPasswordModal = ref(false)
@@ -352,7 +351,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
                   <p class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mb-0.5">Registrado el</p>
                   <div class="flex items-center gap-1.5">
                     <CalendarDays class="w-3.5 h-3.5 text-slate-400" />
-                    <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ formatFecha(auth.user.fecha_creacion) }}</span>
+                    <span class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ formatFechaLarga(auth.user.fecha_creacion) }}</span>
                   </div>
                 </div>
               </div>

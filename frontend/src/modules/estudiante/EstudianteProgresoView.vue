@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatFecha } from '../../shared/utils/dateUtils'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { apiClient } from '../../shared/services/api'
@@ -42,10 +43,7 @@ const nivelLabels: Record<string, string> = {
   satisfactorio: 'Satisfactorio', destacado: 'Destacado',
 }
 
-function formatFecha(fecha: string | null) {
-  if (!fecha) return '—'
-  return new Date(fecha).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' })
-}
+// formatFecha importado de shared/utils/dateUtils
 </script>
 
 <template>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { construirFechaISO, extraerFechaHora, formatFechaHora } from '../../shared/utils/dateUtils'
 import { ref, shallowRef, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { apiClient, asignacionesService, examenesService, organizacionService } from '../../shared/services/api'
@@ -130,13 +131,7 @@ function closeModal() {
   examenDropdownOpen.value = false
 }
 
-function extraerFechaHora(iso: string | null): { date: string, time: string } {
-  if (!iso) return { date: '', time: '' }
-  const d = new Date(iso)
-  const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-  const time = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
-  return { date, time }
-}
+// extraerFechaHora importado de shared/utils/dateUtils
 
 function openEditModal(asig: Asignacion) {
   editingId.value = asig.id
@@ -186,10 +181,7 @@ async function openModal() {
   }
 }
 
-function construirFechaISO(fecha: string, hora: string): string | null {
-  if (!fecha || !hora) return null
-  return new Date(`${fecha}T${hora}:00`).toISOString()
-}
+// construirFechaISO importado de shared/utils/dateUtils
 
 async function guardar() {
   modalError.value = ''
@@ -284,10 +276,7 @@ async function eliminar(id: number) {
 
 onMounted(fetchAsignaciones)
 
-function formatFecha(iso: string | null): string {
-  if (!iso) return '—'
-  return new Date(iso).toLocaleString('es-PE', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-}
+// formatFechaHora importado de shared/utils/dateUtils
 
 const nivelColors: Record<string, string> = {
   pre_inicio: 'text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400',
@@ -398,7 +387,7 @@ const estadoColors: Record<string, string> = {
                   <Clock class="w-3 h-3" />{{ asig.duracion_minutos }}min
                 </span>
                 <span v-if="asig.fecha_fin" class="flex items-center gap-1 text-[11px] text-slate-400 dark:text-slate-500">
-                  <AlertCircle class="w-3 h-3" />{{ formatFecha(asig.fecha_inicio) }} – {{ formatFecha(asig.fecha_fin) }}
+                  <AlertCircle class="w-3 h-3" />{{ formatFechaHora(asig.fecha_inicio) }} – {{ formatFechaHora(asig.fecha_fin) }}
                 </span>
                 <span v-if="asig.asignado_por_nombre" class="flex items-center gap-1 text-[11px] text-slate-400 dark:text-slate-500">
                   <User class="w-3 h-3" />{{ asig.asignado_por_nombre }}
@@ -516,7 +505,7 @@ const estadoColors: Record<string, string> = {
                         <p class="text-[11px] text-slate-400 dark:text-slate-500 flex items-center gap-1.5 mt-0.5">
                           <span v-if="examenSeleccionado.grado_nombre">{{ examenSeleccionado.grado_nombre }}</span>
                           <span v-if="examenSeleccionado.grado_nombre">·</span>
-                          <span>{{ formatFecha(examenSeleccionado.fecha_creacion) }}</span>
+                          <span>{{ formatFechaHora(examenSeleccionado.fecha_creacion) }}</span>
                         </p>
                       </div>
                       <span v-else class="text-slate-400 dark:text-slate-500 text-sm flex-1 text-left">— Selecciona un examen —</span>
@@ -550,7 +539,7 @@ const estadoColors: Record<string, string> = {
                             <p class="text-[11px] text-slate-400 dark:text-slate-500 flex items-center gap-1.5 mt-0.5">
                               <span v-if="ex.grado_nombre">{{ ex.grado_nombre }}</span>
                               <span v-if="ex.grado_nombre">·</span>
-                              <span>{{ formatFecha(ex.fecha_creacion) }}</span>
+                              <span>{{ formatFechaHora(ex.fecha_creacion) }}</span>
                             </p>
                           </div>
                         </button>
@@ -572,8 +561,21 @@ const estadoColors: Record<string, string> = {
                   <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">
                     Sección <span class="font-normal text-slate-400">(dejar vacío = todas)</span>
                   </label>
-                  <input v-model="seccion" type="text" placeholder="Ej: A, B, Única"
-                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all" />
+                  <select v-model="seccion"
+                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all">
+                    <option value="">— Todas las secciones —</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                    <option value="E">E</option>
+                    <option value="F">F</option>
+                    <option value="G">G</option>
+                    <option value="H">H</option>
+                    <option value="I">I</option>
+                    <option value="J">J</option>
+                    <option value="Única">Única</option>
+                  </select>
                 </div>
               </template>
 
@@ -726,7 +728,7 @@ const estadoColors: Record<string, string> = {
                   </div>
                   <div class="flex-1 min-w-0">
                     <p class="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate">{{ r.estudiante || r.codigo }}</p>
-                    <p class="text-[10px] text-slate-400">{{ r.codigo }}<span v-if="r.fecha"> · {{ formatFecha(r.fecha) }}</span></p>
+                    <p class="text-[10px] text-slate-400">{{ r.codigo }}<span v-if="r.fecha"> · {{ formatFechaHora(r.fecha) }}</span></p>
                   </div>
                   <div class="flex items-center gap-2 flex-shrink-0">
                     <span :class="estadoColors[r.estado] ?? estadoColors.sin_intento"

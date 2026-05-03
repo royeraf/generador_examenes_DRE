@@ -254,12 +254,16 @@ async def iniciar_examen(
     if not asig or not asig.is_active:
         raise HTTPException(404, "Examen no encontrado")
 
-    # SQLite devuelve datetimes naive (sin timezone); usar utcnow() para comparar
-    ahora = datetime.utcnow()
+    # Usar UTC naive para comparar con las fechas almacenadas
+    # SQLite no almacena timezone, así que comparamos naive-vs-naive en UTC
+    ahora = datetime.now(timezone.utc).replace(tzinfo=None)
     def _naive(dt):
+        """Normalizar datetime a naive UTC para comparar."""
         if dt is None:
             return None
-        return dt.replace(tzinfo=None) if dt.tzinfo else dt
+        if dt.tzinfo:
+            return dt.replace(tzinfo=None)
+        return dt
 
     if asig.fecha_inicio and _naive(asig.fecha_inicio) > ahora:
         raise HTTPException(400, "El examen aún no está habilitado")
