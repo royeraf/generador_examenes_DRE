@@ -16,6 +16,7 @@ const props = defineProps<{
     loading: boolean;
     error: string | null;
     isBreakdownValid?: boolean;
+    fillHeight?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -42,202 +43,89 @@ const getCapacidadLabel = (tipo: string): string => {
 </script>
 
 <template>
-    <div class="flex flex-col space-y-3 order-1 lg:order-1">
+    <div class="flex flex-col h-full bg-transparent">
+        
+        <!-- Header -->
+        <div class="h-14 px-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between shrink-0">
+            <h2 class="text-sm font-medium text-slate-800 dark:text-white flex items-center gap-2"><Target class="w-4 h-4 text-slate-500 dark:text-slate-400"/> Desempeños</h2>
+            <span v-if="selectedDesempenosCount > 0" class="px-2 py-0.5 rounded text-[10px] bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 text-slate-800 dark:text-white font-medium">
+                {{ selectedDesempenosCount }} seleccionados
+            </span>
+        </div>
 
-        <!-- Desempeños Card -->
-        <div
-            class="h-[500px] sm:h-[580px] lg:h-[650px] flex flex-col bg-white dark:bg-slate-800 rounded-2xl border-2 border-teal-100 dark:border-slate-700 overflow-hidden shadow-lg">
-
-            <!-- Card Header - Educativo -->
-            <div class="bg-gradient-to-r from-teal-500 via-teal-600 to-sky-500 px-5 py-4">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div
-                            class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shadow-lg">
-                            <Target class="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <h2 class="text-lg font-bold text-white">
-                                Desempeños
-                            </h2>
-                            <span v-if="desempenos.length" class="text-xs text-teal-100 font-medium">
-                                {{ desempenos.length }} disponibles para evaluar
-                            </span>
-                        </div>
-                    </div>
-                    <span v-if="selectedDesempenosCount > 0"
-                        class="px-3 py-1.5 rounded-full bg-amber-400 text-amber-900 text-xs font-bold shadow-lg">
-                        <CheckCircle2 class="w-3 h-3 inline" /> {{ selectedDesempenosCount }} seleccionados
-                    </span>
-                </div>
-            </div>
-
-            <!-- Loading Skeleton -->
-            <div v-if="loadingDesempenos" class="flex-1 flex flex-col p-4 space-y-4 overflow-hidden">
-                <!-- Skeleton for Tabs -->
-                <div class="flex gap-2 mb-2">
-                    <div v-for="i in 3" :key="i"
-                        class="h-10 flex-1 bg-slate-100 dark:bg-slate-800/80 rounded-lg animate-pulse border border-slate-200/50 dark:border-slate-700">
-                    </div>
-                </div>
-                <!-- Skeleton for Actions -->
-                <div class="flex justify-between items-center mb-2 px-1">
-                    <div class="h-3 w-48 bg-slate-200/70 dark:bg-slate-800 rounded-full animate-pulse"></div>
-                    <div class="flex gap-2">
-                        <div class="h-6 w-24 bg-slate-200/70 dark:bg-slate-800 rounded-full animate-pulse"></div>
-                        <div class="h-6 w-16 bg-slate-200/70 dark:bg-slate-800 rounded-full animate-pulse"></div>
-                    </div>
-                </div>
-                <!-- Skeleton for List Items -->
-                <div class="space-y-3">
-                    <div v-for="i in 4" :key="i"
-                        class="flex items-start gap-4 p-4 rounded-xl border border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/30 animate-pulse">
-                        <div
-                            class="w-5 h-5 rounded border-2 border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 mt-0.5">
-                        </div>
-                        <div class="flex-1 space-y-3">
-                            <div class="h-5 w-16 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
-                            <div class="space-y-2.5">
-                                <div class="h-3 w-full bg-slate-200 dark:bg-slate-700 rounded"></div>
-                                <div class="h-3 w-5/6 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                                <div class="h-3 w-2/3 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Desempeños List with Tabs -->
-            <div v-else-if="desempenos.length > 0" class="flex-1 flex flex-col overflow-hidden">
-
-                <!-- Tab Navigation - Niveles de Comprensión -->
-                <div class="flex overflow-x-auto scrollbar-hide bg-slate-100 dark:bg-slate-900/80 p-1.5 gap-1 min-w-full border-b border-slate-200/60 dark:border-slate-700/60">
-                    <div v-for="tipo in ['literal', 'inferencial', 'critico']" :key="tipo">
-                        <button @click="emit('update:activeCapacidadTab', tipo)"
-                            class="flex-1 min-w-[100px] relative px-2 sm:px-4 py-2.5 sm:py-3 text-[10px] sm:text-xs font-bold uppercase tracking-wide transition-all duration-300 rounded-lg whitespace-nowrap"
-                            :class="activeCapacidadTab === tipo
-                                ? {
-                                    'bg-teal-500 dark:bg-teal-600 text-white shadow-lg shadow-teal-500/30': tipo === 'literal',
-                                    'bg-amber-500 dark:bg-amber-600 text-white shadow-lg shadow-amber-500/30': tipo === 'inferencial',
-                                    'bg-violet-500 dark:bg-violet-600 text-white shadow-lg shadow-violet-500/30': tipo === 'critico'
-                                }
-                                : {
-                                    'text-slate-500 dark:text-slate-400 hover:bg-teal-100/70 dark:hover:bg-teal-900/30 hover:text-teal-700 dark:hover:text-teal-300 hover:shadow-sm': tipo === 'literal',
-                                    'text-slate-500 dark:text-slate-400 hover:bg-amber-100/70 dark:hover:bg-amber-900/30 hover:text-amber-700 dark:hover:text-amber-300 hover:shadow-sm': tipo === 'inferencial',
-                                    'text-slate-500 dark:text-slate-400 hover:bg-violet-100/70 dark:hover:bg-violet-900/30 hover:text-violet-700 dark:hover:text-violet-300 hover:shadow-sm': tipo === 'critico'
-                                }">
-                            <div class="flex items-center justify-center gap-1.5 sm:gap-2">
-                                <BookOpen v-if="tipo === 'literal'" class="w-3 h-3 sm:w-4 h-4" />
-                                <FileSearch v-else-if="tipo === 'inferencial'" class="w-3 h-3 sm:w-4 h-4" />
-                                <Lightbulb v-else class="w-3 h-3 sm:w-4 h-4" />
-                                <span>{{ getCapacidadLabel(tipo) }}</span>
-                            </div>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Tab Content -->
-                <div class="flex-1 flex flex-col overflow-hidden p-3">
-                    <!-- Actions Bar -->
-                    <div class="flex items-center justify-between mb-3 px-1">
-                        <span class="text-xs text-slate-500 dark:text-slate-400">
-                            Selecciona los desempeños a evaluar
-                        </span>
-                        <div class="flex gap-2 text-[11px] font-medium">
-                            <button @click="emit('select-all-capacidad', activeCapacidadTab)"
-                                class="px-2.5 py-1 rounded-full transition-colors" :class="{
-                                    'text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-900/20': activeCapacidadTab === 'literal',
-                                    'text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-900/20': activeCapacidadTab === 'inferencial',
-                                    'text-purple-600 hover:bg-purple-50 dark:text-purple-400 dark:hover:bg-purple-900/20': activeCapacidadTab === 'critico'
-                                }">
-                                Seleccionar todos
-                            </button>
-                            <button @click="emit('deselect-all-capacidad', activeCapacidadTab)"
-                                class="px-2.5 py-1 rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                                Ninguno
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Items Grid -->
-                    <div class="flex-1 overflow-y-auto space-y-1.5 pr-1">
-                        <template v-if="desempenosPorCapacidad[activeCapacidadTab]?.length">
-                            <Checkbox v-for="des in desempenosPorCapacidad[activeCapacidadTab]" :key="des.id"
-                                v-model="localSelectedDesempenoIds" :value="des.id"
-                                    class="group flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-all duration-150 border"
-                                    :class="localSelectedDesempenoIds.includes(des.id)
-                                        ? {
-                                            'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 ring-1 ring-emerald-300 dark:ring-emerald-700': activeCapacidadTab === 'literal',
-                                            'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 ring-1 ring-amber-300 dark:ring-amber-700': activeCapacidadTab === 'inferencial',
-                                            'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800 ring-1 ring-purple-300 dark:ring-purple-700': activeCapacidadTab === 'critico'
-                                        }
-                                        : 'border-gray-100 dark:border-slate-700 hover:border-gray-200 dark:hover:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-800/50'"
-                                    :color="activeCapacidadTab === 'literal'
-                                        ? 'checked:bg-emerald-600 checked:border-emerald-600 dark:checked:bg-emerald-500 dark:checked:border-emerald-500 focus:ring-emerald-500/50'
-                                        : (activeCapacidadTab === 'inferencial'
-                                            ? 'checked:bg-amber-600 checked:border-amber-600 dark:checked:bg-amber-500 dark:checked:border-amber-500 focus:ring-amber-500/50'
-                                            : 'checked:bg-purple-600 checked:border-purple-600 dark:checked:bg-purple-500 dark:checked:border-purple-500 focus:ring-purple-500/50')">
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <span class="text-[10px] px-2 py-0.5 rounded-md font-mono font-bold" :class="{
-                                            'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400': activeCapacidadTab === 'literal',
-                                            'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400': activeCapacidadTab === 'inferencial',
-                                            'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400': activeCapacidadTab === 'critico'
-                                        }">
-                                            {{ des.codigo }}
-                                        </span>
-                                    </div>
-                                    <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                                        {{ des.descripcion }}
-                                    </p>
-                            </Checkbox>
-                        </template>
-
-                        <!-- Empty Tab -->
-                        <div v-else class="py-8 text-center">
-                            <p class="text-slate-400 dark:text-slate-500 text-sm">
-                                No hay desempeños de tipo {{ getCapacidadLabel(activeCapacidadTab) }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Empty -->
-            <div v-else class="flex-1 flex flex-col items-center justify-center px-6 text-center">
-                <div
-                    class="w-14 h-14 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <BookOpen class="w-7 h-7 text-indigo-500 dark:text-indigo-400" />
-                </div>
-                <h3 class="text-slate-700 dark:text-slate-200 font-medium mb-1">Sin desempeños</h3>
-                <p class="text-slate-500 dark:text-slate-400 text-sm">Selecciona un grado para ver los desempeños
-                    disponibles</p>
+        <!-- Loading Skeleton -->
+        <div v-if="loadingDesempenos" class="flex-1 p-4 space-y-4">
+            <div class="h-10 bg-slate-50 dark:bg-slate-950 rounded-lg animate-pulse"></div>
+            <div class="space-y-3">
+                <div v-for="i in 4" :key="i" class="h-20 bg-slate-50 dark:bg-slate-950 rounded-xl animate-pulse"></div>
             </div>
         </div>
 
-        <!-- Generate Button - Educativo -->
-        <button @click="emit('generar-preguntas')"
-            :disabled="loading || !selectedGradoId || selectedDesempenoIds.length === 0 || isBreakdownValid === false"
-            class="w-full px-4 py-4 sm:px-6 sm:py-5 font-bold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 shadow-xl hover:shadow-2xl hover:-translate-y-1 text-base sm:text-lg"
-            :class="loading
-                ? 'bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 shadow-lg cursor-wait'
-                : (isBreakdownValid === false || !selectedGradoId || selectedDesempenoIds.length === 0
-                    ? 'bg-slate-400 text-white cursor-not-allowed'
-                    : 'bg-gradient-to-r from-teal-500 via-teal-600 to-sky-500 hover:from-teal-600 hover:via-teal-700 hover:to-sky-600 shadow-teal-500/30 hover:shadow-teal-500/40 text-white')">
-            <ThinkingLoader v-if="loading" text="Generando" variant="teal" />
-            <template v-else>
-                <Rocket class="w-5 h-5 sm:w-6 sm:h-6" />
-                <span>Generar Examen con IA</span>
-            </template>
-        </button>
-
-        <!-- Error -->
-        <div v-if="error"
-            class="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 p-4 rounded-2xl text-sm flex items-start gap-3">
-            <div
-                class="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
-                <AlertTriangle class="w-5 h-5" />
+        <!-- Content -->
+        <div v-else-if="desempenos.length > 0" class="flex-1 flex flex-col min-h-0">
+            
+            <!-- Tabs L/I/C -->
+            <div class="flex p-2 gap-1 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950/30 shrink-0">
+                <div v-for="tipo in ['literal', 'inferencial', 'critico']" :key="tipo" class="flex-1">
+                    <button @click="emit('update:activeCapacidadTab', tipo)"
+                        class="w-full py-1.5 text-[10px] sm:text-xs font-medium rounded-lg transition-all flex items-center justify-center gap-1.5"
+                        :class="activeCapacidadTab === tipo ? 'bg-teal-500 dark:bg-teal-600 text-slate-800 dark:text-white shadow-sm dark:shadow-none' : 'text-slate-500 hover:text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800/50'">
+                        <BookOpen v-if="tipo === 'literal'" class="w-3.5 h-3.5" />
+                        <FileSearch v-else-if="tipo === 'inferencial'" class="w-3.5 h-3.5" />
+                        <Lightbulb v-else class="w-3.5 h-3.5" />
+                        <span class="hidden sm:inline">{{ getCapacidadLabel(tipo) }}</span>
+                        <span class="sm:hidden">{{ tipo.charAt(0).toUpperCase() }}</span>
+                    </button>
+                </div>
             </div>
-            <p class="font-medium">{{ error }}</p>
+
+            <!-- List -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-3 flex flex-col gap-2">
+                <div class="flex justify-between items-center px-1 mb-1">
+                   <span class="text-[10px] text-slate-500">Seleccionar desempeños</span>
+                   <div class="flex gap-2">
+                       <button @click="emit('select-all-capacidad', activeCapacidadTab)" class="text-[10px] text-sky-400 hover:text-sky-300">Todos</button>
+                       <button @click="emit('deselect-all-capacidad', activeCapacidadTab)" class="text-[10px] text-slate-500 hover:text-slate-500 dark:text-slate-400">Ninguno</button>
+                   </div>
+                </div>
+
+                <template v-if="desempenosPorCapacidad[activeCapacidadTab]?.length">
+                    <Checkbox v-for="des in desempenosPorCapacidad[activeCapacidadTab]" :key="des.id"
+                        v-model="localSelectedDesempenoIds" :value="des.id"
+                        class="p-3 rounded-xl border transition-colors"
+                        :class="localSelectedDesempenoIds.includes(des.id) ? 'bg-teal-500 dark:bg-teal-600 border-slate-300 dark:border-slate-600' : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:border-slate-600'"
+                        color="checked:bg-sky-500 checked:border-sky-500 focus:ring-sky-500/50">
+                        <div class="mb-1">
+                            <span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-mono">{{ des.codigo }}</span>
+                        </div>
+                        <p class="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">{{ des.descripcion }}</p>
+                    </Checkbox>
+                </template>
+                <div v-else class="py-8 text-center text-xs text-slate-500">No hay desempeños disponibles.</div>
+            </div>
+
+        </div>
+
+        <div v-else class="flex-1 flex flex-col items-center justify-center p-6 text-center">
+            <BookOpen class="w-8 h-8 text-slate-600 mb-3" />
+            <p class="text-xs text-slate-500">Selecciona un grado para ver desempeños</p>
+        </div>
+
+        <!-- Generate Button fixed at bottom -->
+        <div class="p-4 border-t border-slate-200 dark:border-slate-700 shrink-0 bg-white dark:bg-slate-800">
+            <button @click="emit('generar-preguntas')"
+                :disabled="loading || !selectedGradoId || selectedDesempenoIds.length === 0 || isBreakdownValid === false"
+                class="w-full py-2.5 rounded-full font-medium transition-all flex items-center justify-center gap-2 text-sm"
+                :class="loading ? 'bg-teal-500 dark:bg-teal-600 text-slate-500 dark:text-slate-400 cursor-wait' : (isBreakdownValid === false || !selectedGradoId || selectedDesempenoIds.length === 0 ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500 cursor-not-allowed' : 'bg-white text-black hover:bg-slate-200 shadow-lg')">
+                <ThinkingLoader v-if="loading" text="Generando..." variant="sky" />
+                <template v-else>
+                    <Rocket class="w-4 h-4" /> Generar Examen
+                </template>
+            </button>
+            <div v-if="error" class="mt-3 p-2 bg-red-500/10 border border-red-500/20 rounded-lg text-[10px] text-red-400 flex items-start gap-2">
+                <AlertTriangle class="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                <p>{{ error }}</p>
+            </div>
         </div>
 
     </div>

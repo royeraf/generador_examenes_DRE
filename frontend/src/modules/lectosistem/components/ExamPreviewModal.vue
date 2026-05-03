@@ -38,17 +38,22 @@ function formatFecha(iso: string): string {
 <template>
     <Teleport to="body">
         <Transition name="modal">
-            <div v-if="entry || isLoading" class="fixed inset-0 z-50 flex items-center justify-center p-4"
+            <div v-if="entry || isLoading" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
                 @click.self="emit('close')">
                 <!-- Backdrop -->
-                <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
+                <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm -z-10" @click="emit('close')" />
 
                 <!-- Modal -->
                 <div
-                    class="relative w-full max-w-4xl max-h-[90vh] bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-700 flex flex-col overflow-hidden">
+                    class="relative w-full max-w-4xl max-h-[90vh] bg-white dark:bg-slate-800 rounded-t-2xl sm:rounded-2xl shadow-2xl border-0 sm:border border-gray-200 dark:border-slate-700 flex flex-col overflow-hidden modal-content">
+
+                    <!-- Drag handle -->
+                    <div class="flex justify-center pt-3 pb-1 sm:hidden cursor-pointer flex-shrink-0" @click="emit('close')">
+                        <div class="w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+                    </div>
 
                     <!-- Header -->
-                    <div class="bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 px-5 py-4 flex-shrink-0">
+                    <div class="bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 px-5 pb-4 pt-1 sm:pt-4 flex-shrink-0">
                         <div class="flex items-center justify-between gap-3">
                             <div class="flex items-center gap-3 min-w-0 flex-1">
                                 <div
@@ -319,12 +324,12 @@ function formatFecha(iso: string): string {
 <style scoped>
 .modal-enter-active,
 .modal-leave-active {
-    transition: opacity 0.25s ease;
+    transition: opacity 0.3s ease;
 }
 
-.modal-enter-active .relative,
-.modal-leave-active .relative {
-    transition: transform 0.25s ease;
+.modal-enter-active .modal-content,
+.modal-leave-active .modal-content {
+    transition: transform 0.3s cubic-bezier(0.34, 1.4, 0.64, 1);
 }
 
 .modal-enter-from,
@@ -332,11 +337,19 @@ function formatFecha(iso: string): string {
     opacity: 0;
 }
 
-.modal-enter-from .relative {
-    transform: scale(0.95) translateY(10px);
+/* Mobile: slide from bottom */
+@media (max-width: 639px) {
+    .modal-enter-from .modal-content,
+    .modal-leave-to .modal-content {
+        transform: translateY(100%);
+    }
 }
 
-.modal-leave-to .relative {
-    transform: scale(0.95) translateY(10px);
+/* Desktop: scale */
+@media (min-width: 640px) {
+    .modal-enter-from .modal-content,
+    .modal-leave-to .modal-content {
+        transform: scale(0.95);
+    }
 }
 </style>

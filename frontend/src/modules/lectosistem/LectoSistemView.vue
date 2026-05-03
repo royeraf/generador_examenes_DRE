@@ -1,44 +1,30 @@
 <script setup lang="ts">
-import { shallowRef, ref, onMounted, watch, provide } from 'vue';
+import { shallowRef, ref, onMounted, onUnmounted, watch, provide } from 'vue';
 import { useRouter } from 'vue-router';
 
 import Sistematizador from '../generador/components/Sistematizador.vue';
-import Footer from '../../shared/components/Footer.vue';
 import { useLectoSistem } from './composables/useLectoSistem';
 import { useExamHistory } from './composables/useExamHistory';
 import { showDeleteConfirm, Toast } from '../../shared/utils/swal';
 import { desempenosService, asignacionesService } from '../../shared/services/api';
 import type { AsignacionPayload } from '../../shared/services/api';
 import {
-  Brain,
-  Sparkles,
-  LayoutGrid,
-  Award,
-  History,
-  Trash2,
-  Eye,
-  Link,
-  Clock,
-  GraduationCap,
-  FileText,
-  Home,
-  Loader2,
-  Download,
-  Users,
-  X,
-  CloudUpload,
-  Plus,
-  AlertTriangle,
+  Bot, Sparkles, LayoutGrid, Award, History, Trash2, Eye, Link, Clock,
+  GraduationCap, FileText, Home, Loader2, Download, Users, X,
+  CloudUpload, Plus, AlertTriangle, Sprout, Leaf, TreeDeciduous,
+  Check, Signal, Hash, FileUp, ChevronDown, Target,
 } from 'lucide-vue-next';
 
 const router = useRouter();
 import Header from '../../shared/components/Header.vue';
 import EduBackground from '../../shared/components/EduBackground.vue';
 import Checkbox from '../../shared/components/Checkbox.vue';
-import LectoSistemConfig from './components/LectoSistemConfig.vue';
+import ComboBox from '../../shared/components/ComboBox.vue';
+import ThinkingLoader from '../../shared/components/ThinkingLoader.vue';
 import LectoSistemDesempenos from './components/LectoSistemDesempenos.vue';
 import LectoSistemResults from './components/LectoSistemResults.vue';
 import ExamPreviewModal from './components/ExamPreviewModal.vue';
+import UserBadge from '../../shared/components/UserBadge.vue';
 import type { ExamenHistoryEntry, FilaTablaRespuestas } from '../../shared/types';
 
 
@@ -253,6 +239,13 @@ async function confirmarEliminar(id: string) {
   }
 }
 
+async function onGenerarPreguntas() {
+  if (!isDesktop.value) {
+    mobileTab.value = 'results';
+  }
+  await generarPreguntas();
+}
+
 async function confirmarLimpiarHistorial() {
   const confirmed = await showDeleteConfirm('¿Limpiar todo el historial?', 'Se eliminarán todos los exámenes guardados');
   if (confirmed) {
@@ -306,434 +299,328 @@ async function descargarWordDesdePreview() {
 
 
 
+// Resizing logic
+const isDesktop = ref(window.innerWidth >= 1024);
+const col1Width = ref(320);
+const col3Width = ref(350);
+const mobileTab = ref<'config' | 'results' | 'desempenos'>('config');
+
+const isDraggingCol1 = ref(false);
+const isDraggingCol3 = ref(false);
+
+const onMouseDownCol1 = (e: MouseEvent) => {
+  isDraggingCol1.value = true;
+  document.body.style.cursor = 'col-resize';
+  window.addEventListener('mousemove', onMouseMove);
+  window.addEventListener('mouseup', onMouseUp);
+};
+
+const onMouseDownCol3 = (e: MouseEvent) => {
+  isDraggingCol3.value = true;
+  document.body.style.cursor = 'col-resize';
+  window.addEventListener('mousemove', onMouseMove);
+  window.addEventListener('mouseup', onMouseUp);
+};
+
+const onMouseMove = (e: MouseEvent) => {
+  if (isDraggingCol1.value) {
+    let newWidth = e.clientX - 16;
+    if (newWidth < 250) newWidth = 250;
+    if (newWidth > 600) newWidth = 600;
+    col1Width.value = newWidth;
+  }
+  if (isDraggingCol3.value) {
+    let newWidth = window.innerWidth - e.clientX - 16;
+    if (newWidth < 250) newWidth = 250;
+    if (newWidth > 700) newWidth = 700;
+    col3Width.value = newWidth;
+  }
+};
+
+const onMouseUp = () => {
+  isDraggingCol1.value = false;
+  isDraggingCol3.value = false;
+  document.body.style.cursor = '';
+  window.removeEventListener('mousemove', onMouseMove);
+  window.removeEventListener('mouseup', onMouseUp);
+};
+
+onUnmounted(() => {
+  const onResizeWindow = () => { isDesktop.value = window.innerWidth >= 1024; };
+  window.addEventListener('resize', onResizeWindow);
+  window.removeEventListener('mousemove', onMouseMove);
+  window.removeEventListener('mouseup', onMouseUp);
+});
+
 onMounted(async () => {
+  window.addEventListener('resize', () => isDesktop.value = window.innerWidth >= 1024);
   await loadInitialData();
   await fetchHistory();
 });
 </script>
 
 <template>
-  <div
-    class="min-h-screen flex flex-col bg-gradient-to-br from-teal-50/50 via-amber-50/30 to-sky-50/50 dark:from-slate-950 dark:via-slate-900 dark:to-teal-950/30 transition-colors edu-pattern-bg">
+  <div class="h-screen flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-200 font-sans">
+    
+    <!-- NotebookLM Style Header -->
+    <header class="shrink-0 h-[60px] flex items-center justify-between px-2 sm:px-6 gap-2">
+      <div class="flex items-center gap-3 shrink-0">
+        <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center">
+          <Bot class="w-5 h-5 text-teal-600 dark:text-teal-400" />
+        </div>
+        <span class="font-medium text-slate-800 dark:text-white text-base tracking-tight hidden lg:inline">LectoSistem: Generador AI</span>
+      </div>
 
-    <!-- Decorative Background Elements -->
-    <EduBackground variant="teal" />
+      <!-- Center Pill -->
+      <div class="flex items-center bg-white dark:bg-slate-800 rounded-full p-1 border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-none overflow-x-auto flex-nowrap min-w-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <button @click="activeTab = 'generador'" class="shrink-0 px-3 sm:px-4 py-1.5 rounded-full text-xs font-medium transition-all" :class="activeTab === 'generador' ? 'bg-teal-500 text-white shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'">Generador</button>
+        <button @click="activeTab = 'historial'" class="shrink-0 px-3 sm:px-4 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1.5" :class="activeTab === 'historial' ? 'bg-teal-500 text-white shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'">Historial <span v-if="history.length" class="text-[10px] bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white px-1.5 rounded-full">{{ history.length }}</span></button>
+        <button @click="activeTab = 'sistematizador'" class="shrink-0 px-3 sm:px-4 py-1.5 rounded-full text-xs font-medium transition-all" :class="activeTab === 'sistematizador' ? 'bg-teal-500 text-white shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'">Sistematizador</button>
+      </div>
 
-    <Header title="LectoSistem" subtitle="Lectura inteligente" :has-resultado="!!resultado"
-      :loading="loading" :show-results="showResults" :active-tab="activeTab"
-      @toggle-results="showResults = !showResults">
-      <template #actions-before>
-        <button @click="router.push('/')"
-          class="p-2.5 rounded-xl bg-white/20 text-white border border-white/30 hover:bg-white/30 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600 transition-all duration-300"
-          title="Inicio">
-          <Home class="w-5 h-5" />
+      <!-- Actions -->
+      <div class="flex items-center gap-2 shrink-0">
+        <button @click="router.push('/')" class="p-2 sm:px-3 sm:py-1.5 rounded-full bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-colors text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white flex items-center gap-2">
+          <Home class="w-4 h-4" /> <span class="hidden sm:inline">Inicio</span>
         </button>
-      </template>
-    </Header>
-
-    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 w-full">
-
-      <!-- Tabs Navigation -->
-      <div class="mb-6 pb-2">
-        <div
-          class="bg-white dark:bg-slate-800 rounded-2xl p-1 sm:p-2 shadow-lg border border-gray-100 dark:border-slate-700 grid grid-cols-3 sm:flex sm:inline-flex gap-1 sm:gap-2 w-full sm:w-auto">
-          <button @click="activeTab = 'generador'"
-            class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:px-5 sm:py-3 rounded-xl font-semibold text-[10px] sm:text-sm leading-tight sm:leading-normal transition-all duration-300 text-center"
-            :class="activeTab === 'generador'
-              ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-md shadow-teal-500/30'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-teal-50 dark:hover:bg-slate-700'">
-            <Brain class="w-4 h-4 sm:w-5 sm:h-5" />
-            <span class="flex items-center justify-center gap-1">Generador <Sparkles v-if="activeTab === 'generador'" class="hidden sm:inline w-3 h-3 text-amber-300" /></span>
-          </button>
-
-          <button @click="activeTab = 'historial'"
-            class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:px-5 sm:py-3 rounded-xl font-semibold text-[10px] sm:text-sm leading-tight sm:leading-normal transition-all duration-300 text-center"
-            :class="activeTab === 'historial'
-              ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-md shadow-sky-500/30'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-sky-50 dark:hover:bg-slate-700'">
-            <div class="relative flex items-center justify-center">
-                <History class="w-4 h-4 sm:w-5 sm:h-5" />
-                <span v-if="history.length > 0" class="absolute -top-1.5 -right-2 sm:static sm:ml-1 px-1 py-0.5 text-[8px] sm:text-[10px] font-bold rounded-full"
-                  :class="activeTab === 'historial' ? 'bg-white/20 text-white' : 'bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400'">
-                  {{ history.length }}
-                </span>
-            </div>
-            <span>Historial</span>
-          </button>
-
-          <button @click="activeTab = 'sistematizador'"
-            class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:px-5 sm:py-3 rounded-xl font-semibold text-[10px] sm:text-sm leading-tight sm:leading-normal transition-all duration-300 text-center"
-            :class="activeTab === 'sistematizador'
-              ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-amber-500/30'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-amber-50 dark:hover:bg-slate-700'">
-            <LayoutGrid class="w-4 h-4 sm:w-5 sm:h-5" />
-            <span class="flex items-center justify-center gap-1">Sistematizador <Award v-if="activeTab === 'sistematizador'" class="hidden sm:inline w-3 h-3 text-yellow-300" /></span>
-          </button>
-        </div>
+        <UserBadge />
       </div>
+    </header>
 
-      <!-- Generator Tab Content -->
-      <div v-show="activeTab === 'generador'">
+    <!-- Content wrapper -->
+    <div class="flex-1 min-h-0 flex flex-col p-2 sm:p-4 pt-0 gap-2">
+      
+      <!-- ══════════════════════════════════════════
+           GENERADOR TAB
+      ══════════════════════════════════════════ -->
+      <div v-show="activeTab === 'generador'" class="flex-1 min-h-0 flex flex-col lg:flex-row gap-2">
+        
+        <!-- COLUMN 1: Configuración -->
+        <aside v-show="isDesktop || mobileTab === 'config'" class="flex-1 lg:flex-none shrink-0 bg-white dark:bg-slate-800 rounded-xl flex flex-col overflow-hidden border border-slate-200 dark:border-slate-700 relative" :style="isDesktop ? { width: col1Width + 'px' } : {}">
+          <div class="h-14 px-4 border-b border-slate-200 dark:border-slate-700 flex items-center shrink-0">
+            <h2 class="text-sm font-medium text-slate-800 dark:text-white flex items-center gap-2">Configuración</h2>
+          </div>
+          <div class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
+            
+            <div class="space-y-3">
+              <label class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2"><GraduationCap class="w-3.5 h-3.5"/> Público Objetivo</label>
+              <div v-if="loadingGrados" class="h-10 bg-slate-50 dark:bg-slate-950 rounded-xl animate-pulse"></div>
+              <ComboBox v-else v-model="selectedGradoId" :options="gradoOptions" placeholder="Seleccionar grado..." />
+              
+              <div class="flex p-1 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-700">
+                <button v-for="nivel in nivelesDificultad" :key="nivel.id" @click="selectedNivelDificultad = nivel.id"
+                  class="flex-1 flex justify-center py-1.5 rounded-lg text-xs font-medium transition-all"
+                  :class="selectedNivelDificultad === nivel.id ? 'bg-teal-500 dark:bg-teal-600 text-slate-800 dark:text-white shadow-sm dark:shadow-none' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'">
+                  {{ nivel.nombre }}
+                </button>
+              </div>
+            </div>
 
-        <!-- Configuration Row -->
-        <LectoSistemConfig :niveles-dificultad="nivelesDificultad"
-          v-model:modelo-nivel-dificultad="selectedNivelDificultad" :grado-options="gradoOptions"
-          v-model:modelo-grado-id="selectedGradoId" :loading-grados="loadingGrados"
-          v-model:modelo-cantidad-preguntas="cantidadPreguntas" v-model:modelo-use-texto-base="useTextoBase"
-          :textos-base="textosBase"
-          @open-textos-modal="showTextosModal = true"
-          :tipo-textual-options="tipoTextualOptions" v-model:modelo-tipo-textual="selectedTipoTextual"
-          :formato-textual-options="formatoTextualOptions" v-model:modelo-formato-textual="selectedFormatoTextual"
-          v-model:modelo-cantidad-literal="cantidadLiteral" v-model:modelo-cantidad-inferencial="cantidadInferencial"
-          v-model:modelo-cantidad-critico="cantidadCritico" :is-breakdown-valid="isBreakdownValid"
-          :total-breakdown="totalBreakdown" />
+            <div class="space-y-3">
+              <label class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2"><FileText class="w-3.5 h-3.5"/> Contenido</label>
+              <select v-model="selectedTipoTextual" class="w-full h-10 px-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 focus:border-slate-300 dark:border-slate-500 outline-none">
+                <option :value="null">Tipo textual...</option>
+                <option v-for="opt in tipoTextualOptions" :key="opt.id" :value="opt.id">{{ opt.label }}</option>
+              </select>
+              <select v-model="selectedFormatoTextual" class="w-full h-10 px-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 focus:border-slate-300 dark:border-slate-500 outline-none">
+                <option :value="null">Formato textual...</option>
+                <option v-for="opt in formatoTextualOptions" :key="opt.id" :value="opt.id">{{ opt.label }}</option>
+              </select>
+              
+              <div class="flex items-center justify-between pt-2">
+                <Checkbox v-model="useTextoBase" class="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                  <span class="text-xs font-medium">Usar Textos Base</span>
+                </Checkbox>
+                <button v-if="useTextoBase" @click="showTextosModal = true" class="px-2 py-1 bg-slate-100 dark:bg-slate-800/50 hover:bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 rounded border border-slate-200 dark:border-slate-700 text-[10px] font-medium text-slate-800 dark:text-white transition-colors">
+                  {{ textosBase.filter(t => t.texto).length }}/{{ textosBase.length }} Textos
+                </button>
+              </div>
+            </div>
 
-        <!-- Main Content -->
-        <div class="grid lg:grid-cols-2 gap-4 sm:gap-6">
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <label class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2"><Hash class="w-3.5 h-3.5"/> Distribución</label>
+                <span class="text-xs font-bold" :class="isBreakdownValid ? 'text-emerald-400' : 'text-red-400'">{{ totalBreakdown }}/{{ cantidadPreguntas }}</span>
+              </div>
+              
+              <div class="flex items-center gap-3 bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Total</span>
+                <input type="range" v-model.number="cantidadPreguntas" min="3" max="10" class="flex-1 h-1 bg-slate-200 dark:bg-slate-700 rounded-full appearance-none accent-teal-500" />
+                <span class="w-6 text-center text-sm font-bold text-slate-800 dark:text-white">{{ cantidadPreguntas }}</span>
+              </div>
 
-          <!-- Left: Desempeños -->
-          <LectoSistemDesempenos :desempenos="desempenos" :selected-desempenos-count="selectedDesempenosCount"
+              <div class="grid grid-cols-3 gap-2">
+                 <div v-for="({ label, shortLabel, val, dec, inc }) in [
+                  { label: 'Literal', shortLabel: 'L', val: cantidadLiteral, dec: () => cantidadLiteral = Math.max(0, cantidadLiteral - 1), inc: () => cantidadLiteral = Math.min(cantidadPreguntas, cantidadLiteral + 1) },
+                  { label: 'Inferencial', shortLabel: 'I', val: cantidadInferencial, dec: () => cantidadInferencial = Math.max(0, cantidadInferencial - 1), inc: () => cantidadInferencial = Math.min(cantidadPreguntas, cantidadInferencial + 1) },
+                  { label: 'Crítico', shortLabel: 'C', val: cantidadCritico, dec: () => cantidadCritico = Math.max(0, cantidadCritico - 1), inc: () => cantidadCritico = Math.min(cantidadPreguntas, cantidadCritico + 1) },
+                ]" :key="label" class="bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col items-center overflow-hidden p-1.5">
+                   <span class="text-[10px] font-medium text-slate-500 dark:text-slate-400 mb-1.5">{{ label }}</span>
+                   <div class="flex items-center w-full justify-between">
+                     <button @click="dec()" class="w-5 h-5 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800/50 rounded-md hover:bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50">-</button>
+                     <span class="text-xs font-bold text-slate-800 dark:text-white">{{ val }}</span>
+                     <button @click="inc()" class="w-5 h-5 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800/50 rounded-md hover:bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50">+</button>
+                   </div>
+                 </div>
+              </div>
+            </div>
+
+          </div>
+        </aside>
+
+        <!-- Splitter 1 -->
+        <div class="hidden lg:flex w-2 cursor-col-resize shrink-0 hover:bg-slate-100 dark:bg-slate-800/50 items-center justify-center rounded transition-colors group" @mousedown.prevent="onMouseDownCol1">
+          <div class="w-1 h-6 bg-white/20 rounded-full group-hover:bg-sky-500/50 transition-colors"></div>
+        </div>
+
+        <!-- COLUMN 2: Resultados -->
+        <main v-show="isDesktop || mobileTab === 'results'" class="flex-1 min-w-0 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden relative">
+          <LectoSistemResults :resultado="resultado" :loading="loading" :show-results="showResults" :descargando-word="descargandoWord" :fill-height="true" @descargar-word="descargarExamenWord" @vincular-sistematizador="vincularConSistematizador" />
+        </main>
+
+        <!-- Splitter 2 -->
+        <div class="hidden lg:flex w-2 cursor-col-resize shrink-0 hover:bg-slate-100 dark:bg-slate-800/50 items-center justify-center rounded transition-colors group" @mousedown.prevent="onMouseDownCol3">
+          <div class="w-1 h-6 bg-white/20 rounded-full group-hover:bg-sky-500/50 transition-colors"></div>
+        </div>
+
+        <!-- COLUMN 3: Desempeños -->
+        <aside v-show="isDesktop || mobileTab === 'desempenos'" class="flex-1 lg:flex-none shrink-0 bg-white dark:bg-slate-800 rounded-xl flex flex-col overflow-hidden border border-slate-200 dark:border-slate-700 relative" :style="isDesktop ? { width: col3Width + 'px' } : {}">
+          <LectoSistemDesempenos
+            :desempenos="desempenos" :selected-desempenos-count="selectedDesempenosCount"
             :loading-desempenos="loadingDesempenos" :selected-grado-id="selectedGradoId"
-            v-model:active-capacidad-tab="activeCapacidadTab" :desempenos-por-capacidad="desempenosPorCapacidad"
-            v-model:selected-desempeno-ids="selectedDesempenoIds" :loading="loading" :error="error"
-            @select-all-capacidad="selectAllCapacidad" @deselect-all-capacidad="deselectAllCapacidad"
-            @generar-preguntas="generarPreguntas" :is-breakdown-valid="isBreakdownValid" />
-
-          <!-- Right: Results -->
-          <LectoSistemResults :resultado="resultado" :loading="loading" :show-results="showResults"
-            :descargando-word="descargandoWord" @descargar-word="descargarExamenWord"
-            @vincular-sistematizador="vincularConSistematizador" />
+            v-model:active-capacidad-tab="activeCapacidadTab"
+            :desempenos-por-capacidad="desempenosPorCapacidad"
+            v-model:selected-desempeno-ids="selectedDesempenoIds"
+            :loading="loading" :error="error" :is-breakdown-valid="isBreakdownValid"
+            :fill-height="true"
+            @select-all-capacidad="selectAllCapacidad"
+            @deselect-all-capacidad="deselectAllCapacidad"
+            @generar-preguntas="onGenerarPreguntas" />
+        </aside>
+        
+        <!-- Mobile Bottom Navigation (Android Style) -->
+        <div v-show="!isDesktop" class="shrink-0 flex items-center justify-around bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-1 mt-auto">
+          <button @click="mobileTab = 'config'" class="flex-1 py-2 flex flex-col items-center justify-center gap-1 rounded-lg transition-colors" :class="mobileTab === 'config' ? 'text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800/50' : 'text-slate-500'">
+            <LayoutGrid class="w-5 h-5" />
+            <span class="text-[10px] font-medium">Configuración</span>
+          </button>
+          <button @click="mobileTab = 'desempenos'" class="flex-1 py-2 flex flex-col items-center justify-center gap-1 rounded-lg transition-colors" :class="mobileTab === 'desempenos' ? 'text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800/50' : 'text-slate-500'">
+            <Target class="w-5 h-5" />
+            <span class="text-[10px] font-medium">Desempeños</span>
+          </button>
+          <button @click="mobileTab = 'results'" class="flex-1 py-2 flex flex-col items-center justify-center gap-1 rounded-lg transition-colors" :class="mobileTab === 'results' ? 'text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800/50' : 'text-slate-500'">
+            <Sparkles class="w-5 h-5" />
+            <span class="text-[10px] font-medium">Examen</span>
+          </button>
         </div>
       </div>
 
-      <!-- History Tab Content -->
-      <div v-show="activeTab === 'historial'">
-        <!-- History Loading -->
-        <div v-if="loadingHistory"
-          class="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-slate-700 shadow-sm">
-          <Loader2 class="w-10 h-10 text-sky-500 animate-spin mb-4" />
-          <p class="text-slate-500 dark:text-slate-400 font-medium">Cargando historial...</p>
+      <!-- ══════════════════════════════════════════
+           HISTORIAL TAB
+      ══════════════════════════════════════════ -->
+      <div v-show="activeTab === 'historial'" class="flex-1 min-h-0 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden p-6 flex flex-col">
+        <div v-if="loadingHistory" class="flex-1 flex flex-col items-center justify-center">
+          <Loader2 class="w-8 h-8 text-slate-800 dark:text-white animate-spin mb-4" />
+          <p class="text-slate-500 dark:text-slate-400 text-sm">Cargando historial...</p>
         </div>
-
-        <!-- Empty History -->
-        <div v-else-if="history.length === 0"
-          class="bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm p-12 text-center">
-          <History class="w-12 h-12 text-gray-300 dark:text-slate-600 mx-auto mb-4" />
-          <h3 class="text-lg font-semibold text-slate-800 dark:text-white mb-2">Sin exámenes guardados</h3>
-          <p class="text-slate-500 dark:text-slate-400 text-sm max-w-md mx-auto">
-            Los exámenes que generes se guardarán automáticamente aquí para que puedas consultarlos o vincularlos con el
-            sistematizador.
-          </p>
+        <div v-else-if="history.length === 0" class="flex-1 flex flex-col items-center justify-center">
+          <History class="w-10 h-10 text-slate-800 dark:text-white/20 mx-auto mb-4" />
+          <h3 class="text-slate-800 dark:text-white font-medium mb-2">Sin exámenes guardados</h3>
+          <p class="text-slate-500 dark:text-slate-400 text-sm max-w-md mx-auto text-center">Los exámenes que generes se guardarán automáticamente aquí.</p>
         </div>
-
-        <!-- History List -->
-        <div v-else class="space-y-4">
-          <!-- Header -->
+        <div v-else class="flex-1 overflow-y-auto space-y-4">
           <div class="flex items-center justify-between">
-            <h3 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
-              <History class="w-5 h-5 text-sky-500" />
-              Exámenes Generados
-              <span class="text-sm font-normal text-slate-500 dark:text-slate-400">({{ history.length }})</span>
-            </h3>
-            <button v-if="history.length > 1" @click="confirmarLimpiarHistorial"
-              class="text-xs text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 font-medium flex items-center gap-1 px-3 py-1.5 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
-              <Trash2 class="w-3.5 h-3.5" />
-              Limpiar todo
-            </button>
+            <h3 class="text-slate-800 dark:text-white font-medium flex items-center gap-2">Exámenes Generados ({{ history.length }})</h3>
+            <button @click="confirmarLimpiarHistorial" class="text-xs text-red-400 hover:text-red-300 font-medium px-3 py-1.5 rounded-lg bg-red-400/10 hover:bg-red-400/20 transition-colors">Limpiar todo</button>
           </div>
-
-          <!-- Exam Cards -->
-          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div v-for="(entry, index) in history" :key="entry.id"
-              class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group">
-              <!-- Card Header -->
-              <div
-                class="bg-gradient-to-r from-sky-50 to-teal-50 dark:from-sky-900/20 dark:to-teal-900/20 px-4 py-3 border-b border-gray-100 dark:border-slate-700">
-                <h4 class="text-sm font-bold text-slate-800 dark:text-white truncate">
-                  {{ entry.resultado.examen.titulo }}
-                </h4>
-                <div class="flex items-center gap-2 mt-1 text-[11px] text-slate-500 dark:text-slate-400">
-                  <Clock class="w-3 h-3" />
-                  {{ formatFecha(entry.fechaCreacion) }}
-                </div>
+          <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div v-for="(entry, index) in history" :key="entry.id" class="bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-700 p-4 flex flex-col gap-3">
+              <div>
+                <h4 class="text-sm font-medium text-slate-800 dark:text-white truncate">{{ entry.resultado.examen.titulo }}</h4>
+                <div class="text-[11px] text-slate-500 mt-1">{{ formatFecha(entry.fechaCreacion) }}</div>
               </div>
-
-              <!-- Card Body -->
-              <div class="px-4 py-3 space-y-2">
-                <div class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
-                  <GraduationCap class="w-3.5 h-3.5 text-teal-500" />
-                  <span>{{ entry.gradoLabel }}</span>
-                </div>
-                <div class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
-                  <FileText class="w-3.5 h-3.5 text-amber-500" />
-                  <span>{{ entry.resultado.total_preguntas }} preguntas</span>
-                </div>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400">
+                <div>Grado: {{ entry.gradoLabel }}</div>
+                <div>Preguntas: {{ entry.resultado.total_preguntas }}</div>
               </div>
-
-              <!-- Card Actions -->
-              <div class="px-4 py-3 border-t border-gray-100 dark:border-slate-700 flex gap-2">
-                <button @click="cargarExamen(index)"
-                  class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-900/20 hover:bg-sky-100 dark:hover:bg-sky-900/40 rounded-xl transition-colors">
-                  <Eye class="w-3.5 h-3.5" />
-                  Ver
-                </button>
-                <button @click="descargarWordHistorial(index)" :disabled="!!loadingWordDownload"
-                  class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 rounded-xl transition-colors disabled:opacity-50">
-                  <Loader2 v-if="loadingWordDownload === entry.id" class="w-3.5 h-3.5 animate-spin" />
-                  <Download v-else class="w-3.5 h-3.5" />
-                  Word
-                </button>
-                <button @click="vincularDesdeHistorial(index)" :disabled="!!loadingLink"
-                  class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/40 rounded-xl transition-colors disabled:opacity-50">
-                  <Loader2 v-if="loadingLink === entry.id" class="w-3.5 h-3.5 animate-spin" />
-                  <Link v-else class="w-3.5 h-3.5" />
-                  Vincular
-                </button>
-                <button @click="abrirAsignar(entry)"
-                  class="flex items-center justify-center px-2 py-2 text-xs text-violet-500 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-xl transition-colors"
-                  title="Asignar a estudiantes">
-                  <Users class="w-3.5 h-3.5" />
-                </button>
-                <button @click="confirmarEliminar(entry.id)" :disabled="!!loadingDelete"
-                  class="flex items-center justify-center px-2 py-2 text-xs text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors disabled:opacity-50">
-                  <Loader2 v-if="loadingDelete === entry.id" class="w-3.5 h-3.5 animate-spin" />
-                  <Trash2 v-else class="w-3.5 h-3.5" />
-                </button>
+              <div class="flex flex-wrap gap-2 mt-auto">
+                <button @click="cargarExamen(index)" class="px-2 py-1 text-[10px] font-medium text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 rounded hover:bg-slate-200 dark:hover:bg-slate-600">Ver</button>
+                <button @click="descargarWordHistorial(index)" class="px-2 py-1 text-[10px] font-medium text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 rounded hover:bg-slate-200 dark:hover:bg-slate-600">Word</button>
+                <button @click="vincularDesdeHistorial(index)" class="px-2 py-1 text-[10px] font-medium text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 rounded hover:bg-slate-200 dark:hover:bg-slate-600">Vincular</button>
+                <button @click="abrirAsignar(entry)" class="px-2 py-1 text-[10px] font-medium text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 rounded hover:bg-slate-200 dark:hover:bg-slate-600">Asignar</button>
+                <button @click="confirmarEliminar(entry.id)" class="px-2 py-1 text-[10px] font-medium text-red-400 bg-red-400/10 rounded hover:bg-red-400/20"><Trash2 class="w-3 h-3"/></button>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Sistematizador Tab Content -->
-      <div v-show="activeTab === 'sistematizador'">
+      <!-- ══════════════════════════════════════════
+           SISTEMATIZADOR TAB
+      ══════════════════════════════════════════ -->
+      <div v-show="activeTab === 'sistematizador'" class="flex-1 min-h-0 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
         <Sistematizador />
       </div>
-    </main>
 
-    <!-- Footer -->
-    <Footer />
+    </div>
 
-
-
-    <!-- Exam Preview Modal -->
-    <ExamPreviewModal :entry="previewEntry" :loading-delete="loadingDelete === previewEntry?.id"
-      :is-loading="!!loadingPreview" :downloading-word="downloadingPreviewWord" @close="previewEntry = null"
-      @vincular="onPreviewVincular" @eliminar="onPreviewEliminar" @descargar-word="descargarWordDesdePreview" />
-
-    <!-- Asignar Examen Modal -->
+    <!-- Modals go here (unchanged logic) -->
+    <ExamPreviewModal :entry="previewEntry" :loading-delete="loadingDelete === previewEntry?.id" :is-loading="!!loadingPreview" :downloading-word="downloadingPreviewWord" @close="previewEntry = null" @vincular="onPreviewVincular" @eliminar="onPreviewEliminar" @descargar-word="descargarWordDesdePreview" />
     <Teleport to="body">
-      <div v-if="asignarModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm border border-slate-200 dark:border-slate-700">
-          <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-700">
-            <div class="flex items-center gap-2">
-              <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
-                <Users class="w-4 h-4 text-white" />
-              </div>
-              <h3 class="font-bold text-slate-800 dark:text-white text-sm">Asignar a estudiantes</h3>
+      <Transition name="modal">
+        <div v-if="showTextosModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div class="absolute inset-0 bg-slate-50 dark:bg-slate-950/80 backdrop-blur-sm -z-10" @click="showTextosModal = false"></div>
+          <div class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-4xl shadow-2xl border border-slate-300 dark:border-slate-600 flex flex-col max-h-full">
+            <div class="flex items-center justify-between px-5 py-4 border-b border-slate-300 dark:border-slate-600">
+              <h3 class="text-slate-800 dark:text-white font-medium flex items-center gap-2"><FileText class="w-5 h-5"/> Textos Base</h3>
+              <button @click="showTextosModal = false" class="p-1.5 rounded-full hover:bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white"><X class="w-5 h-5" /></button>
             </div>
-            <button @click="asignarModal = null" class="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400">
-              <X class="w-4 h-4" />
-            </button>
-          </div>
-          <div class="px-5 py-4 space-y-4">
-            <div>
-              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Sección (opcional)</label>
-              <input v-model="asignarForm.seccion" type="text" placeholder="Ej: A, B, C..."
-                class="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-400 focus:border-violet-400 outline-none" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Duración (minutos, opcional)</label>
-              <input v-model="asignarForm.duracion_minutos" type="number" min="5" max="180" placeholder="Sin límite de tiempo"
-                class="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-400 focus:border-violet-400 outline-none" />
-            </div>
-            <div class="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/40">
-              <div>
-                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Día de aplicación</label>
-                <input v-model="asignarForm.fecha" type="date"
-                  class="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-400 focus:border-violet-400 outline-none" />
-              </div>
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Hora inicio</label>
-                  <input v-model="asignarForm.hora_inicio" type="time"
-                    class="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-400 focus:border-violet-400 outline-none" />
-                </div>
-                <div>
-                  <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Hora fin</label>
-                  <input v-model="asignarForm.hora_fin" type="time"
-                    class="w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:ring-2 focus:ring-violet-400 focus:border-violet-400 outline-none" />
-                </div>
-              </div>
-              <p class="text-[11px] text-slate-500 dark:text-slate-400">Si defines horario, el examen solo estará disponible ese día dentro de ese rango de horas.</p>
-            </div>
-            <div class="space-y-2 rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/40">
-              <Checkbox v-model="asignarForm.mezclar_preguntas"
-                class="group flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 transition-all duration-150 dark:border-slate-700 dark:bg-slate-800/80"
-                color="checked:bg-violet-600 checked:border-violet-600 dark:checked:bg-violet-500 dark:checked:border-violet-500 focus:ring-violet-500/50">
-                <span>
-                  <strong class="block text-sm font-bold text-slate-700 dark:text-slate-200">Aleatorizar preguntas</strong>
-                  <span class="text-xs text-slate-500 dark:text-slate-400">El estudiante verá las preguntas en orden aleatorio.</span>
-                </span>
-              </Checkbox>
-              <Checkbox v-model="asignarForm.mezclar_alternativas"
-                class="group flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 transition-all duration-150 dark:border-slate-700 dark:bg-slate-800/80"
-                color="checked:bg-violet-600 checked:border-violet-600 dark:checked:bg-violet-500 dark:checked:border-violet-500 focus:ring-violet-500/50">
-                <span>
-                  <strong class="block text-sm font-bold text-slate-700 dark:text-slate-200">Aleatorizar alternativas</strong>
-                  <span class="text-xs text-slate-500 dark:text-slate-400">Las opciones A, B, C y D se mezclarán en cada pregunta.</span>
-                </span>
-              </Checkbox>
-            </div>
-          </div>
-          <div class="px-5 py-4 border-t border-slate-100 dark:border-slate-700 flex gap-3">
-            <button @click="asignarModal = null"
-              class="flex-1 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-              Cancelar
-            </button>
-            <button @click="confirmarAsignar" :disabled="loadingAsignar"
-              class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 text-white text-sm font-bold hover:from-violet-600 hover:to-purple-700 transition-all disabled:opacity-60 flex items-center justify-center gap-2">
-              <Loader2 v-if="loadingAsignar" class="w-4 h-4 animate-spin" />
-              Asignar
-            </button>
-          </div>
-        </div>
-      </div>
-    </Teleport>
-
-    <!-- Modal Gestión de Textos Base -->
-    <Teleport to="body">
-      <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0"
-        enter-to-class="opacity-100" leave-active-class="transition duration-150"
-        leave-from-class="opacity-100" leave-to-class="opacity-0">
-        <div v-if="showTextosModal"
-          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-          @click.self="showTextosModal = false">
-          <div class="bg-white dark:bg-slate-800 w-full max-w-3xl max-h-[88vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden">
-
-            <!-- Header -->
-            <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-700 shrink-0">
-              <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-400 to-sky-600 flex items-center justify-center">
-                  <FileText class="w-4 h-4 text-white" />
-                </div>
-                <div>
-                  <h2 class="text-sm font-bold text-slate-800 dark:text-white">Textos Base</h2>
-                  <p class="text-xs text-slate-400 dark:text-slate-500">{{ textosBase.filter(t => t.texto).length }} de {{ textosBase.length }} con contenido</p>
-                </div>
-              </div>
-              <button @click="showTextosModal = false" class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl transition-colors">
-                <X class="w-5 h-5" />
-              </button>
-            </div>
-
-            <!-- Body -->
-            <div class="flex-1 min-h-0 overflow-y-auto px-5 py-4">
-              <div class="grid sm:grid-cols-2 gap-3 mb-3">
-              <div v-for="(item, idx) in textosBase" :key="item.id"
-                class="rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/40 overflow-hidden flex flex-col">
-
-                <!-- Cabecera del panel -->
-                <div class="flex items-center gap-2 px-3 py-2 bg-slate-100 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-600">
-                  <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex-shrink-0">Texto {{ idx + 1 }}</span>
-                  <input :value="item.titulo"
-                    @input="textosBase[idx]!.titulo = ($event.target as HTMLInputElement).value"
-                    type="text" placeholder="Título (opcional)"
-                    class="flex-1 bg-transparent text-xs text-slate-700 dark:text-slate-200 placeholder-slate-400 outline-none" />
-                  <button v-if="textosBase.length > 1" @click="removeTexto(idx)"
-                    class="p-1 text-red-400 hover:text-red-500 rounded transition-colors flex-shrink-0">
-                    <Trash2 class="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                <div class="p-3 space-y-2">
-                  <!-- Zona de subida (si no hay texto) -->
-                  <div v-if="!item.texto && !item.uploadingFile" class="relative">
-                    <input type="file" accept=".pdf,.docx,.doc" multiple
-                      @change="(e) => handleFileUploadAt(idx, e)"
-                      class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                    <div class="flex items-center justify-center py-3 px-3 bg-gradient-to-br from-sky-50 to-teal-50 dark:from-slate-800 dark:to-slate-900 border-2 border-dashed border-sky-300 dark:border-slate-600 rounded-lg hover:border-teal-400 transition-all">
-                      <div class="text-center">
-                        <CloudUpload class="w-5 h-5 text-teal-500 mx-auto mb-1" />
-                        <span class="text-teal-600 dark:text-slate-400 text-xs font-medium flex items-center gap-1 justify-center">
-                          <FileText class="w-3 h-3" /> PDF o Word
-                        </span>
-                      </div>
+            <div class="flex-1 overflow-y-auto p-5">
+              <div class="space-y-4">
+                <div v-for="(texto, idx) in textosBase" :key="idx" class="bg-slate-50 dark:bg-slate-950 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+                  <div class="flex justify-between items-center mb-3">
+                    <h4 class="text-sm font-medium text-slate-800 dark:text-white">Texto {{ idx + 1 }}</h4>
+                    <div class="flex items-center gap-2">
+                      <input type="file" :id="'file-' + idx" class="hidden" accept=".pdf,.doc,.docx,.txt" @change="(e) => handleFileUploadAt(e, idx)" />
+                      <label :for="'file-' + idx" class="cursor-pointer text-xs flex items-center gap-1.5 px-3 py-1.5 bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-lg transition-colors"><CloudUpload class="w-3.5 h-3.5" /> Archivo</label>
+                      <button v-if="texto.archivo_nombre" @click="clearFilesAt(idx)" class="text-xs text-red-400 hover:text-red-300 ml-2">Eliminar archivo</button>
+                      <button v-if="textosBase.length > 1" @click="removeTexto(idx)" class="text-slate-500 dark:text-slate-400 hover:text-red-400 ml-2"><Trash2 class="w-4 h-4" /></button>
                     </div>
                   </div>
-
-                  <div v-if="item.uploadingFile" class="flex items-center justify-center gap-2 py-3 bg-teal-50 dark:bg-slate-800 rounded-lg">
-                    <Loader2 class="w-4 h-4 text-teal-600 animate-spin" />
-                    <span class="text-teal-600 dark:text-teal-400 text-xs font-medium">Procesando...</span>
-                  </div>
-
-                  <!-- Archivos cargados -->
-                  <div v-if="item.texto && item.filesMetadata" class="space-y-1.5">
-                    <div v-for="(arch, ai) in item.filesMetadata.archivos" :key="ai"
-                      class="flex items-center gap-2 p-2 bg-teal-50 dark:bg-emerald-900/20 border border-teal-200 dark:border-emerald-800 rounded-lg text-xs">
-                      <FileText class="w-4 h-4 text-teal-600 dark:text-emerald-400 flex-shrink-0" />
-                      <span class="flex-1 truncate text-slate-700 dark:text-slate-200 font-medium">{{ arch.filename }}</span>
-                      <span class="text-teal-600 font-bold bg-teal-100 dark:bg-teal-900/30 px-1.5 py-0.5 rounded-full">{{ arch.palabras }}p</span>
-                    </div>
-                    <button @click="clearFilesAt(idx)" class="text-xs text-red-500 hover:text-red-600 flex items-center gap-1 font-medium">
-                      <X class="w-3 h-3" /> Quitar archivos
-                    </button>
-                  </div>
-
-                  <!-- Textarea -->
-                  <textarea
-                    :value="item.texto"
-                    @input="textosBase[idx]!.texto = ($event.target as HTMLTextAreaElement).value"
-                    :rows="item.texto ? 7 : 5"
-                    placeholder="O escribe / pega el texto directamente aquí..."
-                    class="w-full text-xs text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 resize-none outline-none focus:ring-2 focus:ring-sky-400/40 focus:border-sky-400 transition-all" />
-
-                  <p v-if="item.uploadError" class="text-red-500 text-xs flex items-center gap-1">
-                    <AlertTriangle class="w-3 h-3" /> {{ item.uploadError }}
-                  </p>
+                  <div v-if="texto.archivo_nombre" class="mb-3 px-3 py-2 bg-emerald-500/10 text-emerald-400 text-xs rounded-lg border border-emerald-500/20 flex items-center gap-2"><Check class="w-3.5 h-3.5" />{{ texto.archivo_nombre }}</div>
+                  <textarea v-model="texto.texto" class="w-full h-32 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg p-3 text-sm text-slate-600 dark:text-slate-300 focus:border-sky-500 outline-none resize-none placeholder-slate-600" placeholder="Escribe o pega el texto base aquí..."></textarea>
                 </div>
+                <button v-if="textosBase.length < 4" @click="addTexto" class="w-full py-3 flex items-center justify-center gap-2 border border-dashed border-slate-300 dark:border-slate-500 rounded-xl text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white hover:border-teal-400 hover:bg-slate-100 dark:bg-slate-800/50 transition-all"><Plus class="w-4 h-4" /> Agregar otro texto</button>
               </div>
-              </div>
-
-              <!-- Agregar texto -->
-              <button @click="addTexto"
-                class="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-dashed border-sky-300 dark:border-slate-600 text-sky-600 dark:text-slate-400 hover:border-sky-400 hover:bg-sky-50 dark:hover:bg-slate-700/50 text-xs font-semibold transition-all">
-                <Plus class="w-3.5 h-3.5" /> Agregar otro texto
-              </button>
             </div>
-
-            <!-- Footer -->
-            <div class="px-5 py-4 border-t border-slate-100 dark:border-slate-700 shrink-0 flex items-center justify-end">
-              <button @click="showTextosModal = false"
-                class="px-5 py-2 bg-gradient-to-r from-sky-500 to-teal-600 hover:from-sky-600 hover:to-teal-700 text-white font-bold text-sm rounded-xl shadow transition-all">
-                Listo
-              </button>
-            </div>
-
+            <div class="p-5 border-t border-slate-300 dark:border-slate-600 text-right"><button @click="showTextosModal = false" class="px-5 py-2 bg-white text-black font-medium rounded-lg text-sm hover:bg-slate-200">Aceptar</button></div>
           </div>
         </div>
       </Transition>
     </Teleport>
-
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="asignarModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div class="absolute inset-0 bg-slate-50 dark:bg-slate-950/80 backdrop-blur-sm -z-10" @click="asignarModal = null"></div>
+          <div class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md shadow-2xl border border-slate-300 dark:border-slate-600 flex flex-col">
+            <div class="px-5 py-4 border-b border-slate-300 dark:border-slate-600 flex items-center justify-between"><h3 class="text-slate-800 dark:text-white font-medium text-lg">Asignar Examen</h3><button @click="asignarModal = null" class="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white"><X class="w-5 h-5"/></button></div>
+            <div class="p-5 space-y-4">
+              <div><label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Sección (opcional)</label><input v-model="asignarForm.seccion" type="text" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-slate-800 dark:text-white text-sm outline-none focus:border-sky-500" placeholder="Ej: A, B, Única"></div>
+              <div><label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Duración (minutos)</label><input v-model="asignarForm.duracion_minutos" type="number" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-slate-800 dark:text-white text-sm outline-none focus:border-sky-500" placeholder="Sin límite"></div>
+              <div><label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Fecha Programada</label><input v-model="asignarForm.fecha" type="date" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-slate-800 dark:text-white text-sm outline-none focus:border-sky-500"></div>
+              <div class="grid grid-cols-2 gap-3">
+                <div><label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Hora Inicio</label><input v-model="asignarForm.hora_inicio" type="time" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-slate-800 dark:text-white text-sm outline-none focus:border-sky-500"></div>
+                <div><label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Hora Fin</label><input v-model="asignarForm.hora_fin" type="time" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-slate-800 dark:text-white text-sm outline-none focus:border-sky-500"></div>
+              </div>
+              <div class="pt-2 space-y-3">
+                <Checkbox v-model="asignarForm.mezclar_preguntas"><span class="text-sm text-slate-600 dark:text-slate-300">Mezclar orden de preguntas</span></Checkbox>
+                <Checkbox v-model="asignarForm.mezclar_alternativas"><span class="text-sm text-slate-600 dark:text-slate-300">Mezclar alternativas</span></Checkbox>
+              </div>
+            </div>
+            <div class="p-5 border-t border-slate-300 dark:border-slate-600 flex justify-end gap-3"><button @click="asignarModal = null" class="px-4 py-2 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white">Cancelar</button><button @click="confirmarAsignar" :disabled="loadingAsignar" class="px-5 py-2 bg-white text-black text-sm font-medium rounded-lg hover:bg-slate-200 disabled:opacity-50 flex items-center gap-2"><Loader2 v-if="loadingAsignar" class="w-4 h-4 animate-spin"/> Asignar</button></div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
-
-<style scoped>
-/* Scrollbar sutil */
-::-webkit-scrollbar {
-  width: 4px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
-  border-radius: 20px;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background-color: #475569;
-}
-</style>

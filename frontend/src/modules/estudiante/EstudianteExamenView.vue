@@ -5,7 +5,7 @@ import { apiClient } from '../../shared/services/api'
 import {
   ChevronLeft, ChevronRight, Clock, AlertCircle, CheckCircle2,
   Loader2, BookOpen, ClipboardList, ChevronDown, ChevronUp,
-  CheckCircle, XCircle, Lightbulb,
+  CheckCircle, XCircle, Lightbulb, X
 } from 'lucide-vue-next'
 import ThinkingLoader from '../../shared/components/ThinkingLoader.vue'
 
@@ -105,6 +105,7 @@ function triggerConfetti() {
   confettis.value = newConfettis
 }
 
+const showLecturaModal = ref(false)
 const lecturaTabActiva = shallowRef(0)
 const lecturas = computed<TextoLectura[]>(() => {
   if (!examen.value) return []
@@ -147,6 +148,17 @@ const progreso = computed(() => {
   return Math.round((Object.keys(respuestas.value).length / examen.value.preguntas.length) * 100)
 })
 
+const sinResponder = computed(() => {
+  if (!examen.value) return []
+  return examen.value.preguntas
+    .filter(p => respuestas.value[p.numero] === undefined)
+    .map(p => p.numero)
+})
+
+const todasRespondidas = computed(() => sinResponder.value.length === 0)
+
+const intentoEnvioIncompleto = ref(false)
+
 onMounted(async () => {
   try {
     const modo = route.query.modo
@@ -167,7 +179,7 @@ onMounted(async () => {
         if (tiempoRestante.value > 0) {
           tiempoRestante.value--
         } else {
-          finalizar()
+          finalizarPorTiempo()
         }
       }, 1000)
     }
@@ -184,6 +196,9 @@ onUnmounted(() => {
 
 function seleccionar(preguntaNum: number, letra: string) {
   respuestas.value[preguntaNum] = letra
+  if (intentoEnvioIncompleto.value && todasRespondidas.value) {
+    intentoEnvioIncompleto.value = false
+  }
 }
 
 function anterior() {
@@ -196,10 +211,9 @@ function siguiente() {
   }
 }
 
-async function finalizar() {
+async function _enviar() {
   if (timerInterval) clearInterval(timerInterval)
   if (!examen.value) return
-
   enviando.value = true
   try {
     const respuestasArray = Object.entries(respuestas.value).map(([num, letra]) => ({
@@ -217,6 +231,22 @@ async function finalizar() {
   } finally {
     enviando.value = false
   }
+}
+
+function finalizar() {
+  if (!todasRespondidas.value) {
+    intentoEnvioIncompleto.value = true
+    // Ir a la primera pregunta sin responder
+    const primera = sinResponder.value[0]
+    const idx = examen.value?.preguntas.findIndex(p => p.numero === primera) ?? 0
+    preguntaActual.value = idx
+    return
+  }
+  _enviar()
+}
+
+function finalizarPorTiempo() {
+  _enviar()
 }
 
 async function cargarRevision() {
@@ -283,7 +313,7 @@ const nivelMensaje: Record<string, string> = {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-900 relative">
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-900 relative overflow-x-hidden w-full">
 
     <!-- Confetti -->
     <div v-if="resultado && confettis.length > 0" class="fixed inset-0 pointer-events-none overflow-hidden z-[100]">
@@ -499,19 +529,19 @@ const nivelMensaje: Record<string, string> = {
     </div>
 
     <!-- Examen en curso -->
-    <div v-else-if="examen">
-      <div class="bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 sticky top-0 z-40">
-        <div class="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <BookOpen class="w-5 h-5 text-teal-500" />
-            <span class="font-bold text-slate-800 dark:text-white text-sm truncate max-w-[200px]">{{ examen.titulo }}</span>
+    <div v-else-if="examen" class="w-full max-w-full">
+      <div class="bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 sticky top-0 z-40 w-full">
+        <div class="max-w-4xl mx-auto px-2 sm:px-4 h-14 flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2 min-w-0">
+            <BookOpen class="w-5 h-5 text-teal-500 shrink-0" />
+            <span class="font-bold text-slate-800 dark:text-white text-sm truncate">{{ examen.titulo }}</span>
           </div>
-          <div class="flex items-center gap-4">
-            <div v-if="examen.duracion_minutos" :class="timerColor" class="flex items-center gap-1.5 font-mono font-bold text-sm">
-              <Clock class="w-4 h-4" />
+          <div class="flex items-center gap-2 sm:gap-4 shrink-0">
+            <div v-if="examen.duracion_minutos" :class="timerColor" class="flex items-center gap-1 font-mono font-bold text-xs sm:text-sm">
+              <Clock class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               {{ tiempoFormato }}
             </div>
-            <span class="text-xs text-slate-500">{{ progreso }}% respondido</span>
+            <span class="text-[10px] sm:text-xs text-slate-500 whitespace-nowrap">{{ progreso }}% resp.</span>
           </div>
         </div>
         <div class="h-1 bg-slate-100 dark:bg-slate-700">
@@ -521,49 +551,52 @@ const nivelMensaje: Record<string, string> = {
       </div>
 
       <div class="max-w-4xl mx-auto px-4 py-6">
-        <div v-if="lecturas.length" class="mb-6 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
-          <div v-if="lecturas.length > 1" class="flex border-b border-slate-100 dark:border-slate-700 overflow-x-auto">
-            <button v-for="(t, i) in lecturas" :key="i"
-              @click="lecturaTabActiva = i"
-              :class="[
-                'flex-shrink-0 px-4 py-2.5 text-xs font-semibold transition-colors border-b-2 -mb-px',
-                lecturaTabActiva === i
-                  ? 'border-teal-500 text-teal-600 dark:text-teal-400'
-                  : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-              ]">
-              {{ t.titulo || `Texto ${i + 1}` }}
-            </button>
-          </div>
-          <div class="p-5">
-            <p v-if="!lecturas[lecturaTabActiva]?.titulo && lecturas.length === 1"
-              class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Texto Base</p>
-            <p v-else-if="lecturas[lecturaTabActiva]?.titulo"
-              class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-              {{ lecturas[lecturaTabActiva]?.titulo }}
-            </p>
-            <div class="text-sm text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap">
-              {{ lecturas[lecturaTabActiva]?.texto }}
+        <!-- Botón Ver Lectura -->
+        <button v-if="lecturas.length" @click="showLecturaModal = true"
+          class="w-full flex items-center justify-between p-4 mb-6 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm hover:border-teal-300 dark:hover:border-teal-700 hover:shadow-md transition-all group">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <BookOpen class="w-6 h-6 text-teal-600 dark:text-teal-400" />
+            </div>
+            <div class="text-left">
+              <h3 class="text-base font-bold text-slate-800 dark:text-white">Textos de Lectura</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Presiona para leer {{ lecturas.length > 1 ? 'los textos base' : 'el texto base' }}</p>
             </div>
           </div>
-        </div>
+          <ChevronRight class="w-5 h-5 text-slate-400 group-hover:translate-x-1 transition-transform" />
+        </button>
 
         <!-- Navegación rápida -->
-        <div class="flex flex-wrap gap-2 mb-5">
+        <div class="flex flex-wrap gap-2 mb-3">
           <button
             v-for="(_, idx) in examen.preguntas"
             :key="idx"
-            @click="preguntaActual = idx"
+            @click="preguntaActual = idx; intentoEnvioIncompleto = false"
             :class="[
               'w-8 h-8 rounded-lg text-xs font-bold transition-all',
               idx === preguntaActual
                 ? 'bg-indigo-600 text-white'
                 : examen.preguntas[idx] && preguntaRespondidaMap.has(examen.preguntas[idx].numero)
                   ? 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400'
-                  : 'bg-white dark:bg-slate-700 text-slate-500 border border-slate-200 dark:border-slate-600'
+                  : intentoEnvioIncompleto && sinResponder.includes(examen.preguntas[idx]!.numero)
+                    ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 ring-2 ring-red-400 animate-pulse'
+                    : 'bg-white dark:bg-slate-700 text-slate-500 border border-slate-200 dark:border-slate-600'
             ]"
           >
             {{ idx + 1 }}
           </button>
+        </div>
+
+        <!-- Advertencia preguntas sin responder -->
+        <div v-if="intentoEnvioIncompleto && sinResponder.length > 0"
+          class="flex items-center gap-2 mb-4 px-3 py-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-sm text-red-600 dark:text-red-400">
+          <AlertCircle class="w-4 h-4 shrink-0" />
+          <span class="font-medium">
+            {{ sinResponder.length === 1
+              ? `Falta responder la pregunta ${sinResponder[0]}.`
+              : `Faltan ${sinResponder.length} preguntas sin responder.` }}
+            Responde todas antes de enviar.
+          </span>
         </div>
 
         <!-- Pregunta actual -->
@@ -612,16 +645,77 @@ const nivelMensaje: Record<string, string> = {
             v-else
             @click="finalizar"
             :disabled="enviando"
-            class="flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white font-bold text-sm transition-all disabled:opacity-70">
+            class="flex items-center gap-1.5 px-6 py-2.5 rounded-xl font-bold text-sm transition-all disabled:opacity-70"
+            :class="todasRespondidas
+              ? 'bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white'
+              : 'bg-gradient-to-r from-red-400 to-orange-500 hover:from-red-500 hover:to-orange-600 text-white'">
             <Loader2 v-if="enviando" class="w-4 h-4 animate-spin" />
+            <AlertCircle v-else-if="!todasRespondidas" class="w-4 h-4" />
             <CheckCircle2 v-else class="w-4 h-4" />
-            Finalizar examen
+            {{ todasRespondidas ? 'Finalizar examen' : `${sinResponder.length} sin responder` }}
           </button>
         </div>
       </div>
     </div>
 
   </div>
+
+  <!-- Modal/Bottom Sheet Lectura -->
+  <Teleport to="body">
+    <Transition
+      enter-active-class="transition duration-200 ease-out"
+      enter-from-class="opacity-0 translate-y-8 sm:translate-y-0 sm:scale-95"
+      enter-to-class="opacity-100 translate-y-0 sm:scale-100"
+      leave-active-class="transition duration-150 ease-in"
+      leave-from-class="opacity-100 translate-y-0 sm:scale-100"
+      leave-to-class="opacity-0 translate-y-8 sm:translate-y-0 sm:scale-95"
+    >
+      <div v-if="showLecturaModal" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm -z-10" @click="showLecturaModal = false"></div>
+        
+        <!-- Modal content -->
+        <div class="bg-white dark:bg-slate-800 w-full max-w-3xl sm:rounded-2xl rounded-t-2xl sm:rounded-b-2xl shadow-2xl flex flex-col max-h-[90vh] sm:max-h-[85vh] relative">
+          <!-- Drag handle (mobile only) -->
+          <div class="w-full h-8 flex justify-center items-center sm:hidden shrink-0 absolute top-0" @click="showLecturaModal = false">
+            <div class="w-12 h-1.5 bg-slate-200 dark:bg-slate-600 rounded-full"></div>
+          </div>
+
+          <!-- Header -->
+          <div class="px-5 pt-8 sm:pt-5 pb-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between shrink-0">
+            <h2 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+              <BookOpen class="w-5 h-5 text-teal-500" /> Textos de Lectura
+            </h2>
+            <button @click="showLecturaModal = false" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 transition-colors">
+              <X class="w-5 h-5" />
+            </button>
+          </div>
+
+          <!-- Body -->
+          <div class="overflow-y-auto p-0 flex-1 custom-scrollbar bg-slate-50 dark:bg-slate-900 sm:rounded-b-2xl">
+            <div v-if="lecturas.length > 1" class="flex border-b border-slate-200 dark:border-slate-700 overflow-x-auto bg-white dark:bg-slate-800 sticky top-0 z-10 shadow-sm">
+              <button v-for="(t, i) in lecturas" :key="i"
+                @click="lecturaTabActiva = i"
+                :class="[
+                  'flex-shrink-0 px-5 py-3 text-sm font-semibold transition-colors border-b-2 -mb-px',
+                  lecturaTabActiva === i
+                    ? 'border-teal-500 text-teal-600 dark:text-teal-400 bg-teal-50/50 dark:bg-teal-900/10'
+                    : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                ]">
+                {{ t.titulo || `Texto ${i + 1}` }}
+              </button>
+            </div>
+            <div class="p-5 sm:p-8 text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap sm:text-lg text-base font-serif">
+              {{ lecturas[lecturaTabActiva]?.texto }}
+            </div>
+          </div>
+          
+          <!-- Safe area bottom mobile -->
+          <div class="h-6 bg-slate-50 dark:bg-slate-900 sm:hidden"></div>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <style scoped>

@@ -210,16 +210,27 @@ function formatFecha(fecha: string | null) {
     </main>
     <!-- Modal Preview Lectura -->
     <Teleport to="body">
-      <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0"
-        enter-to-class="opacity-100" leave-active-class="transition duration-150"
-        leave-from-class="opacity-100" leave-to-class="opacity-0">
-        <div v-if="showPreview"
-          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-          @click.self="showPreview = false">
-          <div class="bg-white dark:bg-slate-800 w-full max-w-xl max-h-[88vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden">
+      <Transition
+        enter-active-class="transition duration-200 ease-out"
+        enter-from-class="opacity-0 translate-y-8 sm:translate-y-0 sm:scale-95"
+        enter-to-class="opacity-100 translate-y-0 sm:scale-100"
+        leave-active-class="transition duration-150 ease-in"
+        leave-from-class="opacity-100 translate-y-0 sm:scale-100"
+        leave-to-class="opacity-0 translate-y-8 sm:translate-y-0 sm:scale-95"
+      >
+        <div v-if="showPreview" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <!-- Backdrop -->
+          <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm -z-10" @click="showPreview = false"></div>
+          
+          <div class="bg-white dark:bg-slate-800 w-full max-w-xl max-h-[90vh] sm:max-h-[88vh] flex flex-col rounded-t-2xl sm:rounded-b-2xl shadow-2xl overflow-hidden relative">
+            
+            <!-- Drag handle (mobile only) -->
+            <div class="w-full h-8 flex justify-center items-center sm:hidden shrink-0 absolute top-0 z-10" @click="showPreview = false">
+              <div class="w-12 h-1.5 bg-slate-200 dark:bg-slate-600 rounded-full"></div>
+            </div>
 
             <!-- Header -->
-            <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-700 shrink-0">
+            <div class="flex items-center justify-between px-5 pt-8 sm:pt-4 pb-4 border-b border-slate-100 dark:border-slate-700 shrink-0">
               <div class="flex items-center gap-3 min-w-0">
                 <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
                   :class="previewData?.tipo_examen === 'matematica'
@@ -329,7 +340,7 @@ function formatFecha(fecha: string | null) {
             </div>
 
             <!-- Footer -->
-            <div class="px-5 py-4 border-t border-slate-100 dark:border-slate-700 shrink-0 flex items-center justify-between gap-3">
+            <div class="px-5 py-4 border-t border-slate-100 dark:border-slate-700 shrink-0 flex items-center justify-between gap-3 bg-white dark:bg-slate-800">
               <button @click="showPreview = false"
                 class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors">
                 Cancelar
@@ -340,6 +351,9 @@ function formatFecha(fecha: string | null) {
                 Comenzar examen
               </button>
             </div>
+            
+            <!-- Safe area bottom mobile -->
+            <div class="h-6 bg-white dark:bg-slate-800 sm:hidden"></div>
 
           </div>
         </div>

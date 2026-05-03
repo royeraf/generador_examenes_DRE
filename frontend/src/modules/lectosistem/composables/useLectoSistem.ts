@@ -112,7 +112,7 @@ export function useLectoSistem() {
     localStorage.setItem(USE_TEXTO_STORAGE_KEY, String(val));
   });
 
-  const addTexto = () => { textosBase.value.push(_makeTexto()); };
+  const addTexto = () => { if (textosBase.value.length < 4) textosBase.value.push(_makeTexto()); };
   const removeTexto = (idx: number) => {
     if (textosBase.value.length > 1) textosBase.value.splice(idx, 1);
   };
