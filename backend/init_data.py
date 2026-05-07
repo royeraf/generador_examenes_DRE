@@ -46,22 +46,49 @@ def run_script(script_name: str) -> bool:
         return False
 
 
+async def seed_roles(db):
+    """Inserta los roles base si la tabla está vacía."""
+    from sqlalchemy import text
+    result = await db.execute(text("SELECT COUNT(*) FROM roles"))
+    count = result.scalar()
+    if count > 0:
+        return
+    roles = [
+        (1, 'especialista_dre_comunicacion', 'Especialista DRE Comunicación', 'Mantiene desempeños de comunicación a nivel DRE', 1, 1),
+        (2, 'especialista_dre_matematica',   'Especialista DRE Matemática',   'Mantiene desempeños de matemática a nivel DRE', 1, 2),
+        (3, 'responsable_ugel',              'Responsable UGEL',              'Gestiona su UGEL y sus instituciones educativas', 2, 3),
+        (4, 'director',                      'Director',                      'Director de institución educativa',               3, 4),
+        (5, 'auxiliar',                      'Auxiliar',                      'Auxiliar de institución educativa',               4, 5),
+        (6, 'docente',                       'Docente',                       'Docente que genera y asigna exámenes',            5, 6),
+        (7, 'estudiante',                    'Estudiante',                    'Estudiante que rinde exámenes',                   6, 7),
+    ]
+    for r in roles:
+        await db.execute(text(
+            "INSERT IGNORE INTO roles (id, codigo, nombre, descripcion, nivel, orden) "
+            "VALUES (:id, :codigo, :nombre, :descripcion, :nivel, :orden)"
+        ), {"id": r[0], "codigo": r[1], "nombre": r[2], "descripcion": r[3], "nivel": r[4], "orden": r[5]})
+    await db.commit()
+    print("Roles base sembrados.")
+
+
 async def create_first_admin():
     """Crea el primer superusuario si no existe ninguno."""
-    from app.core.database import init_db, AsyncSessionLocal
-    from app.models.docente import Docente
+    from app.core.database import AsyncSessionLocal
+    from app.models.usuario import Usuario
     from app.core.security import get_password_hash
-    from sqlalchemy import select
+    from sqlalchemy import select, text
 
     print(f"\n{'='*60}")
     print("Verificando superusuario admin...")
     print(f"{'='*60}")
 
-    await init_db()
-
     async with AsyncSessionLocal() as db:
+        # Sembrar roles si la tabla está vacía
+        await seed_roles(db)
+
+        # Verificar si ya existe un admin (rol especialista_dre_comunicacion = id 1)
         result = await db.execute(
-            select(Docente).where(Docente.is_superuser == True)
+            select(Usuario).where(Usuario.rol_id == 1)
         )
         existing_admin = result.scalars().first()
 
@@ -69,19 +96,18 @@ async def create_first_admin():
             print(f"Ya existe un superusuario: DNI {existing_admin.dni}")
             return
 
-        # Leer credenciales del entorno o usar valores por defecto
         admin_dni = os.getenv("ADMIN_DNI", "00000000")
         admin_password = os.getenv("ADMIN_PASSWORD", "admin123")
         admin_nombres = os.getenv("ADMIN_NOMBRES", "Administrador")
         admin_apellidos = os.getenv("ADMIN_APELLIDOS", "Sistema")
 
-        admin = Docente(
+        admin = Usuario(
             dni=admin_dni,
             nombres=admin_nombres,
             apellidos=admin_apellidos,
             profesion="Administrador del Sistema",
             is_active=True,
-            is_superuser=True,
+            rol_id=1,  # especialista_dre_comunicacion = superusuario
             password_hash=get_password_hash(admin_password),
         )
         db.add(admin)
