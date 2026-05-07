@@ -1,0 +1,20 @@
+[Unit]
+Description=LectoSistem DRE - FastAPI Backend
+After=network.target
+
+[Service]
+User=__USER__
+Group=__USER__
+WorkingDirectory=/home/__USER__/sieva_repo/backend
+ExecStart=/home/__USER__/sieva_repo/backend/venv/bin/gunicorn \
+    -k uvicorn.workers.UvicornWorker \
+    -w 2 \
+    --bind 127.0.0.1:8000 \
+    --timeout 120 \
+    app.main:app
+Restart=always
+RestartSec=5
+EnvironmentFile=/home/__USER__/sieva_repo/backend/.env
+
+[Install]
+WantedBy=multi-user.target

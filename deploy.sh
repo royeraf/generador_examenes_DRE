@@ -1,30 +1,46 @@
 #!/bin/bash
-# deploy.sh — Deploy frontend Vue de SIEVA al VPS
-# Repo vive en ~/sieva.drehuanuco.gob.pe/sieva_repo/
-# Build se copia a ~/sieva.drehuanuco.gob.pe/
-# Uso: bash ~/sieva.drehuanuco.gob.pe/sieva_repo/deploy.sh
+# deploy.sh — Deploy completo (frontend + backend) al VPS
+# Repo: ~/sieva_repo/
+# Web root: ~/sieva.drehuanuco.gob.pe/
+# Uso: bash ~/sieva_repo/deploy.sh
 
-REPO="$HOME/sieva.drehuanuco.gob.pe/sieva_repo"
+REPO="$HOME/sieva_repo"
 WEB="$HOME/sieva.drehuanuco.gob.pe"
 FRONTEND="$REPO/frontend"
+BACKEND="$REPO/backend"
 
-fail() { echo "✖  Error: $1"; exit 1; }
+fail() { echo "Error: $1"; exit 1; }
 
-echo "▸ Pulling latest changes..."
+echo ">>> Pulling latest changes..."
 cd "$REPO" && git pull || fail "git pull falló"
 
-echo "▸ Installing dependencies..."
+# ─── Frontend ────────────────────────────────────────────────────────────────
+echo ">>> Installing frontend dependencies..."
 cd "$FRONTEND" && npm install || fail "npm install falló"
 
-echo "▸ Building frontend..."
+echo ">>> Building frontend..."
 cd "$FRONTEND" && npm run build || fail "npm build falló"
 
-echo "▸ Deploying to web root..."
+echo ">>> Deploying frontend to web root..."
 cp -r "$FRONTEND/dist/"* "$WEB/" || fail "cp dist falló"
 
-echo "▸ Limpiando caché de nginx..."
-sudo rm -rf /var/nginx/cache/drehua5/* 2>/dev/null && echo "  Nginx cache limpiado" || echo "  Sin permisos para limpiar nginx cache"
-curl -sk -A "Mozilla/5.0" "https://sieva.drehuanuco.gob.pe/purge/" > /dev/null && echo "  Nginx purge OK"
+# ─── Backend ─────────────────────────────────────────────────────────────────
+echo ">>> Updating backend dependencies..."
+source "$BACKEND/venv/bin/activate"
+pip install -r "$BACKEND/requirements.txt" -q
+
+echo ">>> Running database migrations..."
+cd "$BACKEND" && alembic upgrade head || fail "alembic upgrade falló"
+
+echo ">>> Restarting backend service..."
+sudo systemctl restart lectosistem || fail "No se pudo reiniciar lectosistem"
+sleep 2
+sudo systemctl is-active lectosistem && echo "Backend activo." || echo "AVISO: revisa con: sudo journalctl -u lectosistem -n 20"
+
+# ─── Nginx cache ─────────────────────────────────────────────────────────────
+echo ">>> Limpiando caché de nginx..."
+sudo rm -rf /var/nginx/cache/drehua5/* 2>/dev/null || true
+curl -sk -A "Mozilla/5.0" "https://sieva.drehuanuco.gob.pe/purge/" > /dev/null && echo "  Nginx purge OK" || true
 
 echo ""
-echo "✔  Deploy SIEVA completado."
+echo "Deploy completado."
