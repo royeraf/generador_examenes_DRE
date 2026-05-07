@@ -12,7 +12,7 @@ import type { AsignacionPayload } from '../../shared/services/api';
 import {
   Brain, Sparkles, LayoutGrid, History, Trash2,
   GraduationCap, FileText, Home, Loader2, X,
-  CloudUpload, Target, Calculator, RefreshCw, Shapes, BarChart3, BookOpen
+  CloudUpload, Target, Calculator, RefreshCw, Shapes, BarChart3, BookOpen, Hash
 } from 'lucide-vue-next';
 
 const router = useRouter();
@@ -480,7 +480,7 @@ onMounted(async () => {
               <label class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2"><Hash class="w-3.5 h-3.5"/> Cantidad de Preguntas</label>
               
               <div class="flex items-center gap-3 bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
-                <input type="range" v-model.number="cantidadPreguntas" min="1" max="10" class="flex-1 h-1 bg-slate-200 dark:bg-slate-700 rounded-full appearance-none accent-indigo-500" />
+                <input type="range" v-model.number="cantidadPreguntas" min="1" max="20" class="flex-1 h-1 bg-slate-200 dark:bg-slate-700 rounded-full appearance-none accent-indigo-500" />
                 <span class="w-6 text-center text-sm font-bold text-slate-800 dark:text-white">{{ cantidadPreguntas }}</span>
               </div>
             </div>

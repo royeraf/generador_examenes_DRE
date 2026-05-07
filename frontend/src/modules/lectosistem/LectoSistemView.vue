@@ -442,7 +442,7 @@ onMounted(async () => {
               
               <div class="flex items-center gap-3 bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
                 <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Total</span>
-                <input type="range" v-model.number="cantidadPreguntas" min="3" max="10" class="flex-1 h-1 bg-slate-200 dark:bg-slate-700 rounded-full appearance-none accent-teal-500" />
+                <input type="range" v-model.number="cantidadPreguntas" min="3" max="20" class="flex-1 h-1 bg-slate-200 dark:bg-slate-700 rounded-full appearance-none accent-teal-500" />
                 <span class="w-6 text-center text-sm font-bold text-slate-800 dark:text-white">{{ cantidadPreguntas }}</span>
               </div>
 

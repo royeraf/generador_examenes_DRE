@@ -143,7 +143,8 @@ export function useMatSistem() {
       const data = await matematicaService.getDesempenosPorGradoYCompetencia(newGradoId, newCompetenciaId);
       desempenos.value = data;
       selectedDesempenoIds.value = [];
-      activeCapacidadTab.value = 1;
+      const tabWithData = [1, 2, 3, 4].find(orden => data.some(d => d.capacidad_orden === orden));
+      activeCapacidadTab.value = tabWithData || 1;
     } catch (e) {
       console.error('Error loading desempeños:', e);
     } finally {
@@ -167,7 +168,8 @@ export function useMatSistem() {
       nivelesLogro.value = nivelesData.niveles;
 
       if (gradosData.length > 0 && !selectedGradoId.value) {
-        selectedGradoId.value = gradosData[0]?.id ?? null;
+        const firstSecundaria = gradosData.find(g => g.nivel === 'secundaria');
+        selectedGradoId.value = firstSecundaria?.id ?? gradosData[0]?.id ?? null;
       }
       if (competenciasData.length > 0 && !selectedCompetenciaId.value) {
         selectedCompetenciaId.value = competenciasData[0]?.id ?? null;

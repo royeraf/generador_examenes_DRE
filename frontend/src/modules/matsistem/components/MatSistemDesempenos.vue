@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import {
     Target,
     BookOpen,
     Rocket,
     AlertTriangle,
     CheckCircle2,
-    CircleDot
+    CircleDot,
+    X
 } from 'lucide-vue-next';
 import ThinkingLoader from '../../../shared/components/ThinkingLoader.vue';
 import Checkbox from '../../../shared/components/Checkbox.vue';
@@ -126,13 +127,16 @@ const allSelectedInTab = computed(() => {
     const ids = props.desempenosPorCapacidad[props.activeCapacidadTab]?.map(d => d.id) || [];
     return ids.length > 0 && ids.every(id => props.selectedDesempenoIds.includes(id));
 });
+
+const errorDismissed = ref(false);
+watch(() => props.error, () => { errorDismissed.value = false; });
 </script>
 
 <template>
-    <div class="flex flex-col space-y-3 order-1 lg:order-1 min-w-0">
+    <div class="flex-1 min-h-0 flex flex-col gap-3">
 
         <!-- Desempeños Card -->
-        <div class="h-[500px] sm:h-[580px] lg:h-[650px] flex flex-col bg-white dark:bg-slate-800 rounded-2xl border-2 border-indigo-100 dark:border-slate-700 overflow-hidden shadow-lg">
+        <div class="flex-1 min-h-0 flex flex-col bg-white dark:bg-slate-800 rounded-2xl border-2 border-indigo-100 dark:border-slate-700 overflow-hidden shadow-lg">
 
             <!-- Card Header -->
             <div class="bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-500 px-4 sm:px-5 py-3 sm:py-4">
@@ -292,7 +296,7 @@ const allSelectedInTab = computed(() => {
         <!-- Generate Button -->
         <button @click="emit('generarPreguntas')"
             :disabled="loading || !selectedGradoId || selectedDesempenoIds.length === 0"
-            class="w-full px-4 py-4 sm:px-6 sm:py-5 font-bold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 shadow-xl hover:shadow-2xl hover:-translate-y-1 text-base sm:text-lg"
+            class="flex-shrink-0 w-full px-4 py-4 sm:px-6 sm:py-5 font-bold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 shadow-xl hover:shadow-2xl hover:-translate-y-1 text-base sm:text-lg"
             :class="loading
                 ? 'bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 shadow-lg cursor-wait'
                 : 'bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-500 hover:from-indigo-600 hover:via-indigo-700 hover:to-purple-600 shadow-indigo-500/30 hover:shadow-indigo-500/40 text-white'">
@@ -304,12 +308,16 @@ const allSelectedInTab = computed(() => {
         </button>
 
         <!-- Error -->
-        <div v-if="error"
-            class="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 p-4 rounded-2xl text-sm flex items-start gap-3">
+        <div v-if="error && !errorDismissed"
+            class="flex-shrink-0 bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 p-4 rounded-2xl text-sm flex items-start gap-3">
             <div class="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
                 <AlertTriangle class="w-5 h-5" />
             </div>
-            <p class="font-medium">{{ error }}</p>
+            <p class="font-medium flex-1">{{ error }}</p>
+            <button @click="errorDismissed = true"
+                class="flex-shrink-0 p-1 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors">
+                <X class="w-4 h-4" />
+            </button>
         </div>
     </div>
 </template>

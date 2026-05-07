@@ -5,7 +5,7 @@ import { apiClient } from '../../shared/services/api'
 import {
   ChevronLeft, ChevronRight, Clock, AlertCircle, CheckCircle2,
   Loader2, BookOpen, ClipboardList, ChevronDown, ChevronUp,
-  CheckCircle, XCircle, Lightbulb, X
+  CheckCircle, XCircle, Lightbulb
 } from 'lucide-vue-next'
 import ThinkingLoader from '../../shared/components/ThinkingLoader.vue'
 
@@ -105,7 +105,6 @@ function triggerConfetti() {
   confettis.value = newConfettis
 }
 
-const showLecturaModal = ref(false)
 const lecturaTabActiva = shallowRef(0)
 const lecturas = computed<TextoLectura[]>(() => {
   if (!examen.value) return []
@@ -531,7 +530,7 @@ const nivelMensaje: Record<string, string> = {
     <!-- Examen en curso -->
     <div v-else-if="examen" class="w-full max-w-full">
       <div class="bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 sticky top-0 z-40 w-full">
-        <div class="max-w-4xl mx-auto px-2 sm:px-4 h-14 flex items-center justify-between gap-2">
+        <div :class="lecturas.length ? 'max-w-7xl' : 'max-w-4xl'" class="mx-auto px-2 sm:px-4 h-14 flex items-center justify-between gap-2 transition-all duration-300">
           <div class="flex items-center gap-2 min-w-0">
             <BookOpen class="w-5 h-5 text-teal-500 shrink-0" />
             <span class="font-bold text-slate-800 dark:text-white text-sm truncate">{{ examen.titulo }}</span>
@@ -550,23 +549,37 @@ const nivelMensaje: Record<string, string> = {
         </div>
       </div>
 
-      <div class="max-w-4xl mx-auto px-4 py-6">
-        <!-- Botón Ver Lectura -->
-        <button v-if="lecturas.length" @click="showLecturaModal = true"
-          class="w-full flex items-center justify-between p-4 mb-6 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm hover:border-teal-300 dark:hover:border-teal-700 hover:shadow-md transition-all group">
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <BookOpen class="w-6 h-6 text-teal-600 dark:text-teal-400" />
-            </div>
-            <div class="text-left">
-              <h3 class="text-base font-bold text-slate-800 dark:text-white">Textos de Lectura</h3>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Presiona para leer {{ lecturas.length > 1 ? 'los textos base' : 'el texto base' }}</p>
+      <div :class="lecturas.length ? 'max-w-7xl' : 'max-w-4xl'" class="mx-auto px-4 py-6 transition-all duration-300">
+        <div :class="lecturas.length ? 'grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-6' : ''">
+          
+          <!-- Columna Lectura -->
+          <div v-if="lecturas.length" class="flex flex-col gap-4">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden flex flex-col lg:sticky lg:top-20 max-h-[60vh] lg:max-h-[calc(100vh-7rem)]">
+              <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center gap-2 shrink-0 bg-slate-50/50 dark:bg-slate-800/50">
+                <BookOpen class="w-5 h-5 text-teal-500" />
+                <h2 class="text-base font-bold text-slate-800 dark:text-white">Textos de Lectura</h2>
+              </div>
+              <div v-if="lecturas.length > 1" class="flex border-b border-slate-200 dark:border-slate-700 overflow-x-auto bg-white dark:bg-slate-800 shrink-0 custom-scrollbar">
+                <button v-for="(t, i) in lecturas" :key="i"
+                  @click="lecturaTabActiva = i"
+                  :class="[
+                    'flex-shrink-0 px-5 py-3 text-sm font-semibold transition-colors border-b-2 -mb-px',
+                    lecturaTabActiva === i
+                      ? 'border-teal-500 text-teal-600 dark:text-teal-400 bg-teal-50/50 dark:bg-teal-900/10'
+                      : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                  ]">
+                  {{ t.titulo || `Texto ${i + 1}` }}
+                </button>
+              </div>
+              <div class="p-5 sm:p-8 text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap sm:text-lg text-base font-serif overflow-y-auto custom-scrollbar flex-1">
+                {{ lecturas[lecturaTabActiva]?.texto }}
+              </div>
             </div>
           </div>
-          <ChevronRight class="w-5 h-5 text-slate-400 group-hover:translate-x-1 transition-transform" />
-        </button>
 
-        <!-- Navegación rápida -->
+          <!-- Columna Preguntas -->
+          <div class="flex flex-col min-w-0">
+            <!-- Navegación rápida -->
         <div class="flex flex-wrap gap-2 mb-3">
           <button
             v-for="(_, idx) in examen.preguntas"
@@ -655,67 +668,14 @@ const nivelMensaje: Record<string, string> = {
             {{ todasRespondidas ? 'Finalizar examen' : `${sinResponder.length} sin responder` }}
           </button>
         </div>
+
+          </div> <!-- Fin columna Preguntas -->
+        </div> <!-- Fin Grid -->
       </div>
     </div>
 
   </div>
 
-  <!-- Modal/Bottom Sheet Lectura -->
-  <Teleport to="body">
-    <Transition
-      enter-active-class="transition duration-200 ease-out"
-      enter-from-class="opacity-0 translate-y-8 sm:translate-y-0 sm:scale-95"
-      enter-to-class="opacity-100 translate-y-0 sm:scale-100"
-      leave-active-class="transition duration-150 ease-in"
-      leave-from-class="opacity-100 translate-y-0 sm:scale-100"
-      leave-to-class="opacity-0 translate-y-8 sm:translate-y-0 sm:scale-95"
-    >
-      <div v-if="showLecturaModal" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <!-- Backdrop -->
-        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm -z-10" @click="showLecturaModal = false"></div>
-        
-        <!-- Modal content -->
-        <div class="bg-white dark:bg-slate-800 w-full max-w-3xl sm:rounded-2xl rounded-t-2xl sm:rounded-b-2xl shadow-2xl flex flex-col max-h-[90vh] sm:max-h-[85vh] relative">
-          <!-- Drag handle (mobile only) -->
-          <div class="w-full h-8 flex justify-center items-center sm:hidden shrink-0 absolute top-0" @click="showLecturaModal = false">
-            <div class="w-12 h-1.5 bg-slate-200 dark:bg-slate-600 rounded-full"></div>
-          </div>
-
-          <!-- Header -->
-          <div class="px-5 pt-8 sm:pt-5 pb-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between shrink-0">
-            <h2 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
-              <BookOpen class="w-5 h-5 text-teal-500" /> Textos de Lectura
-            </h2>
-            <button @click="showLecturaModal = false" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 transition-colors">
-              <X class="w-5 h-5" />
-            </button>
-          </div>
-
-          <!-- Body -->
-          <div class="overflow-y-auto p-0 flex-1 custom-scrollbar bg-slate-50 dark:bg-slate-900 sm:rounded-b-2xl">
-            <div v-if="lecturas.length > 1" class="flex border-b border-slate-200 dark:border-slate-700 overflow-x-auto bg-white dark:bg-slate-800 sticky top-0 z-10 shadow-sm">
-              <button v-for="(t, i) in lecturas" :key="i"
-                @click="lecturaTabActiva = i"
-                :class="[
-                  'flex-shrink-0 px-5 py-3 text-sm font-semibold transition-colors border-b-2 -mb-px',
-                  lecturaTabActiva === i
-                    ? 'border-teal-500 text-teal-600 dark:text-teal-400 bg-teal-50/50 dark:bg-teal-900/10'
-                    : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-                ]">
-                {{ t.titulo || `Texto ${i + 1}` }}
-              </button>
-            </div>
-            <div class="p-5 sm:p-8 text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap sm:text-lg text-base font-serif">
-              {{ lecturas[lecturaTabActiva]?.texto }}
-            </div>
-          </div>
-          
-          <!-- Safe area bottom mobile -->
-          <div class="h-6 bg-slate-50 dark:bg-slate-900 sm:hidden"></div>
-        </div>
-      </div>
-    </Transition>
-  </Teleport>
 </template>
 
 <style scoped>

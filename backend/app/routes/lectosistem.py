@@ -55,7 +55,7 @@ class GenerarPreguntasRequest(BaseModel):
         default="intermedio",
         description="Nivel de dificultad: basico (simple, sencillo), intermedio (demanda cognitiva media), avanzado (complejo, alta demanda cognitiva)"
     )
-    cantidad: int = Field(default=3, ge=1, le=10, description="Cantidad de preguntas a generar")
+    cantidad: int = Field(default=3, ge=1, le=20, description="Cantidad de preguntas a generar")
     texto_base: Optional[str] = Field(None, description="Texto de lectura único (retrocompatibilidad)")
     textos_base: Optional[list[dict]] = Field(None, description="Lista de textos: [{titulo, texto}]")
     desempeno_ids: Optional[list[int]] = Field(None, description="IDs de desempeños seleccionados")

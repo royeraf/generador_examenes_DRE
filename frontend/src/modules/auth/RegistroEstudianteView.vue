@@ -154,26 +154,26 @@ async function registrar() {
             <div>
               <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Nombres</label>
               <input v-model="form.nombres" type="text" placeholder="Tus nombres"
-                class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
+                class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-400 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Apellidos</label>
               <input v-model="form.apellidos" type="text" placeholder="Tus apellidos"
-                class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
+                class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-400 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
             </div>
           </div>
 
           <div>
             <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">DNI <span class="text-slate-400 font-normal">(opcional)</span></label>
             <input v-model="form.dni" type="text" placeholder="12345678" maxlength="8"
-              class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
+              class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-400 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
           </div>
 
           <div>
             <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Contraseña</label>
             <div class="relative">
               <input v-model="form.password" :type="showPass ? 'text' : 'password'" placeholder="Mínimo 4 caracteres"
-                class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 pl-3.5 pr-9 text-sm outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
+                class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 pl-3.5 pr-9 text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-400 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
               <button type="button" @click="showPass = !showPass" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
                 <Eye v-if="!showPass" class="w-3.5 h-3.5" /><EyeOff v-else class="w-3.5 h-3.5" />
               </button>
@@ -184,7 +184,7 @@ async function registrar() {
             <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Confirmar contraseña</label>
             <div class="relative">
               <input v-model="form.confirm" :type="showConfirm ? 'text' : 'password'" placeholder="Repite tu contraseña"
-                class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 pl-3.5 pr-9 text-sm outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
+                class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 pl-3.5 pr-9 text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-400 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
               <button type="button" @click="showConfirm = !showConfirm" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
                 <Eye v-if="!showConfirm" class="w-3.5 h-3.5" /><EyeOff v-else class="w-3.5 h-3.5" />
               </button>

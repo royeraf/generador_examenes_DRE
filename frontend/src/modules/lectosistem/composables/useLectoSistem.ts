@@ -188,8 +188,11 @@ export function useLectoSistem() {
     }
     loadingDesempenos.value = true;
     try {
-      desempenos.value = await desempenosService.getDesempenosPorGrado(newVal);
+      const data = await desempenosService.getDesempenosPorGrado(newVal);
+      desempenos.value = data;
       selectedDesempenoIds.value = [];
+      const tabWithData = ['literal', 'inferencial', 'critico'].find(tipo => data.some(d => d.capacidad_tipo === tipo));
+      activeCapacidadTab.value = tabWithData || 'literal';
     } catch (e) {
       console.error('Error loading desempeños:', e);
     } finally {
