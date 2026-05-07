@@ -83,6 +83,8 @@ export const useAuthStore = defineStore('auth', () => {
   async function login(identifier: string, password: string) {
     const data = await authService.login(identifier, password)
     token.value = data.access_token
+    // Cookie para que nginx bypasee el caché en peticiones autenticadas
+    document.cookie = '_logged_in_=1; path=/; SameSite=Lax'
     await fetchMe()
   }
 
@@ -90,6 +92,7 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = null
     user.value = null
     localStorage.removeItem('token')
+    document.cookie = '_logged_in_=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/'
   }
 
   async function fetchMe() {
