@@ -17,8 +17,12 @@ from app.models.ubigeo import Provincia, Distrito
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./desempenos.db")
 if DATABASE_URL.startswith("postgresql+asyncpg://"):
     DATABASE_URL = DATABASE_URL.replace("postgresql+asyncpg://", "postgresql://")
+elif DATABASE_URL.startswith("mysql+aiomysql://"):
+    DATABASE_URL = DATABASE_URL.replace("mysql+aiomysql://", "mysql+pymysql://")
 
 if DATABASE_URL.startswith("postgresql"):
+    engine = create_engine(DATABASE_URL)
+elif DATABASE_URL.startswith("mysql"):
     engine = create_engine(DATABASE_URL)
 else:
     engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})

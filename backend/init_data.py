@@ -129,7 +129,7 @@ def main():
     success_count = 0
 
     # Ejecutar scripts de carga de curriculum
-    scripts = ["load_desempenos", "load_matematica"]
+    scripts = ["load_ubigeo", "load_desempenos", "load_matematica"]
 
     for script in scripts:
         if run_script(script):
