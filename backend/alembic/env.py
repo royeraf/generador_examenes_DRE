@@ -32,7 +32,8 @@ config = context.config
 
 # Sobreescribir la URL desde la variable de entorno
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./desempenos.db")
-config.set_main_option("sqlalchemy.url", DATABASE_URL)
+# Escapar % para que configparser no lo interprete como sintaxis de interpolación
+config.set_main_option("sqlalchemy.url", DATABASE_URL.replace("%", "%%"))
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
