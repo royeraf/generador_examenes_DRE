@@ -10,7 +10,7 @@ from typing import Optional, List, Any
 from datetime import datetime
 
 from app.core.database import get_db
-from app.models.db_models import ExamenLectura, ExamenMatematica, PreguntaExamen
+from app.models.db_models import ExamenLectura, ExamenMatematica, PreguntaExamen, Grado
 from app.models.usuario import Usuario as DocenteModel
 from app.api.dependencies import get_current_active_user
 
@@ -63,7 +63,6 @@ class ExamenLecturaCreate(BaseModel):
     """Datos para guardar un examen de lectura."""
     grado_id: Optional[int] = None
     titulo: Optional[str] = None
-    grado_nombre: Optional[str] = None
     nivel_dificultad: Optional[str] = None
     modelo_ia: Optional[str] = None
     saludo: Optional[str] = None
@@ -80,7 +79,6 @@ class ExamenMatematicaCreate(BaseModel):
     grado_id: Optional[int] = None
     competencia_id: Optional[int] = None
     titulo: Optional[str] = None
-    grado_nombre: Optional[str] = None
     nivel_dificultad: Optional[str] = None
     modelo_ia: Optional[str] = None
     saludo: Optional[str] = None
@@ -182,6 +180,11 @@ async def guardar_examen_lectura(
         docente_id=current_user.id,
         **examen_in.model_dump(exclude_none=False)
     )
+    if examen_in.grado_id:
+        grado_r = await db.execute(select(Grado).where(Grado.id == examen_in.grado_id))
+        grado = grado_r.scalars().first()
+        if grado:
+            db_examen.grado_nombre = grado.nombre
     db.add(db_examen)
     await db.flush()
 
@@ -289,6 +292,11 @@ async def guardar_examen_matematica(
         docente_id=current_user.id,
         **examen_in.model_dump(exclude_none=False)
     )
+    if examen_in.grado_id:
+        grado_r = await db.execute(select(Grado).where(Grado.id == examen_in.grado_id))
+        grado = grado_r.scalars().first()
+        if grado:
+            db_examen.grado_nombre = grado.nombre
     db.add(db_examen)
     await db.flush()
 

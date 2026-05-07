@@ -620,15 +620,8 @@ const estadoColors: Record<string, string> = {
                 </Checkbox>
               </div>
 
-              <!-- Duración e intentos -->
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">
-                    Duración (min) <span class="font-normal text-slate-400">(opcional)</span>
-                  </label>
-                  <input v-model.number="duracionMinutos" type="number" min="1" placeholder="Sin límite"
-                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 transition-all" />
-                </div>
+              <!-- Intentos -->
+              <div class="grid grid-cols-1 gap-3">
                 <div>
                   <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Intentos permitidos</label>
                   <input v-model.number="intentosPermitidos" type="number" min="1" max="10"

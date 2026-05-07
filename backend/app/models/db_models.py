@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, Enum, DateTime, JSON, Boolean, Float, UniqueConstraint
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, Enum, DateTime, JSON, Boolean, Float, UniqueConstraint, CheckConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import enum
@@ -80,8 +80,6 @@ class InstitucionEducativa(Base):
     id = Column(Integer, primary_key=True, index=True)
     codigo_modular = Column(String(20), unique=True, nullable=False)
     nombre = Column(String(300), nullable=False)
-    # Lista de niveles: ["inicial"], ["primaria"], ["secundaria"], o combinaciones
-    nivel_educativo = Column(JSON, nullable=False)
     direccion = Column(Text, nullable=True)
     ugel_id = Column(Integer, ForeignKey("ugeles.id"), nullable=False)
     distrito_id = Column(Integer, ForeignKey("distritos.id", ondelete="SET NULL"), nullable=True)
@@ -90,13 +88,34 @@ class InstitucionEducativa(Base):
 
     ugel = relationship("Ugel", back_populates="instituciones")
     distrito = relationship("Distrito", lazy="joined")
+    niveles = relationship("InstitucionNivel", cascade="all, delete-orphan", lazy="selectin")
 
     @property
     def distrito_nombre(self):
         return self.distrito.nombre if self.distrito else None
 
+    @property
+    def nivel_educativo(self) -> list:
+        return [n.nivel for n in self.niveles]
+
     def __repr__(self):
         return f"<IE {self.nombre}>"
+
+
+class InstitucionNivel(Base):
+    """Nivel educativo de una institución (normaliza el antiguo nivel_educativo JSON)."""
+    __tablename__ = "institucion_niveles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    institucion_id = Column(Integer, ForeignKey("instituciones_educativas.id", ondelete="CASCADE"), nullable=False)
+    nivel = Column(String(20), nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("institucion_id", "nivel", name="uq_institucion_nivel"),
+    )
+
+    def __repr__(self):
+        return f"<InstitucionNivel ie={self.institucion_id} nivel={self.nivel}>"
 
 
 class CodigoClase(Base):
@@ -348,6 +367,10 @@ class AsignacionExamen(Base):
     is_active = Column(Boolean, default=True)
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
 
+    __table_args__ = (
+        CheckConstraint("tipo_examen IN ('lectura', 'matematica')", name="ck_asignacion_tipo_examen"),
+    )
+
     asignado_por = relationship("Usuario", foreign_keys=[asignado_por_id])
     institucion_educativa = relationship("InstitucionEducativa")
     grado = relationship("Grado")
@@ -371,12 +394,10 @@ class IntentoExamen(Base):
     fecha_inicio = Column(DateTime(timezone=True), nullable=True)
     fecha_fin = Column(DateTime(timezone=True), nullable=True)
 
-    respuestas = Column(JSON, nullable=True)  # {"1": "A", "2": "C", ...}
-    puntaje_total = Column(Float, nullable=True)  # 0-100
+    puntaje_total = Column(Float, nullable=True)  # 0-100, cache de RespuestaIntento
     preguntas_correctas = Column(Integer, nullable=True)
     preguntas_total = Column(Integer, nullable=True)
     nivel_logro = Column(String(50), nullable=True)  # NivelLogro enum values
-    resultados_por_desempeno = Column(JSON, nullable=True)  # detalle por desempeño
 
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
 
@@ -441,6 +462,14 @@ class PreguntaExamen(Base):
     desempeno_codigo = Column(String(50), nullable=True)
     desempeno_descripcion = Column(Text, nullable=True)
     justificacion = Column(Text, nullable=True)
+
+    __table_args__ = (
+        CheckConstraint(
+            "(examen_lectura_id IS NOT NULL AND examen_matematica_id IS NULL) OR "
+            "(examen_lectura_id IS NULL AND examen_matematica_id IS NOT NULL)",
+            name="ck_pregunta_exactamente_un_examen",
+        ),
+    )
 
     examen_lectura = relationship("ExamenLectura", foreign_keys=[examen_lectura_id])
     examen_matematica = relationship("ExamenMatematica", foreign_keys=[examen_matematica_id])

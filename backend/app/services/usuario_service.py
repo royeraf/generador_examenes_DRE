@@ -62,6 +62,13 @@ class UsuarioService:
         obj_data["rol_id"] = await self._get_rol_id(db, rol_codigo)
         obj_data["creado_por_id"] = creado_por_id
 
+        # Imponer restricciones de columnas según rol
+        if rol_codigo == RolCodigo.ESTUDIANTE:
+            obj_data["profesion"] = None
+        else:
+            obj_data["grado_id"] = None
+            obj_data["seccion"] = None
+
         # Generar código de estudiante si es necesario
         if rol_codigo == RolCodigo.ESTUDIANTE and not obj_data.get("dni"):
             obj_data["codigo_estudiante"] = await self._generar_codigo_estudiante(db)
@@ -100,7 +107,14 @@ class UsuarioService:
         if "password" in update_data:
             update_data["password_hash"] = get_password_hash(update_data.pop("password"))
         if "rol_codigo" in update_data:
-            update_data["rol_id"] = await self._get_rol_id(db, update_data.pop("rol_codigo"))
+            nuevo_rol = update_data.pop("rol_codigo")
+            update_data["rol_id"] = await self._get_rol_id(db, nuevo_rol)
+            # Al cambiar de rol, limpiar columnas inapropiadas para el nuevo rol
+            if nuevo_rol == RolCodigo.ESTUDIANTE:
+                update_data["profesion"] = None
+            else:
+                update_data["grado_id"] = None
+                update_data["seccion"] = None
 
         return await self.repository.update(db, usuario, update_data)
 

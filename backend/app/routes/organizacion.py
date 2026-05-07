@@ -4,12 +4,13 @@ Rutas de gestión organizacional: UGELes e Instituciones Educativas.
 from typing import Optional, List
 from fastapi import APIRouter, HTTPException, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, or_
+from sqlalchemy import select, func, or_, delete
+from sqlalchemy.orm import selectinload
 from pydantic import BaseModel
 from datetime import datetime
 
 from app.core.database import get_db
-from app.models.db_models import Ugel, InstitucionEducativa, Grado, ExamenLectura, ExamenMatematica, AsignacionExamen, IntentoExamen
+from app.models.db_models import Ugel, InstitucionEducativa, InstitucionNivel, Grado, ExamenLectura, ExamenMatematica, AsignacionExamen, IntentoExamen
 from app.models.usuario import Usuario
 from app.models.enums import RolCodigo
 from app.api.dependencies import get_current_active_user, require_role
@@ -195,7 +196,7 @@ async def listar_instituciones(
     db: AsyncSession = Depends(get_db),
     current_user: Usuario = Depends(get_current_active_user),
 ):
-    q = select(InstitucionEducativa)
+    q = select(InstitucionEducativa).options(selectinload(InstitucionEducativa.niveles))
     if solo_activas:
         q = q.where(InstitucionEducativa.is_active == True)
     if ugel_id:
@@ -238,7 +239,11 @@ async def obtener_institucion(
     db: AsyncSession = Depends(get_db),
     current_user: Usuario = Depends(get_current_active_user),
 ):
-    result = await db.execute(select(InstitucionEducativa).where(InstitucionEducativa.id == ie_id))
+    result = await db.execute(
+        select(InstitucionEducativa)
+        .options(selectinload(InstitucionEducativa.niveles))
+        .where(InstitucionEducativa.id == ie_id)
+    )
     ie = result.scalars().first()
     if not ie:
         raise HTTPException(404, "Institución no encontrada")
@@ -270,13 +275,17 @@ async def crear_institucion(
         if data.ugel_id != current_user.ugel_id:
             raise HTTPException(403, "Solo puedes crear instituciones en tu UGEL")
 
-    ie = InstitucionEducativa(**data.model_dump())
+    data_dict = data.model_dump()
+    niveles_data: List[str] = data_dict.pop("nivel_educativo", [])
+    ie = InstitucionEducativa(**data_dict)
     db.add(ie)
     await db.flush()
-    await db.refresh(ie)
+    for nivel in niveles_data:
+        db.add(InstitucionNivel(institucion_id=ie.id, nivel=nivel))
+    await db.flush()
     return IEResponse(
         id=ie.id, codigo_modular=ie.codigo_modular, nombre=ie.nombre,
-        nivel_educativo=ie.nivel_educativo, direccion=ie.direccion,
+        nivel_educativo=niveles_data, direccion=ie.direccion,
         ugel_id=ie.ugel_id, ugel_nombre=None,
         distrito_id=ie.distrito_id, distrito_nombre=None,
         is_active=ie.is_active, fecha_creacion=ie.fecha_creacion,
@@ -299,10 +308,21 @@ async def actualizar_institucion(
         if ie.ugel_id != current_user.ugel_id:
             raise HTTPException(403, "No tienes acceso a esta institución")
 
-    for field, value in data.model_dump(exclude_unset=True).items():
+    data_dict = data.model_dump(exclude_unset=True)
+    niveles_data: List[str] | None = data_dict.pop("nivel_educativo", None)
+    for field, value in data_dict.items():
         setattr(ie, field, value)
+    if niveles_data is not None:
+        await db.execute(delete(InstitucionNivel).where(InstitucionNivel.institucion_id == ie.id))
+        for nivel in niveles_data:
+            db.add(InstitucionNivel(institucion_id=ie.id, nivel=nivel))
     await db.flush()
-    await db.refresh(ie)
+    result2 = await db.execute(
+        select(InstitucionEducativa)
+        .options(selectinload(InstitucionEducativa.niveles))
+        .where(InstitucionEducativa.id == ie.id)
+    )
+    ie = result2.scalars().first()
     return IEResponse(
         id=ie.id, codigo_modular=ie.codigo_modular, nombre=ie.nombre,
         nivel_educativo=ie.nivel_educativo, direccion=ie.direccion,
@@ -367,9 +387,9 @@ async def mi_institucion(
     if not current_user.institucion_educativa_id:
         raise HTTPException(400, "No tienes una institución asignada")
     result = await db.execute(
-        select(InstitucionEducativa).where(
-            InstitucionEducativa.id == current_user.institucion_educativa_id
-        )
+        select(InstitucionEducativa)
+        .options(selectinload(InstitucionEducativa.niveles))
+        .where(InstitucionEducativa.id == current_user.institucion_educativa_id)
     )
     ie = result.scalars().first()
     if not ie:

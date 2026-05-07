@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Bot, Zap, AlertTriangle, Award, Download, Loader2, ClipboardCheck, BookOpen, HelpCircle, FileSearch, Lightbulb, Check, LayoutGrid, Sparkles, GraduationCap, Link } from 'lucide-vue-next';
+import { Bot, AlertTriangle, Download, Loader2, Sparkles, Link } from 'lucide-vue-next';
 import ThinkingLoader from '../../../shared/components/ThinkingLoader.vue';
 import type { Examen } from '../../../shared/types';
 
@@ -29,14 +29,7 @@ const getJustificacion = (numeroPregunta: number): string | undefined => {
     return props.resultado?.examen.tabla_respuestas.find(t => t.pregunta === numeroPregunta)?.justificacion;
 };
 
-const getNivelBadgeClass = (nivel: string): string => {
-    const classes: Record<string, string> = {
-        'LITERAL': 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
-        'INFERENCIAL': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-        'CRITICO': 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400'
-    };
-    return classes[nivel] || 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
-};
+
 </script>
 
 <template>
@@ -71,7 +64,7 @@ const getNivelBadgeClass = (nivel: string): string => {
 
         <!-- Loading State -->
         <div v-if="loading" class="flex-1 flex flex-col items-center justify-center p-6">
-            <ThinkingLoader text="Generando..." variant="sky" />
+            <ThinkingLoader text="Generando..." variant="teal" />
             <p class="text-xs text-slate-500 mt-4">Analizando textos base y estructurando preguntas...</p>
         </div>
 

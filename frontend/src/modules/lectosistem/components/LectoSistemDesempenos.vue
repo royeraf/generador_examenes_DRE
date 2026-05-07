@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Target, BookOpen, FileSearch, Lightbulb, Rocket, AlertTriangle, CheckCircle2 } from 'lucide-vue-next';
+import { Target, BookOpen, FileSearch, Lightbulb, Rocket, AlertTriangle } from 'lucide-vue-next';
 import ThinkingLoader from '../../../shared/components/ThinkingLoader.vue';
 import Checkbox from '../../../shared/components/Checkbox.vue';
 import type { DesempenoItem } from '../../../shared/types';
@@ -117,7 +117,7 @@ const getCapacidadLabel = (tipo: string): string => {
                 :disabled="loading || !selectedGradoId || selectedDesempenoIds.length === 0 || isBreakdownValid === false"
                 class="w-full py-2.5 rounded-full font-medium transition-all flex items-center justify-center gap-2 text-sm"
                 :class="loading ? 'bg-teal-500 dark:bg-teal-600 text-slate-500 dark:text-slate-400 cursor-wait' : (isBreakdownValid === false || !selectedGradoId || selectedDesempenoIds.length === 0 ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500 cursor-not-allowed' : 'bg-white text-black hover:bg-slate-200 shadow-lg')">
-                <ThinkingLoader v-if="loading" text="Generando..." variant="sky" />
+                <ThinkingLoader v-if="loading" text="Generando..." variant="teal" />
                 <template v-else>
                     <Rocket class="w-4 h-4" /> Generar Examen
                 </template>

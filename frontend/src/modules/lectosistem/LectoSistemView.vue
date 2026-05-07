@@ -10,18 +10,14 @@ import { desempenosService, asignacionesService } from '../../shared/services/ap
 import { construirFechaISO, formatFechaHora } from '../../shared/utils/dateUtils';
 import type { AsignacionPayload } from '../../shared/services/api';
 import {
-  Bot, Sparkles, LayoutGrid, Award, History, Trash2, Eye, Link, Clock,
-  GraduationCap, FileText, Home, Loader2, Download, Users, X,
-  CloudUpload, Plus, AlertTriangle, Sprout, Leaf, TreeDeciduous,
-  Check, Signal, Hash, FileUp, ChevronDown, Target,
+  Bot, Sparkles, LayoutGrid, History, Trash2,
+  GraduationCap, FileText, Home, Loader2, X,
+  CloudUpload, Plus, Check, Hash, Target,
 } from 'lucide-vue-next';
 
 const router = useRouter();
-import Header from '../../shared/components/Header.vue';
-import EduBackground from '../../shared/components/EduBackground.vue';
 import Checkbox from '../../shared/components/Checkbox.vue';
 import ComboBox from '../../shared/components/ComboBox.vue';
-import ThinkingLoader from '../../shared/components/ThinkingLoader.vue';
 import LectoSistemDesempenos from './components/LectoSistemDesempenos.vue';
 import LectoSistemResults from './components/LectoSistemResults.vue';
 import ExamPreviewModal from './components/ExamPreviewModal.vue';
@@ -303,14 +299,14 @@ const mobileTab = ref<'config' | 'results' | 'desempenos'>('config');
 const isDraggingCol1 = ref(false);
 const isDraggingCol3 = ref(false);
 
-const onMouseDownCol1 = (e: MouseEvent) => {
+const onMouseDownCol1 = () => {
   isDraggingCol1.value = true;
   document.body.style.cursor = 'col-resize';
   window.addEventListener('mousemove', onMouseMove);
   window.addEventListener('mouseup', onMouseUp);
 };
 
-const onMouseDownCol3 = (e: MouseEvent) => {
+const onMouseDownCol3 = () => {
   isDraggingCol3.value = true;
   document.body.style.cursor = 'col-resize';
   window.addEventListener('mousemove', onMouseMove);
@@ -451,10 +447,10 @@ onMounted(async () => {
               </div>
 
               <div class="grid grid-cols-3 gap-2">
-                 <div v-for="({ label, shortLabel, val, dec, inc }) in [
-                  { label: 'Literal', shortLabel: 'L', val: cantidadLiteral, dec: () => cantidadLiteral = Math.max(0, cantidadLiteral - 1), inc: () => cantidadLiteral = Math.min(cantidadPreguntas, cantidadLiteral + 1) },
-                  { label: 'Inferencial', shortLabel: 'I', val: cantidadInferencial, dec: () => cantidadInferencial = Math.max(0, cantidadInferencial - 1), inc: () => cantidadInferencial = Math.min(cantidadPreguntas, cantidadInferencial + 1) },
-                  { label: 'Crítico', shortLabel: 'C', val: cantidadCritico, dec: () => cantidadCritico = Math.max(0, cantidadCritico - 1), inc: () => cantidadCritico = Math.min(cantidadPreguntas, cantidadCritico + 1) },
+                 <div v-for="({ label, val, dec, inc }) in [
+                  { label: 'Literal', val: cantidadLiteral, dec: () => cantidadLiteral = Math.max(0, cantidadLiteral - 1), inc: () => cantidadLiteral = Math.min(cantidadPreguntas, cantidadLiteral + 1) },
+                  { label: 'Inferencial', val: cantidadInferencial, dec: () => cantidadInferencial = Math.max(0, cantidadInferencial - 1), inc: () => cantidadInferencial = Math.min(cantidadPreguntas, cantidadInferencial + 1) },
+                  { label: 'Crítico', val: cantidadCritico, dec: () => cantidadCritico = Math.max(0, cantidadCritico - 1), inc: () => cantidadCritico = Math.min(cantidadPreguntas, cantidadCritico + 1) },
                 ]" :key="label" class="bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col items-center overflow-hidden p-1.5">
                    <span class="text-[10px] font-medium text-slate-500 dark:text-slate-400 mb-1.5">{{ label }}</span>
                    <div class="flex items-center w-full justify-between">
@@ -582,13 +578,15 @@ onMounted(async () => {
                   <div class="flex justify-between items-center mb-3">
                     <h4 class="text-sm font-medium text-slate-800 dark:text-white">Texto {{ idx + 1 }}</h4>
                     <div class="flex items-center gap-2">
-                      <input type="file" :id="'file-' + idx" class="hidden" accept=".pdf,.doc,.docx,.txt" @change="(e) => handleFileUploadAt(e, idx)" />
+                      <input type="file" :id="'file-' + idx" class="hidden" accept=".pdf,.doc,.docx,.txt" @change="(e) => handleFileUploadAt(idx, e)" />
                       <label :for="'file-' + idx" class="cursor-pointer text-xs flex items-center gap-1.5 px-3 py-1.5 bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-lg transition-colors"><CloudUpload class="w-3.5 h-3.5" /> Archivo</label>
-                      <button v-if="texto.archivo_nombre" @click="clearFilesAt(idx)" class="text-xs text-red-400 hover:text-red-300 ml-2">Eliminar archivo</button>
+                      <button v-if="texto.filesMetadata && texto.filesMetadata.archivos.length > 0" @click="clearFilesAt(idx)" class="text-xs text-red-400 hover:text-red-300 ml-2">Eliminar archivo</button>
                       <button v-if="textosBase.length > 1" @click="removeTexto(idx)" class="text-slate-500 dark:text-slate-400 hover:text-red-400 ml-2"><Trash2 class="w-4 h-4" /></button>
                     </div>
                   </div>
-                  <div v-if="texto.archivo_nombre" class="mb-3 px-3 py-2 bg-emerald-500/10 text-emerald-400 text-xs rounded-lg border border-emerald-500/20 flex items-center gap-2"><Check class="w-3.5 h-3.5" />{{ texto.archivo_nombre }}</div>
+                  <div v-if="texto.filesMetadata && texto.filesMetadata.archivos.length > 0" class="mb-3 flex flex-wrap gap-2">
+                    <div v-for="(archivo, aIdx) in texto.filesMetadata.archivos" :key="aIdx" class="px-3 py-2 bg-emerald-500/10 text-emerald-400 text-xs rounded-lg border border-emerald-500/20 flex items-center gap-2"><Check class="w-3.5 h-3.5" />{{ archivo.filename }}</div>
+                  </div>
                   <textarea v-model="texto.texto" class="w-full h-32 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg p-3 text-sm text-slate-600 dark:text-slate-300 focus:border-sky-500 outline-none resize-none placeholder-slate-600" placeholder="Escribe o pega el texto base aquí..."></textarea>
                 </div>
                 <button v-if="textosBase.length < 4" @click="addTexto" class="w-full py-3 flex items-center justify-center gap-2 border border-dashed border-slate-300 dark:border-slate-500 rounded-xl text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white hover:border-teal-400 hover:bg-slate-100 dark:bg-slate-800/50 transition-all"><Plus class="w-4 h-4" /> Agregar otro texto</button>
@@ -607,7 +605,6 @@ onMounted(async () => {
             <div class="px-5 py-4 border-b border-slate-300 dark:border-slate-600 flex items-center justify-between"><h3 class="text-slate-800 dark:text-white font-medium text-lg">Asignar Examen</h3><button @click="asignarModal = null" class="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white"><X class="w-5 h-5"/></button></div>
             <div class="p-5 space-y-4">
               <div><label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Sección (opcional)</label><select v-model="asignarForm.seccion" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-slate-800 dark:text-white text-sm outline-none focus:border-sky-500"><option value="">— Todas las secciones —</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option><option value="J">J</option><option value="Única">Única</option></select></div>
-              <div><label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Duración (minutos)</label><input v-model="asignarForm.duracion_minutos" type="number" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-slate-800 dark:text-white text-sm outline-none focus:border-sky-500" placeholder="Sin límite"></div>
               <div><label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Fecha Programada</label><input v-model="asignarForm.fecha" type="date" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-slate-800 dark:text-white text-sm outline-none focus:border-sky-500"></div>
               <div class="grid grid-cols-2 gap-3">
                 <div><label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Hora Inicio</label><input v-model="asignarForm.hora_inicio" type="time" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-slate-800 dark:text-white text-sm outline-none focus:border-sky-500"></div>

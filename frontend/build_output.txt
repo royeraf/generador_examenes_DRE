@@ -1,0 +1,62 @@
+
+> frontend@0.0.0 build
+> vue-tsc -b && vite build
+
+src/modules/lectosistem/LectoSistemView.vue(13,30): error TS6133: 'Award' is declared but its value is never read.
+src/modules/lectosistem/LectoSistemView.vue(13,54): error TS6133: 'Eye' is declared but its value is never read.
+src/modules/lectosistem/LectoSistemView.vue(13,59): error TS6133: 'Link' is declared but its value is never read.
+src/modules/lectosistem/LectoSistemView.vue(13,65): error TS6133: 'Clock' is declared but its value is never read.
+src/modules/lectosistem/LectoSistemView.vue(14,43): error TS6133: 'Download' is declared but its value is never read.
+src/modules/lectosistem/LectoSistemView.vue(14,53): error TS6133: 'Users' is declared but its value is never read.
+src/modules/lectosistem/LectoSistemView.vue(15,22): error TS6133: 'AlertTriangle' is declared but its value is never read.
+src/modules/lectosistem/LectoSistemView.vue(15,37): error TS6133: 'Sprout' is declared but its value is never read.
+src/modules/lectosistem/LectoSistemView.vue(15,45): error TS6133: 'Leaf' is declared but its value is never read.
+src/modules/lectosistem/LectoSistemView.vue(15,51): error TS6133: 'TreeDeciduous' is declared but its value is never read.
+src/modules/lectosistem/LectoSistemView.vue(16,10): error TS6133: 'Signal' is declared but its value is never read.
+src/modules/lectosistem/LectoSistemView.vue(16,24): error TS6133: 'FileUp' is declared but its value is never read.
+src/modules/lectosistem/LectoSistemView.vue(16,32): error TS6133: 'ChevronDown' is declared but its value is never read.
+src/modules/lectosistem/LectoSistemView.vue(20,1): error TS6133: 'Header' is declared but its value is never read.
+src/modules/lectosistem/LectoSistemView.vue(21,1): error TS6133: 'EduBackground' is declared but its value is never read.
+src/modules/lectosistem/LectoSistemView.vue(24,1): error TS6133: 'ThinkingLoader' is declared but its value is never read.
+src/modules/lectosistem/LectoSistemView.vue(306,26): error TS6133: 'e' is declared but its value is never read.
+src/modules/lectosistem/LectoSistemView.vue(313,26): error TS6133: 'e' is declared but its value is never read.
+src/modules/lectosistem/LectoSistemView.vue(454,40): error TS6133: 'shortLabel' is declared but its value is never read.
+src/modules/lectosistem/LectoSistemView.vue(585,142): error TS2345: Argument of type 'Event' is not assignable to parameter of type 'number'.
+src/modules/lectosistem/LectoSistemView.vue(587,43): error TS2339: Property 'archivo_nombre' does not exist on type '{ id: number; titulo: string; texto: string; uploadingFile: boolean; uploadError: string | null; filesMetadata: { archivos: { filename: string; palabras: number; caracteres: number; }[]; total_palabras: number; total_caracteres: number; } | null; }'.
+src/modules/lectosistem/LectoSistemView.vue(591,36): error TS2339: Property 'archivo_nombre' does not exist on type '{ id: number; titulo: string; texto: string; uploadingFile: boolean; uploadError: string | null; filesMetadata: { archivos: { filename: string; palabras: number; caracteres: number; }[]; total_palabras: number; total_caracteres: number; } | null; }'.
+src/modules/lectosistem/LectoSistemView.vue(591,220): error TS2339: Property 'archivo_nombre' does not exist on type '{ id: number; titulo: string; texto: string; uploadingFile: boolean; uploadError: string | null; filesMetadata: { archivos: { filename: string; palabras: number; caracteres: number; }[]; total_palabras: number; total_caracteres: number; } | null; }'.
+src/modules/lectosistem/components/LectoSistemDesempenos.vue(3,74): error TS6133: 'CheckCircle2' is declared but its value is never read.
+src/modules/lectosistem/components/LectoSistemDesempenos.vue(120,68): error TS2322: Type '"sky"' is not assignable to type '"blue" | "indigo" | "purple" | "teal" | "rainbow" | undefined'.
+src/modules/lectosistem/components/LectoSistemResults.vue(2,15): error TS6133: 'Zap' is declared but its value is never read.
+src/modules/lectosistem/components/LectoSistemResults.vue(2,35): error TS6133: 'Award' is declared but its value is never read.
+src/modules/lectosistem/components/LectoSistemResults.vue(2,61): error TS6133: 'ClipboardCheck' is declared but its value is never read.
+src/modules/lectosistem/components/LectoSistemResults.vue(2,77): error TS6133: 'BookOpen' is declared but its value is never read.
+src/modules/lectosistem/components/LectoSistemResults.vue(2,87): error TS6133: 'HelpCircle' is declared but its value is never read.
+src/modules/lectosistem/components/LectoSistemResults.vue(2,99): error TS6133: 'FileSearch' is declared but its value is never read.
+src/modules/lectosistem/components/LectoSistemResults.vue(2,111): error TS6133: 'Lightbulb' is declared but its value is never read.
+src/modules/lectosistem/components/LectoSistemResults.vue(2,122): error TS6133: 'Check' is declared but its value is never read.
+src/modules/lectosistem/components/LectoSistemResults.vue(2,129): error TS6133: 'LayoutGrid' is declared but its value is never read.
+src/modules/lectosistem/components/LectoSistemResults.vue(2,151): error TS6133: 'GraduationCap' is declared but its value is never read.
+src/modules/lectosistem/components/LectoSistemResults.vue(32,7): error TS6133: 'getNivelBadgeClass' is declared but its value is never read.
+src/modules/lectosistem/components/LectoSistemResults.vue(74,49): error TS2322: Type '"sky"' is not assignable to type '"blue" | "indigo" | "purple" | "teal" | "rainbow" | undefined'.
+src/modules/matsistem/MatSistemView.vue(13,32): error TS6133: 'Award' is declared but its value is never read.
+src/modules/matsistem/MatSistemView.vue(13,56): error TS6133: 'Eye' is declared but its value is never read.
+src/modules/matsistem/MatSistemView.vue(13,61): error TS6133: 'Link' is declared but its value is never read.
+src/modules/matsistem/MatSistemView.vue(13,67): error TS6133: 'Clock' is declared but its value is never read.
+src/modules/matsistem/MatSistemView.vue(14,43): error TS6133: 'Download' is declared but its value is never read.
+src/modules/matsistem/MatSistemView.vue(14,53): error TS6133: 'Users' is declared but its value is never read.
+src/modules/matsistem/MatSistemView.vue(15,16): error TS6133: 'Plus' is declared but its value is never read.
+src/modules/matsistem/MatSistemView.vue(15,22): error TS6133: 'AlertTriangle' is declared but its value is never read.
+src/modules/matsistem/MatSistemView.vue(15,37): error TS6133: 'Sprout' is declared but its value is never read.
+src/modules/matsistem/MatSistemView.vue(15,45): error TS6133: 'Leaf' is declared but its value is never read.
+src/modules/matsistem/MatSistemView.vue(15,51): error TS6133: 'TreeDeciduous' is declared but its value is never read.
+src/modules/matsistem/MatSistemView.vue(16,3): error TS6133: 'Check' is declared but its value is never read.
+src/modules/matsistem/MatSistemView.vue(16,10): error TS6133: 'Signal' is declared but its value is never read.
+src/modules/matsistem/MatSistemView.vue(16,24): error TS6133: 'FileUp' is declared but its value is never read.
+src/modules/matsistem/MatSistemView.vue(16,32): error TS6133: 'ChevronDown' is declared but its value is never read.
+src/modules/matsistem/MatSistemView.vue(20,1): error TS6133: 'Header' is declared but its value is never read.
+src/modules/matsistem/MatSistemView.vue(21,1): error TS6133: 'EduBackground' is declared but its value is never read.
+src/modules/matsistem/MatSistemView.vue(24,1): error TS6133: 'ThinkingLoader' is declared but its value is never read.
+src/modules/matsistem/MatSistemView.vue(47,3): error TS6133: 'uploadError' is declared but its value is never read.
+src/modules/matsistem/MatSistemView.vue(312,26): error TS6133: 'e' is declared but its value is never read.
+src/modules/matsistem/MatSistemView.vue(319,26): error TS6133: 'e' is declared but its value is never read.
