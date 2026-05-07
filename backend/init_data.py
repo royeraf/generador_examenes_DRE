@@ -74,7 +74,9 @@ async def seed_roles(db):
 async def create_first_admin():
     """Crea el primer superusuario si no existe ninguno."""
     from app.core.database import AsyncSessionLocal
-    from app.models import db_models  # noqa: F401 — registra Rol y demás modelos
+    # Importar todos los modelos para registrar el mapper completo
+    from app.models.db_models import Rol, Ugel, InstitucionEducativa  # noqa: F401
+    from app.models.ubigeo import Provincia, Distrito  # noqa: F401
     from app.models.usuario import Usuario
     from app.core.security import get_password_hash
     from sqlalchemy import select, text
