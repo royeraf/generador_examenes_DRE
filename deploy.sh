@@ -22,7 +22,7 @@ echo ">>> Building frontend..."
 cd "$FRONTEND" && npm run build || fail "npm build falló"
 
 echo ">>> Deploying frontend to web root..."
-cp -r "$FRONTEND/dist/"* "$WEB/" || fail "cp dist falló"
+cp -a "$FRONTEND/dist/." "$WEB/" || fail "cp dist falló"
 
 # ─── Backend ─────────────────────────────────────────────────────────────────
 echo ">>> Updating backend dependencies..."
