@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 
 from app.core.database import get_db
+from app.core.db_utils import get_or_404
 from app.models.db_models import Grado, Capacidad, Desempeno, Rol
 from app.models.usuario import Usuario as DocenteModel
 from app.schemas.usuario import Usuario as Docente, UsuarioAdminCreate as DocenteAdminCreate, UsuarioUpdate as DocenteUpdate
@@ -133,11 +134,7 @@ async def update_grado(
     db: AsyncSession = Depends(get_db),
     _: DocenteModel = Depends(get_current_superuser)
 ):
-    result = await db.execute(select(Grado).where(Grado.id == grado_id))
-    db_grado = result.scalars().first()
-
-    if not db_grado:
-        raise HTTPException(status_code=404, detail="Grado not found")
+    db_grado = await get_or_404(db, Grado, grado_id, "Grado not found")
 
     for key, value in grado.dict().items():
         setattr(db_grado, key, value)
@@ -153,11 +150,7 @@ async def delete_grado(
     db: AsyncSession = Depends(get_db),
     _: DocenteModel = Depends(get_current_superuser)
 ):
-    result = await db.execute(select(Grado).where(Grado.id == grado_id))
-    db_grado = result.scalars().first()
-
-    if not db_grado:
-        raise HTTPException(status_code=404, detail="Grado not found")
+    db_grado = await get_or_404(db, Grado, grado_id, "Grado not found")
 
     await db.delete(db_grado)
     await db.commit()
@@ -195,11 +188,7 @@ async def update_capacidad(
     db: AsyncSession = Depends(get_db),
     _: DocenteModel = Depends(get_current_superuser)
 ):
-    result = await db.execute(select(Capacidad).where(Capacidad.id == capacidad_id))
-    db_capacidad = result.scalars().first()
-
-    if not db_capacidad:
-        raise HTTPException(status_code=404, detail="Capacidad not found")
+    db_capacidad = await get_or_404(db, Capacidad, capacidad_id, "Capacidad not found")
 
     for key, value in capacidad.dict().items():
         setattr(db_capacidad, key, value)
@@ -215,11 +204,7 @@ async def delete_capacidad(
     db: AsyncSession = Depends(get_db),
     _: DocenteModel = Depends(get_current_superuser)
 ):
-    result = await db.execute(select(Capacidad).where(Capacidad.id == capacidad_id))
-    db_capacidad = result.scalars().first()
-
-    if not db_capacidad:
-        raise HTTPException(status_code=404, detail="Capacidad not found")
+    db_capacidad = await get_or_404(db, Capacidad, capacidad_id, "Capacidad not found")
 
     await db.delete(db_capacidad)
     await db.commit()
@@ -248,11 +233,7 @@ async def update_desempeno(
     db: AsyncSession = Depends(get_db),
     _: DocenteModel = Depends(get_current_superuser)
 ):
-    result = await db.execute(select(Desempeno).where(Desempeno.id == desempeno_id))
-    db_desempeno = result.scalars().first()
-
-    if not db_desempeno:
-        raise HTTPException(status_code=404, detail="Desempeno not found")
+    db_desempeno = await get_or_404(db, Desempeno, desempeno_id, "Desempeno not found")
 
     for key, value in desempeno.dict().items():
         setattr(db_desempeno, key, value)
@@ -268,11 +249,7 @@ async def delete_desempeno(
     db: AsyncSession = Depends(get_db),
     _: DocenteModel = Depends(get_current_superuser)
 ):
-    result = await db.execute(select(Desempeno).where(Desempeno.id == desempeno_id))
-    db_desempeno = result.scalars().first()
-
-    if not db_desempeno:
-        raise HTTPException(status_code=404, detail="Desempeno not found")
+    db_desempeno = await get_or_404(db, Desempeno, desempeno_id, "Desempeno not found")
 
     await db.delete(db_desempeno)
     await db.commit()

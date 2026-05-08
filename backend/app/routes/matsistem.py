@@ -11,6 +11,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 
 from app.core.database import get_db
+from app.core.db_utils import get_or_404
 from app.models.db_models import (
     Grado,
     CompetenciaMatematica,
@@ -153,15 +154,7 @@ async def get_competencia(competencia_id: int, db: AsyncSession = Depends(get_db
     """
     Obtiene una competencia específica por ID.
     """
-    result = await db.execute(select(CompetenciaMatematica).where(
-        CompetenciaMatematica.id == competencia_id
-    ))
-    competencia = result.scalars().first()
-    
-    if not competencia:
-        raise HTTPException(status_code=404, detail="Competencia no encontrada")
-    
-    return competencia
+    return await get_or_404(db, CompetenciaMatematica, competencia_id, "Competencia no encontrada")
 
 
 # =============================================================================
@@ -389,12 +382,8 @@ async def update_desempeno(
     """
     Actualiza un desempeño existente.
     """
-    result = await db.execute(select(DesempenoMatematica).where(DesempenoMatematica.id == desempeno_id))
-    db_desempeno = result.scalars().first()
-    
-    if not db_desempeno:
-        raise HTTPException(status_code=404, detail="Desempeño no encontrado")
-    
+    db_desempeno = await get_or_404(db, DesempenoMatematica, desempeno_id, "Desempeño no encontrado")
+
     update_data = desempeno.dict(exclude_unset=True)
     for key, value in update_data.items():
         setattr(db_desempeno, key, value)
@@ -409,12 +398,8 @@ async def delete_desempeno(desempeno_id: int, db: AsyncSession = Depends(get_db)
     """
     Elimina un desempeño.
     """
-    result = await db.execute(select(DesempenoMatematica).where(DesempenoMatematica.id == desempeno_id))
-    db_desempeno = result.scalars().first()
-    
-    if not db_desempeno:
-        raise HTTPException(status_code=404, detail="Desempeño no encontrado")
-    
+    db_desempeno = await get_or_404(db, DesempenoMatematica, desempeno_id, "Desempeño no encontrado")
+
     await db.delete(db_desempeno)
     await db.commit()
     return {"message": "Desempeño eliminado correctamente"}
@@ -439,18 +424,10 @@ async def get_curriculo_completo(
     - Todos los desempeños
     """
     # Obtener grado
-    result_grado = await db.execute(select(Grado).where(Grado.id == grado_id))
-    grado = result_grado.scalars().first()
-    if not grado:
-        raise HTTPException(status_code=404, detail="Grado no encontrado")
-    
+    grado = await get_or_404(db, Grado, grado_id, "Grado no encontrado")
+
     # Obtener competencia
-    result_comp = await db.execute(select(CompetenciaMatematica).where(
-        CompetenciaMatematica.id == competencia_id
-    ))
-    competencia = result_comp.scalars().first()
-    if not competencia:
-        raise HTTPException(status_code=404, detail="Competencia no encontrada")
+    competencia = await get_or_404(db, CompetenciaMatematica, competencia_id, "Competencia no encontrada")
     
     # Obtener estándar
     result_est = await db.execute(select(EstandarMatematica).where(

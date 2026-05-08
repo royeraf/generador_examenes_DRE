@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from datetime import datetime
 
 from app.core.database import get_db
+from app.core.db_utils import get_or_404
 from app.models.db_models import Ugel, InstitucionEducativa, InstitucionNivel, Grado, ExamenLectura, ExamenMatematica, AsignacionExamen, IntentoExamen
 from app.models.usuario import Usuario
 from app.models.enums import RolCodigo
@@ -155,10 +156,7 @@ async def actualizar_ugel(
     db: AsyncSession = Depends(get_db),
     current_user: Usuario = Depends(require_role(*DRE_ROLES)),
 ):
-    result = await db.execute(select(Ugel).where(Ugel.id == ugel_id))
-    ugel = result.scalars().first()
-    if not ugel:
-        raise HTTPException(404, "UGEL no encontrada")
+    ugel = await get_or_404(db, Ugel, ugel_id, "UGEL no encontrada")
     for field, value in data.model_dump(exclude_unset=True).items():
         setattr(ugel, field, value)
     await db.flush()
@@ -177,10 +175,7 @@ async def eliminar_ugel(
     db: AsyncSession = Depends(get_db),
     current_user: Usuario = Depends(require_role(*DRE_ROLES)),
 ):
-    result = await db.execute(select(Ugel).where(Ugel.id == ugel_id))
-    ugel = result.scalars().first()
-    if not ugel:
-        raise HTTPException(404, "UGEL no encontrada")
+    ugel = await get_or_404(db, Ugel, ugel_id, "UGEL no encontrada")
     await db.delete(ugel)
     await db.flush()
     return {"ok": True}
@@ -299,10 +294,7 @@ async def actualizar_institucion(
     db: AsyncSession = Depends(get_db),
     current_user: Usuario = Depends(require_role(*DRE_UGEL_ROLES)),
 ):
-    result = await db.execute(select(InstitucionEducativa).where(InstitucionEducativa.id == ie_id))
-    ie = result.scalars().first()
-    if not ie:
-        raise HTTPException(404, "Institución no encontrada")
+    ie = await get_or_404(db, InstitucionEducativa, ie_id, "Institución no encontrada")
 
     if current_user.rol_codigo == RolCodigo.RESPONSABLE_UGEL:
         if ie.ugel_id != current_user.ugel_id:
@@ -340,10 +332,7 @@ async def eliminar_institucion(
     db: AsyncSession = Depends(get_db),
     current_user: Usuario = Depends(require_role(*DRE_UGEL_ROLES)),
 ):
-    result = await db.execute(select(InstitucionEducativa).where(InstitucionEducativa.id == ie_id))
-    ie = result.scalars().first()
-    if not ie:
-        raise HTTPException(404, "Institución no encontrada")
+    ie = await get_or_404(db, InstitucionEducativa, ie_id, "Institución no encontrada")
     if current_user.rol_codigo == RolCodigo.RESPONSABLE_UGEL and ie.ugel_id != current_user.ugel_id:
         raise HTTPException(403, "No tienes acceso a esta institución")
     await db.delete(ie)
@@ -360,10 +349,7 @@ async def mi_ugel(
 ):
     if not current_user.ugel_id:
         raise HTTPException(400, "No tienes una UGEL asignada")
-    result = await db.execute(select(Ugel).where(Ugel.id == current_user.ugel_id))
-    ugel = result.scalars().first()
-    if not ugel:
-        raise HTTPException(404, "UGEL no encontrada")
+    ugel = await get_or_404(db, Ugel, current_user.ugel_id, "UGEL no encontrada")
     return UgelResponse(
         id=ugel.id, codigo=ugel.codigo, nombre=ugel.nombre,
         provincia_id=ugel.provincia_id,
