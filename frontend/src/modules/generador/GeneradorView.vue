@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, shallowRef, onMounted, watch, computed } from 'vue';
 import type { Grado, NivelLogro, DesempenoItem, Examen } from '../../shared/types';
-import type { NivelDificultad } from '../lectosistem/composables/useLectoSistem';
+import type { NivelDificultad } from '../../shared/constants/niveles';
 import desempenosService from '../../shared/services/api';
 import ComboBox from '../../shared/components/ComboBox.vue';
 

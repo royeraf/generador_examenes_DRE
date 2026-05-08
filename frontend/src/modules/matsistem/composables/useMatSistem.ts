@@ -8,16 +8,10 @@ import type {
   NivelLogroMatematica
 } from '../../../shared/types/matematica';
 import desempenosService, { matematicaService } from '../../../shared/services/api';
-
-// Tipo para niveles de dificultad (compartido con useLectoSistem)
-export type NivelDificultad = 'basico' | 'intermedio' | 'avanzado';
-
-export interface NivelDificultadOption {
-  id: NivelDificultad;
-  nombre: string;
-  descripcion: string;
-  icono: string;
-}
+import { NIVELES_DIFICULTAD } from '../../../shared/constants/niveles';
+import { useBaseExam } from '../../../shared/composables/useBaseExam';
+export type { NivelDificultad } from '../../../shared/constants/niveles';
+export type { NivelDificultadOption } from '../../../shared/constants/niveles';
 
 export interface TipoProductoOption {
   id: number;
@@ -26,11 +20,7 @@ export interface TipoProductoOption {
   icono: string;
 }
 
-export const NIVELES_DIFICULTAD: NivelDificultadOption[] = [
-  { id: 'basico', nombre: 'Básico', descripcion: 'Problemas simples y directos', icono: 'Sprout' },
-  { id: 'intermedio', nombre: 'Intermedio', descripcion: 'Demanda cognitiva media', icono: 'Leaf' },
-  { id: 'avanzado', nombre: 'Avanzado', descripcion: 'Alta demanda cognitiva', icono: 'TreeDeciduous' }
-];
+export { NIVELES_DIFICULTAD };
 
 export const TIPOS_PRODUCTO: TipoProductoOption[] = [
   { id: 1, nombre: 'Situación + Preguntas Abiertas', descripcion: 'Situación integradora con 4 preguntas abiertas', icono: 'PenLine' },
@@ -41,6 +31,22 @@ export const TIPOS_PRODUCTO: TipoProductoOption[] = [
 ];
 
 export function useMatSistem() {
+  const {
+    selectedGradoId,
+    selectedDesempenoIds,
+    selectedNivelDificultad,
+    cantidadPreguntas,
+    loading,
+    loadingDesempenos,
+    loadingGrados,
+    descargandoWord,
+    error,
+    showResults,
+    activeTab,
+    selectedDesempenosCount,
+    makeDescargarWord,
+  } = useBaseExam();
+
   // State - Matemática
   const grados = ref<GradoMatematica[]>([]);
   const competencias = ref<CompetenciaMatematica[]>([]);
@@ -48,11 +54,7 @@ export function useMatSistem() {
   const desempenos = ref<DesempenoMatCompleto[]>([]);
   const nivelesLogro = ref<NivelLogroMatematica[]>([]);
 
-  const selectedGradoId = shallowRef<number | null>(null);
   const selectedCompetenciaId = shallowRef<number | null>(null);
-  const selectedDesempenoIds = ref<number[]>([]);
-  const selectedNivelDificultad = shallowRef<NivelDificultad>('intermedio');
-  const cantidadPreguntas = shallowRef(3);
   const textoBase = shallowRef('');
   const useTextoBase = shallowRef(false);
   const contenidoTematico = shallowRef('');
@@ -62,11 +64,6 @@ export function useMatSistem() {
   const uploadingFile = shallowRef(false);
   const uploadError = shallowRef<string | null>(null);
 
-  const loading = shallowRef(false);
-  const loadingDesempenos = shallowRef(false);
-  const loadingGrados = shallowRef(true);
-  const descargandoWord = shallowRef(false);
-  const error = shallowRef<string | null>(null);
   const resultado = ref<{
     grado: string;
     desempenos_usados: string;
@@ -74,9 +71,7 @@ export function useMatSistem() {
     examen: Examen;
     total_preguntas: number;
   } | null>(null);
-  const showResults = shallowRef(false);
   const activeCapacidadTab = shallowRef<number>(1);
-  const activeTab = shallowRef<string>('generador');
 
   // Computed - Desempeños agrupados por capacidad (orden 1-4)
   const desempenosPorCapacidad = computed(() => {
@@ -93,8 +88,6 @@ export function useMatSistem() {
     });
     return grupos;
   });
-
-  const selectedDesempenosCount = computed(() => selectedDesempenoIds.value.length);
 
   const gradosPorNivel = computed(() => {
     return {
@@ -307,21 +300,7 @@ export function useMatSistem() {
     }
   };
 
-  const descargarExamenWord = async () => {
-    if (!resultado.value?.examen) return;
-    descargandoWord.value = true;
-    try {
-      await desempenosService.descargarWord(
-        resultado.value.examen,
-        resultado.value.grado
-      );
-    } catch (e: any) {
-      error.value = 'Error al descargar el documento Word';
-      console.error('Error:', e);
-    } finally {
-      descargandoWord.value = false;
-    }
-  };
+  const descargarExamenWord = makeDescargarWord(resultado);
 
   return {
     grados,

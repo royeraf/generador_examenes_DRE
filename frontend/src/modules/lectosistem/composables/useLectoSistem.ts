@@ -1,16 +1,10 @@
 import { ref, shallowRef, watch, computed } from 'vue';
 import type { Examen, DesempenoItem, Grado, NivelLogro } from '../../../shared/types';
 import desempenosService from '../../../shared/services/api';
-
-// Tipo para niveles de dificultad
-export type NivelDificultad = 'basico' | 'intermedio' | 'avanzado';
-
-export interface NivelDificultadOption {
-  id: NivelDificultad;
-  nombre: string;
-  descripcion: string;
-  icono: string;
-}
+import { NIVELES_DIFICULTAD } from '../../../shared/constants/niveles';
+import { useBaseExam } from '../../../shared/composables/useBaseExam';
+export type { NivelDificultad } from '../../../shared/constants/niveles';
+export type { NivelDificultadOption } from '../../../shared/constants/niveles';
 
 export interface TextoBaseItem {
   id: number;
@@ -43,36 +37,30 @@ function loadTextosFromStorage(makeTexto: () => TextoBaseItem): TextoBaseItem[] 
   }
 }
 
-export const NIVELES_DIFICULTAD: NivelDificultadOption[] = [
-  {
-    id: 'basico',
-    nombre: 'Básico',
-    descripcion: 'Preguntas simples y sencillas',
-    icono: 'Sprout'
-  },
-  {
-    id: 'intermedio',
-    nombre: 'Intermedio',
-    descripcion: 'Demanda cognitiva media',
-    icono: 'Leaf'
-  },
-  {
-    id: 'avanzado',
-    nombre: 'Avanzado',
-    descripcion: 'Alta demanda cognitiva',
-    icono: 'TreeDeciduous'
-  }
-];
+export { NIVELES_DIFICULTAD };
 
 export function useLectoSistem() {
+  const {
+    selectedGradoId,
+    selectedDesempenoIds,
+    selectedNivelDificultad,
+    cantidadPreguntas,
+    loading,
+    loadingDesempenos,
+    loadingGrados,
+    descargandoWord,
+    error,
+    showResults,
+    activeTab,
+    selectedDesempenosCount,
+    makeDescargarWord,
+  } = useBaseExam();
+
   const grados = ref<Grado[]>([]);
   const desempenos = ref<DesempenoItem[]>([]);
   const niveles = ref<NivelLogro[]>([]);
 
-  const selectedGradoId = shallowRef<number | null>(null);
-  const selectedDesempenoIds = ref<number[]>([]);
   const selectedNivelLogro = shallowRef<string>('en_proceso');
-  const selectedNivelDificultad = shallowRef<NivelDificultad>('intermedio');
   const selectedTipoTextual = shallowRef<string | null>(null);
   const selectedFormatoTextual = shallowRef<string | null>(null);
 
@@ -91,7 +79,6 @@ export function useLectoSistem() {
     { id: 'multiple', label: 'Múltiple (Varias Fuentes)' }
   ];
 
-  const cantidadPreguntas = shallowRef(3);
   const cantidadLiteral = shallowRef(1);
   const cantidadInferencial = shallowRef(1);
   const cantidadCritico = shallowRef(1);
@@ -118,11 +105,6 @@ export function useLectoSistem() {
   };
   const clearTextos = () => { _nextTextoId = 1; textosBase.value = [_makeTexto()]; };
 
-  const loading = shallowRef(false);
-  const loadingDesempenos = shallowRef(false);
-  const loadingGrados = shallowRef(true);
-  const descargandoWord = shallowRef(false);
-  const error = shallowRef<string | null>(null);
   const resultado = ref<{
     grado: string;
     desempenos_usados: string;
@@ -131,12 +113,8 @@ export function useLectoSistem() {
     lecturas?: { titulo: string; texto: string }[];
     total_preguntas: number;
   } | null>(null);
-  const showResults = shallowRef(false);
   const activeCapacidadTab = shallowRef<string>('literal');
-  const activeTab = shallowRef<string>('generador');
 
-  const selectedDesempenosCount = computed(() => selectedDesempenoIds.value.length);
-  
   const totalBreakdown = computed(() => cantidadLiteral.value + cantidadInferencial.value + cantidadCritico.value);
   const isBreakdownValid = computed(() => totalBreakdown.value === Number(cantidadPreguntas.value));
 
@@ -309,18 +287,7 @@ export function useLectoSistem() {
     }
   };
 
-  const descargarExamenWord = async () => {
-    if (!resultado.value?.examen) return;
-    descargandoWord.value = true;
-    try {
-      await desempenosService.descargarWord(resultado.value.examen, resultado.value.grado);
-    } catch (e: any) {
-      error.value = 'Error al descargar el documento Word';
-      console.error('Error:', e);
-    } finally {
-      descargandoWord.value = false;
-    }
-  };
+  const descargarExamenWord = makeDescargarWord(resultado);
 
   const getCapacidadLabel = (tipo: string): string => {
     const labels: Record<string, string> = {
@@ -363,7 +330,6 @@ export function useLectoSistem() {
     clearTextos,
     handleFileUploadAt,
     clearFilesAt,
-    // New fields
     selectedTipoTextual,
     selectedFormatoTextual,
     tipoTextualOptions,
