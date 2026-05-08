@@ -8,7 +8,7 @@ from app.core.database import get_db
 from app.models.db_models import Grado, Capacidad, Desempeno, ExamenLectura
 from app.models.usuario import Usuario
 from app.services.lectosistem_service import lectosistem_service
-from app.services import file_service
+from app.services.file_service import file_extraction_service
 from app.services.word_generator import generar_examen_word
 from app.api.dependencies import require_modulo
 
@@ -236,7 +236,7 @@ async def upload_texto_base(files: list[UploadFile] = File(...)):
 
     for file in files:
         try:
-            text, metadata = await file_service.extract_text_from_file(file)
+            text, metadata = await file_extraction_service.extract_text_from_file(file)
             textos.append(f"=== {metadata['filename']} ===\n{text}")
             archivos_metadata.append(metadata)
             total_palabras += metadata["palabras"]
