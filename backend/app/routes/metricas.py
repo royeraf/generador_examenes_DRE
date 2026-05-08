@@ -157,7 +157,7 @@ async def resumen_metricas(
     except Exception:
         pass  # tablas pueden no existir en migraciones anteriores
 
-    # Exámenes recientes (últimos 5)
+    # Exámenes recientes (últimos 5 de cada área, luego ordenar en Python)
     if lec_filter is True:
         r_lec = await db.execute(
             select(ExamenLectura).order_by(ExamenLectura.fecha_creacion.desc()).limit(5)
@@ -168,7 +168,17 @@ async def resumen_metricas(
         )
     recientes_lec = r_lec.scalars().all()
 
-    recientes = [
+    if mat_filter is True:
+        r_mat = await db.execute(
+            select(ExamenMatematica).order_by(ExamenMatematica.fecha_creacion.desc()).limit(5)
+        )
+    else:
+        r_mat = await db.execute(
+            select(ExamenMatematica).where(mat_filter).order_by(ExamenMatematica.fecha_creacion.desc()).limit(5)
+        )
+    recientes_mat = r_mat.scalars().all()
+
+    recientes_combinados = [
         {
             "id": e.id,
             "titulo": e.titulo or f"Examen {e.grado_nombre}",
@@ -177,7 +187,19 @@ async def resumen_metricas(
             "fecha": e.fecha_creacion.isoformat() if e.fecha_creacion else None,
         }
         for e in recientes_lec
+    ] + [
+        {
+            "id": e.id,
+            "titulo": e.titulo or f"Examen {e.grado_nombre}",
+            "grado": e.grado_nombre or "—",
+            "area": "matematica",
+            "fecha": e.fecha_creacion.isoformat() if e.fecha_creacion else None,
+        }
+        for e in recientes_mat
     ]
+    
+    recientes_combinados.sort(key=lambda x: x["fecha"] or "", reverse=True)
+    recientes = recientes_combinados[:5]
 
     return {
         "total_examenes_lectura": total_lectura,
