@@ -16,10 +16,10 @@ cd "$REPO" && git pull || fail "git pull falló"
 
 # ─── Frontend ────────────────────────────────────────────────────────────────
 echo ">>> Installing frontend dependencies..."
-cd "$FRONTEND" && npm install || fail "npm install falló"
+cd "$FRONTEND" && pnpm install || fail "pnpm install falló"
 
 echo ">>> Building frontend..."
-cd "$FRONTEND" && npm run build || fail "npm build falló"
+cd "$FRONTEND" && pnpm run build || fail "pnpm build falló"
 
 echo ">>> Deploying frontend to web root..."
 cp -a "$FRONTEND/dist/." "$WEB/" || fail "cp dist falló"

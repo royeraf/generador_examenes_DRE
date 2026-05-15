@@ -83,9 +83,19 @@ export const useAuthStore = defineStore('auth', () => {
   async function login(identifier: string, password: string) {
     const data = await authService.login(identifier, password)
     token.value = data.access_token
-    // Cookie para que nginx bypasee el caché en peticiones autenticadas
     document.cookie = '_logged_in_=1; path=/; SameSite=Lax'
-    await fetchMe()
+    // Retry fetchMe hasta 2 veces para tolerar caché transitorio de nginx
+    let lastError: unknown
+    for (let i = 0; i < 3; i++) {
+      try {
+        await fetchMe()
+        return
+      } catch (e) {
+        lastError = e
+        if (i < 2) await new Promise(r => setTimeout(r, 400))
+      }
+    }
+    throw lastError
   }
 
   function logout() {
