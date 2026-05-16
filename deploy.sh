@@ -16,7 +16,7 @@ cd "$REPO" && git pull || fail "git pull falló"
 
 # ─── Frontend ────────────────────────────────────────────────────────────────
 echo ">>> Installing frontend dependencies..."
-cd "$FRONTEND" && pnpm install || fail "pnpm install falló"
+cd "$FRONTEND" && pnpm install --no-frozen-lockfile || fail "pnpm install falló"
 
 echo ">>> Building frontend..."
 cd "$FRONTEND" && pnpm run build || fail "pnpm build falló"
