@@ -31,6 +31,7 @@ const emit = defineEmits<{
     (e: 'update:selectedDesempenoIds', value: number[]): void;
     (e: 'selectAllCapacidad', orden: number): void;
     (e: 'deselectAllCapacidad', orden: number): void;
+    (e: 'deselectAll'): void;
     (e: 'generarPreguntas'): void;
 }>();
 
@@ -154,11 +155,18 @@ watch(() => props.error, () => { errorDismissed.value = false; });
                             </p>
                         </div>
                     </div>
-                    <span v-if="selectedDesempenosCount > 0"
-                        class="px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-amber-400 text-amber-900 text-[10px] sm:text-xs font-bold shadow-lg flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
-                        <CheckCircle2 class="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                        {{ selectedDesempenosCount }}
-                    </span>
+                    <div class="flex items-center gap-2">
+                        <span v-if="selectedDesempenosCount > 0"
+                            class="px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-amber-400 text-amber-900 text-[10px] sm:text-xs font-bold shadow-lg flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
+                            <CheckCircle2 class="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                            {{ selectedDesempenosCount }}
+                        </span>
+                        <button v-if="selectedDesempenosCount > 0" @click="emit('deselectAll')"
+                            class="p-1.5 rounded-full bg-white/10 hover:bg-white/25 text-white/80 hover:text-white transition-all duration-200 group flex items-center justify-center border border-white/10"
+                            title="Deseleccionar todos (Global)">
+                            <X class="w-3.5 h-3.5 transition-transform group-hover:rotate-90" />
+                        </button>
+                    </div>
                 </div>
             </div>
 

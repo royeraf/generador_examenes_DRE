@@ -56,6 +56,7 @@ const {
   loadInitialData,
   selectAllCapacidad,
   deselectAllCapacidad,
+  deselectAll,
   handleFileUpload,
   clearFiles,
   generarPreguntas,
@@ -523,6 +524,7 @@ onMounted(async () => {
             :fill-height="true"
             @select-all-capacidad="selectAllCapacidad"
             @deselect-all-capacidad="deselectAllCapacidad"
+            @deselect-all="deselectAll"
             @generar-preguntas="onGenerarPreguntas" />
         </aside>
         

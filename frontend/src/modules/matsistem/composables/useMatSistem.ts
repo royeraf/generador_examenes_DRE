@@ -189,6 +189,10 @@ export function useMatSistem() {
     selectedDesempenoIds.value = selectedDesempenoIds.value.filter(id => !ids.includes(id));
   };
 
+  const deselectAll = () => {
+    selectedDesempenoIds.value = [];
+  };
+
   const handleFileUpload = async (event: Event) => {
     const input = event.target as HTMLInputElement;
     const files = input.files;
@@ -340,6 +344,7 @@ export function useMatSistem() {
     loadInitialData,
     selectAllCapacidad,
     deselectAllCapacidad,
+    deselectAll,
     handleFileUpload,
     clearFiles,
     generarPreguntas,
