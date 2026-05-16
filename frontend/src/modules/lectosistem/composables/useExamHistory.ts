@@ -1,37 +1,38 @@
 import { ref } from 'vue';
 import type { ExamenHistoryEntry, GenerarExamenResponse, FilaTablaRespuestas, PreguntaConfig, DesempenoItem } from '../../../shared/types';
 import { examenesService } from '../../../shared/services/api';
+import { Toast } from '../../../shared/utils/swal';
 
 // Module-level shared state (singleton)
 const history = ref<ExamenHistoryEntry[]>([]);
 const loadingHistory = ref(false);
 const loadingDelete = ref<string | null>(null);
+const fetchError = ref<string | null>(null);
 
 export function useExamHistory() {
 
     async function fetchHistory() {
         loadingHistory.value = true;
+        fetchError.value = null;
         try {
             const data = await examenesService.getExamenesLectura();
-            // Map backend summary to frontend history entry
             history.value = data.map((ex: any) => ({
                 id: ex.id.toString(),
                 fechaCreacion: ex.fecha_creacion,
                 gradoLabel: ex.grado_nombre || 'Grado no especificado',
                 gradoId: ex.grado_id,
-                // For the list we store a partial result, full fetch happens on demand if needed
-                // or we can store what we have.
                 resultado: {
                     grado: ex.grado_nombre,
                     total_preguntas: ex.total_preguntas,
                     examen: {
                         titulo: ex.titulo,
                         grado: ex.grado_nombre,
-                        // Full content will be loaded on demand in the view
                     }
                 } as any
             }));
-        } catch (error) {
+        } catch (error: any) {
+            const msg = error?.response?.data?.detail || 'Error al cargar el historial';
+            fetchError.value = msg;
             console.error('Error fetching history:', error);
         } finally {
             loadingHistory.value = false;
@@ -39,27 +40,31 @@ export function useExamHistory() {
     }
 
     async function saveExam(resultado: GenerarExamenResponse, gradoLabel: string, params?: any): Promise<void> {
-        try {
-            const payload = {
-                grado_id: params?.grado_id || null,
-                titulo: resultado.examen.titulo,
-                grado_nombre: gradoLabel,
-                nivel_dificultad: params?.nivel_dificultad || 'intermedio',
-                modelo_ia: params?.modelo || 'gemini',
-                saludo: resultado.saludo,
-                instrucciones: resultado.examen.instrucciones,
-                lectura: resultado.examen.lectura,
-                lecturas: (resultado as any).lecturas ?? null,
-                preguntas: resultado.examen.preguntas,
-                tabla_respuestas: resultado.examen.tabla_respuestas,
-                desempenos_usados: resultado.desempenos_usados
-            };
+        const payload = {
+            grado_id: params?.grado_id || null,
+            titulo: resultado.examen.titulo,
+            grado_nombre: gradoLabel,
+            nivel_dificultad: params?.nivel_dificultad || 'intermedio',
+            modelo_ia: params?.modelo || 'gemini',
+            saludo: resultado.saludo,
+            instrucciones: resultado.examen.instrucciones,
+            lectura: resultado.examen.lectura,
+            lecturas: resultado.lecturas ?? null,
+            preguntas: resultado.examen.preguntas,
+            tabla_respuestas: resultado.examen.tabla_respuestas,
+            desempenos_usados: resultado.desempenos_usados
+        };
 
+        try {
             await examenesService.saveExamenLectura(payload);
-            await fetchHistory(); // Refresh
-        } catch (error) {
+        } catch (error: any) {
+            const msg = error?.response?.data?.detail || 'No se pudo guardar el examen';
+            Toast.fire({ icon: 'error', title: msg });
             console.error('Error saving exam:', error);
+            return;
         }
+
+        await fetchHistory();
     }
 
     async function getFullExam(id: string): Promise<ExamenHistoryEntry | null> {
@@ -108,7 +113,7 @@ export function useExamHistory() {
         history.value = [];
     }
 
-    return { history, loadingHistory, loadingDelete, fetchHistory, saveExam, getFullExam, removeExam, clearHistory };
+    return { history, loadingHistory, loadingDelete, fetchError, fetchHistory, saveExam, getFullExam, removeExam, clearHistory };
 }
 
 /**

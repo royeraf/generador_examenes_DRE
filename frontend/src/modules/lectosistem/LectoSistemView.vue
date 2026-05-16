@@ -70,12 +70,12 @@ const {
 const {
   history,
   loadingHistory,
+  fetchError,
   fetchHistory,
   saveExam,
   getFullExam,
   removeExam,
   loadingDelete,
-  clearHistory
 } = useExamHistory();
 
 // Provide for Sistematizador linkage
@@ -155,8 +155,15 @@ watch(resultado, async (newVal) => {
     await saveExam(newVal, grado?.nombre || newVal.grado, {
       grado_id: selectedGradoId.value,
       nivel_dificultad: selectedNivelDificultad.value,
-      modelo: 'gemini' // Or whatever is being used
+      modelo: 'gemini'
     });
+  }
+});
+
+// Refrescar historial cada vez que el usuario cambia a esa pestaña
+watch(activeTab, (tab) => {
+  if (tab === 'historial') {
+    fetchHistory();
   }
 });
 
@@ -242,10 +249,11 @@ async function onGenerarPreguntas() {
 
 async function confirmarLimpiarHistorial() {
   const confirmed = await showDeleteConfirm('¿Limpiar todo el historial?', 'Se eliminarán todos los exámenes guardados');
-  if (confirmed) {
-    clearHistory();
-    Toast.fire({ icon: 'success', title: 'Historial limpiado' });
-  }
+  if (!confirmed) return;
+  const ids = history.value.map(e => e.id);
+  await Promise.allSettled(ids.map(id => removeExam(id)));
+  await fetchHistory();
+  Toast.fire({ icon: 'success', title: 'Historial limpiado' });
 }
 
 // formatFechaHora importado de shared/utils/dateUtils
@@ -519,6 +527,10 @@ onMounted(async () => {
         <div v-if="loadingHistory" class="flex-1 flex flex-col items-center justify-center">
           <Loader2 class="w-8 h-8 text-slate-800 dark:text-white animate-spin mb-4" />
           <p class="text-slate-500 dark:text-slate-400 text-sm">Cargando historial...</p>
+        </div>
+        <div v-else-if="fetchError" class="flex-1 flex flex-col items-center justify-center gap-3">
+          <p class="text-red-400 text-sm text-center">{{ fetchError }}</p>
+          <button @click="fetchHistory()" class="text-xs px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">Reintentar</button>
         </div>
         <div v-else-if="history.length === 0" class="flex-1 flex flex-col items-center justify-center">
           <History class="w-10 h-10 text-slate-800 dark:text-white/20 mx-auto mb-4" />

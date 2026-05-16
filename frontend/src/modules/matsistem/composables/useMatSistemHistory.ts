@@ -1,16 +1,19 @@
 import { ref } from 'vue';
 import type { ExamenHistoryEntry, GenerarExamenResponse } from '../../../shared/types';
 import { examenesService } from '../../../shared/services/api';
+import { Toast } from '../../../shared/utils/swal';
 
 // Module-level shared state (singleton)
 const history = ref<ExamenHistoryEntry[]>([]);
 const loadingHistory = ref(false);
 const loadingDelete = ref<string | null>(null);
+const fetchError = ref<string | null>(null);
 
 export function useMatSistemHistory() {
 
     async function fetchHistory() {
         loadingHistory.value = true;
+        fetchError.value = null;
         try {
             const data = await examenesService.getExamenesMatematica();
             history.value = data.map((ex: any) => ({
@@ -27,7 +30,9 @@ export function useMatSistemHistory() {
                     }
                 } as any
             }));
-        } catch (error) {
+        } catch (error: any) {
+            const msg = error?.response?.data?.detail || 'Error al cargar el historial';
+            fetchError.value = msg;
             console.error('Error fetching math history:', error);
         } finally {
             loadingHistory.value = false;
@@ -35,26 +40,31 @@ export function useMatSistemHistory() {
     }
 
     async function saveExam(resultado: GenerarExamenResponse, gradoLabel: string, params?: any): Promise<void> {
-        try {
-            const payload = {
-                grado_id: params?.grado_id || null,
-                competencia_id: params?.competencia_id || null,
-                titulo: resultado.examen.titulo,
-                grado_nombre: gradoLabel,
-                nivel_dificultad: params?.nivel_dificultad || 'intermedio',
-                modelo_ia: params?.modelo || 'gemini',
-                saludo: resultado.saludo,
-                situacion_problematica: (resultado.examen as any).situacion_problematica,
-                preguntas: resultado.examen.preguntas,
-                tabla_respuestas: resultado.examen.tabla_respuestas,
-                desempenos_usados: resultado.desempenos_usados
-            };
+        // resultado.examen.lectura contiene la situacion_problematica (mapeada en useMatSistem)
+        const payload = {
+            grado_id: params?.grado_id || null,
+            competencia_id: params?.competencia_id || null,
+            titulo: resultado.examen.titulo,
+            grado_nombre: gradoLabel,
+            nivel_dificultad: params?.nivel_dificultad || 'intermedio',
+            modelo_ia: params?.modelo || 'gemini',
+            saludo: resultado.saludo,
+            situacion_problematica: resultado.examen.lectura,
+            preguntas: resultado.examen.preguntas,
+            tabla_respuestas: resultado.examen.tabla_respuestas,
+            desempenos_usados: resultado.desempenos_usados
+        };
 
+        try {
             await examenesService.saveExamenMatematica(payload);
-            await fetchHistory();
-        } catch (error) {
+        } catch (error: any) {
+            const msg = error?.response?.data?.detail || 'No se pudo guardar el examen';
+            Toast.fire({ icon: 'error', title: msg });
             console.error('Error saving math exam:', error);
+            return;
         }
+
+        await fetchHistory();
     }
 
     async function getFullExam(id: string): Promise<ExamenHistoryEntry | null> {
@@ -102,5 +112,5 @@ export function useMatSistemHistory() {
         history.value = [];
     }
 
-    return { history, loadingHistory, loadingDelete, fetchHistory, saveExam, getFullExam, removeExam, clearHistory };
+    return { history, loadingHistory, loadingDelete, fetchError, fetchHistory, saveExam, getFullExam, removeExam, clearHistory };
 }

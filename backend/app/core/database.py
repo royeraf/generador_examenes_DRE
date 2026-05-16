@@ -15,6 +15,9 @@ if DATABASE_URL.startswith("sqlite"):
 elif "render.com" in DATABASE_URL:
     connect_args = {"ssl": "require"}
     engine_kwargs = {"pool_pre_ping": True, "pool_size": 10, "max_overflow": 20}
+elif DATABASE_URL.startswith("mysql") or DATABASE_URL.startswith("mariadb"):
+    connect_args = {"charset": "utf8mb4"}
+    engine_kwargs = {"pool_pre_ping": True, "pool_size": 10, "max_overflow": 20}
 else:
     connect_args = {}
     engine_kwargs = {"pool_pre_ping": True, "pool_size": 10, "max_overflow": 20}
