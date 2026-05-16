@@ -14,7 +14,7 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy import text, inspect
+from sqlalchemy import text, inspect as sa_inspect
 
 
 revision: str = 'b2c4d6e8f0a2'
@@ -24,16 +24,13 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def table_exists(conn, name: str) -> bool:
-    result = conn.execute(
-        text("SELECT name FROM sqlite_master WHERE type='table' AND name=:n"),
-        {"n": name}
-    )
-    return result.fetchone() is not None
+    return sa_inspect(conn).has_table(name)
 
 
 def column_exists(conn, table: str, column: str) -> bool:
-    result = conn.execute(text(f"PRAGMA table_info({table})"))
-    return any(row[1] == column for row in result.fetchall())
+    if not table_exists(conn, table):
+        return False
+    return column in {c['name'] for c in sa_inspect(conn).get_columns(table)}
 
 
 def upgrade() -> None:
@@ -64,9 +61,10 @@ def upgrade() -> None:
         (6, 'docente', 'Docente', 'Docente que genera y asigna exámenes', 5, 6),
         (7, 'estudiante', 'Estudiante', 'Estudiante que rinde exámenes', 6, 7),
     ]
+    insert_ignore = "INSERT OR IGNORE" if conn.dialect.name == "sqlite" else "INSERT IGNORE"
     for r in roles:
         conn.execute(text(
-            "INSERT OR IGNORE INTO roles (id, codigo, nombre, descripcion, nivel, orden) "
+            f"{insert_ignore} INTO roles (id, codigo, nombre, descripcion, nivel, orden) "
             "VALUES (:id, :codigo, :nombre, :descripcion, :nivel, :orden)"
         ), {"id": r[0], "codigo": r[1], "nombre": r[2], "descripcion": r[3], "nivel": r[4], "orden": r[5]})
 
@@ -264,13 +262,12 @@ def downgrade() -> None:
     conn.execute(text("DROP TABLE IF EXISTS asignaciones_examen"))
     conn.execute(text("DROP TABLE IF EXISTS codigos_clase"))
 
-    conn.execute(text("DROP INDEX IF EXISTS ix_usuarios_ie_id"))
-    conn.execute(text("DROP INDEX IF EXISTS ix_usuarios_ugel_id"))
-    conn.execute(text("DROP INDEX IF EXISTS ix_usuarios_rol_id"))
-    conn.execute(text("DROP INDEX IF EXISTS ix_usuarios_codigo_estudiante"))
+    if conn.dialect.name == "sqlite":
+        conn.execute(text("DROP INDEX IF EXISTS ix_usuarios_ie_id"))
+        conn.execute(text("DROP INDEX IF EXISTS ix_usuarios_ugel_id"))
+        conn.execute(text("DROP INDEX IF EXISTS ix_usuarios_rol_id"))
+        conn.execute(text("DROP INDEX IF EXISTS ix_usuarios_codigo_estudiante"))
 
-    # Quitar columnas nuevas (SQLite no tiene DROP COLUMN — requiere recrear tabla)
-    # Para simplificar, solo renombramos de vuelta
     if table_exists(conn, 'usuarios') and not table_exists(conn, 'docentes'):
         conn.execute(text("ALTER TABLE usuarios RENAME TO docentes"))
 
