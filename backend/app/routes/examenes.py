@@ -38,6 +38,8 @@ def _extraer_pregunta(p: dict, tabla_map: dict) -> dict:
             opciones[letra] = str(texto)
     info = tabla_map.get(num, {})
     rc = str(info.get("respuesta_correcta") or "")[:1]
+    nivel_raw = p.get("nivel") or info.get("nivel") or ""
+    dc_raw = p.get("desempeno_codigo") or info.get("desempeno") or ""
     return {
         "numero": num,
         "enunciado": p.get("enunciado", ""),
@@ -46,8 +48,8 @@ def _extraer_pregunta(p: dict, tabla_map: dict) -> dict:
         "opcion_c": opciones.get("C", ""),
         "opcion_d": opciones.get("D", ""),
         "respuesta_correcta": rc,
-        "nivel": p.get("nivel") or info.get("nivel"),
-        "desempeno_codigo": p.get("desempeno_codigo") or info.get("desempeno"),
+        "nivel": str(nivel_raw)[:20] if nivel_raw else None,
+        "desempeno_codigo": str(dc_raw)[:50] if dc_raw else None,
         "desempeno_descripcion": info.get("desempeno"),
         "justificacion": info.get("justificacion"),
     }
