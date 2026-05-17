@@ -13,7 +13,6 @@ import {
     LayoutGrid,
     Sparkles,
     GraduationCap,
-    Link,
     Target
 } from 'lucide-vue-next';
 import ThinkingLoader from '../../../shared/components/ThinkingLoader.vue';
@@ -36,7 +35,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     (e: 'descargarExamenWord'): void;
-    (e: 'vincularSistematizador'): void;
+    // (e: 'vincularSistematizador'): void;
 }>();
 
 const getJustificacion = (numeroPregunta: number): string | undefined => {
@@ -124,11 +123,11 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                     </div>
                 </div>
                 <div class="flex gap-2">
-                    <button @click="emit('vincularSistematizador')"
+                    <!-- <button @click="emit('vincularSistematizador')"
                         class="flex-1 py-2.5 bg-white/90 hover:bg-white text-indigo-600 text-sm font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md">
                         <Link class="w-4 h-4" />
                         Vincular
-                    </button>
+                    </button> -->
                     <button @click="emit('descargarExamenWord')" :disabled="descargandoWord"
                         class="flex-1 py-2.5 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 border border-white/40 disabled:opacity-50">
                         <Loader2 v-if="descargandoWord" class="w-4 h-4 animate-spin" />

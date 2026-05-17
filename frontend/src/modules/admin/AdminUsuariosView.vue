@@ -134,7 +134,7 @@ const TODOS_MODULOS = [
   { id: 'lectosistem',          label: 'LectoSistem' },
   { id: 'matsistem',            label: 'MatSistem' },
   { id: 'asignaciones',         label: 'Asignaciones' },
-  { id: 'codigos_clase',        label: 'Códigos de Clase' },
+  { id: 'codigos_clase',        label: 'Aulas' },
   { id: 'metricas',             label: 'Métricas' },
   { id: 'admin_desempenos',     label: 'Desempeños (Curricular)' },
   { id: 'admin_ugeles',         label: 'Gestión UGELes' },

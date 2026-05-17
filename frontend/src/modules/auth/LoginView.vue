@@ -383,7 +383,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                         <p class="text-center text-xs text-slate-500 dark:text-slate-400 mt-5">
                             ¿Estudiante sin cuenta?
                             <router-link to="/registro" class="text-teal-600 dark:text-teal-400 font-semibold hover:underline">
-                                Registrarse con código de clase
+                                Registrarse con código de aula
                             </router-link>
                         </p>
                     </div>

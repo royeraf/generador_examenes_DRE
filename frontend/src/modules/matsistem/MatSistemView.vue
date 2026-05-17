@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { shallowRef, ref, onMounted, onUnmounted, watch, provide } from 'vue';
+import { shallowRef, ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
-import Sistematizador from '../generador/components/Sistematizador.vue';
+// import Sistematizador from '../generador/components/Sistematizador.vue';
 import { useMatSistemHistory } from './composables/useMatSistemHistory';
 import { useMatSistem } from './composables/useMatSistem';
 import { showDeleteConfirm, Toast } from '../../shared/utils/swal';
@@ -12,7 +12,8 @@ import type { AsignacionPayload } from '../../shared/services/api';
 import {
   Brain, Sparkles, LayoutGrid, History, Trash2,
   GraduationCap, FileText, Home, Loader2, X,
-  CloudUpload, Target, Calculator, RefreshCw, Shapes, BarChart3, BookOpen, Hash
+  CloudUpload, Target, Calculator, RefreshCw, Shapes, BarChart3, BookOpen, Hash,
+  Eye, FileDown, Send, PanelLeft,
 } from 'lucide-vue-next';
 
 const router = useRouter();
@@ -22,7 +23,7 @@ import MatSistemDesempenos from './components/MatSistemDesempenos.vue';
 import MatSistemResults from './components/MatSistemResults.vue';
 import MatSistemExamPreviewModal from './components/MatSistemExamPreviewModal.vue';
 import UserBadge from '../../shared/components/UserBadge.vue';
-import type { ExamenHistoryEntry, FilaTablaRespuestas } from '../../shared/types';
+import type { ExamenHistoryEntry } from '../../shared/types';
 import type { GradoMatematica } from '../../shared/types/matematica';
 
 const {
@@ -74,14 +75,14 @@ const {
   loadingDelete,
 } = useMatSistemHistory();
 
-// Provide for Sistematizador linkage
-const examForSistematizador = shallowRef<{ tablaRespuestas: FilaTablaRespuestas[]; gradoId: number | null } | null>(null);
-provide('examForSistematizador', examForSistematizador);
+// // Provide for Sistematizador linkage
+// const examForSistematizador = shallowRef<{ tablaRespuestas: FilaTablaRespuestas[]; gradoId: number | null } | null>(null);
+// provide('examForSistematizador', examForSistematizador);
 
 
 const previewEntry = shallowRef<ExamenHistoryEntry | null>(null);
 const loadingPreview = shallowRef<string | null>(null);
-const loadingLink = shallowRef<string | null>(null);
+// const loadingLink = shallowRef<string | null>(null);
 const loadingWordDownload = shallowRef<string | null>(null);
 const downloadingPreviewWord = ref(false);
 
@@ -161,33 +162,31 @@ watch(activeTab, (tab) => {
   }
 });
 
-// Vincular with sistematizador
-function vincularConSistematizador() {
-  if (resultado.value?.examen.tabla_respuestas) {
-    examForSistematizador.value = {
-      tablaRespuestas: resultado.value.examen.tabla_respuestas,
-      gradoId: selectedGradoId.value,
-    };
-    activeTab.value = 'sistematizador';
-  }
-}
+// // Vincular with sistematizador
+// function vincularConSistematizador() {
+//   if (resultado.value?.examen.tabla_respuestas) {
+//     examForSistematizador.value = {
+//       tablaRespuestas: resultado.value.examen.tabla_respuestas,
+//       gradoId: selectedGradoId.value,
+//     };
+//     activeTab.value = 'sistematizador';
+//   }
+// }
 
-async function vincularDesdeHistorial(index: number) {
-  const summaryEntry = history.value[index];
-  if (!summaryEntry) return;
-
-  loadingLink.value = summaryEntry.id;
-  const fullEntry = await getFullExam(summaryEntry.id);
-  loadingLink.value = null;
-
-  if (fullEntry?.resultado.examen.tabla_respuestas) {
-    examForSistematizador.value = {
-      tablaRespuestas: fullEntry.resultado.examen.tabla_respuestas,
-      gradoId: fullEntry.gradoId,
-    };
-    activeTab.value = 'sistematizador';
-  }
-}
+// async function vincularDesdeHistorial(index: number) {
+//   const summaryEntry = history.value[index];
+//   if (!summaryEntry) return;
+//   loadingLink.value = summaryEntry.id;
+//   const fullEntry = await getFullExam(summaryEntry.id);
+//   loadingLink.value = null;
+//   if (fullEntry?.resultado.examen.tabla_respuestas) {
+//     examForSistematizador.value = {
+//       tablaRespuestas: fullEntry.resultado.examen.tabla_respuestas,
+//       gradoId: fullEntry.gradoId,
+//     };
+//     activeTab.value = 'sistematizador';
+//   }
+// }
 
 async function cargarExamen(index: number) {
   const summaryEntry = history.value[index];
@@ -205,16 +204,16 @@ async function cargarExamen(index: number) {
   }
 }
 
-function onPreviewVincular() {
-  if (previewEntry.value?.resultado.examen.tabla_respuestas) {
-    examForSistematizador.value = {
-      tablaRespuestas: previewEntry.value.resultado.examen.tabla_respuestas,
-      gradoId: previewEntry.value.gradoId,
-    };
-    previewEntry.value = null;
-    activeTab.value = 'sistematizador';
-  }
-}
+// function onPreviewVincular() {
+//   if (previewEntry.value?.resultado.examen.tabla_respuestas) {
+//     examForSistematizador.value = {
+//       tablaRespuestas: previewEntry.value.resultado.examen.tabla_respuestas,
+//       gradoId: previewEntry.value.gradoId,
+//     };
+//     previewEntry.value = null;
+//     activeTab.value = 'sistematizador';
+//   }
+// }
 
 async function onPreviewEliminar() {
   if (!previewEntry.value) return;
@@ -309,6 +308,8 @@ const isDesktop = ref(window.innerWidth >= 1024);
 const col1Width = ref(320);
 const col3Width = ref(350);
 const mobileTab = ref<'config' | 'results' | 'desempenos'>('config');
+const configCollapsed = shallowRef(false);
+const desempenosCollapsed = shallowRef(false);
 
 const isDraggingCol1 = ref(false);
 const isDraggingCol3 = ref(false);
@@ -386,7 +387,7 @@ onMounted(async () => {
       <div class="flex items-center bg-white dark:bg-slate-800 rounded-full p-1 border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-none overflow-x-auto flex-nowrap min-w-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <button @click="activeTab = 'generador'" class="shrink-0 px-3 sm:px-4 py-1.5 rounded-full text-xs font-medium transition-all" :class="activeTab === 'generador' ? 'bg-indigo-500 text-white shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'">Generador</button>
         <button @click="activeTab = 'historial'" class="shrink-0 px-3 sm:px-4 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1.5" :class="activeTab === 'historial' ? 'bg-indigo-500 text-white shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'">Historial <span v-if="history.length" class="text-[10px] bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white px-1.5 rounded-full">{{ history.length }}</span></button>
-        <button @click="activeTab = 'sistematizador'" class="shrink-0 px-3 sm:px-4 py-1.5 rounded-full text-xs font-medium transition-all" :class="activeTab === 'sistematizador' ? 'bg-indigo-500 text-white shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'">Sistematizador</button>
+        <!-- <button @click="activeTab = 'sistematizador'" class="shrink-0 px-3 sm:px-4 py-1.5 rounded-full text-xs font-medium transition-all" :class="activeTab === 'sistematizador' ? 'bg-indigo-500 text-white shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'">Sistematizador</button> -->
       </div>
 
       <!-- Actions -->
@@ -407,11 +408,50 @@ onMounted(async () => {
       <div v-show="activeTab === 'generador'" class="flex-1 min-h-0 flex flex-col lg:flex-row gap-2">
         
         <!-- COLUMN 1: Configuración -->
-        <aside v-show="isDesktop || mobileTab === 'config'" class="flex-1 lg:flex-none shrink-0 bg-white dark:bg-slate-800 rounded-xl flex flex-col overflow-hidden border border-slate-200 dark:border-slate-700 relative" :style="isDesktop ? { width: col1Width + 'px' } : {}">
-          <div class="h-14 px-4 border-b border-slate-200 dark:border-slate-700 flex items-center shrink-0">
-            <h2 class="text-sm font-medium text-slate-800 dark:text-white flex items-center gap-2">Configuración</h2>
+        <aside v-show="isDesktop || mobileTab === 'config'" class="flex-1 lg:flex-none shrink-0 bg-white dark:bg-slate-800 rounded-xl flex flex-col overflow-hidden border border-slate-200 dark:border-slate-700 relative transition-all duration-200" :style="isDesktop ? { width: configCollapsed ? '88px' : col1Width + 'px' } : {}">
+          <div class="h-14 px-3 border-b border-slate-200 dark:border-slate-700 flex items-center shrink-0" :class="configCollapsed ? 'justify-center' : 'justify-between'">
+            <h2 v-show="!configCollapsed" class="text-sm font-medium text-slate-800 dark:text-white flex items-center gap-2 pl-1">Configuración</h2>
+            <button @click="configCollapsed = !configCollapsed" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors shrink-0" :title="configCollapsed ? 'Expandir' : 'Colapsar'">
+              <PanelLeft class="w-4 h-4" />
+            </button>
           </div>
-          <div class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
+          <!-- Resumen colapsado -->
+          <div v-if="configCollapsed && isDesktop" class="flex-1 flex flex-col items-center gap-3 py-4 overflow-hidden">
+            <template v-if="selectedGradoId">
+              <div class="flex flex-col items-center gap-1 w-full px-2">
+                <GraduationCap class="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <span class="text-[9px] text-slate-600 dark:text-slate-300 text-center leading-tight w-full truncate">
+                  {{ gradoOptions.find((g: any) => g.id === selectedGradoId)?.label ?? '—' }}
+                </span>
+              </div>
+              <div class="w-8 h-px bg-slate-200 dark:bg-slate-700 shrink-0" />
+            </template>
+            <template v-if="selectedCompetenciaId">
+              <div class="flex flex-col items-center gap-1 w-full px-2">
+                <Brain class="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <span class="text-[9px] font-bold text-indigo-500 text-center">
+                  C{{ competencias.find((c: any) => c.id === selectedCompetenciaId)?.codigo ?? '' }}
+                </span>
+              </div>
+              <div class="w-8 h-px bg-slate-200 dark:bg-slate-700 shrink-0" />
+            </template>
+            <div class="flex flex-col items-center gap-1 shrink-0">
+              <Target class="w-3.5 h-3.5 text-slate-400" />
+              <span class="text-[9px] font-semibold"
+                :class="selectedNivelDificultad === 'basico' ? 'text-green-500' : selectedNivelDificultad === 'avanzado' ? 'text-red-500' : 'text-amber-500'">
+                {{ selectedNivelDificultad === 'basico' ? 'Bás' : selectedNivelDificultad === 'intermedio' ? 'Int' : 'Ava' }}
+              </span>
+            </div>
+            <template v-if="selectedDesempenosCount > 0">
+              <div class="w-8 h-px bg-slate-200 dark:bg-slate-700 shrink-0" />
+              <div class="flex flex-col items-center gap-1 shrink-0">
+                <Hash class="w-3.5 h-3.5 text-slate-400" />
+                <span class="text-[11px] font-bold text-indigo-500">{{ selectedDesempenosCount }}</span>
+              </div>
+            </template>
+          </div>
+
+          <div v-show="!configCollapsed" class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
             
             <div class="space-y-3">
               <label class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2"><GraduationCap class="w-3.5 h-3.5"/> Público Objetivo</label>
@@ -498,22 +538,22 @@ onMounted(async () => {
         </aside>
 
         <!-- Splitter 1 -->
-        <div class="hidden lg:flex w-2 cursor-col-resize shrink-0 hover:bg-slate-100 dark:bg-slate-800/50 items-center justify-center rounded transition-colors group" @mousedown.prevent="onMouseDownCol1">
+        <div v-if="!configCollapsed" class="hidden lg:flex w-2 cursor-col-resize shrink-0 hover:bg-slate-100 dark:bg-slate-800/50 items-center justify-center rounded transition-colors group" @mousedown.prevent="onMouseDownCol1">
           <div class="w-1 h-6 bg-white/20 rounded-full group-hover:bg-indigo-500/50 transition-colors"></div>
         </div>
 
         <!-- COLUMN 2: Resultados -->
         <main v-show="isDesktop || mobileTab === 'results'" class="flex-1 min-w-0 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden relative">
-          <MatSistemResults :resultado="resultado" :loading="loading" :show-results="showResults" :descargando-word="descargandoWord" :fill-height="true" @descargar-examen-word="descargarExamenWord" @vincular-sistematizador="vincularConSistematizador" />
+          <MatSistemResults :resultado="resultado" :loading="loading" :show-results="showResults" :descargando-word="descargandoWord" :fill-height="true" @descargar-examen-word="descargarExamenWord" />
         </main>
 
         <!-- Splitter 2 -->
-        <div class="hidden lg:flex w-2 cursor-col-resize shrink-0 hover:bg-slate-100 dark:bg-slate-800/50 items-center justify-center rounded transition-colors group" @mousedown.prevent="onMouseDownCol3">
+        <div v-if="!desempenosCollapsed" class="hidden lg:flex w-2 cursor-col-resize shrink-0 hover:bg-slate-100 dark:bg-slate-800/50 items-center justify-center rounded transition-colors group" @mousedown.prevent="onMouseDownCol3">
           <div class="w-1 h-6 bg-white/20 rounded-full group-hover:bg-indigo-500/50 transition-colors"></div>
         </div>
 
         <!-- COLUMN 3: Desempeños -->
-        <aside v-show="isDesktop || mobileTab === 'desempenos'" class="flex-1 lg:flex-none shrink-0 bg-white dark:bg-slate-800 rounded-xl flex flex-col overflow-hidden border border-slate-200 dark:border-slate-700 relative" :style="isDesktop ? { width: col3Width + 'px' } : {}">
+        <aside v-show="isDesktop || mobileTab === 'desempenos'" class="flex-1 lg:flex-none shrink-0 bg-white dark:bg-slate-800 rounded-xl flex flex-col overflow-hidden border border-slate-200 dark:border-slate-700 relative transition-all duration-200" :style="isDesktop ? { width: desempenosCollapsed ? '88px' : col3Width + 'px' } : {}">
           <MatSistemDesempenos
             :desempenos="desempenos" :selected-desempenos-count="selectedDesempenosCount"
             :loading-desempenos="loadingDesempenos" :selected-grado-id="selectedGradoId"
@@ -522,10 +562,12 @@ onMounted(async () => {
             v-model:selected-desempeno-ids="selectedDesempenoIds"
             :loading="loading" :error="error" :capacidades-actuales="capacidadesActuales"
             :fill-height="true"
+            :collapsed="desempenosCollapsed"
             @select-all-capacidad="selectAllCapacidad"
             @deselect-all-capacidad="deselectAllCapacidad"
             @deselect-all="deselectAll"
-            @generar-preguntas="onGenerarPreguntas" />
+            @generar-preguntas="onGenerarPreguntas"
+            @toggle-collapse="desempenosCollapsed = !desempenosCollapsed" />
         </aside>
         
         <!-- Mobile Bottom Navigation (Android Style) -->
@@ -577,12 +619,12 @@ onMounted(async () => {
                 <div>Grado: {{ entry.gradoLabel }}</div>
                 <div>Preguntas: {{ entry.resultado.total_preguntas }}</div>
               </div>
-              <div class="flex flex-wrap gap-2 mt-auto">
-                <button @click="cargarExamen(index)" class="px-2 py-1 text-[10px] font-medium text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 rounded hover:bg-slate-200 dark:hover:bg-slate-600">Ver</button>
-                <button @click="descargarWordHistorial(index)" class="px-2 py-1 text-[10px] font-medium text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 rounded hover:bg-slate-200 dark:hover:bg-slate-600">Word</button>
-                <button @click="vincularDesdeHistorial(index)" class="px-2 py-1 text-[10px] font-medium text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 rounded hover:bg-slate-200 dark:hover:bg-slate-600">Vincular</button>
-                <button @click="abrirAsignar(entry)" class="px-2 py-1 text-[10px] font-medium text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 rounded hover:bg-slate-200 dark:hover:bg-slate-600">Asignar</button>
-                <button @click="confirmarEliminar(entry.id)" class="px-2 py-1 text-[10px] font-medium text-red-400 bg-red-400/10 rounded hover:bg-red-400/20"><Trash2 class="w-3 h-3"/></button>
+              <div class="flex gap-1 mt-auto overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <button @click="cargarExamen(index)" class="shrink-0 flex items-center gap-1 px-1.5 py-1 text-[10px] font-medium text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded hover:bg-slate-300 dark:hover:bg-slate-600"><Eye class="w-3 h-3" />Ver</button>
+                <button @click="descargarWordHistorial(index)" class="shrink-0 flex items-center gap-1 px-1.5 py-1 text-[10px] font-medium text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded hover:bg-slate-300 dark:hover:bg-slate-600"><FileDown class="w-3 h-3" />Word</button>
+                <!-- <button @click="vincularDesdeHistorial(index)" class="shrink-0 flex items-center gap-1 px-1.5 py-1 text-[10px] font-medium text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded hover:bg-slate-300 dark:hover:bg-slate-600"><Link class="w-3 h-3" />Vincular</button> -->
+                <button @click="abrirAsignar(entry)" class="shrink-0 flex items-center gap-1 px-1.5 py-1 text-[10px] font-medium text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded hover:bg-slate-300 dark:hover:bg-slate-600"><Send class="w-3 h-3" />Asignar</button>
+                <button @click="confirmarEliminar(entry.id)" class="shrink-0 px-1.5 py-1 text-[10px] font-medium text-red-400 bg-red-400/10 rounded hover:bg-red-400/20"><Trash2 class="w-3 h-3"/></button>
               </div>
             </div>
           </div>
@@ -592,14 +634,14 @@ onMounted(async () => {
       <!-- ══════════════════════════════════════════
            SISTEMATIZADOR TAB
       ══════════════════════════════════════════ -->
-      <div v-show="activeTab === 'sistematizador'" class="flex-1 min-h-0 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+      <!-- <div v-show="activeTab === 'sistematizador'" class="flex-1 min-h-0 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
         <Sistematizador />
-      </div>
+      </div> -->
 
     </div>
 
     <!-- Modals go here -->
-    <MatSistemExamPreviewModal :entry="previewEntry" :loading-delete="loadingDelete === previewEntry?.id" :is-loading="!!loadingPreview" :downloading-word="downloadingPreviewWord" @close="previewEntry = null" @vincular="onPreviewVincular" @eliminar="onPreviewEliminar" @descargar-word="descargarWordDesdePreview" />
+    <MatSistemExamPreviewModal :entry="previewEntry" :loading-delete="loadingDelete === previewEntry?.id" :is-loading="!!loadingPreview" :downloading-word="downloadingPreviewWord" @close="previewEntry = null" @eliminar="onPreviewEliminar" @descargar-word="descargarWordDesdePreview" />
     
     <!-- Asignar Examen Modal -->
     <Teleport to="body">

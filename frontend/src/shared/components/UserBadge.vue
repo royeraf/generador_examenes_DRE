@@ -121,15 +121,15 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
   <div ref="container" class="relative">
     <button
       @click="isOpen = !isOpen"
-      class="flex items-center gap-2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md text-slate-700 dark:text-slate-200 px-3 py-2 rounded-full shadow-xl border border-slate-100 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-700 transition-all duration-200 text-sm font-medium"
+      class="flex items-center gap-1.5 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md text-slate-700 dark:text-slate-200 px-2.5 py-1.5 rounded-full shadow-md border border-slate-100 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-700 transition-all duration-200 text-xs font-medium"
     >
       <!-- Avatar -->
-      <div class="w-7 h-7 rounded-full bg-gradient-to-br from-teal-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+      <div class="w-5 h-5 rounded-full bg-gradient-to-br from-teal-500 to-indigo-600 flex items-center justify-center text-white text-[9px] font-bold shrink-0">
         {{ initials }}
       </div>
-      <span class="hidden sm:block max-w-[140px] truncate">{{ auth.displayName }}</span>
-      <Shield v-if="auth.isAdmin" class="w-3.5 h-3.5 text-indigo-500 shrink-0" />
-      <ChevronDown class="w-3.5 h-3.5 shrink-0 transition-transform" :class="{ 'rotate-180': isOpen }" />
+      <span class="hidden sm:block max-w-[120px] truncate">{{ auth.displayName }}</span>
+      <Shield v-if="auth.isAdmin" class="w-3 h-3 text-indigo-500 shrink-0" />
+      <ChevronDown class="w-3 h-3 shrink-0 transition-transform" :class="{ 'rotate-180': isOpen }" />
     </button>
 
     <!-- Dropdown -->

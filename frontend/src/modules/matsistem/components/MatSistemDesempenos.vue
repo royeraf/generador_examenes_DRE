@@ -7,7 +7,8 @@ import {
     AlertTriangle,
     CheckCircle2,
     CircleDot,
-    X
+    X,
+    PanelRight
 } from 'lucide-vue-next';
 import ThinkingLoader from '../../../shared/components/ThinkingLoader.vue';
 import Checkbox from '../../../shared/components/Checkbox.vue';
@@ -24,6 +25,7 @@ const props = defineProps<{
     loading: boolean;
     error: string | null;
     capacidadesActuales: CapacidadMatConCompetencia[];
+    collapsed?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -33,6 +35,7 @@ const emit = defineEmits<{
     (e: 'deselectAllCapacidad', orden: number): void;
     (e: 'deselectAll'): void;
     (e: 'generarPreguntas'): void;
+    (e: 'toggle-collapse'): void;
 }>();
 
 const localSelectedDesempenoIds = computed({
@@ -141,8 +144,8 @@ watch(() => props.error, () => { errorDismissed.value = false; });
 
             <!-- Card Header -->
             <div class="bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-500 px-4 sm:px-5 py-3 sm:py-4">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+                <div class="flex items-center" :class="collapsed ? 'justify-center' : 'justify-between'">
+                    <div class="flex items-center gap-2 sm:gap-3 min-w-0" :class="{ 'hidden': collapsed }">
                         <div class="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
                             <Target class="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                         </div>
@@ -156,22 +159,32 @@ watch(() => props.error, () => { errorDismissed.value = false; });
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <span v-if="selectedDesempenosCount > 0"
+                        <span v-if="selectedDesempenosCount > 0 && !collapsed"
                             class="px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-amber-400 text-amber-900 text-[10px] sm:text-xs font-bold shadow-lg flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
                             <CheckCircle2 class="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                             {{ selectedDesempenosCount }}
                         </span>
-                        <button v-if="selectedDesempenosCount > 0" @click="emit('deselectAll')"
+                        <button v-if="selectedDesempenosCount > 0 && !collapsed" @click="emit('deselectAll')"
                             class="p-1.5 rounded-full bg-white/10 hover:bg-white/25 text-white/80 hover:text-white transition-all duration-200 group flex items-center justify-center border border-white/10"
                             title="Deseleccionar todos (Global)">
                             <X class="w-3.5 h-3.5 transition-transform group-hover:rotate-90" />
+                        </button>
+                        <button @click="emit('toggle-collapse')" class="p-1.5 rounded-full bg-white/10 hover:bg-white/25 text-white/80 hover:text-white transition-all duration-200 flex items-center justify-center border border-white/10" :title="collapsed ? 'Expandir' : 'Colapsar'">
+                            <PanelRight class="w-3.5 h-3.5" />
                         </button>
                     </div>
                 </div>
             </div>
 
+            <!-- Resumen colapsado -->
+            <div v-if="collapsed" class="flex-1 flex flex-col items-center justify-center gap-2 py-6">
+                <Target class="w-5 h-5 text-indigo-400" />
+                <span class="text-2xl font-bold text-indigo-500">{{ selectedDesempenosCount }}</span>
+                <span class="text-[10px] text-slate-400">seleccionados</span>
+            </div>
+
             <!-- Loading Skeleton -->
-            <div v-if="loadingDesempenos" class="flex-1 flex flex-col p-4 space-y-4 overflow-hidden">
+            <div v-else-if="loadingDesempenos" class="flex-1 flex flex-col p-4 space-y-4 overflow-hidden">
                 <div class="space-y-3">
                     <div class="h-14 bg-slate-100 dark:bg-slate-800/80 rounded-xl animate-pulse"></div>
                     <div v-for="i in 4" :key="i"
@@ -302,7 +315,7 @@ watch(() => props.error, () => { errorDismissed.value = false; });
         </div>
 
         <!-- Generate Button -->
-        <button @click="emit('generarPreguntas')"
+        <button v-if="!collapsed" @click="emit('generarPreguntas')"
             :disabled="loading || !selectedGradoId || selectedDesempenoIds.length === 0"
             class="flex-shrink-0 w-full px-4 py-4 sm:px-6 sm:py-5 font-bold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 shadow-xl hover:shadow-2xl hover:-translate-y-1 text-base sm:text-lg"
             :class="loading
@@ -316,7 +329,7 @@ watch(() => props.error, () => { errorDismissed.value = false; });
         </button>
 
         <!-- Error -->
-        <div v-if="error && !errorDismissed"
+        <div v-if="!collapsed && error && !errorDismissed"
             class="flex-shrink-0 bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 p-4 rounded-2xl text-sm flex items-start gap-3">
             <div class="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
                 <AlertTriangle class="w-5 h-5" />

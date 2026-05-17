@@ -574,10 +574,10 @@ const estadoColors: Record<string, string> = {
                 <!-- Docentes/Auxiliares: picker de Códigos de Clase -->
                 <div v-if="usarCodigosClase">
                   <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">
-                    Sección <span class="font-normal text-slate-400">(de mis códigos de clase)</span>
+                    Sección <span class="font-normal text-slate-400">(de mis aulas)</span>
                   </label>
                   <div v-if="codigosClase.length === 0" class="text-xs text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800 rounded-xl px-4 py-3 border border-slate-200 dark:border-slate-700">
-                    No tienes secciones activas. Crea un código de clase primero.
+                    No tienes aulas activas. Crea una primero en la sección Aulas.
                   </div>
                   <template v-else>
                     <select v-model="codigoClaseId"

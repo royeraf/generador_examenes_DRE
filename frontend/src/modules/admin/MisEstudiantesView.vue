@@ -442,7 +442,7 @@ function nombreGrado(id: number | null) {
         </div>
         <h3 class="text-lg font-bold text-slate-700 dark:text-white mb-2">Sin estudiantes registrados</h3>
         <p class="text-slate-500 dark:text-slate-400 text-sm mb-5">
-          Registra estudiantes directamente, importa la nómina Excel o comparte un código de clase para auto-registro.
+          Registra estudiantes directamente, importa la nómina Excel o comparte un código de aula para auto-registro.
         </p>
         <div class="flex flex-wrap items-center justify-center gap-2">
           <button @click="openCreate"

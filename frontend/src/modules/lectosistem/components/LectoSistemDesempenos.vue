@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Target, BookOpen, FileSearch, Lightbulb, Rocket, AlertTriangle } from 'lucide-vue-next';
+import { Target, BookOpen, FileSearch, Lightbulb, Rocket, AlertTriangle, PanelRight } from 'lucide-vue-next';
 import ThinkingLoader from '../../../shared/components/ThinkingLoader.vue';
 import Checkbox from '../../../shared/components/Checkbox.vue';
 import type { DesempenoItem } from '../../../shared/types';
@@ -17,6 +17,7 @@ const props = defineProps<{
     error: string | null;
     isBreakdownValid?: boolean;
     fillHeight?: boolean;
+    collapsed?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -25,6 +26,7 @@ const emit = defineEmits<{
     (e: 'select-all-capacidad', tipo: string): void;
     (e: 'deselect-all-capacidad', tipo: string): void;
     (e: 'generar-preguntas'): void;
+    (e: 'toggle-collapse'): void;
 }>();
 
 const localSelectedDesempenoIds = computed({
@@ -46,15 +48,29 @@ const getCapacidadLabel = (tipo: string): string => {
     <div class="flex flex-col h-full bg-transparent">
         
         <!-- Header -->
-        <div class="h-14 px-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between shrink-0">
-            <h2 class="text-sm font-medium text-slate-800 dark:text-white flex items-center gap-2"><Target class="w-4 h-4 text-slate-500 dark:text-slate-400"/> Desempeños</h2>
-            <span v-if="selectedDesempenosCount > 0" class="px-2 py-0.5 rounded text-[10px] bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 text-slate-800 dark:text-white font-medium">
-                {{ selectedDesempenosCount }} seleccionados
-            </span>
+        <div class="h-14 px-3 border-b border-slate-200 dark:border-slate-700 flex items-center shrink-0" :class="collapsed ? 'justify-center' : 'justify-between'">
+            <div v-show="!collapsed" class="flex items-center gap-2 min-w-0">
+                <h2 class="text-sm font-medium text-slate-800 dark:text-white flex items-center gap-2 pl-1"><Target class="w-4 h-4 text-slate-500 dark:text-slate-400 shrink-0"/> Desempeños</h2>
+                <span v-if="selectedDesempenosCount > 0" class="shrink-0 px-2 py-0.5 rounded text-[10px] bg-slate-200 dark:bg-slate-700/50 text-slate-800 dark:text-white font-medium">
+                    {{ selectedDesempenosCount }}
+                </span>
+            </div>
+            <button @click="emit('toggle-collapse')" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors shrink-0" :title="collapsed ? 'Expandir' : 'Colapsar'">
+                <PanelRight class="w-4 h-4" />
+            </button>
+        </div>
+
+        <!-- Resumen colapsado -->
+        <div v-if="collapsed" class="flex-1 flex flex-col items-center gap-3 py-4 overflow-hidden">
+            <div class="flex flex-col items-center gap-1">
+                <Target class="w-3.5 h-3.5 text-slate-400" />
+                <span class="text-[11px] font-bold text-teal-500">{{ selectedDesempenosCount }}</span>
+                <span class="text-[9px] text-slate-400 text-center">selecc.</span>
+            </div>
         </div>
 
         <!-- Loading Skeleton -->
-        <div v-if="loadingDesempenos" class="flex-1 p-4 space-y-4">
+        <div v-else-if="loadingDesempenos" class="flex-1 p-4 space-y-4">
             <div class="h-10 bg-slate-50 dark:bg-slate-950 rounded-lg animate-pulse"></div>
             <div class="space-y-3">
                 <div v-for="i in 4" :key="i" class="h-20 bg-slate-50 dark:bg-slate-950 rounded-xl animate-pulse"></div>
@@ -112,7 +128,7 @@ const getCapacidadLabel = (tipo: string): string => {
         </div>
 
         <!-- Generate Button fixed at bottom -->
-        <div class="p-4 border-t border-slate-200 dark:border-slate-700 shrink-0 bg-white dark:bg-slate-800">
+        <div v-if="!collapsed" class="p-4 border-t border-slate-200 dark:border-slate-700 shrink-0 bg-white dark:bg-slate-800">
             <button @click="emit('generar-preguntas')"
                 :disabled="loading || !selectedGradoId || selectedDesempenoIds.length === 0 || isBreakdownValid === false"
                 class="w-full py-2.5 rounded-full font-medium transition-all flex items-center justify-center gap-2 text-sm"

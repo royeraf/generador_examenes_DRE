@@ -46,7 +46,7 @@ const formError = computed(() => {
 async function validarCodigo() {
   codigoError.value = ''
   if (!codigoInput.value.trim()) {
-    codigoError.value = 'Ingresa el código de clase'
+    codigoError.value = 'Ingresa el código de tu aula'
     return
   }
   validandoCodigo.value = true
@@ -93,7 +93,7 @@ async function registrar() {
           <GraduationCap class="w-7 h-7 text-white" />
         </div>
         <h1 class="text-2xl font-bold text-slate-800 dark:text-white">Registro de Estudiante</h1>
-        <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Ingresa el código de clase de tu docente</p>
+        <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Ingresa el código de tu aula</p>
       </div>
 
       <!-- Éxito -->

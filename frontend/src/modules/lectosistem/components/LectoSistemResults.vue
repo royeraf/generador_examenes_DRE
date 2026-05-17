@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Bot, AlertTriangle, Download, Loader2, Sparkles, Link } from 'lucide-vue-next';
+import { Bot, AlertTriangle, Download, Loader2, Sparkles } from 'lucide-vue-next';
 import ThinkingLoader from '../../../shared/components/ThinkingLoader.vue';
 import type { Examen } from '../../../shared/types';
 
@@ -22,7 +22,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     (e: 'descargar-word'): void;
-    (e: 'vincular-sistematizador'): void;
+    // (e: 'vincular-sistematizador'): void;
 }>();
 
 const getJustificacion = (numeroPregunta: number): string | undefined => {
@@ -43,9 +43,9 @@ const getJustificacion = (numeroPregunta: number): string | undefined => {
                     <Loader2 v-if="descargandoWord" class="w-4 h-4 animate-spin" />
                     <Download v-else class="w-4 h-4" />
                 </button>
-                <button @click="emit('vincular-sistematizador')" class="p-1.5 rounded-full hover:bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors" title="Vincular a Sistematizador">
+                <!-- <button @click="emit('vincular-sistematizador')" class="p-1.5 rounded-full hover:bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors" title="Vincular a Sistematizador">
                     <Link class="w-4 h-4" />
-                </button>
+                </button> -->
             </div>
         </div>
 
