@@ -24,7 +24,8 @@ router = APIRouter()
 def _extraer_pregunta(p: dict, tabla_map: dict) -> dict:
     """Parsea una pregunta del JSON de IA a campos planos."""
     num = p.get("numero", 0)
-    opciones = {o["letra"]: o["texto"] for o in p.get("opciones", [])}
+    opciones_raw = p.get("opciones") or []
+    opciones = {o["letra"]: o["texto"] for o in opciones_raw if isinstance(o, dict) and "letra" in o}
     info = tabla_map.get(num, {})
     return {
         "numero": num,
