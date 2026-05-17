@@ -2,12 +2,15 @@
 Router para gestionar exámenes generados (Lectura y Matemática).
 Los exámenes quedan vinculados al docente autenticado.
 """
+import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from pydantic import BaseModel
 from typing import Optional, List, Any
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 from app.core.database import get_db
 from app.models.db_models import ExamenLectura, ExamenMatematica, PreguntaExamen, Grado
@@ -25,8 +28,16 @@ def _extraer_pregunta(p: dict, tabla_map: dict) -> dict:
     """Parsea una pregunta del JSON de IA a campos planos."""
     num = p.get("numero", 0)
     opciones_raw = p.get("opciones") or []
-    opciones = {o["letra"]: o["texto"] for o in opciones_raw if isinstance(o, dict) and "letra" in o}
+    opciones = {}
+    for o in opciones_raw:
+        if not isinstance(o, dict):
+            continue
+        letra = o.get("letra", "")
+        texto = o.get("texto") or o.get("opcion") or o.get("alternativa") or ""
+        if letra:
+            opciones[letra] = str(texto)
     info = tabla_map.get(num, {})
+    rc = str(info.get("respuesta_correcta") or "")[:1]
     return {
         "numero": num,
         "enunciado": p.get("enunciado", ""),
@@ -34,7 +45,7 @@ def _extraer_pregunta(p: dict, tabla_map: dict) -> dict:
         "opcion_b": opciones.get("B", ""),
         "opcion_c": opciones.get("C", ""),
         "opcion_d": opciones.get("D", ""),
-        "respuesta_correcta": info.get("respuesta_correcta", ""),
+        "respuesta_correcta": rc,
         "nivel": p.get("nivel") or info.get("nivel"),
         "desempeno_codigo": p.get("desempeno_codigo") or info.get("desempeno"),
         "desempeno_descripcion": info.get("desempeno"),
@@ -189,8 +200,11 @@ async def guardar_examen_lectura(
     db.add(db_examen)
     await db.flush()
 
-    # Poblar preguntas_examen desde el JSON generado por IA
-    _insertar_preguntas_lectura(db, db_examen.id, examen_in.preguntas or [], examen_in.tabla_respuestas or [])
+    try:
+        _insertar_preguntas_lectura(db, db_examen.id, examen_in.preguntas or [], examen_in.tabla_respuestas or [])
+    except Exception as exc:
+        logger.error("Error insertando preguntas lectura: %s", exc, exc_info=True)
+        raise
 
     await db.commit()
     await db.refresh(db_examen)
@@ -301,8 +315,11 @@ async def guardar_examen_matematica(
     db.add(db_examen)
     await db.flush()
 
-    # Poblar preguntas_examen desde el JSON generado por IA
-    _insertar_preguntas_matematica(db, db_examen.id, examen_in.preguntas or [], examen_in.tabla_respuestas or [])
+    try:
+        _insertar_preguntas_matematica(db, db_examen.id, examen_in.preguntas or [], examen_in.tabla_respuestas or [])
+    except Exception as exc:
+        logger.error("Error insertando preguntas matematica: %s", exc, exc_info=True)
+        raise
 
     await db.commit()
     await db.refresh(db_examen)
