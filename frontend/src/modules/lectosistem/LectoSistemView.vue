@@ -10,7 +10,7 @@ import { desempenosService, asignacionesService } from '../../shared/services/ap
 import { construirFechaISO, formatFechaHora } from '../../shared/utils/dateUtils';
 import type { AsignacionPayload } from '../../shared/services/api';
 import {
-  Bot, Sparkles, LayoutGrid, History, Trash2,
+  Sparkles, LayoutGrid, History, Trash2,
   GraduationCap, FileText, Home, Loader2, X,
   CloudUpload, Plus, Check, Hash, Target,
   Eye, FileDown, Send, PanelLeft,
@@ -362,18 +362,19 @@ onMounted(async () => {
 <template>
   <div class="h-screen flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-200 font-sans">
     
-    <!-- NotebookLM Style Header -->
-    <header class="shrink-0 h-[60px] flex items-center justify-between px-2 sm:px-6 gap-2">
+    <!-- Header unificado -->
+    <header class="shrink-0 h-14 flex items-center justify-between px-4 sm:px-6 gap-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm border-b border-slate-200/80 dark:border-slate-800">
       <div class="flex items-center gap-3 shrink-0">
-        <div class="min-w-0">
-          <h1 class="text-base sm:text-xl font-bold text-slate-800 dark:text-white tracking-tight flex items-center gap-2 truncate">
-            <span class="hidden sm:inline">LectoSistem</span>
-            <Bot class="w-7 h-7 sm:w-6 sm:h-6 text-teal-500 animate-robot-lecto flex-shrink-0" />
-          </h1>
-          <p class="hidden sm:flex text-[10px] sm:text-xs font-medium items-center gap-1 truncate text-slate-500 dark:text-slate-400">
-            <GraduationCap class="w-3 h-3 flex-shrink-0" />
-            <span class="truncate">Generador de comprensión lectora</span>
-          </p>
+        <div class="relative w-8 h-8 shrink-0">
+          <div class="absolute -inset-0.5 bg-gradient-to-r from-teal-500 to-indigo-600 rounded-lg blur opacity-20"></div>
+          <div class="absolute inset-0 flex items-center justify-center p-1.5 bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 overflow-hidden">
+            <GraduationCap class="absolute w-4 h-4 text-teal-600 dark:text-teal-400 animate-logo-cycle-1" />
+            <div class="absolute logo-gradient-static w-4 h-4 animate-logo-cycle-2"></div>
+          </div>
+        </div>
+        <div class="hidden sm:block min-w-0">
+          <h1 class="text-sm font-bold text-slate-800 dark:text-white tracking-tight truncate">LectoSistem</h1>
+          <p class="text-[10px] text-slate-400 dark:text-slate-500 truncate leading-tight">Comprensión lectora con IA</p>
         </div>
       </div>
 
@@ -694,4 +695,27 @@ onMounted(async () => {
   animation: robot-float-lecto 4s ease-in-out infinite;
   transform-origin: center bottom;
 }
+
+/* Logo animado del header */
+@keyframes logoCycle1 {
+  0%, 42%  { opacity: 1; transform: scale(1) rotate(0deg); }
+  48%, 92% { opacity: 0; transform: scale(0.5) rotate(-15deg); }
+  98%, 100%{ opacity: 1; transform: scale(1) rotate(0deg); }
+}
+@keyframes logoCycle2 {
+  0%, 42%  { opacity: 0; transform: scale(0.5) rotate(15deg); }
+  48%, 92% { opacity: 1; transform: scale(1) rotate(0deg); }
+  98%, 100%{ opacity: 0; transform: scale(0.5) rotate(-15deg); }
+}
+.animate-logo-cycle-1 { animation: logoCycle1 10s infinite; }
+.animate-logo-cycle-2 { animation: logoCycle2 10s infinite; }
+.logo-gradient-static {
+  background: linear-gradient(135deg, #14b8a6, #4f46e5);
+  mask-image: url('/src/assets/logo.png');
+  -webkit-mask-image: url('/src/assets/logo.png');
+  mask-size: contain; -webkit-mask-size: contain;
+  mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;
+  mask-position: center; -webkit-mask-position: center;
+}
+.dark .logo-gradient-static { background: linear-gradient(135deg, #5eead4, #818cf8); }
 </style>

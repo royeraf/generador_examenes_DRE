@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { GraduationCap, Eye, EyeOff, Bot } from 'lucide-vue-next';
+import { GraduationCap } from 'lucide-vue-next';
 import logoDre from '../../assets/logo.png';
 import UserBadge from './UserBadge.vue';
 
 interface Props {
     title: string;
-    subtitle: string;
+    subtitle?: string;
+    // Mantenidos por compatibilidad, ya no afectan el estilo visual
     showResults?: boolean;
     hasResultado?: boolean;
     loading?: boolean;
@@ -14,89 +15,75 @@ interface Props {
     subtitleClass?: string;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
+    subtitle: '',
     showResults: false,
     hasResultado: false,
     loading: false,
     activeTab: 'generador',
-    gradientClass: 'from-teal-600 via-teal-500 to-sky-500 shadow-teal-500/20',
-    subtitleClass: 'text-teal-100 dark:text-slate-400',
+    gradientClass: '',
+    subtitleClass: '',
 });
 
-const emit = defineEmits(['toggleTheme', 'toggleResults']);
+defineEmits(['toggleTheme', 'toggleResults']);
 </script>
 
 <template>
-    <header :class="[
-        'bg-gradient-to-r dark:from-slate-800 dark:via-slate-800 dark:to-slate-800 border-b border-white/20 dark:border-slate-700 sticky top-0 z-50 shadow-lg dark:shadow-none transition-all duration-300',
-        gradientClass,
-    ]">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
-            <div class="flex items-center justify-between gap-3">
+    <header class="sticky top-0 z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm border-b border-slate-200/80 dark:border-slate-800 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
 
-                <!-- Izquierda: Logo + Título -->
-                <div class="flex items-center gap-3 min-w-0">
-                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white/90 rounded-xl flex items-center justify-center shadow-md border border-white/30 p-1 flex-shrink-0">
-                        <img :src="logoDre" alt="Logo DRE" class="w-full h-full object-contain" />
-                    </div>
-                    <div class="min-w-0">
-                        <h1 class="text-base sm:text-xl font-bold text-white tracking-tight flex items-center gap-2 truncate">
-                            {{ title }}
-                            <Bot class="w-5 h-5 sm:w-6 sm:h-6 text-teal-100 dark:text-sky-300 animate-robot flex-shrink-0" />
-                        </h1>
-                        <p :class="['text-[10px] sm:text-xs font-medium flex items-center gap-1 truncate', subtitleClass]">
-                            <GraduationCap class="w-3 h-3 flex-shrink-0" />
-                            <span class="truncate">{{ subtitle }}</span>
-                        </p>
+            <!-- Izquierda: Logo + Título -->
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="relative w-8 h-8 shrink-0">
+                    <div class="absolute -inset-0.5 bg-gradient-to-r from-teal-500 to-indigo-600 rounded-lg blur opacity-20"></div>
+                    <div class="absolute inset-0 flex items-center justify-center p-1.5 bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 overflow-hidden">
+                        <GraduationCap class="absolute w-4 h-4 text-teal-600 dark:text-teal-400 animate-logo-cycle-1" />
+                        <div class="absolute logo-gradient-display-static w-4 h-4 animate-logo-cycle-2"
+                            :style="{ 'mask-image': `url(${logoDre})`, '-webkit-mask-image': `url(${logoDre})` }"></div>
                     </div>
                 </div>
-
-                <!-- Derecha: Acciones -->
-                <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-                    <slot name="actions-before"></slot>
-
-                    <div class="flex items-center gap-2">
-                        <button v-if="hasResultado && !loading && activeTab === 'generador'" @click="emit('toggleResults')"
-                            class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl font-medium text-[10px] sm:text-sm flex items-center gap-1.5 transition-all duration-300 bg-white/20 text-white border border-white/30 hover:bg-white/30">
-                            <Eye v-if="showResults" class="w-3.5 h-3.5" />
-                            <EyeOff v-else class="w-3.5 h-3.5" />
-                            <span class="hidden sm:inline">{{ showResults ? 'Ocultar' : 'Ver Resultado' }}</span>
-                        </button>
-                    </div>
-
-                    <div class="hidden sm:block w-px h-8 bg-white/30 dark:bg-slate-600 mx-0.5"></div>
-
-                    <UserBadge />
-
-                    <slot name="actions-after"></slot>
+                <div class="min-w-0">
+                    <h1 class="text-sm font-bold text-slate-800 dark:text-white tracking-tight truncate">
+                        {{ title }}
+                    </h1>
+                    <p v-if="subtitle" class="text-[10px] text-slate-400 dark:text-slate-500 truncate leading-tight">
+                        {{ subtitle }}
+                    </p>
                 </div>
-
             </div>
+
+            <!-- Derecha: Acciones -->
+            <div class="flex items-center gap-2 shrink-0">
+                <slot name="actions-before"></slot>
+                <UserBadge />
+                <slot name="actions-after"></slot>
+            </div>
+
         </div>
     </header>
 </template>
 
 <style scoped>
-@keyframes robot-float {
-  0%, 100% {
-    transform: translateY(0) rotate(0deg) scale(1);
-    filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.2));
-    color: currentColor;
-  }
-  25% {
-    transform: translateY(-2px) rotate(-8deg) scale(1.1);
-    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
-    color: #fff;
-  }
-  75% {
-    transform: translateY(-2px) rotate(8deg) scale(1.1);
-    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
-    color: #fff;
-  }
+@keyframes logoCycle1 {
+    0%, 42%  { opacity: 1; transform: scale(1) rotate(0deg); }
+    48%, 92% { opacity: 0; transform: scale(0.5) rotate(-15deg); }
+    98%, 100%{ opacity: 1; transform: scale(1) rotate(0deg); }
 }
+@keyframes logoCycle2 {
+    0%, 42%  { opacity: 0; transform: scale(0.5) rotate(15deg); }
+    48%, 92% { opacity: 1; transform: scale(1) rotate(0deg); }
+    98%, 100%{ opacity: 0; transform: scale(0.5) rotate(-15deg); }
+}
+.animate-logo-cycle-1 { animation: logoCycle1 10s infinite; }
+.animate-logo-cycle-2 { animation: logoCycle2 10s infinite; }
 
-.animate-robot {
-  animation: robot-float 4s ease-in-out infinite;
-  transform-origin: center bottom;
+.logo-gradient-display-static {
+    background: linear-gradient(135deg, #14b8a6, #4f46e5);
+    mask-size: contain; -webkit-mask-size: contain;
+    mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;
+    mask-position: center; -webkit-mask-position: center;
+}
+.dark .logo-gradient-display-static {
+    background: linear-gradient(135deg, #5eead4, #818cf8);
 }
 </style>

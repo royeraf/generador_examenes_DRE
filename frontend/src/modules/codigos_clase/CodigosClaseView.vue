@@ -4,7 +4,7 @@ import { ref, onMounted } from 'vue'
 import { codigosClaseService, organizacionService, type CodigoClase, type CodigoClaseCreatePayload } from '../../shared/services/api'
 import type { Grado } from '../../shared/types'
 import Header from '../../shared/components/Header.vue'
-import { Plus, Trash2, ToggleLeft, ToggleRight, Copy, AlertCircle, Loader2, QrCode, Home, X, Download } from 'lucide-vue-next'
+import { Plus, Trash2, ToggleLeft, ToggleRight, Copy, AlertCircle, Loader2, QrCode, Home, X, Download, School } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import QRCode from 'qrcode'
@@ -167,7 +167,7 @@ function descargarQR() {
     <!-- Lista vacía -->
     <div v-else-if="codigos.length === 0"
       class="text-center py-16 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
-      <QrCode class="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+      <School class="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
       <p class="text-slate-500 dark:text-slate-400 font-medium">No tienes aulas creadas</p>
       <p class="text-sm text-slate-400 dark:text-slate-500 mt-1">Crea una aula para que tus estudiantes puedan registrarse</p>
     </div>

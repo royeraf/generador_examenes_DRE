@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue';
 import {
   BookOpen, Calculator, Sparkles, GraduationCap, Users, ArrowRight,
-  BarChart3, Building2, MapPin, QrCode, ClipboardList, Loader2, ChevronRight
+  BarChart3, Building2, MapPin, ClipboardList, Loader2, ChevronRight, School
 } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
@@ -51,13 +51,13 @@ const managementItems = computed<NavItem[]>(() => {
   const items: NavItem[] = [];
   if (auth.isDocente || auth.isAuxiliar) {
     items.push({ label: 'Mis Estudiantes', sub: 'Registrar y gestionar', icon: Users, color: 'from-teal-400 to-emerald-500', route: '/mis-estudiantes' });
-    if (auth.canAccessCodigosClase) items.push({ label: 'Aulas', sub: 'Registro de estudiantes', icon: QrCode, color: 'from-indigo-400 to-purple-500', route: '/codigos-clase' });
+    if (auth.canAccessCodigosClase) items.push({ label: 'Aulas', sub: 'Registro de estudiantes', icon: School, color: 'from-indigo-400 to-purple-500', route: '/codigos-clase' });
     if (auth.canAccessAsignaciones) items.push({ label: 'Asignaciones', sub: 'Ver resultados', icon: ClipboardList, color: 'from-violet-400 to-purple-500', route: '/asignaciones' });
     if (auth.canAccessMetricas) items.push({ label: 'Métricas', sub: 'Uso del sistema', icon: BarChart3, color: 'from-indigo-500 to-violet-600', route: '/admin/metricas' });
   }
   if (auth.isDirector) {
     items.push({ label: 'Mi Institución', sub: 'Detalle y estadísticas', icon: Building2, color: 'from-teal-400 to-emerald-500', route: '/mi-institucion' });
-    items.push({ label: 'Aulas', sub: 'Registro de estudiantes', icon: QrCode, color: 'from-indigo-400 to-purple-500', route: '/codigos-clase' });
+    items.push({ label: 'Aulas', sub: 'Registro de estudiantes', icon: School, color: 'from-indigo-400 to-purple-500', route: '/codigos-clase' });
     items.push({ label: 'Asignaciones', sub: 'Ver resultados', icon: ClipboardList, color: 'from-rose-400 to-pink-500', route: '/asignaciones' });
     items.push({ label: 'Usuarios', sub: 'Docentes y estudiantes', icon: Users, color: 'from-violet-400 to-pink-500', route: '/admin/usuarios' });
     items.push({ label: 'Métricas', sub: 'Uso del sistema', icon: BarChart3, color: 'from-indigo-500 to-violet-600', route: '/admin/metricas' });
@@ -76,7 +76,7 @@ const managementItems = computed<NavItem[]>(() => {
     if (auth.canAccessAdminInstituciones) items.push({ label: 'Instituciones', sub: 'IEs del sistema', icon: Building2, color: 'from-indigo-400 to-blue-500', route: '/admin/instituciones' });
     if (auth.canAccessAdminUsuarios) items.push({ label: 'Usuarios', sub: 'Gestión de accesos', icon: Users, color: 'from-violet-400 to-pink-500', route: '/admin/usuarios' });
     if (auth.canAccessMetricas) items.push({ label: 'Métricas', sub: 'Uso del sistema', icon: BarChart3, color: 'from-indigo-500 to-violet-600', route: '/admin/metricas' });
-    if (auth.canAccessCodigosClase) items.push({ label: 'Aulas', sub: 'Registro estudiantil', icon: QrCode, color: 'from-teal-400 to-emerald-500', route: '/codigos-clase' });
+    if (auth.canAccessCodigosClase) items.push({ label: 'Aulas', sub: 'Registro estudiantil', icon: School, color: 'from-teal-400 to-emerald-500', route: '/codigos-clase' });
     if (auth.canAccessAsignaciones) items.push({ label: 'Asignaciones', sub: 'Ver resultados', icon: ClipboardList, color: 'from-violet-400 to-purple-500', route: '/asignaciones' });
   }
   return items;
