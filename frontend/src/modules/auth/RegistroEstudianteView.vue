@@ -1,13 +1,20 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { registroService, type RegistroEstudiantePayload } from '../../shared/services/api'
 import { Eye, EyeOff, AlertCircle, CheckCircle, GraduationCap, Loader2 } from 'lucide-vue-next'
 
 const router = useRouter()
+const route = useRoute()
 
 const step = ref<'codigo' | 'datos'>('codigo')
 const codigoInput = ref('')
+
+// Pre-llenar el código desde la query string (?code=XXXXXXXX)
+onMounted(() => {
+  const code = route.query.code as string | undefined
+  if (code) codigoInput.value = code.trim().toUpperCase()
+})
 const codigoInfo = ref<{ grado: string | null; seccion: string | null; institucion: string | null } | null>(null)
 const validandoCodigo = ref(false)
 const codigoError = ref('')

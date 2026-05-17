@@ -4,9 +4,10 @@ import { ref, onMounted } from 'vue'
 import { codigosClaseService, organizacionService, type CodigoClase, type CodigoClaseCreatePayload } from '../../shared/services/api'
 import type { Grado } from '../../shared/types'
 import Header from '../../shared/components/Header.vue'
-import { Plus, Trash2, ToggleLeft, ToggleRight, Copy, AlertCircle, Loader2, QrCode, Home } from 'lucide-vue-next'
+import { Plus, Trash2, ToggleLeft, ToggleRight, Copy, AlertCircle, Loader2, QrCode, Home, X, Download } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
+import QRCode from 'qrcode'
 
 const router = useRouter()
 const codigos = ref<CodigoClase[]>([])
@@ -99,6 +100,39 @@ function copiar(codigo: string) {
 }
 
 // formatFecha importado de shared/utils/dateUtils
+
+// ── Modal QR ──────────────────────────────────────────────────────────────────
+const qrModal = ref<CodigoClase | null>(null)
+const qrDataUrl = ref('')
+const qrLoading = ref(false)
+
+function registroUrl(codigo: string): string {
+  return `${window.location.origin}/registro?code=${codigo}`
+}
+
+async function abrirQR(c: CodigoClase) {
+  qrModal.value = c
+  qrDataUrl.value = ''
+  qrLoading.value = true
+  try {
+    qrDataUrl.value = await QRCode.toDataURL(registroUrl(c.codigo), {
+      width: 280,
+      margin: 2,
+      color: { dark: '#0f172a', light: '#ffffff' },
+      errorCorrectionLevel: 'M',
+    })
+  } finally {
+    qrLoading.value = false
+  }
+}
+
+function descargarQR() {
+  if (!qrDataUrl.value || !qrModal.value) return
+  const a = document.createElement('a')
+  a.href = qrDataUrl.value
+  a.download = `QR-${qrModal.value.codigo}.png`
+  a.click()
+}
 </script>
 
 <template>
@@ -176,9 +210,14 @@ function copiar(codigo: string) {
             </td>
             <td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs">{{ formatFecha(c.fecha_creacion) }}</td>
             <td class="px-4 py-3">
-              <button @click="eliminar(c)" class="text-red-400 hover:text-red-600 transition-colors">
-                <Trash2 class="w-4 h-4" />
-              </button>
+              <div class="flex items-center gap-2">
+                <button @click="abrirQR(c)" class="text-teal-500 hover:text-teal-600 dark:hover:text-teal-400 transition-colors" title="Mostrar QR de registro">
+                  <QrCode class="w-4 h-4" />
+                </button>
+                <button @click="eliminar(c)" class="text-red-400 hover:text-red-600 transition-colors">
+                  <Trash2 class="w-4 h-4" />
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -186,6 +225,70 @@ function copiar(codigo: string) {
     </div>
 
   </main>
+
+  <!-- Modal QR -->
+  <Teleport to="body">
+    <Transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100"
+      leave-active-class="transition ease-in duration-150" leave-from-class="opacity-100" leave-to-class="opacity-0">
+      <div v-if="qrModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @click.self="qrModal = null">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+
+          <!-- Header -->
+          <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-700">
+            <div>
+              <h2 class="text-base font-bold text-slate-800 dark:text-white">Código QR de Registro</h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                {{ qrModal.grado_nombre }} — Sección {{ qrModal.seccion }}
+              </p>
+            </div>
+            <button @click="qrModal = null" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+              <X class="w-4 h-4" />
+            </button>
+          </div>
+
+          <!-- QR Code -->
+          <div class="flex flex-col items-center gap-4 px-5 py-6">
+            <div v-if="qrLoading" class="w-[280px] h-[280px] flex items-center justify-center">
+              <Loader2 class="w-8 h-8 animate-spin text-teal-500" />
+            </div>
+            <img v-else-if="qrDataUrl" :src="qrDataUrl" alt="QR de registro"
+              class="w-[280px] h-[280px] rounded-xl shadow-lg border border-slate-100 dark:border-slate-700" />
+
+            <!-- Código alfanumérico -->
+            <div class="w-full bg-slate-50 dark:bg-slate-900 rounded-xl p-3 text-center border border-slate-200 dark:border-slate-700">
+              <p class="text-[10px] text-slate-400 dark:text-slate-500 mb-1 uppercase tracking-wide">Código de acceso</p>
+              <div class="flex items-center justify-center gap-2">
+                <span class="font-mono font-black text-2xl text-teal-600 dark:text-teal-400 tracking-widest">{{ qrModal.codigo }}</span>
+                <button @click="copiar(qrModal.codigo)" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                  <Copy class="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            <!-- URL destino -->
+            <p class="text-[10px] text-slate-400 dark:text-slate-500 text-center leading-tight break-all px-2">
+              {{ registroUrl(qrModal.codigo) }}
+            </p>
+
+            <!-- Info -->
+            <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 bg-teal-50 dark:bg-teal-900/20 rounded-xl px-3 py-2 w-full border border-teal-100 dark:border-teal-800/30">
+              <QrCode class="w-3.5 h-3.5 text-teal-500 shrink-0" />
+              <span>Muestra este QR en clase. Los estudiantes lo escanean y se registran automáticamente en tu sección.</span>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="flex gap-2 px-5 py-4 border-t border-slate-100 dark:border-slate-700">
+            <button @click="descargarQR" :disabled="!qrDataUrl"
+              class="flex-1 flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-bold text-sm rounded-xl shadow transition-all disabled:opacity-50">
+              <Download class="w-4 h-4" /> Descargar QR
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 
   <!-- Modal crear código -->
   <Teleport to="body">
