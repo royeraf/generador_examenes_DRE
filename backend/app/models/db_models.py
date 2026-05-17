@@ -354,6 +354,7 @@ class AsignacionExamen(Base):
     asignado_por_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
 
     institucion_educativa_id = Column(Integer, ForeignKey("instituciones_educativas.id"), nullable=True)
+    codigo_clase_id = Column(Integer, ForeignKey("codigos_clase.id", ondelete="SET NULL"), nullable=True)
     grado_id = Column(Integer, ForeignKey("grados.id"), nullable=True)
     seccion = Column(String(10), nullable=True)  # None = todas las secciones
 
@@ -373,6 +374,7 @@ class AsignacionExamen(Base):
 
     asignado_por = relationship("Usuario", foreign_keys=[asignado_por_id])
     institucion_educativa = relationship("InstitucionEducativa")
+    codigo_clase = relationship("CodigoClase")
     grado = relationship("Grado")
     intentos = relationship("IntentoExamen", back_populates="asignacion", cascade="all, delete-orphan")
 

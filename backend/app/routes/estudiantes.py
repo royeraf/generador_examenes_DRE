@@ -12,7 +12,7 @@ from app.core.database import get_db
 from app.models.db_models import (
     AsignacionExamen, IntentoExamen, ProgresoEstudiante,
     ExamenLectura, ExamenMatematica,
-    PreguntaExamen, Rol,
+    PreguntaExamen, Rol, CodigoClase,
 )
 from app.models.usuario import Usuario
 from app.models.enums import RolCodigo
@@ -41,6 +41,7 @@ class FinalizarIntentoRequest(BaseModel):
 class AsignarExamenRequest(BaseModel):
     tipo_examen: str  # "lectura" o "matematica"
     examen_id: int
+    codigo_clase_id: Optional[int] = None  # FK a codigos_clase; si se provee, grado_id+seccion se auto-pueblan
     grado_id: Optional[int] = None
     seccion: Optional[str] = None
     fecha_inicio: Optional[datetime] = None
@@ -412,12 +413,25 @@ async def asignar_examen(
         raise HTTPException(400, "tipo_examen debe ser 'lectura' o 'matematica'")
     examen_service.validar_rango_horario(data.fecha_inicio, data.fecha_fin)
 
+    # Si se provee un codigo_clase_id, derivar grado_id y seccion de él
+    grado_id = data.grado_id
+    seccion = data.seccion
+    codigo_clase_id = data.codigo_clase_id
+    if codigo_clase_id:
+        cc_r = await db.execute(select(CodigoClase).where(CodigoClase.id == codigo_clase_id))
+        cc = cc_r.scalars().first()
+        if not cc:
+            raise HTTPException(404, "Código de clase no encontrado")
+        grado_id = cc.grado_id
+        seccion = cc.seccion
+
     kwargs = dict(
         tipo_examen=data.tipo_examen,
         asignado_por_id=current_user.id,
         institucion_educativa_id=current_user.institucion_educativa_id,
-        grado_id=data.grado_id,
-        seccion=data.seccion,
+        codigo_clase_id=codigo_clase_id,
+        grado_id=grado_id,
+        seccion=seccion,
         fecha_inicio=data.fecha_inicio,
         fecha_fin=data.fecha_fin,
         duracion_minutos=data.duracion_minutos,
@@ -516,6 +530,7 @@ async def listar_asignaciones(
             "grado_id": a.grado_id,
             "grado_nombre": grado_nombre,
             "seccion": a.seccion,
+            "codigo_clase_id": a.codigo_clase_id,
             "fecha_inicio": a.fecha_inicio.isoformat() if a.fecha_inicio else None,
             "fecha_fin": a.fecha_fin.isoformat() if a.fecha_fin else None,
             "duracion_minutos": a.duracion_minutos,

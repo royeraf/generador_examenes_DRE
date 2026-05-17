@@ -2,8 +2,8 @@
 import { construirFechaISO, extraerFechaHora, formatFechaHora } from '../../shared/utils/dateUtils'
 import { ref, shallowRef, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { apiClient, asignacionesService, examenesService, organizacionService } from '../../shared/services/api'
-import type { UpdateAsignacionPayload } from '../../shared/services/api'
+import { apiClient, asignacionesService, examenesService, organizacionService, codigosClaseService } from '../../shared/services/api'
+import type { UpdateAsignacionPayload, CodigoClase } from '../../shared/services/api'
 import Header from '../../shared/components/Header.vue'
 import Footer from '../../shared/components/Footer.vue'
 import Checkbox from '../../shared/components/Checkbox.vue'
@@ -91,6 +91,7 @@ const tipoExamen = ref<'lectura' | 'matematica'>('lectura')
 const examenesLectura = ref<ExamenItem[]>([])
 const examenesMatematica = ref<ExamenItem[]>([])
 const grados = ref<Grado[]>([])
+const codigosClase = ref<CodigoClase[]>([])
 const loadingExamenes = ref(false)
 
 const examenSeleccionadoId = ref<number | null>(null)
@@ -98,8 +99,15 @@ const examenDropdownOpen = shallowRef(false)
 const examenSeleccionado = computed(() =>
   examenesActuales.value.find(ex => ex.id === examenSeleccionadoId.value) ?? null
 )
+const codigoClaseId = ref<number | null>(null)
 const gradoSeleccionadoId = ref<number | null>(null)
 const seccion = ref('')
+
+// Para docentes: usa codigos_clase; para roles superiores: usa grado+sección libres
+const usarCodigosClase = computed(() => auth.isDocente || auth.isAuxiliar)
+const codigoClaseSeleccionado = computed(() =>
+  codigosClase.value.find(c => c.id === codigoClaseId.value) ?? null
+)
 const fechaAplicacion = ref('')
 const horaInicio = ref('')
 const horaFin = ref('')
@@ -152,6 +160,7 @@ async function openModal() {
   editingId.value = null
   modalError.value = ''
   examenSeleccionadoId.value = null
+  codigoClaseId.value = null
   gradoSeleccionadoId.value = null
   seccion.value = ''
   fechaAplicacion.value = ''
@@ -166,14 +175,23 @@ async function openModal() {
   showModal.value = true
   loadingExamenes.value = true
   try {
-    const [lec, mat, grds] = await Promise.all([
+    const fetches: Promise<any>[] = [
       examenesService.getExamenesLectura(),
       examenesService.getExamenesMatematica(),
-      organizacionService.getGrados(),
-    ])
+    ]
+    if (usarCodigosClase.value) {
+      fetches.push(codigosClaseService.getAll())
+    } else {
+      fetches.push(organizacionService.getGrados())
+    }
+    const [lec, mat, extra] = await Promise.all(fetches)
     examenesLectura.value = lec
     examenesMatematica.value = mat
-    grados.value = grds
+    if (usarCodigosClase.value) {
+      codigosClase.value = (extra as CodigoClase[]).filter(c => c.is_active)
+    } else {
+      grados.value = extra
+    }
   } catch {
     modalError.value = 'Error al cargar datos'
   } finally {
@@ -220,18 +238,23 @@ async function guardar() {
   }
   saving.value = true
   try {
-    await asignacionesService.asignar({
+    const payload: any = {
       tipo_examen: tipoExamen.value,
       examen_id: examenSeleccionadoId.value,
-      grado_id: gradoSeleccionadoId.value ?? undefined,
-      seccion: seccion.value.trim() || null,
       fecha_inicio: construirFechaISO(fechaAplicacion.value, horaInicio.value),
       fecha_fin: construirFechaISO(fechaAplicacion.value, horaFin.value),
       duracion_minutos: duracionMinutos.value || null,
       intentos_permitidos: intentosPermitidos.value,
       mezclar_preguntas: mezclarPreguntas.value,
       mezclar_alternativas: mezclarAlternativas.value,
-    } as any)
+    }
+    if (usarCodigosClase.value) {
+      payload.codigo_clase_id = codigoClaseId.value
+    } else {
+      payload.grado_id = gradoSeleccionadoId.value ?? undefined
+      payload.seccion = seccion.value.trim() || null
+    }
+    await asignacionesService.asignar(payload)
     closeModal()
     await fetchAsignaciones()
     Toast.fire({ icon: 'success', title: 'Examen asignado correctamente' })
@@ -548,35 +571,52 @@ const estadoColors: Record<string, string> = {
                   </div>
                 </div>
 
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Grado</label>
-                  <select v-model="gradoSeleccionadoId"
-                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all">
-                    <option :value="null">— Todos los grados —</option>
-                    <option v-for="g in grados" :key="g.id" :value="g.id">{{ g.nombre }}</option>
-                  </select>
+                <!-- Docentes/Auxiliares: picker de Códigos de Clase -->
+                <div v-if="usarCodigosClase">
+                  <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">
+                    Sección <span class="font-normal text-slate-400">(de mis códigos de clase)</span>
+                  </label>
+                  <div v-if="codigosClase.length === 0" class="text-xs text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800 rounded-xl px-4 py-3 border border-slate-200 dark:border-slate-700">
+                    No tienes secciones activas. Crea un código de clase primero.
+                  </div>
+                  <template v-else>
+                    <select v-model="codigoClaseId"
+                      class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all">
+                      <option :value="null">— Todas mis secciones —</option>
+                      <option v-for="c in codigosClase" :key="c.id" :value="c.id">
+                        {{ c.grado_nombre }} — Sección {{ c.seccion }}
+                        <template v-if="c.total_estudiantes"> ({{ c.total_estudiantes }} est.)</template>
+                      </option>
+                    </select>
+                    <p v-if="codigoClaseSeleccionado" class="mt-1.5 text-[11px] text-slate-400 dark:text-slate-500 flex items-center gap-1">
+                      <QrCode class="w-3 h-3 shrink-0" />
+                      Código: <span class="font-mono font-bold">{{ codigoClaseSeleccionado.codigo }}</span>
+                      · {{ codigoClaseSeleccionado.total_estudiantes }} estudiante(s) registrado(s)
+                    </p>
+                  </template>
                 </div>
 
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">
-                    Sección <span class="font-normal text-slate-400">(dejar vacío = todas)</span>
-                  </label>
-                  <select v-model="seccion"
-                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all">
-                    <option value="">— Todas las secciones —</option>
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                    <option value="C">C</option>
-                    <option value="D">D</option>
-                    <option value="E">E</option>
-                    <option value="F">F</option>
-                    <option value="G">G</option>
-                    <option value="H">H</option>
-                    <option value="I">I</option>
-                    <option value="J">J</option>
-                    <option value="Única">Única</option>
-                  </select>
-                </div>
+                <!-- Roles superiores: Grado + Sección libres -->
+                <template v-else>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Grado</label>
+                    <select v-model="gradoSeleccionadoId"
+                      class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all">
+                      <option :value="null">— Todos los grados —</option>
+                      <option v-for="g in grados" :key="g.id" :value="g.id">{{ g.nombre }}</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">
+                      Sección <span class="font-normal text-slate-400">(dejar vacío = todas)</span>
+                    </label>
+                    <select v-model="seccion"
+                      class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all">
+                      <option value="">— Todas las secciones —</option>
+                      <option v-for="s in ['A','B','C','D','E','F','G','H','I','J','Única']" :key="s" :value="s">{{ s }}</option>
+                    </select>
+                  </div>
+                </template>
               </template>
 
               <!-- Rango horario -->
