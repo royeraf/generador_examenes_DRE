@@ -10,10 +10,13 @@ const route = useRoute()
 const step = ref<'codigo' | 'datos'>('codigo')
 const codigoInput = ref('')
 
-// Pre-llenar el código desde la query string (?code=XXXXXXXX)
-onMounted(() => {
+// Pre-llenar y validar el código desde la query string (?code=XXXXXXXX)
+onMounted(async () => {
   const code = route.query.code as string | undefined
-  if (code) codigoInput.value = code.trim().toUpperCase()
+  if (code) {
+    codigoInput.value = code.trim().toUpperCase()
+    await validarCodigo()
+  }
 })
 const codigoInfo = ref<{ grado: string | null; seccion: string | null; institucion: string | null } | null>(null)
 const validandoCodigo = ref(false)
