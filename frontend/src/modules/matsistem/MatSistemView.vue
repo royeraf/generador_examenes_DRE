@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { shallowRef, ref, onMounted, onUnmounted, watch } from 'vue';
-import { useRouter } from 'vue-router';
 
 // import Sistematizador from '../generador/components/Sistematizador.vue';
 import { useMatSistemHistory } from './composables/useMatSistemHistory';
@@ -11,18 +10,17 @@ import { construirFechaISO, formatFechaHora } from '../../shared/utils/dateUtils
 import type { AsignacionPayload } from '../../shared/services/api';
 import {
   Brain, Sparkles, LayoutGrid, History, Trash2,
-  GraduationCap, FileText, Home, Loader2, X,
+  GraduationCap, FileText, Loader2, X,
   CloudUpload, Target, Calculator, RefreshCw, Shapes, BarChart3, BookOpen, Hash,
   Eye, FileDown, Send, PanelLeft,
 } from 'lucide-vue-next';
 
-const router = useRouter();
 import Checkbox from '../../shared/components/Checkbox.vue';
 import ComboBox from '../../shared/components/ComboBox.vue';
 import MatSistemDesempenos from './components/MatSistemDesempenos.vue';
 import MatSistemResults from './components/MatSistemResults.vue';
 import MatSistemExamPreviewModal from './components/MatSistemExamPreviewModal.vue';
-import UserBadge from '../../shared/components/UserBadge.vue';
+import Navbar from '../../shared/components/Navbar.vue';
 import type { ExamenHistoryEntry } from '../../shared/types';
 import type { GradoMatematica } from '../../shared/types/matematica';
 
@@ -369,36 +367,15 @@ onMounted(async () => {
   <div class="h-screen flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-200 font-sans">
     
     <!-- Header unificado -->
-    <header class="shrink-0 h-14 flex items-center justify-between px-4 sm:px-6 gap-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm border-b border-slate-200/80 dark:border-slate-800">
-      <div class="flex items-center gap-3 shrink-0">
-        <div class="relative w-8 h-8 shrink-0">
-          <div class="absolute -inset-0.5 bg-gradient-to-r from-teal-500 to-indigo-600 rounded-lg blur opacity-20"></div>
-          <div class="absolute inset-0 flex items-center justify-center p-1.5 bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 overflow-hidden">
-            <GraduationCap class="absolute w-4 h-4 text-teal-600 dark:text-teal-400 animate-logo-cycle-1" />
-            <div class="absolute logo-gradient-static w-4 h-4 animate-logo-cycle-2"></div>
-          </div>
+    <Navbar title="MatSistem" subtitle="Matemática práctica con IA" :show-home="true">
+      <template #center>
+        <div class="flex items-center bg-white dark:bg-slate-800 rounded-full p-1 border border-slate-200 dark:border-slate-700 shadow-sm overflow-x-auto flex-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <button @click="activeTab = 'generador'" class="shrink-0 px-3 sm:px-4 py-1.5 rounded-full text-xs font-medium transition-all" :class="activeTab === 'generador' ? 'bg-indigo-500 text-white shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'">Generador</button>
+          <button @click="activeTab = 'historial'" class="shrink-0 px-3 sm:px-4 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1.5" :class="activeTab === 'historial' ? 'bg-indigo-500 text-white shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'">Historial <span v-if="history.length" class="text-[10px] bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white px-1.5 rounded-full">{{ history.length }}</span></button>
+          <!-- <button @click="activeTab = 'sistematizador'" class="shrink-0 px-3 sm:px-4 py-1.5 rounded-full text-xs font-medium transition-all" :class="activeTab === 'sistematizador' ? 'bg-indigo-500 text-white shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'">Sistematizador</button> -->
         </div>
-        <div class="hidden sm:block min-w-0">
-          <h1 class="text-sm font-bold text-slate-800 dark:text-white tracking-tight truncate">MatSistem</h1>
-          <p class="text-[10px] text-slate-400 dark:text-slate-500 truncate leading-tight">Matemática práctica con IA</p>
-        </div>
-      </div>
-
-      <!-- Center Pill -->
-      <div class="flex items-center bg-white dark:bg-slate-800 rounded-full p-1 border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-none overflow-x-auto flex-nowrap min-w-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-        <button @click="activeTab = 'generador'" class="shrink-0 px-3 sm:px-4 py-1.5 rounded-full text-xs font-medium transition-all" :class="activeTab === 'generador' ? 'bg-indigo-500 text-white shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'">Generador</button>
-        <button @click="activeTab = 'historial'" class="shrink-0 px-3 sm:px-4 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1.5" :class="activeTab === 'historial' ? 'bg-indigo-500 text-white shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'">Historial <span v-if="history.length" class="text-[10px] bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white px-1.5 rounded-full">{{ history.length }}</span></button>
-        <!-- <button @click="activeTab = 'sistematizador'" class="shrink-0 px-3 sm:px-4 py-1.5 rounded-full text-xs font-medium transition-all" :class="activeTab === 'sistematizador' ? 'bg-indigo-500 text-white shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'">Sistematizador</button> -->
-      </div>
-
-      <!-- Actions -->
-      <div class="flex items-center gap-2 shrink-0">
-        <button @click="router.push('/')" class="p-2 sm:px-3 sm:py-1.5 rounded-full bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-colors text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white flex items-center gap-2">
-          <Home class="w-4 h-4" /> <span class="hidden sm:inline">Inicio</span>
-        </button>
-        <UserBadge />
-      </div>
-    </header>
+      </template>
+    </Navbar>
 
     <!-- Content wrapper -->
     <div class="flex-1 min-h-0 flex flex-col p-2 sm:p-4 pt-0 gap-2">
@@ -688,27 +665,4 @@ onMounted(async () => {
   animation: robot-float-mat 4s ease-in-out infinite;
   transform-origin: center bottom;
 }
-
-/* Logo animado del header */
-@keyframes logoCycle1 {
-  0%, 42%  { opacity: 1; transform: scale(1) rotate(0deg); }
-  48%, 92% { opacity: 0; transform: scale(0.5) rotate(-15deg); }
-  98%, 100%{ opacity: 1; transform: scale(1) rotate(0deg); }
-}
-@keyframes logoCycle2 {
-  0%, 42%  { opacity: 0; transform: scale(0.5) rotate(15deg); }
-  48%, 92% { opacity: 1; transform: scale(1) rotate(0deg); }
-  98%, 100%{ opacity: 0; transform: scale(0.5) rotate(-15deg); }
-}
-.animate-logo-cycle-1 { animation: logoCycle1 10s infinite; }
-.animate-logo-cycle-2 { animation: logoCycle2 10s infinite; }
-.logo-gradient-static {
-  background: linear-gradient(135deg, #14b8a6, #4f46e5);
-  mask-image: url('/src/assets/logo.png');
-  -webkit-mask-image: url('/src/assets/logo.png');
-  mask-size: contain; -webkit-mask-size: contain;
-  mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;
-  mask-position: center; -webkit-mask-position: center;
-}
-.dark .logo-gradient-static { background: linear-gradient(135deg, #5eead4, #818cf8); }
 </style>

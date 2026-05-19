@@ -4,13 +4,13 @@ import { ref, shallowRef, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { apiClient, asignacionesService, examenesService, organizacionService, codigosClaseService } from '../../shared/services/api'
 import type { UpdateAsignacionPayload, CodigoClase } from '../../shared/services/api'
-import Header from '../../shared/components/Header.vue'
+import Navbar from '../../shared/components/Navbar.vue'
 import Footer from '../../shared/components/Footer.vue'
 import Checkbox from '../../shared/components/Checkbox.vue'
 import { useTheme } from '../../shared/composables/useTheme'
 import { showDeleteConfirm, Toast } from '../../shared/utils/swal'
 import {
-  Home, ClipboardList, BookOpen, Calculator,
+  ClipboardList, BookOpen, Calculator,
   Trash2, Loader2, Users, ChevronDown,
   Clock, AlertCircle, Plus, X, BookMarked, Save, User, Pencil
 } from 'lucide-vue-next'
@@ -329,20 +329,11 @@ const estadoColors: Record<string, string> = {
 <template>
   <div class="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-violet-50/20 to-indigo-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 transition-colors">
 
-    <Header
+    <Navbar
       :title="headerTitle"
       subtitle="Exámenes asignados a estudiantes"
       gradient-class="from-violet-600 via-purple-600 to-indigo-600 shadow-violet-500/20"
-      subtitle-class="text-violet-100 dark:text-slate-400"
-    >
-      <template #actions-before>
-        <button @click="router.push('/')"
-          class="p-2.5 rounded-xl bg-white/20 text-white border border-white/30 hover:bg-white/30 transition-all"
-          title="Inicio">
-          <Home class="w-5 h-5" />
-        </button>
-      </template>
-    </Header>
+      subtitle-class="text-violet-100 dark:text-slate-400" :show-home="true" />
 
     <main class="flex-1 max-w-4xl mx-auto px-4 sm:px-6 py-6 w-full space-y-4">
 

@@ -2,12 +2,9 @@
 import { ref, onMounted } from 'vue'
 import { organizacionService, ubigeoService, type UgelCreatePayload } from '../../shared/services/api'
 import type { Ugel, Provincia } from '../../shared/types'
-import Header from '../../shared/components/Header.vue'
-import { Plus, Edit2, Trash2, Home, Loader2, AlertCircle } from 'lucide-vue-next'
-import { useRouter } from 'vue-router'
+import Navbar from '../../shared/components/Navbar.vue'
+import { Plus, Edit2, Trash2, Loader2, AlertCircle } from 'lucide-vue-next'
 import Swal from 'sweetalert2'
-
-const router = useRouter()
 const ugeles = ref<Ugel[]>([])
 const provincias = ref<Provincia[]>([])
 const loading = ref(true)
@@ -94,15 +91,7 @@ async function eliminar(ugel: Ugel) {
 
 <template>
   <div>
-    <Header title="Gestión de UGELes" subtitle="">
-      <template #actions-before>
-        <button @click="router.push('/')"
-          class="p-2.5 rounded-xl bg-white/20 text-white border border-white/30 hover:bg-white/30 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600 transition-all duration-300"
-          title="Inicio">
-          <Home class="w-4 h-4" />
-        </button>
-      </template>
-    </Header>
+    <Navbar title="Gestión de UGELes" :show-home="true" />
 
     <main class="max-w-5xl mx-auto px-4 py-8">
       <div class="flex items-center justify-between mb-6">

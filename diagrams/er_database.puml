@@ -4,7 +4,113 @@
 hide circle
 skinparam linetype ortho
 
-' Entities
+' ==================================================
+' GEOGRAFÍA
+' ==================================================
+
+entity "Provincia" as provincias {
+  *id : Integer <<generated>>
+  --
+  *nombre : String(100) <<unique>>
+}
+
+entity "Distrito" as distritos {
+  *id : Integer <<generated>>
+  --
+  *nombre : String(100)
+  *provincia_id : Integer <<FK>>
+}
+
+' ==================================================
+' ORGANIZACIÓN
+' ==================================================
+
+entity "Rol" as roles {
+  *id : Integer <<generated>>
+  --
+  *codigo : String(50) <<unique>>
+  *nombre : String(100)
+  descripcion : Text
+  *nivel : Integer
+  *orden : Integer
+  modulos_default : JSON
+}
+
+entity "Ugel" as ugeles {
+  *id : Integer <<generated>>
+  --
+  *codigo : String(20) <<unique>>
+  *nombre : String(200)
+  provincia_id : Integer <<FK>>
+  *is_active : Boolean
+  *fecha_creacion : DateTime
+}
+
+entity "InstitucionEducativa" as instituciones_educativas {
+  *id : Integer <<generated>>
+  --
+  *codigo_modular : String(20) <<unique>>
+  *nombre : String(300)
+  direccion : Text
+  *ugel_id : Integer <<FK>>
+  distrito_id : Integer <<FK>>
+  *is_active : Boolean
+  *fecha_creacion : DateTime
+}
+
+entity "InstitucionNivel" as institucion_niveles {
+  *id : Integer <<generated>>
+  --
+  *institucion_id : Integer <<FK>>
+  *nivel : String(20)
+}
+
+entity "CodigoClase" as codigos_clase {
+  *id : Integer <<generated>>
+  --
+  *codigo : String(10) <<unique>>
+  *creado_por_id : Integer <<FK>>
+  *institucion_educativa_id : Integer <<FK>>
+  *grado_id : Integer <<FK>>
+  *seccion : String(10)
+  *max_estudiantes : Integer
+  *is_active : Boolean
+  *fecha_creacion : DateTime
+  fecha_expiracion : DateTime
+}
+
+' ==================================================
+' USUARIOS
+' ==================================================
+
+entity "Usuario" as usuarios {
+  *id : Integer <<generated>>
+  --
+  dni : String(8) <<unique>>
+  codigo_estudiante : String(10) <<unique>>
+  nombres : String(100)
+  apellidos : String(100)
+  profesion : String(100)
+  email : String(200)
+  telefono : String(20)
+  *password_hash : String(200)
+  *is_active : Boolean
+  *rol_id : Integer <<FK>>
+  ugel_id : Integer <<FK>>
+  institucion_educativa_id : Integer <<FK>>
+  grado_id : Integer <<FK>>
+  seccion : String(10)
+  provincia_id : Integer <<FK>>
+  distrito_id : Integer <<FK>>
+  permisos_modulos : JSON
+  creado_por_id : Integer <<FK self>>
+  *fecha_creacion : DateTime
+  ultimo_acceso : DateTime
+}
+
+' ==================================================
+' CURRÍCULO COMPARTIDO
+' ==================================================
 
 entity "Grado" as grados {
   *id : Integer <<generated>>
@@ -14,6 +120,10 @@ entity "Grado" as grados {
   *nivel : String(20)
   *orden : Integer
 }
+
+' ==================================================
+' CURRÍCULO - COMUNICACIÓN (LectoSistem)
+' ==================================================
 
 entity "Capacidad" as capacidades {
   *id : Integer <<generated>>
@@ -32,10 +142,14 @@ entity "Desempeno" as desempenos {
   *capacidad_id : Integer <<FK>>
 }
 
+' ==================================================
+' CURRÍCULO - MATEMÁTICA (MatSistem)
+' ==================================================
+
 entity "CompetenciaMatematica" as competencias_matematica {
   *id : Integer <<generated>>
   --
-  *codigo : Integer
+  *codigo : Integer <<unique>>
   *nombre : String(200)
   descripcion : Text
 }
@@ -67,17 +181,189 @@ entity "DesempenoMatematica" as desempenos_matematica {
   *capacidad_id : Integer <<FK>>
 }
 
-' Relationships
+' ==================================================
+' EXÁMENES GENERADOS
+' ==================================================
 
+entity "ExamenLectura" as examenes_lectura {
+  *id : Integer <<generated>>
+  --
+  *docente_id : Integer <<FK>>
+  grado_id : Integer <<FK>>
+  *fecha_creacion : DateTime
+  titulo : String(300)
+  grado_nombre : String(100)
+  nivel_dificultad : String(50)
+  modelo_ia : String(50)
+  saludo : Text
+  instrucciones : Text
+  lectura : Text
+  lecturas : JSON
+  preguntas : JSON
+  tabla_respuestas : JSON
+  desempenos_usados : Text
+}
+
+entity "ExamenMatematica" as examenes_matematica {
+  *id : Integer <<generated>>
+  --
+  *docente_id : Integer <<FK>>
+  grado_id : Integer <<FK>>
+  competencia_id : Integer <<FK>>
+  *fecha_creacion : DateTime
+  titulo : String(300)
+  grado_nombre : String(100)
+  nivel_dificultad : String(50)
+  modelo_ia : String(50)
+  saludo : Text
+  situacion_problematica : Text
+  preguntas : JSON
+  tabla_respuestas : JSON
+  desempenos_usados : Text
+}
+
+entity "PreguntaExamen" as preguntas_examen {
+  *id : Integer <<generated>>
+  --
+  examen_lectura_id : Integer <<FK>>
+  examen_matematica_id : Integer <<FK>>
+  *numero : Integer
+  *enunciado : Text
+  *opcion_a : Text
+  *opcion_b : Text
+  *opcion_c : Text
+  *opcion_d : Text
+  *respuesta_correcta : String(1)
+  nivel : String(20)
+  desempeno_codigo : String(50)
+  desempeno_descripcion : Text
+  justificacion : Text
+}
+
+' ==================================================
+' ASIGNACIONES, INTENTOS Y PROGRESO
+' ==================================================
+
+entity "AsignacionExamen" as asignaciones_examen {
+  *id : Integer <<generated>>
+  --
+  *tipo_examen : String(20)
+  *examen_id : Integer
+  *asignado_por_id : Integer <<FK>>
+  institucion_educativa_id : Integer <<FK>>
+  codigo_clase_id : Integer <<FK>>
+  grado_id : Integer <<FK>>
+  seccion : String(10)
+  fecha_inicio : DateTime
+  fecha_fin : DateTime
+  duracion_minutos : Integer
+  *intentos_permitidos : Integer
+  *mostrar_resultados : Boolean
+  *mezclar_preguntas : Boolean
+  *mezclar_alternativas : Boolean
+  *is_active : Boolean
+  *fecha_creacion : DateTime
+}
+
+entity "IntentoExamen" as intentos_examen {
+  *id : Integer <<generated>>
+  --
+  *asignacion_id : Integer <<FK>>
+  *estudiante_id : Integer <<FK>>
+  *numero_intento : Integer
+  *estado : String(20)
+  fecha_inicio : DateTime
+  fecha_fin : DateTime
+  puntaje_total : Float
+  preguntas_correctas : Integer
+  preguntas_total : Integer
+  nivel_logro : String(50)
+  *fecha_creacion : DateTime
+}
+
+entity "RespuestaIntento" as respuestas_intento {
+  *id : Integer <<generated>>
+  --
+  *intento_id : Integer <<FK>>
+  *pregunta_id : Integer <<FK>>
+  *respuesta_dada : String(1)
+  *es_correcta : Boolean
+  retroalimentacion_ia : Text
+}
+
+entity "ProgresoEstudiante" as progreso_estudiante {
+  *id : Integer <<generated>>
+  --
+  *estudiante_id : Integer <<FK>>
+  *area : String(20)
+  *total_examenes_completados : Integer
+  puntaje_promedio : Float
+  nivel_logro_actual : String(50)
+  dominio_desempenos : JSON
+  ultima_actividad : DateTime
+  *fecha_creacion : DateTime
+}
+
+' ==================================================
+' RELACIONES
+' ==================================================
+
+' Geografía
+provincias ||..o{ distritos
+provincias ||..o{ ugeles
+
+' Organización
+ugeles ||..o{ instituciones_educativas
+distritos ||..o{ instituciones_educativas
+instituciones_educativas ||..o{ institucion_niveles
+
+' Usuarios
+roles ||..o{ usuarios
+ugeles ||..o{ usuarios
+instituciones_educativas ||..o{ usuarios
+grados ||..o{ usuarios
+provincias ||..o{ usuarios
+distritos ||..o{ usuarios
+usuarios ||..o{ usuarios : "creado_por"
+
+' Códigos de clase
+usuarios ||..o{ codigos_clase : "creado_por"
+instituciones_educativas ||..o{ codigos_clase
+grados ||..o{ codigos_clase
+
+' Currículo - Comunicación
 grados ||..o{ desempenos
 capacidades ||..o{ desempenos
 
+' Currículo - Matemática
 competencias_matematica ||..o{ capacidades_matematica
 competencias_matematica ||..o{ estandares_matematica
-
 grados ||..o{ estandares_matematica
 grados ||..o{ desempenos_matematica
-
 capacidades_matematica ||..o{ desempenos_matematica
+
+' Exámenes generados
+usuarios ||..o{ examenes_lectura : "docente_id"
+usuarios ||..o{ examenes_matematica : "docente_id"
+grados ||..o{ examenes_lectura
+grados ||..o{ examenes_matematica
+competencias_matematica ||..o{ examenes_matematica
+examenes_lectura ||..o{ preguntas_examen
+examenes_matematica ||..o{ preguntas_examen
+
+' Asignaciones
+usuarios ||..o{ asignaciones_examen : "asignado_por"
+instituciones_educativas ||..o{ asignaciones_examen
+codigos_clase ||..o{ asignaciones_examen
+grados ||..o{ asignaciones_examen
+
+' Intentos y respuestas
+asignaciones_examen ||..o{ intentos_examen
+usuarios ||..o{ intentos_examen : "estudiante"
+intentos_examen ||..o{ respuestas_intento
+preguntas_examen ||..o{ respuestas_intento
+
+' Progreso
+usuarios ||..o{ progreso_estudiante : "estudiante"
 
 @enduml

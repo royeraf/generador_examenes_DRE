@@ -1,21 +1,17 @@
 <script setup lang="ts">
 import { formatFecha } from '../../shared/utils/dateUtils'
 import { ref, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
 import { apiClient } from '../../shared/services/api'
-import Header from '../../shared/components/Header.vue'
+import Navbar from '../../shared/components/Navbar.vue'
 import Footer from '../../shared/components/Footer.vue'
 import {
-  Home, Users, BookOpen, Calculator,
+  Users, BookOpen, Calculator,
   Clock, BarChart3, RefreshCw,
   Building2, CheckCircle2, ClipboardList,
   TrendingUp, Activity, FileText, Medal
 } from 'lucide-vue-next'
 import { useTheme } from '../../shared/composables/useTheme'
-import { useAuthStore } from '../../stores/auth'
 
-const router = useRouter()
-const auth = useAuthStore()
 useTheme()
 
 interface Reciente {
@@ -89,20 +85,7 @@ const rolLabel = computed(() => {
 <template>
   <div class="min-h-screen flex flex-col bg-slate-50 dark:bg-[#0f111a] transition-colors font-sans">
     
-    <Header
-      title="Dashboard de Métricas"
-      subtitle="Analítica y estadísticas en tiempo real"
-      gradient-class="from-indigo-600 via-purple-600 to-violet-600"
-      subtitle-class="text-indigo-100"
-    >
-      <template #actions-before>
-        <button @click="router.push(auth.homeRoute)"
-          class="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm border border-white/20 transition-all shadow-sm"
-          title="Inicio">
-          <Home class="w-5 h-5" />
-        </button>
-      </template>
-    </Header>
+    <Navbar title="Dashboard de Métricas" subtitle="Analítica y estadísticas en tiempo real" :show-home="true" />
 
     <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 py-8 w-full space-y-8">
       

@@ -2,7 +2,6 @@
 import { formatFecha } from '../../shared/utils/dateUtils'
 import * as XLSX from 'xlsx'
 import { ref, computed, onMounted, useTemplateRef } from 'vue'
-import { useRouter } from 'vue-router'
 import {
   docenteEstudiantesService,
   organizacionService,
@@ -11,14 +10,12 @@ import {
   type RegistrarEstudianteDirectoPayload,
 } from '../../shared/services/api'
 import type { Grado } from '../../shared/types'
-import Header from '../../shared/components/Header.vue'
+import Navbar from '../../shared/components/Navbar.vue'
 import Swal from 'sweetalert2'
 import {
-  Plus, Edit2, Trash2, Home, Search, X, Eye, EyeOff,
+  Plus, Edit2, Trash2, Search, X, Eye, EyeOff,
   GraduationCap, Loader2, AlertCircle, CheckCircle, Users, Download, Upload, FileSpreadsheet
 } from 'lucide-vue-next'
-
-const router = useRouter()
 
 // ── State ────────────────────────────────────────────────────────────────────
 const estudiantes = ref<EstudianteDocente[]>([])
@@ -355,21 +352,12 @@ function nombreGrado(id: number | null) {
 <template>
   <div class="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 to-teal-50 dark:from-slate-900 dark:to-slate-950">
 
-    <Header
+    <Navbar
       title="Mis Estudiantes"
       subtitle="Gestión de Aula"
       :has-resultado="false"
       gradient-class="from-teal-500 via-emerald-500 to-cyan-600 shadow-teal-500/20"
-      subtitle-class="text-teal-100 dark:text-slate-400"
-    >
-      <template #actions-before>
-        <button @click="router.push('/')"
-          class="p-2 sm:p-2.5 rounded-xl bg-white/20 text-white border border-white/30 hover:bg-white/30 transition-all mr-1 sm:mr-2"
-          title="Inicio">
-          <Home class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-        </button>
-      </template>
-    </Header>
+      subtitle-class="text-teal-100 dark:text-slate-400" :show-home="true" />
 
     <div class="flex-1 w-full max-w-6xl mx-auto p-4 md:p-8">
 

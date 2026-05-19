@@ -3,11 +3,8 @@ import { formatFecha } from '../../shared/utils/dateUtils'
 import { ref, onMounted } from 'vue'
 import { organizacionService } from '../../shared/services/api'
 import type { InstitucionEducativa } from '../../shared/types'
-import Header from '../../shared/components/Header.vue'
-import { Home, Building2, Loader2, MapPin, GraduationCap, BookOpen, Calculator, ClipboardList, CheckCircle2, Users } from 'lucide-vue-next'
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
+import Navbar from '../../shared/components/Navbar.vue'
+import { Building2, Loader2, MapPin, GraduationCap, BookOpen, Calculator, ClipboardList, CheckCircle2, Users } from 'lucide-vue-next'
 const institucion = ref<InstitucionEducativa | null>(null)
 const analytics = ref<{
   total_estudiantes: number
@@ -51,15 +48,7 @@ const completadosPct = () => {
 </script>
 
 <template>
-  <Header title="Mi Institución" subtitle="">
-    <template #actions-before>
-      <button @click="router.push('/')"
-        class="p-2.5 rounded-xl bg-white/20 text-white border border-white/30 hover:bg-white/30 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600 transition-all duration-300"
-        title="Inicio">
-        <Home class="w-4 h-4" />
-      </button>
-    </template>
-  </Header>
+  <Navbar title="Mi Institución" :show-home="true" />
 
   <main class="max-w-3xl mx-auto px-4 py-8">
     <div v-if="loading" class="flex justify-center py-16">

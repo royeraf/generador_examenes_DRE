@@ -1,22 +1,20 @@
 <script setup lang="ts">
 import { formatFecha } from '../../shared/utils/dateUtils'
 import { ref, watch, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { adminUsuariosService, ubigeoService, organizacionService, rolesConfigService, type DocenteCreatePayload, type DocenteUpdatePayload, type RolConfig } from '../../shared/services/api'
 import type { Docente, Provincia, Distrito, Ugel, InstitucionEducativa } from '../../shared/types'
 import {
-  Plus, Edit2, Trash2, Home,
+  Plus, Edit2, Trash2,
   Shield, X, Eye, EyeOff, AlertCircle, KeyRound, CheckCircle,
   ChevronLeft, ChevronRight, Loader2, MoreVertical, Search, MapPin, Save, RotateCcw
 } from 'lucide-vue-next'
 import ComboBox from '../../shared/components/ComboBox.vue'
-import Header from '../../shared/components/Header.vue'
+import Navbar from '../../shared/components/Navbar.vue'
 import Swal from 'sweetalert2'
 import { useForm, useField } from 'vee-validate'
 import * as yup from 'yup'
 
-const router = useRouter()
 const auth = useAuthStore()
 
 // Tabs
@@ -634,17 +632,9 @@ async function saveResetPassword() {
   <div @click="showDeleteFor = null"
     class="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 to-gray-100 dark:from-slate-900 dark:to-slate-950">
 
-    <Header title="Gestión de Usuarios" subtitle="Administración" :has-resultado="false"
+    <Navbar title="Gestión de Usuarios" subtitle="Administración" :has-resultado="false"
       gradient-class="from-teal-600 via-indigo-600 to-violet-600 shadow-indigo-500/20"
-      subtitle-class="text-indigo-100 dark:text-slate-400">
-      <template #actions-before>
-          <button @click="router.push('/')"
-            class="p-2 sm:p-2.5 rounded-xl bg-white/20 text-white border border-white/30 hover:bg-white/30 transition-all duration-300 mr-1 sm:mr-2"
-            title="Inicio">
-            <Home class="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-          </button>
-      </template>
-    </Header>
+      subtitle-class="text-indigo-100 dark:text-slate-400" :show-home="true" />
 
     <!-- Main Container -->
     <div class="flex-1 w-full max-w-7xl mx-auto p-4 md:p-8">
