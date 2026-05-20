@@ -407,7 +407,7 @@ function descargarQR() {
             <div>
               <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Grado Académico</label>
               <select v-model="form.grado_id"
-                class="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-teal-500/50 rounded-2xl py-4 px-5 text-base font-bold text-slate-900 dark:text-white outline-none transition-all appearance-none cursor-pointer">
+                class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-900 dark:text-white outline-none transition-all appearance-none cursor-pointer">
                 <option v-for="g in grados" :key="g.id" :value="g.id">{{ g.nombre }}</option>
               </select>
             </div>
@@ -415,7 +415,7 @@ function descargarQR() {
             <div>
               <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Sección</label>
               <select v-model="form.seccion"
-                class="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-teal-500/50 rounded-2xl py-4 px-5 text-base font-bold text-slate-900 dark:text-white outline-none transition-all appearance-none cursor-pointer">
+                class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-900 dark:text-white outline-none transition-all appearance-none cursor-pointer">
                 <option value="" disabled>Seleccione sección...</option>
                 <option v-for="s in ['A','B','C','D','E','F','G','H','I','J','Única']" :key="s" :value="s">{{ s }}</option>
               </select>
@@ -425,7 +425,7 @@ function descargarQR() {
               <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Límite de Estudiantes</label>
               <div class="relative">
                  <input v-model.number="form.max_estudiantes" type="number" min="1" max="200"
-                  class="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-teal-500/50 rounded-2xl py-4 px-5 text-base font-bold text-slate-900 dark:text-white outline-none transition-all" />
+                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
                  <span class="absolute right-5 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400 uppercase">Capacidad</span>
               </div>
             </div>

@@ -451,16 +451,16 @@ const deleteItem = async (id: number) => {
                                 <div class="grid grid-cols-4 gap-4">
                                     <div class="space-y-1.5">
                                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Código</label>
-                                        <input v-model.number="editItem.codigo" type="number" :disabled="isEditing" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-4 px-5 text-sm font-bold outline-none" />
+                                        <input v-model.number="editItem.codigo" type="number" :disabled="isEditing" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400" />
                                     </div>
                                     <div class="col-span-3 space-y-1.5">
                                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nombre</label>
-                                        <input v-model="editItem.nombre" type="text" :disabled="isEditing" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-4 px-5 text-sm font-bold outline-none" />
+                                        <input v-model="editItem.nombre" type="text" :disabled="isEditing" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400" />
                                     </div>
                                 </div>
                                 <div class="space-y-1.5">
                                     <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Descripción</label>
-                                    <textarea v-model="editItem.descripcion" rows="4" :disabled="isEditing" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-4 px-5 text-sm font-bold outline-none"></textarea>
+                                    <textarea v-model="editItem.descripcion" rows="4" :disabled="isEditing" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400"></textarea>
                                 </div>
                             </template>
 
@@ -468,17 +468,17 @@ const deleteItem = async (id: number) => {
                                 <div class="grid grid-cols-4 gap-4">
                                     <div class="space-y-1.5">
                                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Orden</label>
-                                        <input v-model.number="editItem.orden" type="number" :disabled="isEditing" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-4 px-5 text-sm font-bold outline-none" />
+                                        <input v-model.number="editItem.orden" type="number" :disabled="isEditing" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400" />
                                     </div>
                                     <div class="col-span-3 space-y-1.5">
                                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Competencia</label>
                                         <ComboBox v-if="!isEditing" v-model="editItem.competencia_id" :options="competenciaOptions" placeholder="Seleccionar..." />
-                                        <div v-else class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-4 px-5 text-sm font-bold opacity-50">{{ editItem?.competencia_nombre }}</div>
+                                        <div v-else class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-400 opacity-60">{{ editItem?.competencia_nombre }}</div>
                                     </div>
                                 </div>
                                 <div class="space-y-1.5">
                                     <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nombre</label>
-                                    <input v-model="editItem.nombre" type="text" :disabled="isEditing" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-4 px-5 text-sm font-bold outline-none" />
+                                    <input v-model="editItem.nombre" type="text" :disabled="isEditing" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400" />
                                 </div>
                             </template>
 
@@ -486,7 +486,7 @@ const deleteItem = async (id: number) => {
                                 <div class="grid grid-cols-3 gap-4">
                                     <div class="space-y-1.5">
                                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Código</label>
-                                        <input v-model="editItem.codigo" type="text" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-4 px-5 text-sm font-bold outline-none focus:border-violet-500 transition-all" />
+                                        <input v-model="editItem.codigo" type="text" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400" />
                                     </div>
                                     <div class="col-span-2 space-y-1.5">
                                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Capacidad</label>
@@ -495,7 +495,7 @@ const deleteItem = async (id: number) => {
                                 </div>
                                 <div class="space-y-1.5">
                                     <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Descripción</label>
-                                    <textarea v-model="editItem.descripcion" rows="6" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-4 px-5 text-sm font-bold outline-none focus:border-violet-500 transition-all"></textarea>
+                                    <textarea v-model="editItem.descripcion" rows="6" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400"></textarea>
                                 </div>
                             </template>
                         </div>

@@ -175,7 +175,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                                     v-model="identifierValue"
                                     type="text" 
                                     placeholder="DNI o Código"
-                                    class="w-full bg-slate-50 dark:bg-slate-900/50 border-2 border-slate-300 dark:border-slate-800 focus:border-teal-500/50 dark:focus:border-teal-500/30 rounded-xl py-4 pl-12 pr-4 text-sm font-bold text-slate-900 dark:text-white outline-none transition-all"
+                                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-4 pl-12 pr-4 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all"
                                     :class="{'border-red-500/50': identifierError}"
                                 />
                             </div>
@@ -190,7 +190,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                                     v-model="passwordValue"
                                     :type="passwordFieldType" 
                                     placeholder="••••••••"
-                                    class="w-full bg-slate-50 dark:bg-slate-900/50 border-2 border-slate-300 dark:border-slate-800 focus:border-teal-500/50 dark:focus:border-teal-500/30 rounded-xl py-4 pl-12 pr-12 text-sm font-bold text-slate-900 dark:text-white outline-none transition-all"
+                                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-4 pl-12 pr-12 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all"
                                     :class="{'border-red-500/50': passwordError}"
                                 />
                                 <button type="button" @click="passwordFieldType = passwordFieldType === 'password' ? 'text' : 'password'" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors">

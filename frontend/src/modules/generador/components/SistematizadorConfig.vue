@@ -75,7 +75,7 @@ const localCompetencia = computed({
             </div>
             <div class="p-5">
                 <input v-model="localCompetencia" type="text"
-                    class="w-full p-4 bg-gradient-to-br from-teal-50 to-sky-50 dark:from-slate-900 dark:to-slate-950 border-2 border-teal-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition-all font-medium text-slate-700 dark:text-slate-300" />
+                    class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all placeholder-slate-400" placeholder="Ej: Lee diversos tipos de textos..." />
             </div>
         </div>
 
@@ -111,7 +111,7 @@ const localCompetencia = computed({
 
                             <!-- Fallback or Full Text Edit -->
                             <textarea v-model="pregunta.descripcion" placeholder="Descripción del desempeño..." rows="2"
-                                class="w-full text-sm p-3 bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-slate-700 dark:text-slate-300 resize-none transition-all"></textarea>
+                                class="w-full text-sm py-2.5 px-3.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 text-slate-700 dark:text-slate-200 outline-none resize-none transition-all placeholder-slate-400 font-bold"></textarea>
 
                             <div
                                 class="flex items-center justify-between mt-3 pt-3 border-t-2 border-slate-300 dark:border-slate-700">
@@ -120,7 +120,7 @@ const localCompetencia = computed({
                                         <Key class="w-3 h-3" /> Clave:
                                     </span>
                                     <select v-model="pregunta.clave"
-                                        class="text-sm bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 rounded-xl px-3 py-1.5 font-bold focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all text-slate-700 dark:text-slate-200">
+                                        class="text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-1.5 font-black focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all text-slate-700 dark:text-slate-200 outline-none cursor-pointer appearance-none">
                                         <option value="">-</option>
                                         <option value="A">A</option>
                                         <option value="B">B</option>

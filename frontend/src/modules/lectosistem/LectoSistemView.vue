@@ -470,11 +470,11 @@ onMounted(async () => {
 
             <div class="space-y-3">
               <label class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2"><FileText class="w-3.5 h-3.5"/> Contenido</label>
-              <select v-model="selectedTipoTextual" class="w-full h-10 px-3 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 focus:border-slate-300 dark:border-slate-500 outline-none">
+              <select v-model="selectedTipoTextual" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all appearance-none cursor-pointer">
                 <option :value="null">Tipo textual...</option>
                 <option v-for="opt in tipoTextualOptions" :key="opt.id" :value="opt.id">{{ opt.label }}</option>
               </select>
-              <select v-model="selectedFormatoTextual" class="w-full h-10 px-3 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 focus:border-slate-300 dark:border-slate-500 outline-none">
+              <select v-model="selectedFormatoTextual" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all appearance-none cursor-pointer">
                 <option :value="null">Formato textual...</option>
                 <option v-for="opt in formatoTextualOptions" :key="opt.id" :value="opt.id">{{ opt.label }}</option>
               </select>
@@ -633,7 +633,7 @@ onMounted(async () => {
                   <div v-if="texto.filesMetadata && texto.filesMetadata.archivos.length > 0" class="mb-3 flex flex-wrap gap-2">
                     <div v-for="(archivo, aIdx) in texto.filesMetadata.archivos" :key="aIdx" class="px-3 py-2 bg-emerald-500/10 text-emerald-400 text-xs rounded-lg border border-emerald-500/20 flex items-center gap-2"><Check class="w-3.5 h-3.5" />{{ archivo.filename }}</div>
                   </div>
-                  <textarea v-model="texto.texto" class="w-full h-32 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg p-3 text-sm text-slate-600 dark:text-slate-300 focus:border-sky-500 outline-none resize-none placeholder-slate-600" placeholder="Escribe o pega el texto base aquí..."></textarea>
+                  <textarea v-model="texto.texto" class="w-full h-32 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl p-3 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all resize-none placeholder-slate-400" placeholder="Escribe o pega el texto base aquí..."></textarea>
                 </div>
                 <button v-if="textosBase.length < 4" @click="addTexto" class="w-full py-3 flex items-center justify-center gap-2 border border-dashed border-slate-300 dark:border-slate-500 rounded-xl text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white hover:border-teal-400 hover:bg-slate-100 dark:bg-slate-800/50 transition-all"><Plus class="w-4 h-4" /> Agregar otro texto</button>
               </div>
@@ -674,10 +674,10 @@ onMounted(async () => {
                   </p>
                 </template>
               </div>
-              <div><label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Fecha Programada</label><input v-model="asignarForm.fecha" type="date" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-slate-800 dark:text-white text-sm outline-none focus:border-sky-500"></div>
+              <div><label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5 uppercase tracking-widest">Fecha Programada</label><input v-model="asignarForm.fecha" type="date" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all"></div>
               <div class="grid grid-cols-2 gap-3">
-                <div><label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Hora Inicio</label><input v-model="asignarForm.hora_inicio" type="time" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-slate-800 dark:text-white text-sm outline-none focus:border-sky-500"></div>
-                <div><label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Hora Fin</label><input v-model="asignarForm.hora_fin" type="time" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-slate-800 dark:text-white text-sm outline-none focus:border-sky-500"></div>
+                <div><label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5 uppercase tracking-widest">Hora Inicio</label><input v-model="asignarForm.hora_inicio" type="time" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all"></div>
+                <div><label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5 uppercase tracking-widest">Hora Fin</label><input v-model="asignarForm.hora_fin" type="time" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all"></div>
               </div>
               <div class="pt-2 space-y-3">
                 <Checkbox v-model="asignarForm.mezclar_preguntas"><span class="text-sm text-slate-600 dark:text-slate-300">Mezclar orden de preguntas</span></Checkbox>

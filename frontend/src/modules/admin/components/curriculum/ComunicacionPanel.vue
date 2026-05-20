@@ -180,11 +180,11 @@ const TIPO_BADGE: Record<string, string> = {
               <div class="space-y-4">
                 <div>
                   <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Nombre</label>
-                  <input v-model="editItem.nombre" type="text" placeholder="Ej: Obtiene información del texto escrito" class="curriculum-field h-14 bg-slate-50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-800 rounded-2xl px-5 text-sm" />
+                  <input v-model="editItem.nombre" type="text" placeholder="Ej: Obtiene información del texto escrito" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all placeholder-slate-400" />
                 </div>
                 <div>
                   <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Tipo</label>
-                  <select v-model="editItem.tipo" class="curriculum-field h-14 bg-slate-50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-800 rounded-2xl px-5 text-sm">
+                  <select v-model="editItem.tipo" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none appearance-none cursor-pointer">
                     <option value="literal">Literal</option>
                     <option value="inferencial">Inferencial</option>
                     <option value="critico">Crítico</option>
@@ -192,7 +192,7 @@ const TIPO_BADGE: Record<string, string> = {
                 </div>
                 <div>
                   <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Descripción</label>
-                  <textarea v-model="editItem.descripcion" rows="4" placeholder="Breve descripción de la capacidad..." class="curriculum-field bg-slate-50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-800 rounded-2xl p-5 text-sm resize-none" />
+                  <textarea v-model="editItem.descripcion" rows="4" placeholder="Breve descripción de la capacidad..." class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all placeholder-slate-400 resize-none" />
                 </div>
               </div>
             </template>
@@ -203,18 +203,18 @@ const TIPO_BADGE: Record<string, string> = {
                 <div class="grid grid-cols-3 gap-4">
                   <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Código</label>
-                    <input v-model="editItem.codigo" type="text" placeholder="01" class="curriculum-field h-14 bg-slate-50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-800 rounded-2xl px-5 text-sm text-center font-mono" />
+                    <input v-model="editItem.codigo" type="text" placeholder="01" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-center font-mono font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all placeholder-slate-400" />
                   </div>
                   <div class="col-span-2">
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Capacidad</label>
-                    <select v-model="editItem.capacidad_id" class="curriculum-field h-14 bg-slate-50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-800 rounded-2xl px-5 text-sm">
+                    <select v-model="editItem.capacidad_id" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none appearance-none cursor-pointer">
                       <option v-for="c in capacidades" :key="c.id" :value="c.id">{{ c.nombre }} ({{ c.tipo }})</option>
                     </select>
                   </div>
                 </div>
                 <div>
                   <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Descripción del Desempeño</label>
-                  <textarea v-model="editItem.descripcion" rows="6" placeholder="Escribe el desempeño aquí..." class="curriculum-field bg-slate-50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-800 rounded-2xl p-5 text-sm resize-none leading-relaxed" />
+                  <textarea v-model="editItem.descripcion" rows="6" placeholder="Escribe el desempeño aquí..." class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all placeholder-slate-400 resize-none leading-relaxed" />
                 </div>
               </div>
             </template>

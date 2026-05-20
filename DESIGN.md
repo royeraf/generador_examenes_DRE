@@ -142,6 +142,10 @@ rounded:
   xl: 1rem
   full: 9999px
 
+# Inconsistencias de Modo Oscuro (CRÍTICO)
+- Los placeholders deben ser visibles. Usar `dark:placeholder-slate-500` o superior.
+- Nunca dejar que el color del placeholder coincida con el fondo del input (`bg-slate-800`).
+
 spacing:
   unit: 4px
   xs: 4px
@@ -214,14 +218,14 @@ components:
     backgroundColor: "rgba(255,255,255,0.3)"
 
   input:
-    backgroundColor: "{colors.surface-dim}"
-    textColor: "{colors.on-surface}"
-    typography: "{typography.body-md}"
-    rounded: "{rounded.lg}"
-    padding: "10px 14px"
-    size: "border border-slate-200 dark:border-slate-600 outline-none focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500"
-  input-dark:
-    backgroundColor: "{colors.surface-container-dark}"
+    backgroundColor: "bg-slate-50 dark:bg-slate-700"
+    textColor: "text-slate-700 dark:text-slate-200"
+    placeholderColor: "text-slate-400 dark:text-slate-400"
+    typography: "{typography.body-md} font-bold"
+    rounded: "{rounded.xl}"
+    padding: "py-2.5 px-3.5"
+    size: "border border-slate-300 dark:border-slate-600 outline-none focus:ring-2 transition-all"
+    note: "El color del placeholder en modo oscuro se fuerza globalmente en style.css para evitar overrides del navegador."
 
   badge:
     typography: "{typography.label-sm}"
@@ -445,8 +449,9 @@ Los modales son Teleport a `body`. En móvil aparecen como bottom sheet (`items-
 
 ### Inputs y formularios
 - Label: `text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5`
-- Input: `bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm focus:ring-2 focus:ring-{module-color}-500/50 focus:border-{module-color}-500`
+- Input/Select: `bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-{module-color}-500/50 focus:border-{module-color}-500 transition-all placeholder-slate-400`
 - Error inline: `bg-red-50 dark:bg-red-900/20 border border-red-100 text-red-600 rounded-xl p-3 text-sm`
+- Placeholder: Siempre usar `placeholder-slate-400` (claro) y el sistema lo ajusta automáticamente en modo oscuro vía `style.css`.
 
 ### Tablas de resultados / listas
 - Filas con `divide-y divide-slate-100 dark:divide-slate-700`

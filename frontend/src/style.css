@@ -6,6 +6,17 @@
 /* Enable class-based dark mode for Tailwind CSS v4 */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Fix native browser UI (date/time pickers, scrollbars) in dark mode */
+html.dark {
+  color-scheme: dark;
+}
+
+/* Fix placeholder visibility in dark mode */
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: rgb(100 116 139); /* slate-500 */
+}
+
 /* ====== LECTOSISTEM - TEMA EDUCATIVO ====== */
 
 :root {
@@ -181,4 +192,67 @@ h1, h2, h3, h4, h5, h6 {
 /* Global input focus improvements */
 input:focus, select:focus, textarea:focus {
   @apply ring-4 ring-teal-500/10 border-teal-500 transition-all;
+}
+
+/* Global input/select text and placeholder styling */
+input, select, textarea {
+  @apply text-slate-900 dark:text-white transition-colors;
+}
+
+/* Modern browsers */
+::placeholder {
+  color: #94a3b8 !important;
+  opacity: 1 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+}
+
+/* Chrome, Safari, Edge */
+::-webkit-input-placeholder {
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+/* Firefox */
+::-moz-placeholder {
+  color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+/* Internet Explorer 10-11 */
+:-ms-input-placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Microsoft Edge */
+::-ms-input-placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Dark mode specific - force bright color */
+.dark ::placeholder,
+.dark ::-webkit-input-placeholder,
+.dark ::-moz-placeholder,
+.dark :-ms-input-placeholder,
+.dark ::-ms-input-placeholder {
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+/* Fix date and time input icons in dark mode */
+.dark input[type="date"],
+.dark input[type="time"],
+.dark input[type="datetime-local"],
+.dark input[type="month"] {
+  color-scheme: dark !important;
+}
+
+.dark input[type="date"]::-webkit-calendar-picker-indicator,
+.dark input[type="time"]::-webkit-calendar-picker-indicator,
+.dark input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+.dark input[type="month"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(1.5) !important;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='15' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='4' width='18' height='18' rx='2' ry='2'></rect><line x1='16' y1='2' x2='16' y2='6'></line><line x1='8' y1='2' x2='8' y2='6'></line><line x1='3' y1='10' x2='21' y2='10'></line></svg>") !important;
 }

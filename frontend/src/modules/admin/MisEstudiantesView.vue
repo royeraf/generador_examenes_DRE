@@ -377,7 +377,7 @@ function nombreGrado(id: number | null) {
         <div class="space-y-2">
           <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Filtrar Grado</label>
           <div class="relative">
-            <select v-model="filtroGrado" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-4 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none appearance-none cursor-pointer">
+            <select v-model="filtroGrado" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none appearance-none cursor-pointer">
               <option :value="null">Todos los grados</option>
               <option v-for="g in grados" :key="g.id" :value="g.id">{{ g.nombre }}</option>
             </select>
@@ -387,7 +387,7 @@ function nombreGrado(id: number | null) {
         <div class="space-y-2">
           <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Sección</label>
           <div class="relative">
-            <select v-model="filtroSeccion" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-4 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none appearance-none cursor-pointer">
+            <select v-model="filtroSeccion" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none appearance-none cursor-pointer">
               <option value="">Todas las secciones</option>
               <option v-for="sec in ['A','B','C','D','E','F','G','H','I','J','Única']" :key="sec" :value="sec">{{ sec }}</option>
             </select>
@@ -398,7 +398,7 @@ function nombreGrado(id: number | null) {
           <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Búsqueda Rápida</label>
           <div class="relative">
             <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <input v-model="filtroQ" type="text" placeholder="Nombre, apellido o DNI..." class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold outline-none focus:border-teal-500 transition-all" />
+            <input v-model="filtroQ" type="text" placeholder="Nombre, apellido o DNI..." class="w-full pl-12 pr-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all placeholder-slate-400" />
           </div>
         </div>
       </div>
@@ -510,27 +510,27 @@ function nombreGrado(id: number | null) {
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="space-y-1.5">
                   <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nombres</label>
-                  <input v-model="form.nombres" type="text" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 rounded-2xl py-3 px-4 text-sm font-bold outline-none focus:border-teal-500 transition-all" />
+                  <input v-model="form.nombres" type="text" placeholder="Ej: Juan" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all font-bold" />
                 </div>
                 <div class="space-y-1.5">
                   <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Apellidos</label>
-                  <input v-model="form.apellidos" type="text" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 rounded-2xl py-3 px-4 text-sm font-bold outline-none focus:border-teal-500 transition-all" />
+                  <input v-model="form.apellidos" type="text" placeholder="Ej: Perez" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all font-bold" />
                 </div>
               </div>
               <div class="space-y-1.5">
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">DNI</label>
-                <input v-model="form.dni" type="text" maxlength="8" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 rounded-2xl py-3 px-4 text-sm font-bold outline-none focus:border-teal-500 transition-all" />
+                <input v-model="form.dni" type="text" maxlength="8" placeholder="Ocho dígitos" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all font-bold" />
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="space-y-1.5">
                   <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Grado</label>
-                  <select v-model="form.grado_id" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 rounded-2xl py-3 px-4 text-sm font-bold outline-none">
+                  <select v-model="form.grado_id" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all font-bold">
                     <option v-for="g in grados" :key="g.id" :value="g.id">{{ g.nombre }}</option>
                   </select>
                 </div>
                 <div class="space-y-1.5">
                   <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Sección</label>
-                  <select v-model="form.seccion" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 rounded-2xl py-3 px-4 text-sm font-bold outline-none">
+                  <select v-model="form.seccion" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all font-bold">
                     <option v-for="sec in ['A','B','C','D','E','F','G','H','I','J','Única']" :key="sec" :value="sec">{{ sec }}</option>
                   </select>
                 </div>
@@ -538,7 +538,7 @@ function nombreGrado(id: number | null) {
               <div class="space-y-1.5">
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Contraseña</label>
                 <div class="relative">
-                  <input v-model="form.password" :type="showPass ? 'text' : 'password'" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 rounded-2xl py-3 pl-4 pr-12 text-sm font-bold outline-none focus:border-teal-500 transition-all" />
+                  <input v-model="form.password" :type="showPass ? 'text' : 'password'" placeholder="••••" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all font-bold" />
                   <button @click="showPass = !showPass" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"><Eye v-if="!showPass" class="w-5 h-5" /><EyeOff v-else class="w-5 h-5" /></button>
                 </div>
               </div>
@@ -580,13 +580,13 @@ function nombreGrado(id: number | null) {
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="space-y-1.5">
                   <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Grado</label>
-                  <select v-model="importForm.grado_id" class="w-full rounded-2xl border-2 border-slate-300 bg-slate-50 px-4 py-3 text-sm font-bold outline-none transition-all focus:border-teal-500">
+                  <select v-model="importForm.grado_id" class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 px-3.5 py-2.5 text-sm font-bold outline-none transition-all focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 text-slate-700 dark:text-slate-200 appearance-none cursor-pointer">
                     <option v-for="g in grados" :key="g.id" :value="g.id">{{ g.nombre }}</option>
                   </select>
                 </div>
                 <div class="space-y-1.5">
                   <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Sección</label>
-                  <select v-model="importForm.seccion" class="w-full rounded-2xl border-2 border-slate-300 bg-slate-50 px-4 py-3 text-sm font-bold outline-none transition-all focus:border-teal-500">
+                  <select v-model="importForm.seccion" class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 px-3.5 py-2.5 text-sm font-bold outline-none transition-all focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 text-slate-700 dark:text-slate-200 appearance-none cursor-pointer">
                     <option v-for="sec in ['A','B','C','D','E','F','G','H','I','J','Única']" :key="sec" :value="sec">{{ sec }}</option>
                   </select>
                 </div>

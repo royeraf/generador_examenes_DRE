@@ -496,7 +496,7 @@ onMounted(async () => {
 
             <div class="space-y-3">
               <label class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2"><BookOpen class="w-3.5 h-3.5"/> Contexto / Problema</label>
-              <input type="text" v-model="contenidoTematico" placeholder="Ej: fracciones, geometría..." class="w-full h-10 px-3 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 focus:border-slate-300 dark:border-slate-500 outline-none" />
+              <input type="text" v-model="contenidoTematico" placeholder="Ej: fracciones, geometría..." class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all placeholder-slate-400" />
               
               <div class="pt-2">
                 <Checkbox v-model="useTextoBase" class="flex items-center gap-2 text-slate-600 dark:text-slate-300 mb-2">
@@ -657,7 +657,7 @@ onMounted(async () => {
                   No tienes aulas activas. Crea una primero en la sección Aulas.
                 </div>
                 <template v-else>
-                  <select v-model="codigoClaseIdMat" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all">
+                  <select v-model="codigoClaseIdMat" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all appearance-none cursor-pointer">
                     <option :value="null">— Selecciona un aula —</option>
                     <option v-for="c in codigosClaseMat" :key="c.id" :value="c.id">
                       {{ c.grado_nombre }} — Sección {{ c.seccion }}{{ c.total_estudiantes ? ` (${c.total_estudiantes} est.)` : '' }}
@@ -669,10 +669,10 @@ onMounted(async () => {
                   </p>
                 </template>
               </div>
-              <div><label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Fecha Programada</label><input v-model="asignarForm.fecha" type="date" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-slate-800 dark:text-white text-sm outline-none focus:border-indigo-500"></div>
+              <div><label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5 uppercase tracking-widest">Fecha Programada</label><input v-model="asignarForm.fecha" type="date" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"></div>
               <div class="grid grid-cols-2 gap-3">
-                <div><label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Hora Inicio</label><input v-model="asignarForm.hora_inicio" type="time" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-slate-800 dark:text-white text-sm outline-none focus:border-indigo-500"></div>
-                <div><label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Hora Fin</label><input v-model="asignarForm.hora_fin" type="time" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 text-slate-800 dark:text-white text-sm outline-none focus:border-indigo-500"></div>
+                <div><label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5 uppercase tracking-widest">Hora Inicio</label><input v-model="asignarForm.hora_inicio" type="time" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"></div>
+                <div><label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5 uppercase tracking-widest">Hora Fin</label><input v-model="asignarForm.hora_fin" type="time" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"></div>
               </div>
               <div class="pt-2 space-y-3">
                 <Checkbox v-model="asignarForm.mezclar_preguntas"><span class="text-sm text-slate-600 dark:text-slate-300">Mezclar orden de preguntas</span></Checkbox>

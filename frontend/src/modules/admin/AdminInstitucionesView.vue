@@ -205,7 +205,7 @@ async function eliminar(ie: InstitucionEducativa) {
         <div class="relative w-full lg:w-96">
           <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
           <input v-model="searchQuery" type="text" placeholder="Buscar por nombre o código..."
-            class="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold text-slate-700 dark:text-white outline-none focus:border-indigo-500 transition-all" />
+            class="w-full pl-12 pr-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all" />
         </div>
         
         <button @click="openCreate"
@@ -355,11 +355,11 @@ async function eliminar(ie: InstitucionEducativa) {
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div class="space-y-2">
                   <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Código Modular</label>
-                  <input v-model="form.codigo_modular" type="text" placeholder="7 dígitos" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-4 px-5 text-sm font-bold outline-none focus:border-indigo-500 transition-all" />
+                  <input v-model="form.codigo_modular" type="text" placeholder="7 dígitos" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all" />
                 </div>
                 <div class="space-y-2">
                   <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nombre IE</label>
-                  <input v-model="form.nombre" type="text" placeholder="Nombre completo" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-4 px-5 text-sm font-bold outline-none focus:border-indigo-500 transition-all" />
+                  <input v-model="form.nombre" type="text" placeholder="Nombre completo" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all" />
                 </div>
               </div>
 
@@ -377,7 +377,8 @@ async function eliminar(ie: InstitucionEducativa) {
               <div class="space-y-2">
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">UGEL</label>
                 <div class="relative">
-                  <select v-model="form.ugel_id" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-4 px-5 text-sm font-bold outline-none appearance-none">
+                  <select v-model="form.ugel_id" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all appearance-none cursor-pointer">
+                    <option :value="null" class="text-slate-400">— Seleccionar UGEL —</option>
                     <option v-for="u in ugeles" :key="u.id" :value="u.id">{{ u.nombre }}</option>
                   </select>
                   <ChevronDown class="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
@@ -386,7 +387,7 @@ async function eliminar(ie: InstitucionEducativa) {
 
               <div class="space-y-2">
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Dirección</label>
-                <input v-model="form.direccion" type="text" placeholder="Dirección física" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-4 px-5 text-sm font-bold outline-none focus:border-indigo-500 transition-all" />
+                <input v-model="form.direccion" type="text" placeholder="Dirección física" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all" />
               </div>
 
               <button @click="form.is_active = !form.is_active" class="flex items-center gap-4 p-2 w-fit">

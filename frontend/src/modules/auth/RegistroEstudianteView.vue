@@ -157,7 +157,7 @@ async function registrar() {
                       @keyup.enter="validarCodigo"
                       type="text"
                       placeholder="Ej: AB3K7X2Q"
-                      class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-800 focus:border-teal-500/30 rounded-xl py-4 pl-12 pr-4 text-sm font-bold text-slate-800 dark:text-white font-mono uppercase outline-none transition-all"
+                      class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-4 pl-12 pr-4 text-sm font-bold text-slate-700 dark:text-slate-200 font-mono uppercase outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all"
                     />
                   </div>
                   <Transition enter-active-class="animate-shake">
@@ -205,19 +205,19 @@ async function registrar() {
                   <div class="space-y-1.5">
                     <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Nombres</label>
                     <input v-model="form.nombres" type="text" placeholder="Ej: Juan"
-                      class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-800 focus:border-teal-500/30 rounded-xl py-3 px-4 text-sm font-bold text-slate-800 dark:text-white outline-none transition-all" />
+                      class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-3 px-4 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
                   </div>
                   <div class="space-y-1.5">
                     <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Apellidos</label>
                     <input v-model="form.apellidos" type="text" placeholder="Ej: Perez"
-                      class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-800 focus:border-teal-500/30 rounded-xl py-3 px-4 text-sm font-bold text-slate-800 dark:text-white outline-none transition-all" />
+                      class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-3 px-4 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
                   </div>
                 </div>
 
                 <div class="space-y-1.5">
                   <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">DNI <span class="text-slate-300 font-medium tracking-normal capitalize">(Opcional)</span></label>
                   <input v-model="form.dni" type="text" placeholder="Ocho dígitos" maxlength="8"
-                    class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-800 focus:border-teal-500/30 rounded-xl py-3 px-4 text-sm font-bold text-slate-800 dark:text-white outline-none transition-all" />
+                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-3 px-4 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -225,7 +225,7 @@ async function registrar() {
                     <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Contraseña</label>
                     <div class="relative">
                       <input v-model="form.password" :type="showPass ? 'text' : 'password'" placeholder="••••"
-                        class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-800 focus:border-teal-500/30 rounded-xl py-3 pl-4 pr-10 text-sm font-bold text-slate-800 dark:text-white outline-none transition-all" />
+                        class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-3 pl-4 pr-10 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
                       <button type="button" @click="showPass = !showPass" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors">
                         <Eye v-if="!showPass" class="w-4 h-4" /><EyeOff v-else class="w-4 h-4" />
                       </button>
@@ -235,7 +235,7 @@ async function registrar() {
                     <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Confirmar</label>
                     <div class="relative">
                       <input v-model="form.confirm" :type="showConfirm ? 'text' : 'password'" placeholder="••••"
-                        class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-800 focus:border-teal-500/30 rounded-xl py-3 pl-4 pr-10 text-sm font-bold text-slate-800 dark:text-white outline-none transition-all" />
+                        class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-3 pl-4 pr-10 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
                       <button type="button" @click="showConfirm = !showConfirm" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors">
                         <Eye v-if="!showConfirm" class="w-4 h-4" /><EyeOff v-else class="w-4 h-4" />
                       </button>

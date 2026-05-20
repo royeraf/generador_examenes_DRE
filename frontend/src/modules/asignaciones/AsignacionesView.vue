@@ -12,7 +12,7 @@ import {
   ClipboardList, BookOpen, Calculator,
   Trash2, Loader2, Users, ChevronDown,
   Clock, AlertCircle, Plus, X, BookMarked, Save, User, Pencil,
-  RefreshCw, TrendingUp, GraduationCap
+  RefreshCw, TrendingUp, GraduationCap, Calendar, ShieldCheck, Hash, Check
 } from 'lucide-vue-next'
 import type { Grado } from '../../shared/types'
 import { useAuthStore } from '../../stores/auth'
@@ -521,146 +521,98 @@ const estadoColors: Record<string, string> = {
             </div>
 
             <!-- Body -->
-            <div class="flex-1 min-h-0 overflow-y-auto p-8 space-y-8 custom-scrollbar">
+            <div class="flex-1 min-h-0 overflow-y-auto p-0 custom-scrollbar bg-slate-50/30 dark:bg-slate-900/10">
 
-              <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="transform -translate-y-2 opacity-0" enter-to-class="transform translate-y-0 opacity-100">
-                <div v-if="modalError"
-                  class="flex items-start gap-4 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 p-5 rounded-2xl text-sm border border-red-100 dark:border-red-500/20 shadow-sm">
-                  <AlertCircle class="w-6 h-6 shrink-0" /> 
-                  <div class="flex-1">
-                    <p class="font-black mb-1">Hubo un problema</p>
-                    <p class="font-medium opacity-90">{{ modalError }}</p>
-                  </div>
-                </div>
-              </Transition>
-
-              <!-- Tipo de examen / Examen / Grado / Sección — solo en creación -->
-              <template v-if="!isEditing">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div class="space-y-4">
-                    <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest">Área Académica</label>
-                    <div class="grid grid-cols-2 gap-3">
-                      <button type="button" @click="tipoExamen = 'lectura'; examenSeleccionadoId = null; examenDropdownOpen = false"
-                        :class="['flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all group',
-                          tipoExamen === 'lectura'
-                            ? 'bg-teal-50 dark:bg-teal-500/10 border-teal-500 text-teal-700 dark:text-teal-400 shadow-lg shadow-teal-500/10'
-                            : 'bg-slate-50 dark:bg-slate-800 border-transparent text-slate-500 dark:text-slate-400 hover:border-slate-300']">
-                        <BookOpen class="w-6 h-6 group-hover:scale-110 transition-transform" /> 
-                        <span class="text-xs font-black uppercase">Comunicación</span>
-                      </button>
-                      <button type="button" @click="tipoExamen = 'matematica'; examenSeleccionadoId = null; examenDropdownOpen = false"
-                        :class="['flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all group',
-                          tipoExamen === 'matematica'
-                            ? 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-500 text-indigo-700 dark:text-indigo-400 shadow-lg shadow-indigo-500/10'
-                            : 'bg-slate-50 dark:bg-slate-800 border-transparent text-slate-500 dark:text-slate-400 hover:border-slate-300']">
-                        <Calculator class="w-6 h-6 group-hover:scale-110 transition-transform" /> 
-                        <span class="text-xs font-black uppercase">Matemática</span>
-                      </button>
+              <div class="p-8 space-y-10">
+                <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="transform -translate-y-2 opacity-0" enter-to-class="transform translate-y-0 opacity-100">
+                  <div v-if="modalError"
+                    class="flex items-start gap-4 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 p-5 rounded-2xl text-sm border border-red-100 dark:border-red-500/20 shadow-sm">
+                    <AlertCircle class="w-6 h-6 shrink-0" /> 
+                    <div class="flex-1">
+                      <p class="font-black mb-1">Hubo un problema</p>
+                      <p class="font-medium opacity-90">{{ modalError }}</p>
                     </div>
+                  </div>
+                </Transition>
+
+                <!-- SECCIÓN 1: EVALUACIÓN (Solo en creación) -->
+                <section v-if="!isEditing" class="space-y-6">
+                  <div class="flex items-center gap-3 mb-2">
+                    <div class="w-8 h-8 rounded-lg bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 flex items-center justify-center">
+                      <BookMarked class="w-4 h-4" />
+                    </div>
+                    <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wider">Detalles de la Evaluación</h3>
                   </div>
 
                   <div class="space-y-4">
-                    <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest">Selección de Instrumento</label>
-                    <div v-if="loadingExamenes" class="flex justify-center py-6">
-                      <Loader2 class="w-8 h-8 animate-spin text-violet-500" />
+                    <!-- Área -->
+                    <div class="space-y-3">
+                      <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Área Académica</label>
+                      <div class="flex gap-2">
+                        <button type="button" @click="tipoExamen = 'lectura'; examenSeleccionadoId = null; examenDropdownOpen = false"
+                          :class="['flex-1 flex items-center gap-2 p-2.5 rounded-xl border transition-all group',
+                            tipoExamen === 'lectura'
+                              ? 'bg-white dark:bg-teal-500/10 border-teal-500 text-teal-700 dark:text-teal-400 shadow-md'
+                              : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-400 hover:border-slate-400']">
+                          <BookOpen class="w-3.5 h-3.5 transition-transform" /> 
+                          <span class="text-[10px] font-black uppercase">Comunicación</span>
+                        </button>
+                        <button type="button" @click="tipoExamen = 'matematica'; examenSeleccionadoId = null; examenDropdownOpen = false"
+                          :class="['flex-1 flex items-center gap-2 p-2.5 rounded-xl border transition-all group',
+                            tipoExamen === 'matematica'
+                              ? 'bg-white dark:bg-indigo-500/10 border-indigo-500 text-indigo-700 dark:text-indigo-400 shadow-md'
+                              : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-400 hover:border-slate-400']">
+                          <Calculator class="w-3.5 h-3.5 transition-transform" /> 
+                          <span class="text-[10px] font-black uppercase">Matemática</span>
+                        </button>
+                      </div>
                     </div>
-                    <div v-else-if="examenesActuales.length === 0"
-                      class="bg-slate-50 dark:bg-slate-800 rounded-2xl p-6 text-center border-2 border-dashed border-slate-300 dark:border-slate-700">
-                      <p class="text-xs font-bold text-slate-500 mb-4">No tienes exámenes guardados en esta área.</p>
-                      <button @click="router.push(tipoExamen === 'lectura' ? '/lectosistem' : '/matsistem'); closeModal()"
-                        class="text-violet-600 dark:text-violet-400 font-black text-xs uppercase tracking-widest hover:underline">
-                        Generar ahora →
-                      </button>
-                    </div>
-                    <div v-else class="relative">
-                      <button type="button" @click="examenDropdownOpen = !examenDropdownOpen"
-                        :class="[
-                          'w-full flex items-center justify-between gap-4 px-5 py-4 rounded-2xl border-2 transition-all text-left',
-                          examenDropdownOpen
-                            ? 'border-violet-500 ring-4 ring-violet-500/10 bg-white dark:bg-slate-800'
-                            : 'border-transparent bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700'
-                        ]">
-                        <div v-if="examenSeleccionado" class="min-w-0">
-                          <p class="text-sm font-black text-slate-800 dark:text-white truncate leading-tight">{{ examenSeleccionado.titulo ?? 'Sin título' }}</p>
-                          <p class="text-[10px] font-bold text-slate-400 flex items-center gap-1.5 mt-1">
-                            <span>{{ examenSeleccionado.grado_nombre }}</span>
-                            <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
-                            <span>{{ formatFechaHora(examenSeleccionado.fecha_creacion) }}</span>
-                          </p>
-                        </div>
-                        <span v-else class="text-slate-400 text-sm font-bold">— Seleccionar examen —</span>
-                        <ChevronDown class="w-5 h-5 text-slate-400 transition-transform duration-300" :class="examenDropdownOpen ? 'rotate-180' : ''" />
-                      </button>
 
-                      <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100"
-                        leave-active-class="transition duration-150 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
-                        <div v-if="examenDropdownOpen"
-                          class="absolute z-[130] left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
-                          <div class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 custom-scrollbar">
-                            <button v-for="ex in examenesActuales" :key="ex.id" type="button"
-                              @click="examenSeleccionadoId = ex.id; examenDropdownOpen = false"
-                              class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
-                              <div :class="examenSeleccionadoId === ex.id ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0 transition-colors"></div>
-                              <div class="min-w-0">
-                                <p class="text-sm font-black text-slate-800 dark:text-white truncate">{{ ex.titulo ?? 'Sin título' }}</p>
-                                <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase">{{ ex.grado_nombre }} · {{ formatFechaHora(ex.fecha_creacion) }}</p>
-                              </div>
-                            </button>
-                          </div>
-                        </div>
-                      </Transition>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <!-- Alcance de la asignación -->
-                  <div class="space-y-4">
-                    <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest">Grupo / Sección Objetivo</label>
-                    
-                    <!-- Docentes: picker de Códigos de Clase -->
-                    <div v-if="usarCodigosClase" class="relative">
-                      <div v-if="codigosClase.length === 0" class="p-5 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 text-center">
-                         <p class="text-xs font-bold text-slate-500">No tienes aulas activas. Crea una primero en la sección "Aulas".</p>
+                    <!-- Instrumento -->
+                    <div class="space-y-3">
+                      <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Instrumento a aplicar</label>
+                      <div v-if="loadingExamenes" class="flex items-center gap-3 p-2.5 bg-white dark:bg-slate-800 rounded-lg border-2 border-slate-100 dark:border-slate-700">
+                        <Loader2 class="w-3.5 h-3.5 animate-spin text-violet-500" />
+                        <span class="text-[10px] font-bold text-slate-400">Cargando instrumentos...</span>
+                      </div>
+                      <div v-else-if="examenesActuales.length === 0"
+                        class="p-2.5 bg-amber-50 dark:bg-amber-500/5 rounded-lg border-2 border-dashed border-amber-200 dark:border-amber-500/20 flex items-center justify-between">
+                        <p class="text-[10px] font-bold text-amber-700 dark:text-amber-400">Sin instrumentos.</p>
+                        <button @click="router.push(tipoExamen === 'lectura' ? '/lectosistem' : '/matsistem'); closeModal()"
+                          class="text-amber-600 dark:text-amber-500 font-black text-[8px] uppercase tracking-widest hover:underline">
+                          Crear →
+                        </button>
                       </div>
                       <div v-else class="relative">
-                        <button type="button" @click="claseDropdownOpen = !claseDropdownOpen"
+                        <button type="button" @click="examenDropdownOpen = !examenDropdownOpen"
                           :class="[
-                            'w-full flex items-center justify-between gap-4 px-5 py-4 rounded-2xl border-2 transition-all text-left',
-                            claseDropdownOpen
-                              ? 'border-violet-500 ring-4 ring-violet-500/10 bg-white dark:bg-slate-800'
-                              : 'border-transparent bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700'
+                            'w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border transition-all text-left bg-slate-50 dark:bg-slate-700',
+                            examenDropdownOpen
+                              ? 'border-violet-500 ring-4 ring-violet-500/10 shadow-lg'
+                              : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500'
                           ]">
-                          <div v-if="codigoClaseSeleccionado" class="min-w-0">
-                            <p class="text-sm font-black text-slate-800 dark:text-white truncate leading-tight">
-                              {{ codigoClaseSeleccionado.grado_nombre }} — Sección {{ codigoClaseSeleccionado.seccion }}
-                            </p>
-                            <p class="text-[10px] font-bold text-slate-400 flex items-center gap-1.5 mt-1 uppercase">
-                              <Users class="w-3 h-3" />
-                              <span>{{ codigoClaseSeleccionado.total_estudiantes }} estudiantes</span>
+                          <div v-if="examenSeleccionado" class="min-w-0">
+                            <p class="text-xs font-black text-slate-800 dark:text-white truncate leading-tight">{{ examenSeleccionado.titulo ?? 'Sin título' }}</p>
+                            <p class="text-[9px] font-bold text-slate-400 flex items-center gap-1.5 mt-0.5">
+                              <span>{{ examenSeleccionado.grado_nombre }}</span>
                             </p>
                           </div>
-                          <span v-else class="text-slate-400 text-sm font-bold">— Todas mis secciones —</span>
-                          <ChevronDown class="w-5 h-5 text-slate-400 transition-transform duration-300" :class="claseDropdownOpen ? 'rotate-180' : ''" />
+                          <span v-else class="text-slate-400 text-xs font-bold">— Seleccionar instrumento —</span>
+                          <ChevronDown class="w-4 h-4 text-slate-400 transition-transform duration-300" :class="examenDropdownOpen ? 'rotate-180' : ''" />
                         </button>
 
                         <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100"
                           leave-active-class="transition duration-150 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
-                          <div v-if="claseDropdownOpen"
-                            class="absolute z-[120] left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
+                          <div v-if="examenDropdownOpen"
+                            class="absolute z-[130] left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95">
                             <div class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 custom-scrollbar">
-                              <button type="button" @click="codigoClaseId = null; claseDropdownOpen = false"
+                              <button v-for="ex in examenesActuales" :key="ex.id" type="button"
+                                @click="examenSeleccionadoId = ex.id; examenDropdownOpen = false"
                                 class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
-                                <div :class="codigoClaseId === null ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0 transition-colors"></div>
-                                <p class="text-sm font-black text-slate-800 dark:text-white">Todas mis secciones</p>
-                              </button>
-                              <button v-for="c in codigosClase" :key="c.id" type="button"
-                                @click="codigoClaseId = c.id; claseDropdownOpen = false"
-                                class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
-                                <div :class="codigoClaseId === c.id ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0 transition-colors"></div>
+                                <div :class="examenSeleccionadoId === ex.id ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0 transition-colors"></div>
                                 <div class="min-w-0">
-                                  <p class="text-sm font-black text-slate-800 dark:text-white truncate">{{ c.grado_nombre }} — Sección {{ c.seccion }}</p>
-                                  <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase">{{ c.total_estudiantes }} estudiantes registrados</p>
+                                  <p class="text-sm font-black text-slate-800 dark:text-white truncate">{{ ex.titulo ?? 'Sin título' }}</p>
+                                  <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase">{{ ex.grado_nombre }} · {{ formatFechaHora(ex.fecha_creacion) }}</p>
                                 </div>
                               </button>
                             </div>
@@ -668,172 +620,225 @@ const estadoColors: Record<string, string> = {
                         </Transition>
                       </div>
                     </div>
+                  </div>
+                </section>
 
-                    <!-- Roles superiores: Grado + Sección libres -->
-                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <!-- Grado Dropdown -->
-                      <div class="relative">
-                        <button type="button" @click="gradoDropdownOpen = !gradoDropdownOpen"
-                          :class="[
-                            'w-full flex items-center justify-between gap-4 px-5 py-4 rounded-2xl border-2 transition-all text-left',
-                            gradoDropdownOpen
-                              ? 'border-violet-500 ring-4 ring-violet-500/10 bg-white dark:bg-slate-800'
-                              : 'border-transparent bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700'
-                          ]">
-                          <div class="min-w-0 flex items-center gap-3">
-                            <div v-if="gradoSeleccionado" class="p-1.5 rounded-lg bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400">
-                              <GraduationCap class="w-4 h-4" />
-                            </div>
-                            <div>
-                              <p v-if="gradoSeleccionado" class="text-sm font-black text-slate-800 dark:text-white truncate leading-tight">{{ gradoSeleccionado.nombre }}</p>
-                              <span v-else class="text-slate-400 text-sm font-bold">— Todos los grados —</span>
-                            </div>
-                          </div>
-                          <ChevronDown class="w-5 h-5 text-slate-400 transition-transform duration-300" :class="gradoDropdownOpen ? 'rotate-180' : ''" />
-                        </button>
+                <!-- SECCIÓN 2: DESTINATARIO Y CONDICIONES -->
+                <section class="space-y-6">
+                  <div class="flex items-center gap-3 mb-2">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                      <Users class="w-4 h-4" />
+                    </div>
+                    <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wider">Grupo Objetivo y Condiciones</h3>
+                  </div>
 
-                        <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100"
-                          leave-active-class="transition duration-150 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
-                          <div v-if="gradoDropdownOpen"
-                            class="absolute z-[120] left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
-                            <div class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 custom-scrollbar">
-                              <button type="button" @click="gradoSeleccionadoId = null; gradoDropdownOpen = false"
-                                class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
-                                <div :class="gradoSeleccionadoId === null ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0 transition-colors"></div>
-                                <p class="text-sm font-black text-slate-800 dark:text-white">Todos los grados</p>
-                              </button>
-                              <button v-for="g in grados" :key="g.id" type="button"
-                                @click="gradoSeleccionadoId = g.id; gradoDropdownOpen = false"
-                                class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
-                                <div :class="gradoSeleccionadoId === g.id ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0 transition-colors"></div>
-                                <p class="text-sm font-black text-slate-800 dark:text-white">{{ g.nombre }}</p>
-                              </button>
+                  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <!-- Grupo Objetivo (Solo en creación) -->
+                    <div v-if="!isEditing" class="lg:col-span-8 space-y-3">
+                      <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">¿Quiénes rendirán el examen?</label>
+                      
+                      <!-- Docentes -->
+                      <div v-if="usarCodigosClase">
+                        <div v-if="codigosClase.length === 0" class="p-6 bg-white dark:bg-slate-800 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 text-center">
+                           <p class="text-xs font-bold text-slate-500">No tienes aulas activas creadas.</p>
+                        </div>
+                        <div v-else class="relative">
+                          <button type="button" @click="claseDropdownOpen = !claseDropdownOpen"
+                            :class="[
+                              'w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border transition-all text-left bg-slate-50 dark:bg-slate-700',
+                              claseDropdownOpen ? 'border-violet-500 ring-4 ring-violet-500/10 shadow-lg' : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500'
+                            ]">
+                            <div v-if="codigoClaseSeleccionado" class="min-w-0">
+                              <p class="text-xs font-black text-slate-800 dark:text-white truncate">{{ codigoClaseSeleccionado.grado_nombre }} — Sección {{ codigoClaseSeleccionado.seccion }}</p>
+                              <p class="text-[9px] font-bold text-slate-400 flex items-center gap-1.5 mt-0.5 uppercase">
+                                <Users class="w-3 h-3" /> <span>{{ codigoClaseSeleccionado.total_estudiantes }} est.</span>
+                              </p>
                             </div>
-                          </div>
-                        </Transition>
+                            <span v-else class="text-slate-400 text-xs font-bold">— Todas mis secciones —</span>
+                            <ChevronDown class="w-4 h-4 text-slate-400 transition-transform duration-300" :class="claseDropdownOpen ? 'rotate-180' : ''" />
+                          </button>
+                          <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100"
+                            leave-active-class="transition duration-150 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
+                            <div v-if="claseDropdownOpen" class="absolute z-[120] left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
+                              <div class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 custom-scrollbar">
+                                <button type="button" @click="codigoClaseId = null; claseDropdownOpen = false" class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
+                                  <div :class="codigoClaseId === null ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0"></div>
+                                  <p class="text-sm font-black text-slate-800 dark:text-white">Todas mis secciones</p>
+                                </button>
+                                <button v-for="c in codigosClase" :key="c.id" type="button" @click="codigoClaseId = c.id; claseDropdownOpen = false" class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
+                                  <div :class="codigoClaseId === c.id ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0"></div>
+                                  <div class="min-w-0"><p class="text-sm font-black text-slate-800 dark:text-white truncate">{{ c.grado_nombre }} — Sección {{ c.seccion }}</p></div>
+                                </button>
+                              </div>
+                            </div>
+                          </Transition>
+                        </div>
                       </div>
 
-                      <!-- Sección Dropdown -->
-                      <div class="relative">
-                        <button type="button" @click="seccionDropdownOpen = !seccionDropdownOpen"
-                          :class="[
-                            'w-full flex items-center justify-between gap-4 px-5 py-4 rounded-2xl border-2 transition-all text-left',
-                            seccionDropdownOpen
-                              ? 'border-violet-500 ring-4 ring-violet-500/10 bg-white dark:bg-slate-800'
-                              : 'border-transparent bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700'
-                          ]">
-                          <div class="min-w-0">
-                            <p v-if="seccion" class="text-sm font-black text-slate-800 dark:text-white truncate leading-tight">Sección {{ seccion }}</p>
-                            <span v-else class="text-slate-400 text-sm font-bold">— Todas las secciones —</span>
-                          </div>
-                          <ChevronDown class="w-5 h-5 text-slate-400 transition-transform duration-300" :class="seccionDropdownOpen ? 'rotate-180' : ''" />
-                        </button>
-
-                        <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100"
-                          leave-active-class="transition duration-150 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
-                          <div v-if="seccionDropdownOpen"
-                            class="absolute z-[120] left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
-                            <div class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 custom-scrollbar">
-                              <button type="button" @click="seccion = ''; seccionDropdownOpen = false"
-                                class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
-                                <div :class="seccion === '' ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0 transition-colors"></div>
-                                <p class="text-sm font-black text-slate-800 dark:text-white">Todas las secciones</p>
-                              </button>
-                              <button v-for="s in ['A','B','C','D','E','F','G','H','I','J','Única']" :key="s" type="button"
-                                @click="seccion = s; seccionDropdownOpen = false"
-                                class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
-                                <div :class="seccion === s ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0 transition-colors"></div>
-                                <p class="text-sm font-black text-slate-800 dark:text-white">Sección {{ s }}</p>
-                              </button>
+                      <!-- Roles Superiores -->
+                      <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="relative">
+                          <button type="button" @click="gradoDropdownOpen = !gradoDropdownOpen" :class="['w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border transition-all text-left bg-slate-50 dark:bg-slate-700', gradoDropdownOpen ? 'border-violet-500 ring-4 ring-violet-500/10 shadow-lg' : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500']">
+                            <div class="min-w-0 flex items-center gap-2">
+                              <div v-if="gradoSeleccionado" class="p-1 rounded-lg bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400"><GraduationCap class="w-3 h-3" /></div>
+                              <div>
+                                <p v-if="gradoSeleccionado" class="text-xs font-black text-slate-800 dark:text-white truncate leading-tight">{{ gradoSeleccionado.nombre }}</p>
+                                <span v-else class="text-slate-400 text-xs font-bold">— Todos —</span>
+                              </div>
                             </div>
-                          </div>
-                        </Transition>
+                            <ChevronDown class="w-3.5 h-3.5 text-slate-400 transition-transform duration-300" :class="gradoDropdownOpen ? 'rotate-180' : ''" />
+                          </button>
+                          <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100" leave-active-class="transition duration-150 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
+                            <div v-if="gradoDropdownOpen" class="absolute z-[120] left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
+                              <div class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 custom-scrollbar">
+                                <button type="button" @click="gradoSeleccionadoId = null; gradoDropdownOpen = false" class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
+                                  <div :class="gradoSeleccionadoId === null ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0"></div>
+                                  <p class="text-sm font-black text-slate-800 dark:text-white">Todos los grados</p>
+                                </button>
+                                <button v-for="g in grados" :key="g.id" type="button" @click="gradoSeleccionadoId = g.id; gradoDropdownOpen = false" class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
+                                  <div :class="gradoSeleccionadoId === g.id ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0"></div>
+                                  <p class="text-sm font-black text-slate-800 dark:text-white">{{ g.nombre }}</p>
+                                </button>
+                              </div>
+                            </div>
+                          </Transition>
+                        </div>
+                        <div class="relative">
+                          <button type="button" @click="seccionDropdownOpen = !seccionDropdownOpen" :class="['w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border transition-all text-left bg-slate-50 dark:bg-slate-700', seccionDropdownOpen ? 'border-violet-500 ring-4 ring-violet-500/10 shadow-lg' : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500']">
+                            <div class="min-w-0"><p v-if="seccion" class="text-xs font-black text-slate-800 dark:text-white truncate leading-tight">Sección {{ seccion }}</p><span v-else class="text-slate-400 text-xs font-bold">— Todas —</span></div>
+                            <ChevronDown class="w-3.5 h-3.5 text-slate-400 transition-transform duration-300" :class="seccionDropdownOpen ? 'rotate-180' : ''" />
+                          </button>
+                          <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100" leave-active-class="transition duration-150 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
+                            <div v-if="seccionDropdownOpen" class="absolute z-[120] left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
+                              <div class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 custom-scrollbar">
+                                <button type="button" @click="seccion = ''; seccionDropdownOpen = false" class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
+                                  <div :class="seccion === '' ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0"></div>
+                                  <p class="text-sm font-black text-slate-800 dark:text-white">Todas las secciones</p>
+                                </button>
+                                <button v-for="s in ['A','B','C','D','E','F','G','H','I','J','Única']" :key="s" type="button" @click="seccion = s; seccionDropdownOpen = false" class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
+                                  <div :class="seccion === s ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0"></div>
+                                  <p class="text-sm font-black text-slate-800 dark:text-white">Sección {{ s }}</p>
+                                </button>
+                              </div>
+                            </div>
+                          </Transition>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Intentos -->
+                    <div :class="isEditing ? 'lg:col-span-12' : 'lg:col-span-4'" class="space-y-3">
+                      <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Máximo de intentos</label>
+                      <div class="relative group">
+                        <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 scale-90">
+                          <Hash class="w-4 h-4" />
+                        </div>
+                        <input v-model.number="intentosPermitidos" type="number" min="1" max="10"
+                          class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 pl-10 pr-4 text-xs font-black text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all shadow-sm" />
                       </div>
                     </div>
                   </div>
+                </section>
 
-                  <!-- Intentos -->
-                  <div class="space-y-4">
-                    <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest">Condiciones de Rendición</label>
-                    <div class="relative">
-                      <input v-model.number="intentosPermitidos" type="number" min="1" max="10"
-                        class="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-violet-500/50 rounded-2xl py-4 px-5 text-base font-bold text-slate-900 dark:text-white outline-none transition-all" />
-                      <span class="absolute right-5 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 uppercase">Intentos Máx</span>
+                <!-- SECCIÓN 3: PROGRAMACIÓN -->
+                <section class="space-y-6">
+                  <div class="flex items-center gap-3 mb-2">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                      <Calendar class="w-4 h-4" />
+                    </div>
+                    <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wider">Programación de la Fecha</h3>
+                  </div>
+
+                  <div class="bg-white dark:bg-slate-800/60 rounded-3xl p-8 border-2 border-slate-100 dark:border-slate-700/50 shadow-xl">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                      <!-- Fecha -->
+                      <div class="space-y-3">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Fecha de Aplicación</label>
+                        <div class="relative">
+                          <Calendar class="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-violet-500 dark:text-violet-400" />
+                          <input v-model="fechaAplicacion" type="date"
+                            class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 pl-10 pr-3.5 text-xs font-bold text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all" />
+                        </div>
+                      </div>
+                      <!-- Hora Inicio -->
+                      <div class="space-y-3">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Hora de Apertura</label>
+                        <div class="relative">
+                          <Clock class="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
+                          <input v-model="horaInicio" type="time"
+                            class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 pl-10 pr-3.5 text-xs font-bold text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all" />
+                        </div>
+                      </div>
+                      <!-- Hora Fin -->
+                      <div class="space-y-3">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Hora de Cierre</label>
+                        <div class="relative">
+                          <Clock class="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-rose-500 dark:text-rose-400" />
+                          <input v-model="horaFin" type="time"
+                            class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 pl-10 pr-3.5 text-xs font-bold text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-rose-500/50 focus:border-rose-500 transition-all" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-700/50 flex flex-col sm:flex-row items-center gap-4">
+                      <div class="flex items-center gap-3 bg-slate-100/50 dark:bg-slate-900/50 p-1.5 pr-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <input v-model.number="duracionMinutos" type="number" placeholder="Libre"
+                          class="w-20 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 focus:border-violet-500 rounded-xl py-2 px-3 text-xs font-black text-violet-600 dark:text-violet-400 outline-none transition-all text-center shadow-sm" />
+                        <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">Minutos de duración</span>
+                      </div>
+                      <p class="text-xs font-bold text-slate-400 flex items-center gap-2">
+                        <AlertCircle class="w-4 h-4 text-amber-500" />
+                        Si se deja vacío, el tiempo será ilimitado dentro del rango horario.
+                      </p>
                     </div>
                   </div>
-                </div>
-              </template>
+                </section>
 
-              <!-- Programación y Reglas -->
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Horarios -->
-                <div class="space-y-4">
-                  <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest">Programación Horaria</label>
-                  <div class="bg-slate-50 dark:bg-slate-800/40 rounded-2xl p-6 border border-slate-300 dark:border-slate-800 space-y-4 shadow-inner">
-                    <div>
-                      <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Fecha de aplicación</label>
-                      <input v-model="fechaAplicacion" type="date"
-                        class="w-full bg-white dark:bg-slate-800 border-2 border-transparent focus:border-violet-500/50 rounded-xl py-3 px-4 text-sm font-bold text-slate-800 dark:text-white outline-none transition-all" />
+                <!-- SECCIÓN 4: SEGURIDAD -->
+                <section class="space-y-6">
+                  <div class="flex items-center gap-3 mb-2">
+                    <div class="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+                      <ShieldCheck class="w-4 h-4" />
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
-                      <div>
-                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Hora inicio</label>
-                        <input v-model="horaInicio" type="time"
-                          class="w-full bg-white dark:bg-slate-800 border-2 border-transparent focus:border-violet-500/50 rounded-xl py-3 px-4 text-sm font-bold text-slate-800 dark:text-white outline-none transition-all" />
-                      </div>
-                      <div>
-                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Hora fin</label>
-                        <input v-model="horaFin" type="time"
-                          class="w-full bg-white dark:bg-slate-800 border-2 border-transparent focus:border-violet-500/50 rounded-xl py-3 px-4 text-sm font-bold text-slate-800 dark:text-white outline-none transition-all" />
-                      </div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                       <input v-model.number="duracionMinutos" type="number" placeholder="Libre"
-                        class="w-24 bg-white dark:bg-slate-800 border-2 border-transparent focus:border-violet-500/50 rounded-xl py-2 px-3 text-sm font-bold text-slate-800 dark:text-white outline-none transition-all" />
-                       <p class="text-xs font-bold text-slate-400 uppercase leading-tight">Minutos de duración <br/><span class="font-normal normal-case opacity-60">(opcional)</span></p>
-                    </div>
+                    <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wider">Aleatoriedad y Seguridad</h3>
                   </div>
-                </div>
 
-                <!-- Seguridad/Mezcla -->
-                <div class="space-y-4">
-                   <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest">Aleatoriedad y Seguridad</label>
-                   <div class="space-y-3">
-                      <button @click="mezclarPreguntas = !mezclarPreguntas"
-                        :class="mezclarPreguntas ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 border-2 border-transparent'"
-                        class="w-full flex items-center justify-between p-4 rounded-2xl font-bold transition-all group">
-                         <div class="flex items-center gap-3 text-left">
-                            <div :class="mezclarPreguntas ? 'bg-white/20' : 'bg-slate-200 dark:bg-slate-700'" class="w-10 h-10 rounded-xl flex items-center justify-center">
-                               <RefreshCw class="w-5 h-5" :class="mezclarPreguntas ? 'animate-spin-slow' : ''" />
-                            </div>
-                            <div class="min-w-0">
-                               <p class="text-sm">Preguntas Aleatorias</p>
-                               <p class="text-[10px] opacity-80" :class="mezclarPreguntas ? 'text-violet-100' : 'text-slate-400'">Evita copias entre estudiantes</p>
-                            </div>
-                         </div>
-                         <div :class="mezclarPreguntas ? 'bg-white' : 'bg-slate-300 dark:bg-slate-600'" class="w-6 h-6 rounded-full flex items-center justify-center shrink-0">
-                            <div v-if="mezclarPreguntas" class="w-2.5 h-2.5 rounded-full bg-violet-600"></div>
-                         </div>
-                      </button>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button @click="mezclarPreguntas = !mezclarPreguntas"
+                      :class="mezclarPreguntas ? 'bg-white dark:bg-slate-800 border-violet-500 shadow-md' : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-400 hover:border-slate-400'"
+                      class="flex items-center justify-between p-4 rounded-xl border transition-all group text-left">
+                       <div class="flex items-center gap-3">
+                          <div :class="mezclarPreguntas ? 'bg-violet-100 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400' : 'bg-slate-50 dark:bg-slate-900/50 text-slate-300'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors">
+                             <RefreshCw class="w-5 h-5" :class="mezclarPreguntas ? 'animate-spin-slow' : ''" />
+                          </div>
+                          <div>
+                             <p class="text-[11px] font-black" :class="mezclarPreguntas ? 'text-slate-800 dark:text-white' : 'text-slate-400'">Preguntas Aleatorias</p>
+                             <p class="text-[9px] font-bold opacity-70 leading-none">Diferente orden para todos</p>
+                          </div>
+                       </div>
+                       <div :class="mezclarPreguntas ? 'bg-violet-600' : 'bg-slate-200 dark:bg-slate-700'" class="w-5 h-5 rounded-full flex items-center justify-center transition-colors">
+                          <Check v-if="mezclarPreguntas" class="w-3 h-3 text-white" />
+                       </div>
+                    </button>
 
-                      <button @click="mezclarAlternativas = !mezclarAlternativas"
-                        :class="mezclarAlternativas ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 border-2 border-transparent'"
-                        class="w-full flex items-center justify-between p-4 rounded-2xl font-bold transition-all group">
-                         <div class="flex items-center gap-3 text-left">
-                            <div :class="mezclarAlternativas ? 'bg-white/20' : 'bg-slate-200 dark:bg-slate-700'" class="w-10 h-10 rounded-xl flex items-center justify-center">
-                               <TrendingUp class="w-5 h-5" />
-                            </div>
-                            <div class="min-w-0">
-                               <p class="text-sm">Alternativas Mezcladas</p>
-                               <p class="text-[10px] opacity-80" :class="mezclarAlternativas ? 'text-indigo-100' : 'text-slate-400'">Cambia el orden de respuestas</p>
-                            </div>
-                         </div>
-                         <div :class="mezclarAlternativas ? 'bg-white' : 'bg-slate-300 dark:bg-slate-600'" class="w-6 h-6 rounded-full flex items-center justify-center shrink-0">
-                            <div v-if="mezclarAlternativas" class="w-2.5 h-2.5 rounded-full bg-indigo-600"></div>
-                         </div>
-                      </button>
-                   </div>
-                </div>
+                    <button @click="mezclarAlternativas = !mezclarAlternativas"
+                      :class="mezclarAlternativas ? 'bg-white dark:bg-slate-800 border-indigo-500 shadow-md' : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-400 hover:border-slate-400'"
+                      class="flex items-center justify-between p-4 rounded-xl border transition-all group text-left">
+                       <div class="flex items-center gap-3">
+                          <div :class="mezclarAlternativas ? 'bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400' : 'bg-slate-50 dark:bg-slate-900/50 text-slate-300'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors">
+                             <TrendingUp class="w-5 h-5" />
+                          </div>
+                          <div>
+                             <p class="text-[11px] font-black" :class="mezclarAlternativas ? 'text-slate-800 dark:text-white' : 'text-slate-400'">Alternativas Mezcladas</p>
+                             <p class="text-[9px] font-bold opacity-70 leading-none">Cambia el orden de respuestas</p>
+                          </div>
+                       </div>
+                       <div :class="mezclarAlternativas ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-700'" class="w-5 h-5 rounded-full flex items-center justify-center transition-colors">
+                          <Check v-if="mezclarAlternativas" class="w-3 h-3 text-white" />
+                       </div>
+                    </button>
+                  </div>
+                </section>
               </div>
 
             </div>

@@ -121,7 +121,7 @@ const hasPreguntas = () => {
                             {{ i + 1 }}</td>
                         <td class="p-3 border-r border-slate-300 dark:border-slate-700">
                             <input v-model="est.nombre" type="text" placeholder="Nombre del estudiante"
-                                class="w-full bg-transparent outline-none text-slate-700 dark:text-slate-200" />
+                                class="w-full bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 rounded-xl py-1.5 px-3 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all placeholder-slate-400" />
                         </td>
 
                         <template v-for="(nivel, key) in niveles" :key="key">

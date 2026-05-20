@@ -813,7 +813,7 @@ async function saveResetPassword() {
             <Search class="h-5 w-5 text-slate-400 dark:text-slate-500" />
           </div>
           <input type="text" v-model="searchQuery" @input="handleSearch"
-            class="block w-full pl-10 pr-4 py-2.5 border border-slate-300 dark:border-slate-700 rounded-xl leading-5 bg-white dark:bg-slate-800/80 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 dark:focus:ring-teal-400/50 dark:focus:border-teal-400 transition-colors shadow-sm"
+            class="block w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl leading-5 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all shadow-sm font-bold text-sm"
             placeholder="Buscar por DNI, Nombres o Apellidos...">
           <div class="absolute inset-y-0 right-0 pr-3 flex items-center" v-if="searchQuery">
             <button @click="searchQuery = ''; handleSearch()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
@@ -1302,7 +1302,7 @@ async function saveResetPassword() {
                 <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">DNI <span
                     class="text-red-500">*</span></label>
                 <input v-model="dni" type="text" maxlength="8" placeholder="12345678" :disabled="!!editingId" :class="[
-                  'w-full bg-slate-50 dark:bg-slate-700 border rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed font-mono',
+                  'w-full bg-slate-50 dark:bg-slate-700 border rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed font-black tracking-widest placeholder-slate-400',
                   dniError
                     ? 'border-red-400 dark:border-red-500 focus:ring-red-400/40 focus:border-red-400'
                     : 'border-slate-300 dark:border-slate-600 focus:ring-teal-500/50 focus:border-teal-500'
@@ -1318,7 +1318,7 @@ async function saveResetPassword() {
                   <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Nombres <span
                       class="text-red-500">*</span></label>
                   <input v-model="nombres" type="text" placeholder="Juan" :class="[
-                    'w-full bg-slate-50 dark:bg-slate-700 border rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 transition-all',
+                    'w-full bg-slate-50 dark:bg-slate-700 border rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 transition-all placeholder-slate-400',
                     nombresError
                       ? 'border-red-400 dark:border-red-500 focus:ring-red-400/40 focus:border-red-400'
                       : 'border-slate-300 dark:border-slate-600 focus:ring-teal-500/50 focus:border-teal-500'
@@ -1331,7 +1331,7 @@ async function saveResetPassword() {
                   <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Apellidos <span
                       class="text-red-500">*</span></label>
                   <input v-model="apellidos" type="text" placeholder="Pérez" :class="[
-                    'w-full bg-slate-50 dark:bg-slate-700 border rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 transition-all',
+                    'w-full bg-slate-50 dark:bg-slate-700 border rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 transition-all placeholder-slate-400',
                     apellidosError
                       ? 'border-red-400 dark:border-red-500 focus:ring-red-400/40 focus:border-red-400'
                       : 'border-slate-300 dark:border-slate-600 focus:ring-teal-500/50 focus:border-teal-500'
@@ -1346,14 +1346,14 @@ async function saveResetPassword() {
               <div>
                 <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Profesión</label>
                 <input v-model="profesion" type="text" placeholder="Docente de Primaria"
-                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
+                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all placeholder-slate-400" />
               </div>
 
               <!-- Rol -->
               <div>
                 <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Rol *</label>
                 <select v-model="rol_codigo"
-                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all">
+                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all cursor-pointer appearance-none">
                   <option v-for="r in ROLES_OPTIONS" :key="r.value" :value="r.value">{{ r.label }}</option>
                 </select>
                 <p v-if="rolError" class="mt-1 text-xs text-red-500">{{ rolError }}</p>
@@ -1366,7 +1366,7 @@ async function saveResetPassword() {
                   <Loader2 v-if="loadingOrganizacion" class="inline w-3 h-3 animate-spin ml-1" />
                 </label>
                 <select v-model="ugel_id"
-                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all">
+                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all cursor-pointer appearance-none">
                   <option :value="null">— Sin especificar —</option>
                   <option v-for="u in ugeles" :key="u.id" :value="u.id">{{ u.nombre }}</option>
                 </select>
@@ -1379,7 +1379,7 @@ async function saveResetPassword() {
                   <Loader2 v-if="loadingOrganizacion" class="inline w-3 h-3 animate-spin ml-1" />
                 </label>
                 <select v-model="institucion_educativa_id"
-                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all">
+                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all cursor-pointer appearance-none">
                   <option :value="null">— Sin especificar —</option>
                   <option v-for="ie in instituciones" :key="ie.id" :value="ie.id">{{ ie.nombre }}</option>
                 </select>
@@ -1440,9 +1440,9 @@ async function saveResetPassword() {
                   Contraseña {{ editingId ? '(dejar en blanco para no cambiar)' : '*' }}
                 </label>
                 <div class="relative">
-                  <input v-model="password" :type="showPassword ? 'text' : 'password'"
+                   <input v-model="password" :type="showPassword ? 'text' : 'password'"
                     :placeholder="editingId ? 'Nueva contraseña (opcional)' : 'Mínimo 6 caracteres'" :class="[
-                      'w-full bg-slate-50 dark:bg-slate-700 border rounded-xl py-2.5 pl-3.5 pr-10 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 transition-all',
+                      'w-full bg-slate-50 dark:bg-slate-700 border rounded-xl py-2.5 pl-3.5 pr-10 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 transition-all placeholder-slate-400',
                       passwordError
                         ? 'border-red-400 dark:border-red-500 focus:ring-red-400/40 focus:border-red-400'
                         : 'border-slate-300 dark:border-slate-600 focus:ring-indigo-500/50 focus:border-indigo-500'
@@ -1558,7 +1558,7 @@ async function saveResetPassword() {
                 <div class="relative">
                   <input v-model="resetPassword" :type="showResetPass ? 'text' : 'password'"
                     placeholder="Mínimo 6 caracteres" :class="[
-                      'w-full bg-slate-50 dark:bg-slate-700 border rounded-xl py-2.5 pl-3.5 pr-9 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 transition-all',
+                      'w-full bg-slate-50 dark:bg-slate-700 border rounded-xl py-2.5 pl-3.5 pr-9 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 transition-all placeholder-slate-400',
                       resetPasswordError
                         ? 'border-red-400 dark:border-red-500 focus:ring-red-400/40 focus:border-red-400'
                         : 'border-slate-300 dark:border-slate-600 focus:ring-amber-500/50 focus:border-amber-500'

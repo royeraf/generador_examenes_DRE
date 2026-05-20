@@ -235,16 +235,16 @@ const TABS = [
                 <div class="grid grid-cols-4 gap-4">
                   <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Código</label>
-                    <input v-model.number="editItem.codigo" type="number" :disabled="isEditing" class="curriculum-field h-14 bg-slate-50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-800 rounded-2xl px-5 text-sm text-center font-mono" />
+                    <input v-model.number="editItem.codigo" type="number" :disabled="isEditing" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-center font-mono font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400" />
                   </div>
                   <div class="col-span-3">
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Nombre</label>
-                    <input v-model="editItem.nombre" type="text" :disabled="isEditing" class="curriculum-field h-14 bg-slate-50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-800 rounded-2xl px-5 text-sm" />
+                    <input v-model="editItem.nombre" type="text" :disabled="isEditing" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400" />
                   </div>
                 </div>
                 <div>
                   <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Descripción</label>
-                  <textarea v-model="editItem.descripcion" rows="5" :disabled="isEditing" class="curriculum-field bg-slate-50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-800 rounded-2xl p-5 text-sm resize-none leading-relaxed" />
+                  <textarea v-model="editItem.descripcion" rows="5" :disabled="isEditing" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400 resize-none leading-relaxed" />
                 </div>
               </div>
             </template>
@@ -255,11 +255,11 @@ const TABS = [
                 <div class="grid grid-cols-4 gap-4">
                   <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Orden</label>
-                    <input v-model.number="editItem.orden" type="number" :disabled="isEditing" class="curriculum-field h-14 bg-slate-50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-800 rounded-2xl px-5 text-sm text-center font-mono" />
+                    <input v-model.number="editItem.orden" type="number" :disabled="isEditing" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-center font-mono font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400" />
                   </div>
                   <div class="col-span-3">
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Competencia</label>
-                    <div v-if="isEditing" class="flex items-center h-14 bg-slate-100 dark:bg-slate-800 rounded-2xl px-5 text-xs text-slate-500 font-bold">
+                    <div v-if="isEditing" class="flex items-center h-10 bg-slate-100 dark:bg-slate-800 rounded-xl px-4 text-xs text-slate-500 font-bold border border-slate-200 dark:border-slate-700">
                       {{ competencias.find(c => c.id === editItem.competencia_id)?.nombre ?? '-' }}
                     </div>
                     <ComboBox v-else v-model="editItem.competencia_id" :options="competenciaOptions" placeholder="Seleccionar..." />
@@ -267,7 +267,7 @@ const TABS = [
                 </div>
                 <div>
                   <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Nombre</label>
-                  <input v-model="editItem.nombre" type="text" :disabled="isEditing" placeholder="Ej: Usa estrategias y procedimientos de estimación" class="curriculum-field h-14 bg-slate-50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-800 rounded-2xl px-5 text-sm" />
+                  <input v-model="editItem.nombre" type="text" :disabled="isEditing" placeholder="Ej: Usa estrategias y procedimientos de estimación" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400" />
                 </div>
               </div>
             </template>
@@ -278,11 +278,11 @@ const TABS = [
                 <div class="grid grid-cols-3 gap-4">
                   <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Código</label>
-                    <input v-model="editItem.codigo" type="text" placeholder="01" class="curriculum-field h-14 bg-slate-50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-800 rounded-2xl px-5 text-sm text-center font-mono" />
+                    <input v-model="editItem.codigo" type="text" placeholder="01" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-center font-mono font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400" />
                   </div>
                   <div class="col-span-2">
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Capacidad</label>
-                    <div v-if="isEditing" class="flex items-center h-14 bg-slate-100 dark:bg-slate-800 rounded-2xl px-5 text-xs text-slate-500 font-bold truncate">
+                    <div v-if="isEditing" class="flex items-center h-10 bg-slate-100 dark:bg-slate-800 rounded-xl px-4 text-xs text-slate-500 font-bold truncate border border-slate-200 dark:border-slate-700">
                       {{ capacidadesPorCompetencia.find(c => c.id === editItem.capacidad_id)?.nombre ?? '-' }}
                     </div>
                     <ComboBox v-else v-model="editItem.capacidad_id" :options="capacidadModalOptions" placeholder="Seleccionar..." />
@@ -290,7 +290,7 @@ const TABS = [
                 </div>
                 <div>
                   <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Descripción del Desempeño</label>
-                  <textarea v-model="editItem.descripcion" rows="6" placeholder="Escribe el desempeño aquí..." class="curriculum-field bg-slate-50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-800 rounded-2xl p-5 text-sm resize-none leading-relaxed" />
+                  <textarea v-model="editItem.descripcion" rows="6" placeholder="Escribe el desempeño aquí..." class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400 resize-none leading-relaxed" />
                 </div>
               </div>
             </template>
