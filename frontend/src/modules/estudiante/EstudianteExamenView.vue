@@ -832,7 +832,7 @@ const nivelMensaje: Record<string, string> = {
         </aside>
 
         <!-- Right: Questions -->
-        <section class="flex-1 h-full flex flex-col z-20 bg-slate-50/30 dark:bg-slate-950/30">
+        <section class="flex-1 min-h-0 lg:h-full flex flex-col z-20 bg-slate-50/30 dark:bg-slate-950/30">
           
           <!-- Question Nav -->
           <div class="px-8 py-6 flex flex-wrap gap-2 shrink-0">
