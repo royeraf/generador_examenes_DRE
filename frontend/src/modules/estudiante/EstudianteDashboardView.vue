@@ -8,6 +8,7 @@ import {
   Trophy, Flame, Target, Sparkles,
   BookOpen, Star, Sun, Moon, LogOut, Zap,
   Rocket, GraduationCap, Sprout,
+  ChevronRight, BarChart3, Library,
 } from 'lucide-vue-next'
 
 const router = useRouter()
