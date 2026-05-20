@@ -624,14 +624,16 @@ const nivelMensaje: Record<string, string> = {
 
             <!-- Footer Navigation Bar -->
             <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-6 px-6 shrink-0 relative z-10 shadow-lg">
-              <div class="max-w-3xl mx-auto flex items-center justify-between gap-4">
+              <div class="max-w-3xl mx-auto flex items-center justify-between gap-4 w-full">
                 
-                <!-- Previous Button -->
-                <button @click="anteriorRevision" :disabled="preguntaRevisionActual === 0"
-                  class="flex-1 sm:flex-initial h-12 px-6 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-40 disabled:hover:bg-slate-100 dark:disabled:hover:bg-slate-800 font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer select-none">
-                  <ChevronLeft class="w-4 h-4" />
-                  <span>Anterior</span>
-                </button>
+                <!-- Previous Button Container -->
+                <div class="flex-1 flex justify-start sm:flex-initial">
+                  <button @click="anteriorRevision" :disabled="preguntaRevisionActual === 0"
+                    class="w-full sm:w-auto h-12 px-6 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-40 disabled:hover:bg-slate-100 dark:disabled:hover:bg-slate-800 font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer select-none">
+                    <ChevronLeft class="w-4 h-4" />
+                    <span>Anterior</span>
+                  </button>
+                </div>
 
                 <!-- Progress Dots (Desktop only) -->
                 <div class="hidden sm:flex items-center gap-1.5">
@@ -649,12 +651,21 @@ const nivelMensaje: Record<string, string> = {
                   />
                 </div>
 
-                <!-- Next / Finish Button -->
-                <button @click="siguienteRevision"
-                  class="flex-1 sm:flex-initial h-12 px-6 bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:scale-[1.02] active:scale-[0.98] font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-slate-900/10 dark:shadow-white/5 select-none">
-                  <span>{{ preguntaRevisionActual === revision.preguntas.length - 1 ? 'Finalizar Revisión' : 'Siguiente' }}</span>
-                  <ChevronRight class="w-4 h-4" />
-                </button>
+                <!-- Question Progress Indicator (Mobile only) -->
+                <div class="flex-none flex sm:hidden justify-center px-2">
+                  <span class="px-3.5 py-1.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-800 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 shadow-sm whitespace-nowrap">
+                    {{ preguntaRevisionActual + 1 }} de {{ revision.preguntas.length }}
+                  </span>
+                </div>
+
+                <!-- Next / Finish Button Container -->
+                <div class="flex-1 flex justify-end sm:flex-initial">
+                  <button @click="siguienteRevision"
+                    class="w-full sm:w-auto h-12 px-6 bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:scale-[1.02] active:scale-[0.98] font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-slate-900/10 dark:shadow-white/5 select-none">
+                    <span>{{ preguntaRevisionActual === revision.preguntas.length - 1 ? 'Finalizar' : 'Siguiente' }}</span>
+                    <ChevronRight class="w-4 h-4" />
+                  </button>
+                </div>
 
               </div>
             </footer>
@@ -927,43 +938,52 @@ const nivelMensaje: Record<string, string> = {
           </div>
 
           <!-- Bottom Footer -->
-          <footer class="px-8 py-6 bg-white dark:bg-slate-900 border-t border-slate-300 dark:border-slate-800 shrink-0">
-            <div class="max-w-2xl mx-auto flex items-center justify-between gap-4">
-              <button @click="anterior" :disabled="preguntaActual === 0"
-                class="h-12 px-6 rounded-2xl border border-slate-300 dark:border-slate-700 font-bold text-sm text-slate-600 dark:text-slate-400 disabled:opacity-30 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center gap-2">
-                <ChevronLeft class="w-4 h-4" />
-                <span class="hidden sm:inline">Anterior</span>
-              </button>
-
-              <div class="flex-1 flex justify-center">
-                <div class="px-4 py-2 bg-slate-50 dark:bg-slate-800 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400">
-                  {{ preguntaActual + 1 }} de {{ examen.preguntas.length }}
-                </div>
+          <footer class="px-6 py-4 sm:px-8 sm:py-5 bg-white dark:bg-slate-900 border-t border-slate-300 dark:border-slate-800 shrink-0">
+            <div class="max-w-2xl mx-auto flex items-center justify-between w-full gap-3 sm:gap-4">
+              
+              <!-- Previous Button Container -->
+              <div class="flex-1 flex justify-start">
+                <button @click="anterior" :disabled="preguntaActual === 0"
+                  class="w-full sm:w-auto min-w-[100px] h-12 px-4 rounded-xl border border-slate-300 dark:border-slate-700 font-bold text-sm text-slate-600 dark:text-slate-400 disabled:opacity-30 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2 select-none cursor-pointer">
+                  <ChevronLeft class="w-4 h-4 shrink-0" />
+                  <span>Anterior</span>
+                </button>
               </div>
 
-              <button
-                v-if="preguntaActual < examen.preguntas.length - 1"
-                @click="siguiente"
-                class="h-12 px-8 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-sm shadow-xl shadow-slate-900/10 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2">
-                <span>Siguiente</span>
-                <ChevronRight class="w-4 h-4" />
-              </button>
+              <!-- Question Progress Indicator (Always Perfectly Centered) -->
+              <div class="flex-none flex justify-center px-2">
+                <span class="px-3.5 py-1.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-800 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 shadow-sm transition-colors duration-300 whitespace-nowrap">
+                  {{ preguntaActual + 1 }} de {{ examen.preguntas.length }}
+                </span>
+              </div>
 
-              <button
-                v-else
-                @click="finalizar"
-                :disabled="enviando"
-                class="h-12 px-8 rounded-2xl font-black text-sm shadow-xl transition-all active:scale-95 flex items-center gap-2"
-                :class="todasRespondidas
-                  ? 'bg-gradient-to-r from-teal-500 to-indigo-600 text-white shadow-teal-500/20'
-                  : 'bg-red-500 text-white shadow-red-500/20'">
-                <Loader2 v-if="enviando" class="w-4 h-4 animate-spin" />
-                <template v-else>
-                  <CheckCircle2 v-if="todasRespondidas" class="w-4 h-4" />
-                  <AlertCircle v-else class="w-4 h-4" />
-                  <span>{{ todasRespondidas ? 'Finalizar Examen' : 'Finalizar' }}</span>
-                </template>
-              </button>
+              <!-- Next / Finish Button Container -->
+              <div class="flex-1 flex justify-end">
+                <button
+                  v-if="preguntaActual < examen.preguntas.length - 1"
+                  @click="siguiente"
+                  class="w-full sm:w-auto min-w-[100px] h-12 px-4 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-sm shadow-md hover:scale-[1.01] active:scale-[0.98] transition-all flex items-center justify-center gap-2 select-none cursor-pointer">
+                  <span>Siguiente</span>
+                  <ChevronRight class="w-4 h-4 shrink-0" />
+                </button>
+
+                <button
+                  v-else
+                  @click="finalizar"
+                  :disabled="enviando"
+                  class="w-full sm:w-auto min-w-[100px] h-12 px-4 rounded-xl font-bold text-sm shadow-md transition-all active:scale-[0.98] flex items-center justify-center gap-2 select-none cursor-pointer"
+                  :class="todasRespondidas
+                    ? 'bg-gradient-to-r from-teal-500 to-indigo-600 text-white shadow-teal-500/20'
+                    : 'bg-red-500 text-white shadow-red-500/20'">
+                  <Loader2 v-if="enviando" class="w-4 h-4 animate-spin shrink-0" />
+                  <template v-else>
+                    <CheckCircle2 v-if="todasRespondidas" class="w-4 h-4 shrink-0" />
+                    <AlertCircle v-else class="w-4 h-4 shrink-0" />
+                    <span>{{ todasRespondidas ? 'Finalizar' : 'Finalizar' }}</span>
+                  </template>
+                </button>
+              </div>
+
             </div>
           </footer>
         </section>
