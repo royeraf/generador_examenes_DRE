@@ -584,14 +584,14 @@ onMounted(async () => {
       <!-- ══════════════════════════════════════════
            HISTORIAL TAB
       ══════════════════════════════════════════ -->
-      <div v-show="activeTab === 'historial'" class="flex-1 min-h-0 bg-white dark:bg-slate-800 rounded-xl border border-slate-300 dark:border-slate-700 overflow-hidden p-6 flex flex-col">
+      <div v-show="activeTab === 'historial'" class="flex-1 min-h-0 bg-white dark:bg-slate-800 rounded-xl border border-slate-300 dark:border-slate-700 overflow-hidden p-4 sm:p-6 flex flex-col">
         <div v-if="loadingHistory" class="flex-1 flex flex-col items-center justify-center">
           <Loader2 class="w-8 h-8 text-slate-800 dark:text-white animate-spin mb-4" />
           <p class="text-slate-500 dark:text-slate-400 text-sm">Cargando historial...</p>
         </div>
         <div v-else-if="fetchError" class="flex-1 flex flex-col items-center justify-center gap-3">
           <p class="text-red-400 text-sm text-center">{{ fetchError }}</p>
-          <button @click="fetchHistory()" class="text-xs px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">Reintentar</button>
+          <button @click="fetchHistory()" class="text-xs px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors cursor-pointer">Reintentar</button>
         </div>
         <div v-else-if="history.length === 0" class="flex-1 flex flex-col items-center justify-center">
           <History class="w-10 h-10 text-slate-800 dark:text-white/20 mx-auto mb-4" />
@@ -599,14 +599,14 @@ onMounted(async () => {
           <p class="text-slate-500 dark:text-slate-400 text-sm max-w-md mx-auto text-center">Los exámenes que generes se guardarán automáticamente aquí.</p>
         </div>
         <div v-else class="flex-1 overflow-y-auto space-y-4">
-          <div class="flex items-center justify-between">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <h3 class="text-slate-800 dark:text-white font-medium flex items-center gap-2">Exámenes Generados ({{ history.length }})</h3>
-            <button @click="confirmarLimpiarHistorial" class="text-xs text-red-400 hover:text-red-300 font-medium px-3 py-1.5 rounded-lg bg-red-400/10 hover:bg-red-400/20 transition-colors cursor-pointer">Limpiar todo</button>
+            <button @click="confirmarLimpiarHistorial" class="text-xs text-red-400 hover:text-red-300 font-semibold px-3 py-1.5 rounded-xl bg-red-400/10 hover:bg-red-400/20 transition-all duration-150 cursor-pointer">Limpiar todo</button>
           </div>
-          <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div v-for="(entry, index) in history" :key="entry.id" class="bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-300 dark:border-slate-700 p-4 flex flex-col gap-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div v-for="(entry, index) in history" :key="entry.id" class="bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-300 dark:border-slate-700 p-4 flex flex-col gap-3 hover:shadow-md hover:border-slate-400 dark:hover:border-slate-600 transition-all duration-200">
               <div>
-                <h4 class="text-sm font-medium text-slate-800 dark:text-white truncate">{{ entry.resultado.examen.titulo }}</h4>
+                <h4 class="text-sm font-semibold text-slate-800 dark:text-white truncate">{{ entry.resultado.examen.titulo }}</h4>
                 <div class="text-[11px] text-slate-500 mt-1">{{ formatFechaHora(entry.fechaCreacion) }}</div>
               </div>
               <div class="text-[11px] text-slate-500 dark:text-slate-400">
@@ -614,11 +614,11 @@ onMounted(async () => {
                 <div>Preguntas: {{ entry.resultado.total_preguntas }}</div>
               </div>
               <div class="flex gap-1 mt-auto overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                <button @click="cargarExamen(index)" class="shrink-0 flex items-center gap-1 px-1.5 py-1 text-[10px] font-medium text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer"><Eye class="w-3 h-3" />Ver</button>
-                <button @click="descargarWordHistorial(index)" class="shrink-0 flex items-center gap-1 px-1.5 py-1 text-[10px] font-medium text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer"><FileDown class="w-3 h-3" />Word</button>
-                <!-- <button @click="vincularDesdeHistorial(index)" class="shrink-0 flex items-center gap-1 px-1.5 py-1 text-[10px] font-medium text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded hover:bg-slate-300 dark:hover:bg-slate-600"><Link class="w-3 h-3" />Vincular</button> -->
-                <button @click="abrirAsignar(entry)" class="shrink-0 flex items-center gap-1 px-1.5 py-1 text-[10px] font-medium text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer"><Send class="w-3 h-3" />Asignar</button>
-                <button @click="confirmarEliminar(entry.id)" class="shrink-0 px-1.5 py-1 text-[10px] font-medium text-red-400 bg-red-400/10 rounded hover:bg-red-400/20 cursor-pointer"><Trash2 class="w-3 h-3"/></button>
+                <button @click="cargarExamen(index)" class="shrink-0 flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer transition-colors duration-150"><Eye class="w-3.5 h-3.5" />Ver</button>
+                <button @click="descargarWordHistorial(index)" class="shrink-0 flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer transition-colors duration-150"><FileDown class="w-3.5 h-3.5" />Word</button>
+                <!-- <button @click="vincularDesdeHistorial(index)" class="shrink-0 flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600"><Link class="w-3.5 h-3.5" />Vincular</button> -->
+                <button @click="abrirAsignar(entry)" class="shrink-0 flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer transition-colors duration-150"><Send class="w-3.5 h-3.5" />Asignar</button>
+                <button @click="confirmarEliminar(entry.id)" class="shrink-0 px-2 py-1.5 text-[10px] font-bold text-red-400 bg-red-400/10 rounded-lg hover:bg-red-400/20 cursor-pointer transition-colors duration-150"><Trash2 class="w-3.5 h-3.5"/></button>
               </div>
             </div>
           </div>
