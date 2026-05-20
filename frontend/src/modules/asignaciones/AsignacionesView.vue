@@ -361,7 +361,7 @@ const estadoColors: Record<string, string> = {
           </p>
         </div>
         <button @click="openModal"
-          class="group flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-violet-600 to-indigo-700 hover:from-violet-700 hover:to-indigo-800 text-white font-bold text-sm rounded-2xl shadow-xl shadow-violet-500/20 hover:-translate-y-0.5 transition-all active:scale-95">
+          class="group flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-violet-600 to-indigo-700 hover:from-violet-700 hover:to-indigo-800 text-white font-bold text-sm rounded-2xl shadow-xl shadow-violet-500/20 hover:-translate-y-0.5 transition-all active:scale-95 cursor-pointer">
           <Plus class="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
           <span>Nueva Asignación</span>
         </button>
@@ -374,7 +374,7 @@ const estadoColors: Record<string, string> = {
             <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div> 
             {{ error }}
           </span>
-          <button @click="fetchAsignaciones" class="px-4 py-1.5 bg-red-100 dark:bg-red-500/20 rounded-xl font-bold hover:bg-red-200 dark:hover:bg-red-500/30 transition-colors">
+          <button @click="fetchAsignaciones" class="px-4 py-1.5 bg-red-100 dark:bg-red-500/20 rounded-xl font-bold hover:bg-red-200 dark:hover:bg-red-500/30 transition-colors cursor-pointer">
             Reintentar
           </button>
         </div>
@@ -400,7 +400,7 @@ const estadoColors: Record<string, string> = {
           Comienza asignando uno de tus exámenes generados a un grado o sección específica.
         </p>
         <button @click="openModal"
-          class="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-violet-500 to-indigo-600 text-white font-black text-sm rounded-2xl shadow-xl shadow-violet-500/20 hover:from-violet-600 hover:to-indigo-700 transition-all active:scale-95">
+          class="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-violet-500 to-indigo-600 text-white font-black text-sm rounded-2xl shadow-xl shadow-violet-500/20 hover:from-violet-600 hover:to-indigo-700 transition-all active:scale-95 cursor-pointer">
           <Plus class="w-5 h-5" />
           <span>Crear Primera Asignación</span>
         </button>
@@ -460,19 +460,19 @@ const estadoColors: Record<string, string> = {
 
             <div class="flex items-center md:flex-col lg:flex-row gap-2 mt-4 md:mt-0 pt-4 md:pt-0 border-t md:border-t-0 border-slate-300 dark:border-slate-800">
               <button @click="openResultados(asig)"
-                class="flex-1 md:w-full lg:flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs rounded-2xl transition-all active:scale-95 border border-slate-300 dark:border-slate-700 shadow-sm"
+                class="flex-1 md:w-full lg:flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs rounded-2xl transition-all active:scale-95 border border-slate-300 dark:border-slate-700 shadow-sm cursor-pointer"
                 title="Ver resultados">
                 <Users class="w-4 h-4" />
                 <span class="md:hidden lg:inline">Reporte</span>
               </button>
               <div class="flex gap-2">
                 <button v-if="asig.puede_eliminar" @click="openEditModal(asig)"
-                  class="p-3 bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 rounded-2xl hover:bg-violet-600 hover:text-white transition-all active:scale-95 border border-violet-100 dark:border-violet-900/50 shadow-sm"
+                  class="p-3 bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 rounded-2xl hover:bg-violet-600 hover:text-white transition-all active:scale-95 border border-violet-100 dark:border-violet-900/50 shadow-sm cursor-pointer"
                   title="Editar condiciones">
                   <Pencil class="w-5 h-5" />
                 </button>
                 <button v-if="asig.puede_eliminar" @click="eliminar(asig.id)" :disabled="loadingDelete === asig.id"
-                  class="p-3 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 rounded-2xl hover:bg-red-600 hover:text-white transition-all active:scale-95 border border-red-100 dark:border-red-900/50 shadow-sm disabled:opacity-40">
+                  class="p-3 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 rounded-2xl hover:bg-red-600 hover:text-white transition-all active:scale-95 border border-red-100 dark:border-red-900/50 shadow-sm disabled:opacity-40 cursor-pointer">
                   <Loader2 v-if="loadingDelete === asig.id" class="w-5 h-5 animate-spin" />
                   <Trash2 v-else class="w-5 h-5" />
                 </button>
@@ -493,12 +493,12 @@ const estadoColors: Record<string, string> = {
           class="fixed inset-0 z-[120] flex items-end sm:items-center justify-center sm:p-4">
           
           <!-- Backdrop -->
-          <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" @click="closeModal()"></div>
+          <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity cursor-pointer" @click="closeModal()"></div>
 
           <div class="relative bg-white dark:bg-slate-900 w-full sm:max-w-2xl max-h-[94dvh] sm:max-h-[85vh] flex flex-col sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden z-10 animate-slide-up">
             
             <!-- Drag handle mobile -->
-            <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0" @click="closeModal()">
+            <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0 cursor-pointer" @click="closeModal()">
                 <div class="w-10 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800"></div>
             </div>
 
@@ -515,7 +515,7 @@ const estadoColors: Record<string, string> = {
                   <p class="text-xs font-bold text-slate-500 dark:text-slate-400">Configuración de acceso y aleatoriedad</p>
                 </div>
               </div>
-              <button @click="closeModal()" class="p-3 bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-2xl transition-all">
+              <button @click="closeModal()" class="p-3 bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-2xl transition-all cursor-pointer">
                 <X class="w-6 h-6" />
               </button>
             </div>
@@ -550,7 +550,7 @@ const estadoColors: Record<string, string> = {
                       <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Área Académica</label>
                       <div class="flex gap-2">
                         <button type="button" @click="tipoExamen = 'lectura'; examenSeleccionadoId = null; examenDropdownOpen = false"
-                          :class="['flex-1 flex items-center gap-2 p-2.5 rounded-xl border transition-all group',
+                          :class="['flex-1 flex items-center gap-2 p-2.5 rounded-xl border transition-all group cursor-pointer',
                             tipoExamen === 'lectura'
                               ? 'bg-white dark:bg-teal-500/10 border-teal-500 text-teal-700 dark:text-teal-400 shadow-md'
                               : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-400 hover:border-slate-400']">
@@ -558,7 +558,7 @@ const estadoColors: Record<string, string> = {
                           <span class="text-[10px] font-black uppercase">Comunicación</span>
                         </button>
                         <button type="button" @click="tipoExamen = 'matematica'; examenSeleccionadoId = null; examenDropdownOpen = false"
-                          :class="['flex-1 flex items-center gap-2 p-2.5 rounded-xl border transition-all group',
+                          :class="['flex-1 flex items-center gap-2 p-2.5 rounded-xl border transition-all group cursor-pointer',
                             tipoExamen === 'matematica'
                               ? 'bg-white dark:bg-indigo-500/10 border-indigo-500 text-indigo-700 dark:text-indigo-400 shadow-md'
                               : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-400 hover:border-slate-400']">
@@ -586,7 +586,7 @@ const estadoColors: Record<string, string> = {
                       <div v-else class="relative">
                         <button type="button" @click="examenDropdownOpen = !examenDropdownOpen"
                           :class="[
-                            'w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border transition-all text-left bg-slate-50 dark:bg-slate-700',
+                            'w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border transition-all text-left bg-slate-50 dark:bg-slate-700 cursor-pointer',
                             examenDropdownOpen
                               ? 'border-violet-500 ring-4 ring-violet-500/10 shadow-lg'
                               : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500'
@@ -608,7 +608,7 @@ const estadoColors: Record<string, string> = {
                             <div class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 custom-scrollbar">
                               <button v-for="ex in examenesActuales" :key="ex.id" type="button"
                                 @click="examenSeleccionadoId = ex.id; examenDropdownOpen = false"
-                                class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
+                                class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group cursor-pointer">
                                 <div :class="examenSeleccionadoId === ex.id ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0 transition-colors"></div>
                                 <div class="min-w-0">
                                   <p class="text-sm font-black text-slate-800 dark:text-white truncate">{{ ex.titulo ?? 'Sin título' }}</p>
@@ -645,7 +645,7 @@ const estadoColors: Record<string, string> = {
                         <div v-else class="relative">
                           <button type="button" @click="claseDropdownOpen = !claseDropdownOpen"
                             :class="[
-                              'w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border transition-all text-left bg-slate-50 dark:bg-slate-700',
+                              'w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border transition-all text-left bg-slate-50 dark:bg-slate-700 cursor-pointer',
                               claseDropdownOpen ? 'border-violet-500 ring-4 ring-violet-500/10 shadow-lg' : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500'
                             ]">
                             <div v-if="codigoClaseSeleccionado" class="min-w-0">
@@ -661,11 +661,11 @@ const estadoColors: Record<string, string> = {
                             leave-active-class="transition duration-150 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
                             <div v-if="claseDropdownOpen" class="absolute z-[120] left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
                               <div class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 custom-scrollbar">
-                                <button type="button" @click="codigoClaseId = null; claseDropdownOpen = false" class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
+                                <button type="button" @click="codigoClaseId = null; claseDropdownOpen = false" class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group cursor-pointer">
                                   <div :class="codigoClaseId === null ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0"></div>
                                   <p class="text-sm font-black text-slate-800 dark:text-white">Todas mis secciones</p>
                                 </button>
-                                <button v-for="c in codigosClase" :key="c.id" type="button" @click="codigoClaseId = c.id; claseDropdownOpen = false" class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
+                                <button v-for="c in codigosClase" :key="c.id" type="button" @click="codigoClaseId = c.id; claseDropdownOpen = false" class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group cursor-pointer">
                                   <div :class="codigoClaseId === c.id ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0"></div>
                                   <div class="min-w-0"><p class="text-sm font-black text-slate-800 dark:text-white truncate">{{ c.grado_nombre }} — Sección {{ c.seccion }}</p></div>
                                 </button>
@@ -678,7 +678,7 @@ const estadoColors: Record<string, string> = {
                       <!-- Roles Superiores -->
                       <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div class="relative">
-                          <button type="button" @click="gradoDropdownOpen = !gradoDropdownOpen" :class="['w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border transition-all text-left bg-slate-50 dark:bg-slate-700', gradoDropdownOpen ? 'border-violet-500 ring-4 ring-violet-500/10 shadow-lg' : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500']">
+                          <button type="button" @click="gradoDropdownOpen = !gradoDropdownOpen" :class="['w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border transition-all text-left bg-slate-50 dark:bg-slate-700 cursor-pointer', gradoDropdownOpen ? 'border-violet-500 ring-4 ring-violet-500/10 shadow-lg' : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500']">
                             <div class="min-w-0 flex items-center gap-2">
                               <div v-if="gradoSeleccionado" class="p-1 rounded-lg bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400"><GraduationCap class="w-3 h-3" /></div>
                               <div>
@@ -691,11 +691,11 @@ const estadoColors: Record<string, string> = {
                           <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100" leave-active-class="transition duration-150 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
                             <div v-if="gradoDropdownOpen" class="absolute z-[120] left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
                               <div class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 custom-scrollbar">
-                                <button type="button" @click="gradoSeleccionadoId = null; gradoDropdownOpen = false" class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
+                                <button type="button" @click="gradoSeleccionadoId = null; gradoDropdownOpen = false" class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group cursor-pointer">
                                   <div :class="gradoSeleccionadoId === null ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0"></div>
                                   <p class="text-sm font-black text-slate-800 dark:text-white">Todos los grados</p>
                                 </button>
-                                <button v-for="g in grados" :key="g.id" type="button" @click="gradoSeleccionadoId = g.id; gradoDropdownOpen = false" class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
+                                <button v-for="g in grados" :key="g.id" type="button" @click="gradoSeleccionadoId = g.id; gradoDropdownOpen = false" class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group cursor-pointer">
                                   <div :class="gradoSeleccionadoId === g.id ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0"></div>
                                   <p class="text-sm font-black text-slate-800 dark:text-white">{{ g.nombre }}</p>
                                 </button>
@@ -704,18 +704,18 @@ const estadoColors: Record<string, string> = {
                           </Transition>
                         </div>
                         <div class="relative">
-                          <button type="button" @click="seccionDropdownOpen = !seccionDropdownOpen" :class="['w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border transition-all text-left bg-slate-50 dark:bg-slate-700', seccionDropdownOpen ? 'border-violet-500 ring-4 ring-violet-500/10 shadow-lg' : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500']">
+                          <button type="button" @click="seccionDropdownOpen = !seccionDropdownOpen" :class="['w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border transition-all text-left bg-slate-50 dark:bg-slate-700 cursor-pointer', seccionDropdownOpen ? 'border-violet-500 ring-4 ring-violet-500/10 shadow-lg' : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500']">
                             <div class="min-w-0"><p v-if="seccion" class="text-xs font-black text-slate-800 dark:text-white truncate leading-tight">Sección {{ seccion }}</p><span v-else class="text-slate-400 text-xs font-bold">— Todas —</span></div>
                             <ChevronDown class="w-3.5 h-3.5 text-slate-400 transition-transform duration-300" :class="seccionDropdownOpen ? 'rotate-180' : ''" />
                           </button>
                           <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100" leave-active-class="transition duration-150 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
                             <div v-if="seccionDropdownOpen" class="absolute z-[120] left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
                               <div class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 custom-scrollbar">
-                                <button type="button" @click="seccion = ''; seccionDropdownOpen = false" class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
+                                <button type="button" @click="seccion = ''; seccionDropdownOpen = false" class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group cursor-pointer">
                                   <div :class="seccion === '' ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0"></div>
                                   <p class="text-sm font-black text-slate-800 dark:text-white">Todas las secciones</p>
                                 </button>
-                                <button v-for="s in ['A','B','C','D','E','F','G','H','I','J','Única']" :key="s" type="button" @click="seccion = s; seccionDropdownOpen = false" class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
+                                <button v-for="s in ['A','B','C','D','E','F','G','H','I','J','Única']" :key="s" type="button" @click="seccion = s; seccionDropdownOpen = false" class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group cursor-pointer">
                                   <div :class="seccion === s ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0"></div>
                                   <p class="text-sm font-black text-slate-800 dark:text-white">Sección {{ s }}</p>
                                 </button>
@@ -868,7 +868,7 @@ const estadoColors: Record<string, string> = {
         <div v-if="showResultados"
           class="fixed inset-0 z-[120] flex items-end sm:items-center justify-center sm:p-4">
           
-          <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showResultados = false"></div>
+          <div class="absolute inset-0 bg-black/50 backdrop-blur-sm cursor-pointer" @click="showResultados = false"></div>
 
           <div class="relative bg-white dark:bg-slate-900 w-full sm:max-w-2xl max-h-[94dvh] sm:max-h-[85vh] flex flex-col sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden z-10 animate-slide-up">
 

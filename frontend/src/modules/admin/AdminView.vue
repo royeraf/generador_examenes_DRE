@@ -152,7 +152,7 @@ const deleteItem = async (id: number) => {
                 class="rounded-2xl mb-8 sticky top-0" @toggle-theme="toggleTheme">
                 <template #actions-before>
                     <button @click="router.push('/')"
-                        class="p-2.5 rounded-xl bg-slate-100 dark:bg-white/20 text-slate-600 dark:text-white border border-slate-200 dark:border-white/30 hover:bg-slate-200 dark:hover:bg-white/30 transition-all duration-300"
+                        class="p-2.5 rounded-xl bg-slate-100 dark:bg-white/20 text-slate-600 dark:text-white border border-slate-200 dark:border-white/30 hover:bg-slate-200 dark:hover:bg-white/30 transition-all duration-300 cursor-pointer"
                         title="Inicio">
                         <Home class="w-5 h-5" />
                     </button>
@@ -163,7 +163,7 @@ const deleteItem = async (id: number) => {
             <div v-if="!isDesktop" class="shrink-0 flex items-center justify-around bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 p-1.5 mb-8 shadow-sm">
                 <button v-for="tab in ['grados', 'capacidades', 'desempenos']" :key="tab"
                     @click="activeTab = tab as any"
-                    class="flex-1 py-2.5 flex flex-col items-center justify-center gap-1 rounded-xl transition-all" 
+                    class="flex-1 py-2.5 flex flex-col items-center justify-center gap-1 rounded-xl transition-all cursor-pointer" 
                     :class="activeTab === tab ? 'text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30' : 'text-slate-500'">
                     <component :is="tab === 'grados' ? GraduationCap : tab === 'capacidades' ? Shield : BookOpen" class="w-5 h-5" />
                     <span class="text-[10px] font-black uppercase tracking-widest">{{ tab }}</span>
@@ -175,7 +175,7 @@ const deleteItem = async (id: number) => {
                 <div class="flex items-center gap-1 bg-white/50 dark:bg-slate-800/50 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 w-fit shadow-sm">
                     <button v-for="tab in ['grados', 'capacidades', 'desempenos']" :key="tab"
                         @click="activeTab = tab as any"
-                        class="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all"
+                        class="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer"
                         :class="activeTab === tab ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white shadow-lg shadow-teal-500/20' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'">
                         {{ tab }}
                     </button>
@@ -197,7 +197,7 @@ const deleteItem = async (id: number) => {
                 <div v-else></div>
 
                 <button @click="openModal()"
-                    class="w-full sm:w-auto flex items-center justify-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black px-6 py-3.5 rounded-2xl shadow-xl hover:-translate-y-1 transition-all active:scale-95 text-xs uppercase tracking-widest">
+                    class="w-full sm:w-auto flex items-center justify-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black px-6 py-3.5 rounded-2xl shadow-xl hover:-translate-y-1 transition-all active:scale-95 text-xs uppercase tracking-widest cursor-pointer">
                     <Plus class="w-5 h-5" />
                     <span>Nuevo {{ activeTab.slice(0, -1) }}</span>
                 </button>
@@ -268,8 +268,8 @@ const deleteItem = async (id: number) => {
 
                                     <td class="p-4 text-right">
                                         <div class="flex items-center justify-end gap-1">
-                                            <button @click="openModal(item)" class="p-2.5 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all"><Edit class="w-4 h-4" /></button>
-                                            <button @click="deleteItem(item.id)" class="p-2.5 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all"><Trash2 class="w-4 h-4" /></button>
+                                            <button @click="openModal(item)" class="p-2.5 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all cursor-pointer"><Edit class="w-4 h-4" /></button>
+                                            <button @click="deleteItem(item.id)" class="p-2.5 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer"><Trash2 class="w-4 h-4" /></button>
                                         </div>
                                     </td>
                                 </tr>
@@ -294,8 +294,8 @@ const deleteItem = async (id: number) => {
                                 </h3>
                             </div>
                             <div class="flex gap-1">
-                                <button @click="openModal(item)" class="p-2.5 bg-slate-50 dark:bg-slate-700 rounded-xl text-slate-400 transition-all"><Edit class="w-4 h-4" /></button>
-                                <button @click="deleteItem(item.id)" class="p-2.5 bg-red-50 dark:bg-red-900/20 rounded-xl text-red-400 transition-all"><Trash2 class="w-4 h-4" /></button>
+                                <button @click="openModal(item)" class="p-2.5 bg-slate-50 dark:bg-slate-700 rounded-xl text-slate-400 transition-all cursor-pointer"><Edit class="w-4 h-4" /></button>
+                                <button @click="deleteItem(item.id)" class="p-2.5 bg-red-50 dark:bg-red-900/20 rounded-xl text-red-400 transition-all cursor-pointer"><Trash2 class="w-4 h-4" /></button>
                             </div>
                         </div>
                         <div v-if="activeTab === 'grados'" class="flex items-center gap-2">
@@ -316,9 +316,9 @@ const deleteItem = async (id: number) => {
         <!-- Modal Form -->
         <Teleport to="body">
             <Transition name="modal">
-                <div v-if="showModal" class="fixed inset-0 z-50 flex items-center sm:items-center justify-center items-end bg-slate-900/60 backdrop-blur-sm" @click.self="showModal = false">
+                <div v-if="showModal" class="fixed inset-0 z-50 flex items-center sm:items-center justify-center items-end bg-slate-900/60 backdrop-blur-sm cursor-pointer" @click.self="showModal = false">
                     <div class="bg-white dark:bg-slate-800 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative">
-                        <div class="sm:hidden flex justify-center pt-4 pb-1" @click="showModal = false"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div></div>
+                        <div class="sm:hidden flex justify-center pt-4 pb-1 cursor-pointer" @click="showModal = false"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div></div>
                         <div class="flex items-center justify-between p-6 border-b border-slate-300 dark:border-slate-700">
                             <div class="flex items-center gap-4">
                                 <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center shadow-lg shadow-teal-500/20">
@@ -331,7 +331,7 @@ const deleteItem = async (id: number) => {
                                     <p class="text-xs text-slate-500 font-bold uppercase tracking-widest">Currículo Nacional</p>
                                 </div>
                             </div>
-                            <button @click="showModal = false" class="p-2 rounded-xl text-slate-400 hover:bg-slate-100 transition-all"><X class="w-5 h-5" /></button>
+                            <button @click="showModal = false" class="p-2 rounded-xl text-slate-400 hover:bg-slate-100 transition-all cursor-pointer"><X class="w-5 h-5" /></button>
                         </div>
 
                         <div class="p-6 space-y-5 max-h-[70vh] overflow-y-auto custom-scrollbar">
@@ -397,8 +397,8 @@ const deleteItem = async (id: number) => {
                         </div>
 
                         <div class="p-6 bg-slate-50 dark:bg-slate-900/50 flex flex-col sm:flex-row gap-3">
-                            <button @click="showModal = false" class="flex-1 px-6 py-3.5 text-xs font-black uppercase tracking-widest text-slate-500 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 transition-all">Cancelar</button>
-                            <button @click="saveItem" class="flex-1 flex items-center justify-center gap-3 py-3.5 bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-black text-xs rounded-2xl shadow-xl shadow-teal-500/20 transition-all transform active:scale-95">
+                            <button @click="showModal = false" class="flex-1 px-6 py-3.5 text-xs font-black uppercase tracking-widest text-slate-500 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 transition-all cursor-pointer">Cancelar</button>
+                            <button @click="saveItem" class="flex-1 flex items-center justify-center gap-3 py-3.5 bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-black text-xs rounded-2xl shadow-xl shadow-teal-500/20 transition-all transform active:scale-95 cursor-pointer">
                                 <Save class="w-4 h-4" />
                                 <span class="uppercase tracking-widest">Guardar Cambios</span>
                             </button>

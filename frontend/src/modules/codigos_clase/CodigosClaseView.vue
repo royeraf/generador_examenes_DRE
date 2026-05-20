@@ -143,7 +143,7 @@ function descargarQR() {
         <p class="text-sm text-slate-500 dark:text-slate-400">Gestiona tus aulas y códigos de acceso para estudiantes</p>
       </div>
       <button @click="openCreate"
-        class="flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-bold text-sm rounded-2xl shadow-lg shadow-indigo-500/20 hover:-translate-y-0.5 transition-all active:scale-95">
+        class="flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-bold text-sm rounded-2xl shadow-lg shadow-indigo-500/20 hover:-translate-y-0.5 transition-all active:scale-95 cursor-pointer">
         <Plus class="w-5 h-5" /> 
         <span>Nuevo Código</span>
       </button>
@@ -168,7 +168,7 @@ function descargarQR() {
       <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-xs mx-auto">
         Crea una aula para que tus estudiantes puedan registrarse y rendir sus evaluaciones.
       </p>
-      <button @click="openCreate" class="mt-8 text-teal-600 dark:text-teal-400 font-bold hover:underline">
+      <button @click="openCreate" class="mt-8 text-teal-600 dark:text-teal-400 font-bold hover:underline cursor-pointer">
         Comenzar ahora →
       </button>
     </div>
@@ -187,7 +187,7 @@ function descargarQR() {
               <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{{ c.grado_nombre || `Grado ${c.grado_id}` }}</p>
               <h3 class="text-xl font-black text-slate-800 dark:text-white">Sección {{ c.seccion }}</h3>
             </div>
-            <button @click="toggle(c)" class="p-2 bg-slate-50 dark:bg-slate-800 rounded-xl transition-colors">
+            <button @click="toggle(c)" class="p-2 bg-slate-50 dark:bg-slate-800 rounded-xl transition-colors cursor-pointer">
               <ToggleRight v-if="c.is_active" class="w-7 h-7 text-teal-500" />
               <ToggleLeft v-else class="w-7 h-7 text-slate-400" />
             </button>
@@ -198,7 +198,7 @@ function descargarQR() {
               <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Código de Acceso</p>
               <div class="flex items-center gap-2">
                 <span class="font-mono font-black text-2xl text-teal-600 dark:text-teal-400 tracking-widest">{{ c.codigo }}</span>
-                <button @click="copiar(c.codigo)" class="p-1.5 text-slate-400 hover:text-teal-500 transition-colors">
+                <button @click="copiar(c.codigo)" class="p-1.5 text-slate-400 hover:text-teal-500 transition-colors cursor-pointer">
                   <Copy class="w-4 h-4" />
                 </button>
               </div>
@@ -214,11 +214,11 @@ function descargarQR() {
           <div class="flex items-center justify-between pt-2">
             <span class="text-[10px] font-bold text-slate-400">{{ formatFecha(c.fecha_creacion) }}</span>
             <div class="flex items-center gap-2">
-              <button @click="abrirQR(c)" class="flex items-center gap-2 px-4 py-2 bg-teal-500/10 text-teal-600 dark:text-teal-400 font-bold text-xs rounded-xl hover:bg-teal-500 hover:text-white transition-all">
+              <button @click="abrirQR(c)" class="flex items-center gap-2 px-4 py-2 bg-teal-500/10 text-teal-600 dark:text-teal-400 font-bold text-xs rounded-xl hover:bg-teal-500 hover:text-white transition-all cursor-pointer">
                 <QrCode class="w-4 h-4" />
                 <span>Ver QR</span>
               </button>
-              <button @click="eliminar(c)" class="p-2 text-red-500 bg-red-50 dark:bg-red-500/10 rounded-xl hover:bg-red-500 hover:text-white transition-all">
+              <button @click="eliminar(c)" class="p-2 text-red-500 bg-red-50 dark:bg-red-500/10 rounded-xl hover:bg-red-500 hover:text-white transition-all cursor-pointer">
                 <Trash2 class="w-4 h-4" />
               </button>
             </div>
@@ -244,7 +244,7 @@ function descargarQR() {
               <td class="px-6 py-4">
                 <div class="flex items-center gap-3">
                   <span class="font-mono font-black text-lg text-teal-600 dark:text-teal-400 tracking-widest">{{ c.codigo }}</span>
-                  <button @click="copiar(c.codigo)" class="p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-400 hover:text-teal-500 transition-all group">
+                  <button @click="copiar(c.codigo)" class="p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-400 hover:text-teal-500 transition-all group cursor-pointer">
                     <Copy class="w-4 h-4 group-hover:scale-110" />
                   </button>
                 </div>
@@ -263,7 +263,7 @@ function descargarQR() {
                 </div>
               </td>
               <td class="px-6 py-4 text-center">
-                <button @click="toggle(c)" class="hover:scale-110 transition-transform">
+                <button @click="toggle(c)" class="hover:scale-110 transition-transform cursor-pointer">
                   <ToggleRight v-if="c.is_active" class="w-8 h-8 text-teal-500" />
                   <ToggleLeft v-else class="w-8 h-8 text-slate-300 dark:text-slate-700" />
                 </button>
@@ -271,10 +271,10 @@ function descargarQR() {
               <td class="px-6 py-4 text-slate-500 dark:text-slate-400 font-medium">{{ formatFecha(c.fecha_creacion) }}</td>
               <td class="px-6 py-4">
                 <div class="flex items-center justify-end gap-2">
-                  <button @click="abrirQR(c)" class="p-2.5 bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 rounded-xl hover:bg-teal-500 hover:text-white transition-all shadow-sm" title="Ver QR">
+                  <button @click="abrirQR(c)" class="p-2.5 bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 rounded-xl hover:bg-teal-500 hover:text-white transition-all shadow-sm cursor-pointer" title="Ver QR">
                     <QrCode class="w-5 h-5" />
                   </button>
-                  <button @click="eliminar(c)" class="p-2.5 bg-red-50 dark:bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm">
+                  <button @click="eliminar(c)" class="p-2.5 bg-red-50 dark:bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm cursor-pointer">
                     <Trash2 class="w-5 h-5" />
                   </button>
                 </div>
@@ -291,7 +291,7 @@ function descargarQR() {
   <Teleport to="body">
     <Transition name="qr-modal">
       <div v-if="qrModal"
-        class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+        class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm cursor-pointer"
         @click.self="qrModal = null">
 
         <!-- Card -->
@@ -300,7 +300,7 @@ function descargarQR() {
           <!-- Close bar -->
           <div class="flex justify-end px-5 pt-4 pb-0">
             <button @click="qrModal = null"
-              class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+              class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer">
               <X class="w-5 h-5" />
             </button>
           </div>
@@ -340,7 +340,7 @@ function descargarQR() {
               <div class="flex items-center gap-3 mb-3">
                 <span class="font-mono font-black text-3xl text-teal-600 dark:text-teal-400 tracking-[0.2em]">{{ qrModal.codigo }}</span>
                 <button @click="copiar(qrModal.codigo)"
-                  class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-400 hover:text-teal-500 transition-all">
+                  class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-400 hover:text-teal-500 transition-all cursor-pointer">
                   <Copy class="w-4 h-4" />
                 </button>
               </div>
@@ -350,7 +350,7 @@ function descargarQR() {
 
               <!-- Botón descargar -->
               <button @click="descargarQR" :disabled="!qrDataUrl"
-                class="self-start flex items-center gap-2 px-5 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-sm rounded-xl shadow transition-all hover:-translate-y-0.5 active:scale-95 disabled:opacity-40">
+                class="self-start flex items-center gap-2 px-5 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-sm rounded-xl shadow transition-all hover:-translate-y-0.5 active:scale-95 disabled:opacity-40 cursor-pointer">
                 <Download class="w-4 h-4" />
                 Descargar imagen
               </button>
@@ -382,18 +382,18 @@ function descargarQR() {
       <div v-if="showModal" class="fixed inset-0 z-[110] flex items-end sm:items-center justify-center sm:p-4">
         
         <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showModal = false"></div>
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm cursor-pointer" @click="showModal = false"></div>
 
         <div class="relative bg-white dark:bg-slate-900 w-full sm:max-w-md max-h-[92dvh] sm:max-h-fit flex flex-col sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden z-10 animate-slide-up">
           
           <!-- Drag handle (mobile) -->
-          <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0" @click="showModal = false">
+          <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0 cursor-pointer" @click="showModal = false">
               <div class="w-10 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800"></div>
           </div>
 
           <div class="px-8 py-6 border-b border-slate-300 dark:border-slate-800 flex items-center justify-between">
             <h2 class="text-xl font-black text-slate-800 dark:text-white tracking-tight">Nueva Aula</h2>
-            <button @click="showModal = false" class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+            <button @click="showModal = false" class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">
               <X class="w-6 h-6" />
             </button>
           </div>
@@ -432,11 +432,11 @@ function descargarQR() {
           </div>
 
           <div class="px-8 py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-300 dark:border-slate-800 flex flex-col sm:flex-row gap-3">
-            <button @click="showModal = false" class="flex-1 px-6 py-4 text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-2xl transition-colors">
+            <button @click="showModal = false" class="flex-1 px-6 py-4 text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-2xl transition-colors cursor-pointer">
               Cancelar
             </button>
             <button @click="crear" :disabled="saving"
-              class="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-teal-500 to-indigo-600 text-white font-black text-sm rounded-2xl shadow-lg shadow-teal-500/20 active:scale-95 transition-all disabled:opacity-50">
+              class="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-teal-500 to-indigo-600 text-white font-black text-sm rounded-2xl shadow-lg shadow-teal-500/20 active:scale-95 transition-all disabled:opacity-50 cursor-pointer">
               <Loader2 v-if="saving" class="w-5 h-5 animate-spin" /> 
               <span>Crear Aula</span>
             </button>

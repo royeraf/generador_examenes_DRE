@@ -172,7 +172,7 @@ const nombreCompleto = computed(() => {
 
             <!-- LectoSistem -->
             <button v-if="auth.canAccessLectosistem" @click="router.push('/lectosistem')"
-              class="module-card-teal group relative bg-white dark:bg-slate-900 rounded-2xl p-5 text-left overflow-hidden flex flex-col gap-4 border border-slate-300 dark:border-slate-800 hover:border-teal-200 dark:hover:border-teal-700/60 shadow-sm hover:shadow-lg hover:shadow-teal-500/10 transition-all duration-200 animate-slide-up"
+              class="module-card-teal cursor-pointer group relative bg-white dark:bg-slate-900 rounded-2xl p-5 text-left overflow-hidden flex flex-col gap-4 border border-slate-300 dark:border-slate-800 hover:border-teal-200 dark:hover:border-teal-700/60 shadow-sm hover:shadow-lg hover:shadow-teal-500/10 transition-all duration-200 animate-slide-up"
               style="animation-delay:0ms">
               <div class="card-overlay absolute inset-0 rounded-2xl pointer-events-none"></div>
               <div class="card-line absolute bottom-0 left-6 right-6 h-[2px] rounded-full pointer-events-none"></div>
@@ -205,7 +205,7 @@ const nombreCompleto = computed(() => {
 
             <!-- MatSistem -->
             <button v-if="auth.canAccessMatsistem" @click="router.push('/matsistem')"
-              class="module-card-indigo group relative bg-white dark:bg-slate-900 rounded-2xl p-5 text-left overflow-hidden flex flex-col gap-4 border border-slate-300 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700/60 shadow-sm hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-200 animate-slide-up"
+              class="module-card-indigo cursor-pointer group relative bg-white dark:bg-slate-900 rounded-2xl p-5 text-left overflow-hidden flex flex-col gap-4 border border-slate-300 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700/60 shadow-sm hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-200 animate-slide-up"
               style="animation-delay:80ms">
               <div class="card-overlay absolute inset-0 rounded-2xl pointer-events-none"></div>
               <div class="card-line absolute bottom-0 left-6 right-6 h-[2px] rounded-full pointer-events-none"></div>
@@ -249,7 +249,7 @@ const nombreCompleto = computed(() => {
           <div
             class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 overflow-hidden shadow-sm">
             <button v-for="(item, i) in managementItems" :key="item.route" @click="router.push(item.route)"
-              class="mgmt-item w-full flex items-center gap-3 px-4 py-3 text-left transition-all duration-150 hover:bg-slate-50 dark:hover:bg-slate-800/60 group animate-slide-up"
+              class="mgmt-item cursor-pointer w-full flex items-center gap-3 px-4 py-3 text-left transition-all duration-150 hover:bg-slate-50 dark:hover:bg-slate-800/60 group animate-slide-up"
               :style="`animation-delay:${i * 40 + 160}ms`"
               :class="i < managementItems.length - 1 ? 'border-b border-slate-300 dark:border-slate-800' : ''">
               <div

@@ -129,7 +129,7 @@ async function eliminar(ugel: Ugel) {
         class="rounded-2xl mb-8 sticky top-0" @toggle-theme="toggleTheme">
         <template #actions-before>
           <button @click="router.push('/')"
-            class="p-2.5 rounded-xl bg-slate-100 dark:bg-white/20 text-slate-600 dark:text-white border border-slate-200 dark:border-white/30 hover:bg-slate-200 dark:hover:bg-white/30 transition-all duration-300"
+            class="p-2.5 rounded-xl bg-slate-100 dark:bg-white/20 text-slate-600 dark:text-white border border-slate-200 dark:border-white/30 hover:bg-slate-200 dark:hover:bg-white/30 transition-all duration-300 cursor-pointer"
             title="Inicio">
             <Home class="w-5 h-5" />
           </button>
@@ -140,7 +140,7 @@ async function eliminar(ugel: Ugel) {
       <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 bg-white dark:bg-slate-800 p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-top-2 duration-500">
         <h2 class="text-lg font-black text-slate-800 dark:text-white tracking-tight uppercase">Unidades Ejecutoras</h2>
         <button @click="openCreate"
-          class="w-full sm:w-auto flex items-center justify-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black px-8 py-4 rounded-2xl shadow-xl hover:-translate-y-1 transition-all active:scale-95 text-xs uppercase tracking-widest">
+          class="w-full sm:w-auto flex items-center justify-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black px-8 py-4 rounded-2xl shadow-xl hover:-translate-y-1 transition-all active:scale-95 text-xs uppercase tracking-widest cursor-pointer">
           <Plus class="w-5 h-5" />
           <span>Nueva UGEL</span>
         </button>
@@ -182,8 +182,8 @@ async function eliminar(ugel: Ugel) {
                 </td>
                 <td class="p-5 text-right">
                    <div class="flex items-center justify-end gap-1 sm:opacity-0 group-hover:opacity-100 transition-all">
-                      <button @click="openEdit(ugel)" class="p-3 rounded-2xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all"><Edit2 class="w-5 h-5" /></button>
-                      <button @click="eliminar(ugel)" class="p-3 rounded-2xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all"><Trash2 class="w-5 h-5" /></button>
+                      <button @click="openEdit(ugel)" class="p-3 rounded-2xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all cursor-pointer"><Edit2 class="w-5 h-5" /></button>
+                      <button @click="eliminar(ugel)" class="p-3 rounded-2xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer"><Trash2 class="w-5 h-5" /></button>
                     </div>
                 </td>
               </tr>
@@ -200,8 +200,8 @@ async function eliminar(ugel: Ugel) {
                 <h3 class="font-black text-slate-800 dark:text-white tracking-tight text-xl leading-tight">{{ ugel.nombre }}</h3>
               </div>
               <div class="flex gap-2">
-                <button @click="openEdit(ugel)" class="p-3 bg-slate-50 dark:bg-slate-700 rounded-2xl text-slate-400 active:scale-95 transition-all"><Edit2 class="w-5 h-5" /></button>
-                <button @click="eliminar(ugel)" class="p-3 bg-red-50 dark:bg-red-900/20 rounded-2xl text-red-400 active:scale-95 transition-all"><Trash2 class="w-5 h-5" /></button>
+                <button @click="openEdit(ugel)" class="p-3 bg-slate-50 dark:bg-slate-700 rounded-2xl text-slate-400 active:scale-95 transition-all cursor-pointer"><Edit2 class="w-5 h-5" /></button>
+                <button @click="eliminar(ugel)" class="p-3 bg-red-50 dark:bg-red-900/20 rounded-2xl text-red-400 active:scale-95 transition-all cursor-pointer"><Trash2 class="w-5 h-5" /></button>
               </div>
             </div>
             <div class="pt-5 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
@@ -221,9 +221,9 @@ async function eliminar(ugel: Ugel) {
     <!-- Premium Modal -->
     <Teleport to="body">
       <Transition name="modal">
-        <div v-if="showModal" class="fixed inset-0 z-50 flex items-center sm:items-center justify-center items-end bg-slate-900/60 backdrop-blur-sm" @click.self="showModal = false">
+        <div v-if="showModal" class="fixed inset-0 z-50 flex items-center sm:items-center justify-center items-end bg-slate-900/60 backdrop-blur-sm cursor-pointer" @click.self="showModal = false">
           <div class="bg-white dark:bg-slate-800 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative">
-            <div class="sm:hidden flex justify-center pt-4 pb-1" @click="showModal = false"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div></div>
+            <div class="sm:hidden flex justify-center pt-4 pb-1 cursor-pointer" @click="showModal = false"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div></div>
             <div class="flex items-center justify-between p-8 border-b border-slate-100 dark:border-slate-700">
               <div class="flex items-center gap-5">
                 <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center shadow-lg shadow-indigo-500/20">
@@ -236,7 +236,7 @@ async function eliminar(ugel: Ugel) {
                   <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-0.5">Sistemas DRE Huánuco</p>
                 </div>
               </div>
-              <button @click="showModal = false" class="p-3 rounded-2xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"><X class="w-6 h-6" /></button>
+              <button @click="showModal = false" class="p-3 rounded-2xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all cursor-pointer"><X class="w-6 h-6" /></button>
             </div>
             
             <div class="p-8 space-y-6">
@@ -263,7 +263,7 @@ async function eliminar(ugel: Ugel) {
                   <ChevronDown class="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
                 </div>
               </div>
-              <button @click="form.is_active = !form.is_active" class="flex items-center gap-4 p-1">
+              <button @click="form.is_active = !form.is_active" class="flex items-center gap-4 p-1 cursor-pointer">
                 <div :class="form.is_active ? 'bg-emerald-500 border-emerald-500' : 'bg-slate-200 border-slate-200 dark:bg-slate-700 dark:border-slate-700'"
                      class="w-12 h-6 rounded-full border-2 transition-all relative">
                   <div :class="form.is_active ? 'translate-x-6' : 'translate-x-0'"
@@ -274,8 +274,8 @@ async function eliminar(ugel: Ugel) {
             </div>
 
             <div class="p-8 bg-slate-50 dark:bg-slate-900/50 flex flex-col sm:flex-row gap-4">
-              <button @click="showModal = false" class="flex-1 px-8 py-4 text-xs font-black uppercase tracking-widest text-slate-500 bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 transition-all hover:bg-slate-50">Cancelar</button>
-              <button @click="guardar" :disabled="saving" class="flex-1 flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-indigo-600 to-indigo-800 text-white font-black text-xs rounded-2xl shadow-xl shadow-indigo-500/20 transition-all transform active:scale-95 disabled:opacity-70">
+              <button @click="showModal = false" class="flex-1 px-8 py-4 text-xs font-black uppercase tracking-widest text-slate-500 bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 transition-all hover:bg-slate-50 cursor-pointer">Cancelar</button>
+              <button @click="guardar" :disabled="saving" class="flex-1 flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-indigo-600 to-indigo-800 text-white font-black text-xs rounded-2xl shadow-xl shadow-indigo-500/20 transition-all transform active:scale-95 disabled:opacity-70 cursor-pointer">
                 <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
                 <span class="uppercase tracking-widest">{{ saving ? 'Guardando...' : 'Guardar Cambios' }}</span>
               </button>

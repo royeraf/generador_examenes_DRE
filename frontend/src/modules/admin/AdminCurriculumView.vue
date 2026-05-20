@@ -146,14 +146,14 @@ const sidebarOpen = shallowRef(false) // Para móvil (drawer)
             <!-- Mobile menu toggle -->
             <button
               @click="sidebarOpen = !sidebarOpen"
-              class="sm:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700"
+              class="sm:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white border border-slate-300 dark:border-slate-700 cursor-pointer"
             >
               <Menu class="w-5 h-5" />
             </button>
 
             <button
               @click="router.push('/')"
-              class="p-2 sm:px-3 sm:py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 transition-colors text-xs font-medium text-slate-600 dark:text-slate-300 flex items-center gap-1.5"
+              class="p-2 sm:px-3 sm:py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 transition-colors text-xs font-medium text-slate-600 dark:text-slate-300 flex items-center gap-1.5 cursor-pointer"
               title="Inicio"
             >
               <Home class="w-3.5 h-3.5" />
@@ -169,7 +169,7 @@ const sidebarOpen = shallowRef(false) // Para móvil (drawer)
         <!-- Mobile Backdrop -->
         <Transition name="fade">
           <div v-if="sidebarOpen"
-            class="sm:hidden fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm"
+            class="sm:hidden fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm cursor-pointer"
             @click="sidebarOpen = false"
           />
         </Transition>
@@ -185,7 +185,7 @@ const sidebarOpen = shallowRef(false) // Para móvil (drawer)
           <!-- Desktop toggle button -->
           <button
             @click="sidebarCollapsed = !sidebarCollapsed"
-            class="hidden sm:flex absolute -right-3 top-4 w-6 h-6 rounded-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 shadow-sm z-10 transition-transform"
+            class="hidden sm:flex absolute -right-3 top-4 w-6 h-6 rounded-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 shadow-sm z-10 transition-transform cursor-pointer"
             :class="sidebarCollapsed ? 'rotate-180' : ''"
           >
             <PanelLeftClose class="w-3.5 h-3.5" />
@@ -194,7 +194,7 @@ const sidebarOpen = shallowRef(false) // Para móvil (drawer)
           <!-- Mobile close button -->
           <div class="sm:hidden flex items-center justify-between p-4 border-b border-slate-300 dark:border-slate-800">
             <span class="font-bold text-slate-800 dark:text-white">Menú</span>
-            <button @click="sidebarOpen = false" class="text-slate-400">
+            <button @click="sidebarOpen = false" class="text-slate-400 cursor-pointer">
               <X class="w-5 h-5" />
             </button>
           </div>

@@ -379,8 +379,8 @@ onMounted(async () => {
     <Navbar title="LectoSistem" subtitle="Comprensión lectora con IA" :show-home="true">
       <template #center>
         <div class="flex items-center bg-white dark:bg-slate-800 rounded-full p-1 border border-slate-300 dark:border-slate-700 shadow-sm overflow-x-auto flex-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <button @click="activeTab = 'generador'" class="shrink-0 px-3 sm:px-4 py-1.5 rounded-full text-xs font-medium transition-all" :class="activeTab === 'generador' ? 'bg-teal-500 text-white shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'">Generador</button>
-          <button @click="activeTab = 'historial'" class="shrink-0 px-3 sm:px-4 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1.5" :class="activeTab === 'historial' ? 'bg-teal-500 text-white shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'">Historial <span v-if="history.length" class="text-[10px] bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white px-1.5 rounded-full">{{ history.length }}</span></button>
+          <button @click="activeTab = 'generador'" class="shrink-0 px-3 sm:px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer" :class="activeTab === 'generador' ? 'bg-teal-500 text-white shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'">Generador</button>
+          <button @click="activeTab = 'historial'" class="shrink-0 px-3 sm:px-4 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer" :class="activeTab === 'historial' ? 'bg-teal-500 text-white shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'">Historial <span v-if="history.length" class="text-[10px] bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white px-1.5 rounded-full">{{ history.length }}</span></button>
         </div>
       </template>
     </Navbar>
@@ -394,15 +394,15 @@ onMounted(async () => {
       <div v-show="activeTab === 'generador'" class="flex-1 min-h-0 flex flex-col lg:flex-row gap-2">
         <!-- Mobile Navigation (Top) -->
         <div v-show="!isDesktop" class="shrink-0 flex items-center justify-around bg-white dark:bg-slate-800 rounded-xl border border-slate-300 dark:border-slate-700 p-1 mb-1">
-          <button @click="mobileTab = 'config'" class="flex-1 py-2 flex flex-col items-center justify-center gap-1 rounded-lg transition-colors" :class="mobileTab === 'config' ? 'text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800/50' : 'text-slate-500'">
+          <button @click="mobileTab = 'config'" class="flex-1 py-2 flex flex-col items-center justify-center gap-1 rounded-lg transition-colors cursor-pointer" :class="mobileTab === 'config' ? 'text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800/50' : 'text-slate-500'">
             <LayoutGrid class="w-5 h-5" />
             <span class="text-[10px] font-medium">Configuración</span>
           </button>
-          <button @click="mobileTab = 'desempenos'" class="flex-1 py-2 flex flex-col items-center justify-center gap-1 rounded-lg transition-colors" :class="mobileTab === 'desempenos' ? 'text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800/50' : 'text-slate-500'">
+          <button @click="mobileTab = 'desempenos'" class="flex-1 py-2 flex flex-col items-center justify-center gap-1 rounded-lg transition-colors cursor-pointer" :class="mobileTab === 'desempenos' ? 'text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800/50' : 'text-slate-500'">
             <Target class="w-5 h-5" />
             <span class="text-[10px] font-medium">Desempeños</span>
           </button>
-          <button @click="mobileTab = 'results'" class="flex-1 py-2 flex flex-col items-center justify-center gap-1 rounded-lg transition-colors" :class="mobileTab === 'results' ? 'text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800/50' : 'text-slate-500'">
+          <button @click="mobileTab = 'results'" class="flex-1 py-2 flex flex-col items-center justify-center gap-1 rounded-lg transition-colors cursor-pointer" :class="mobileTab === 'results' ? 'text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800/50' : 'text-slate-500'">
             <Sparkles class="w-5 h-5" />
             <span class="text-[10px] font-medium">Examen</span>
           </button>
@@ -412,7 +412,7 @@ onMounted(async () => {
         <aside v-show="isDesktop || mobileTab === 'config'" class="flex-1 lg:flex-none shrink-0 bg-white dark:bg-slate-800 rounded-xl flex flex-col overflow-hidden border border-slate-300 dark:border-slate-700 relative transition-all duration-200" :style="isDesktop ? { width: configCollapsed ? '88px' : col1Width + 'px' } : {}">
           <div class="h-14 px-3 border-b border-slate-300 dark:border-slate-700 flex items-center shrink-0" :class="configCollapsed ? 'justify-center' : 'justify-between'">
             <h2 v-show="!configCollapsed" class="text-sm font-medium text-slate-800 dark:text-white flex items-center gap-2 pl-1">Configuración</h2>
-            <button @click="configCollapsed = !configCollapsed" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors shrink-0" :title="configCollapsed ? 'Expandir' : 'Colapsar'">
+            <button @click="configCollapsed = !configCollapsed" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors shrink-0 cursor-pointer" :title="configCollapsed ? 'Expandir' : 'Colapsar'">
               <PanelLeft class="w-4 h-4" />
             </button>
           </div>
@@ -461,8 +461,8 @@ onMounted(async () => {
               
               <div class="flex p-1 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-300 dark:border-slate-700">
                 <button v-for="nivel in nivelesDificultad" :key="nivel.id" @click="selectedNivelDificultad = nivel.id"
-                  class="flex-1 flex justify-center py-1.5 rounded-lg text-xs font-medium transition-all"
-                  :class="selectedNivelDificultad === nivel.id ? 'bg-teal-500 dark:bg-teal-600 text-slate-800 dark:text-white shadow-sm dark:shadow-none' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'">
+                  class="flex-1 flex justify-center py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer"
+                  :class="selectedNivelDificultad === nivel.id ? 'bg-teal-500 dark:bg-teal-600 text-white shadow-sm dark:shadow-none' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'">
                   {{ nivel.nombre }}
                 </button>
               </div>
@@ -483,7 +483,7 @@ onMounted(async () => {
                 <Checkbox v-model="useTextoBase" class="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                   <span class="text-xs font-medium">Usar Textos Base</span>
                 </Checkbox>
-                <button v-if="useTextoBase" @click="showTextosModal = true" class="px-2 py-1 bg-slate-100 dark:bg-slate-800/50 hover:bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 rounded border border-slate-300 dark:border-slate-700 text-[10px] font-medium text-slate-800 dark:text-white transition-colors">
+                <button v-if="useTextoBase" @click="showTextosModal = true" class="px-2 py-1 bg-slate-100 dark:bg-slate-800/50 hover:bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 rounded border border-slate-300 dark:border-slate-700 text-[10px] font-medium text-slate-800 dark:text-white transition-colors cursor-pointer">
                   {{ textosBase.filter(t => t.texto).length }}/{{ textosBase.length }} Textos
                 </button>
               </div>
@@ -509,9 +509,9 @@ onMounted(async () => {
                 ]" :key="label" class="bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-300 dark:border-slate-700 flex flex-col items-center overflow-hidden p-1.5">
                    <span class="text-[10px] font-medium text-slate-500 dark:text-slate-400 mb-1.5">{{ label }}</span>
                    <div class="flex items-center w-full justify-between">
-                     <button @click="dec()" class="w-5 h-5 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800/50 rounded-md hover:bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50">-</button>
+                     <button @click="dec()" class="w-5 h-5 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800/50 rounded-md hover:bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 cursor-pointer">-</button>
                      <span class="text-xs font-bold text-slate-800 dark:text-white">{{ val }}</span>
-                     <button @click="inc()" class="w-5 h-5 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800/50 rounded-md hover:bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50">+</button>
+                     <button @click="inc()" class="w-5 h-5 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800/50 rounded-md hover:bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 cursor-pointer">+</button>
                    </div>
                  </div>
               </div>
@@ -564,7 +564,7 @@ onMounted(async () => {
         </div>
         <div v-else-if="fetchError" class="flex-1 flex flex-col items-center justify-center gap-3">
           <p class="text-red-400 text-sm text-center">{{ fetchError }}</p>
-          <button @click="fetchHistory()" class="text-xs px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">Reintentar</button>
+          <button @click="fetchHistory()" class="text-xs px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors cursor-pointer">Reintentar</button>
         </div>
         <div v-else-if="history.length === 0" class="flex-1 flex flex-col items-center justify-center">
           <History class="w-10 h-10 text-slate-800 dark:text-white/20 mx-auto mb-4" />
@@ -574,7 +574,7 @@ onMounted(async () => {
         <div v-else class="flex-1 overflow-y-auto space-y-4">
           <div class="flex items-center justify-between">
             <h3 class="text-slate-800 dark:text-white font-medium flex items-center gap-2">Exámenes Generados ({{ history.length }})</h3>
-            <button @click="confirmarLimpiarHistorial" class="text-xs text-red-400 hover:text-red-300 font-medium px-3 py-1.5 rounded-lg bg-red-400/10 hover:bg-red-400/20 transition-colors">Limpiar todo</button>
+            <button @click="confirmarLimpiarHistorial" class="text-xs text-red-400 hover:text-red-300 font-medium px-3 py-1.5 rounded-lg bg-red-400/10 hover:bg-red-400/20 transition-colors cursor-pointer">Limpiar todo</button>
           </div>
           <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div v-for="(entry, index) in history" :key="entry.id" class="bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-300 dark:border-slate-700 p-4 flex flex-col gap-3">
@@ -587,11 +587,11 @@ onMounted(async () => {
                 <div>Preguntas: {{ entry.resultado.total_preguntas }}</div>
               </div>
               <div class="flex gap-1 mt-auto overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                <button @click="cargarExamen(index)" class="shrink-0 flex items-center gap-1 px-1.5 py-1 text-[10px] font-medium text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded hover:bg-slate-300 dark:hover:bg-slate-600"><Eye class="w-3 h-3" />Ver</button>
-                <button @click="descargarWordHistorial(index)" class="shrink-0 flex items-center gap-1 px-1.5 py-1 text-[10px] font-medium text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded hover:bg-slate-300 dark:hover:bg-slate-600"><FileDown class="w-3 h-3" />Word</button>
+                <button @click="cargarExamen(index)" class="shrink-0 flex items-center gap-1 px-1.5 py-1 text-[10px] font-medium text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer"><Eye class="w-3 h-3" />Ver</button>
+                <button @click="descargarWordHistorial(index)" class="shrink-0 flex items-center gap-1 px-1.5 py-1 text-[10px] font-medium text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer"><FileDown class="w-3 h-3" />Word</button>
                 <!-- <button @click="vincularDesdeHistorial(index)" class="shrink-0 flex items-center gap-1 px-1.5 py-1 text-[10px] font-medium text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded hover:bg-slate-300 dark:hover:bg-slate-600"><Link class="w-3 h-3" />Vincular</button> -->
-                <button @click="abrirAsignar(entry)" class="shrink-0 flex items-center gap-1 px-1.5 py-1 text-[10px] font-medium text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded hover:bg-slate-300 dark:hover:bg-slate-600"><Send class="w-3 h-3" />Asignar</button>
-                <button @click="confirmarEliminar(entry.id)" class="shrink-0 px-1.5 py-1 text-[10px] font-medium text-red-400 bg-red-400/10 rounded hover:bg-red-400/20"><Trash2 class="w-3 h-3"/></button>
+                <button @click="abrirAsignar(entry)" class="shrink-0 flex items-center gap-1 px-1.5 py-1 text-[10px] font-medium text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer"><Send class="w-3 h-3" />Asignar</button>
+                <button @click="confirmarEliminar(entry.id)" class="shrink-0 px-1.5 py-1 text-[10px] font-medium text-red-400 bg-red-400/10 rounded hover:bg-red-400/20 cursor-pointer"><Trash2 class="w-3 h-3"/></button>
               </div>
             </div>
           </div>

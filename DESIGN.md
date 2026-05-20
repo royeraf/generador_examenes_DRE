@@ -402,6 +402,13 @@ La jerarquía de capas se construye con sombras y fondos tonales, sin glassmorph
 ### Hover state en tarjetas
 Las tarjetas interactivas elevan su sombra en hover y se desplazan -4px a -8px en Y usando `will-change: transform` y `transition: transform 160ms cubic-bezier(0.34,1.4,0.64,1)`. Las tarjetas admin pequeñas se desplazan -5px.
 
+### Interactividad y Feedback Visual
+
+- **Cursores**: Todo elemento interactivo (botones, selectores, backdrops de modales, tabs de navegación) **DEBE** tener `cursor-pointer`.
+- **Backdrops**: Los fondos de modales que permiten cerrar al hacer click deben tener `cursor-pointer` para indicar que son clicables.
+- **Botones**: Los botones deben tener efectos de hover (cambio de color, ligero escalado) y estados activos (active:scale-95).
+- **Transiciones**: Usar transiciones suaves (`duration-300`) para cambios de estado y visibilidad de modales.
+
 ### Sombras de color
 Los hover de tarjetas de módulo usan sombras de color teñidas (`shadow-teal-500/15`, `shadow-indigo-500/15`) para reforzar la identidad del módulo, nunca sombras grises neutras.
 
@@ -475,6 +482,23 @@ Solo Lucide Icons (`lucide-vue-next`). Tamaños estándar:
 
 ---
 
+## Interactividad y Cursores
+
+Para garantizar una experiencia intuitiva, todo elemento seleccionable o interactivo debe comunicar su estado mediante el cursor:
+
+### cursor-pointer
+- **Botones y Links**: Todo elemento `<button>`, `<a>` o componente que actúe como tal.
+- **Inputs de selección**: Checkboxes, Radios y sus etiquetas (`<label>`) asociadas.
+- **Elementos custom con @click**: Divs, spans o tarjetas que ejecutan una acción al hacer clic.
+- **Backdrops de modales**: Si el fondo oscuro cierra el modal al clic, debe tener `cursor-pointer`.
+- **Pestañas (Tabs)**: Tanto en modo escritorio como móvil.
+- **Filas de tabla**: Si la fila entera es seleccionable o lleva a un detalle.
+
+### cursor-not-allowed
+- Elementos en estado `:disabled` que no permiten la interacción.
+
+---
+
 ## Do's and Don'ts
 
 ### Hazlo
@@ -485,6 +509,7 @@ Solo Lucide Icons (`lucide-vue-next`). Tamaños estándar:
 - **Usa `font-bold` como peso base** para cualquier texto interactivo (botones, links, labels).
 - **Pon `transition-colors duration-150`** en cualquier elemento que cambie de color en hover.
 - **Usa `will-change: transform`** en tarjetas que hacen translate en hover para forzar GPU.
+- **Asegura `cursor-pointer`** en cualquier elemento con evento `@click` que no sea un `<button>` o `<a>` nativo.
 - **Mantén el patrón de label `text-xs font-bold uppercase tracking-widest text-slate-400`** para separadores de sección dentro de tarjetas.
 - **Para estados vacíos**, muestra un ícono grande (`w-12 h-12`) en `text-slate-300 dark:text-slate-600` seguido de un título y descripción centrados.
 

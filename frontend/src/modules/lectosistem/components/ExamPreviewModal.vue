@@ -54,14 +54,14 @@ const tieneRetro = (numeroPregunta: number): boolean => {
 <template>
     <Teleport to="body">
         <Transition name="modal">
-            <div v-if="entry || isLoading" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+            <div v-if="entry || isLoading" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 cursor-pointer"
                 @click.self="emit('close')">
                 <!-- Backdrop -->
-                <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm -z-10" @click="emit('close')" />
+                <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm -z-10 cursor-pointer" @click="emit('close')" />
 
                 <!-- Modal -->
                 <div
-                    class="relative w-full max-w-4xl max-h-[90vh] bg-white dark:bg-slate-800 rounded-t-2xl sm:rounded-2xl shadow-2xl border-0 sm:border border-gray-200 dark:border-slate-700 flex flex-col overflow-hidden modal-content">
+                    class="relative w-full max-w-4xl max-h-[90vh] bg-white dark:bg-slate-800 rounded-t-2xl sm:rounded-2xl shadow-2xl border-0 sm:border border-gray-200 dark:border-slate-700 flex flex-col overflow-hidden modal-content cursor-default" @click.stop>
 
                     <!-- Drag handle -->
                     <div class="flex justify-center pt-3 pb-1 sm:hidden cursor-pointer flex-shrink-0" @click="emit('close')">
@@ -349,12 +349,12 @@ const tieneRetro = (numeroPregunta: number): boolean => {
     <Teleport to="body">
         <Transition name="retro">
             <div v-if="modalRetro"
-                class="fixed inset-0 z-60 flex items-center justify-center p-4"
+                class="fixed inset-0 z-[110] flex items-center justify-center p-4 cursor-pointer"
                 @click.self="cerrarRetro">
 
-                <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="cerrarRetro" />
+                <div class="absolute inset-0 bg-black/40 backdrop-blur-sm cursor-pointer" @click="cerrarRetro" />
 
-                <div class="relative z-10 w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden">
+                <div class="relative z-10 w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden cursor-default" @click.stop>
 
                     <!-- Header -->
                     <div class="flex items-center justify-between px-5 py-4 border-b border-slate-300 dark:border-slate-700">

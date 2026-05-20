@@ -193,7 +193,7 @@ async function eliminar(ie: InstitucionEducativa) {
         class="rounded-2xl mb-8 sticky top-0" @toggle-theme="toggleTheme">
         <template #actions-before>
           <button @click="router.push('/')"
-            class="p-2.5 rounded-xl bg-slate-100 dark:bg-white/20 text-slate-600 dark:text-white border border-slate-200 dark:border-white/30 hover:bg-slate-200 dark:hover:bg-white/30 transition-all duration-300"
+            class="p-2.5 rounded-xl bg-slate-100 dark:bg-white/20 text-slate-600 dark:text-white border border-slate-200 dark:border-white/30 hover:bg-slate-200 dark:hover:bg-white/30 transition-all duration-300 cursor-pointer"
             title="Inicio">
             <Home class="w-5 h-5" />
           </button>
@@ -209,7 +209,7 @@ async function eliminar(ie: InstitucionEducativa) {
         </div>
         
         <button @click="openCreate"
-          class="w-full lg:w-auto flex items-center justify-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black px-8 py-4 rounded-2xl shadow-xl hover:-translate-y-1 transition-all active:scale-95 text-xs uppercase tracking-widest">
+          class="w-full lg:w-auto flex items-center justify-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black px-8 py-4 rounded-2xl shadow-xl hover:-translate-y-1 transition-all active:scale-95 text-xs uppercase tracking-widest cursor-pointer">
           <Plus class="w-5 h-5" />
           <span>Nueva Institución</span>
         </button>
@@ -266,8 +266,8 @@ async function eliminar(ie: InstitucionEducativa) {
                   </td>
                   <td class="p-5 text-right">
                     <div class="flex items-center justify-end gap-1 sm:opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-0 translate-x-2">
-                      <button @click="openEdit(ie)" class="p-3 rounded-2xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-all"><Edit2 class="w-5 h-5" /></button>
-                      <button @click="eliminar(ie)" class="p-3 rounded-2xl text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all"><Trash2 class="w-5 h-5" /></button>
+                      <button @click="openEdit(ie)" class="p-3 rounded-2xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-all cursor-pointer"><Edit2 class="w-5 h-5" /></button>
+                      <button @click="eliminar(ie)" class="p-3 rounded-2xl text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all cursor-pointer"><Trash2 class="w-5 h-5" /></button>
                     </div>
                   </td>
                 </tr>
@@ -294,8 +294,8 @@ async function eliminar(ie: InstitucionEducativa) {
                 <h3 class="font-black text-slate-800 dark:text-white tracking-tight text-xl leading-tight">{{ ie.nombre }}</h3>
               </div>
               <div class="flex gap-2">
-                <button @click="openEdit(ie)" class="p-3 bg-slate-50 dark:bg-slate-700 rounded-2xl text-slate-400 transition-all active:scale-95"><Edit2 class="w-5 h-5" /></button>
-                <button @click="eliminar(ie)" class="p-3 bg-red-50 dark:bg-red-900/20 rounded-2xl text-red-400 transition-all active:scale-95"><Trash2 class="w-5 h-5" /></button>
+                <button @click="openEdit(ie)" class="p-3 bg-slate-50 dark:bg-slate-700 rounded-2xl text-slate-400 transition-all active:scale-95 cursor-pointer"><Edit2 class="w-5 h-5" /></button>
+                <button @click="eliminar(ie)" class="p-3 bg-red-50 dark:bg-red-900/20 rounded-2xl text-red-400 transition-all active:scale-95 cursor-pointer"><Trash2 class="w-5 h-5" /></button>
               </div>
             </div>
 
@@ -327,10 +327,10 @@ async function eliminar(ie: InstitucionEducativa) {
     <!-- Premium Modal -->
     <Teleport to="body">
       <Transition name="modal">
-        <div v-if="showModal" class="fixed inset-0 z-50 flex items-center sm:items-center justify-center items-end bg-slate-900/60 backdrop-blur-sm" @click.self="showModal = false">
+        <div v-if="showModal" class="fixed inset-0 z-50 flex items-center sm:items-center justify-center items-end bg-slate-900/60 backdrop-blur-sm cursor-pointer" @click.self="showModal = false">
           <div class="bg-white dark:bg-slate-800 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden relative">
             <!-- Mobile handle -->
-            <div class="sm:hidden flex justify-center pt-4 pb-1" @click="showModal = false"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div></div>
+            <div class="sm:hidden flex justify-center pt-4 pb-1 cursor-pointer" @click="showModal = false"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div></div>
             
             <div class="flex items-center justify-between p-8 border-b border-slate-100 dark:border-slate-700">
               <div class="flex items-center gap-5">
@@ -344,7 +344,7 @@ async function eliminar(ie: InstitucionEducativa) {
                   <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-0.5">Sistemas DRE Huánuco</p>
                 </div>
               </div>
-              <button @click="showModal = false" class="p-3 rounded-2xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"><X class="w-6 h-6" /></button>
+              <button @click="showModal = false" class="p-3 rounded-2xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all cursor-pointer"><X class="w-6 h-6" /></button>
             </div>
 
             <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
@@ -368,7 +368,7 @@ async function eliminar(ie: InstitucionEducativa) {
                 <div class="flex gap-2 flex-wrap">
                   <button v-for="n in nivelOptions" :key="n.value" @click="toggleNivel(n.value)"
                     :class="[form.nivel_educativo.includes(n.value) ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-500/20' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500']"
-                    class="px-5 py-3 rounded-2xl border-2 text-[10px] font-black uppercase tracking-widest transition-all active:scale-95">
+                    class="px-5 py-3 rounded-2xl border-2 text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 cursor-pointer">
                     {{ n.label }}
                   </button>
                 </div>
@@ -390,7 +390,7 @@ async function eliminar(ie: InstitucionEducativa) {
                 <input v-model="form.direccion" type="text" placeholder="Dirección física" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all" />
               </div>
 
-              <button @click="form.is_active = !form.is_active" class="flex items-center gap-4 p-2 w-fit">
+              <button @click="form.is_active = !form.is_active" class="flex items-center gap-4 p-2 w-fit cursor-pointer">
                 <div :class="form.is_active ? 'bg-emerald-500 border-emerald-500' : 'bg-slate-200 border-slate-200 dark:bg-slate-700 dark:border-slate-700'"
                      class="w-12 h-6 rounded-full border-2 transition-all relative">
                   <div :class="form.is_active ? 'translate-x-6' : 'translate-x-0'"
@@ -401,8 +401,8 @@ async function eliminar(ie: InstitucionEducativa) {
             </div>
 
             <div class="p-8 bg-slate-50 dark:bg-slate-900/50 flex flex-col sm:flex-row gap-4">
-              <button @click="showModal = false" class="flex-1 px-8 py-4 text-xs font-black uppercase tracking-widest text-slate-500 bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 transition-all hover:bg-slate-50">Cancelar</button>
-              <button @click="guardar" :disabled="saving" class="flex-1 flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-indigo-600 to-teal-600 text-white font-black text-xs rounded-2xl shadow-xl shadow-indigo-500/20 transition-all transform active:scale-95 disabled:opacity-70">
+              <button @click="showModal = false" class="flex-1 px-8 py-4 text-xs font-black uppercase tracking-widest text-slate-500 bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 transition-all hover:bg-slate-50 cursor-pointer">Cancelar</button>
+              <button @click="guardar" :disabled="saving" class="flex-1 flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-indigo-600 to-teal-600 text-white font-black text-xs rounded-2xl shadow-xl shadow-indigo-500/20 transition-all transform active:scale-95 disabled:opacity-70 cursor-pointer">
                 <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
                 <span class="uppercase tracking-widest">{{ saving ? 'Guardando...' : 'Guardar Cambios' }}</span>
               </button>

@@ -125,7 +125,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
     <!-- Trigger Button -->
     <button
       @click="isOpen = !isOpen"
-      class="group flex items-center gap-2 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md text-slate-700 dark:text-slate-200 pl-1.5 pr-3 py-1.5 rounded-full shadow-lg border border-slate-300 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 active:scale-95"
+      class="group flex items-center gap-2 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md text-slate-700 dark:text-slate-200 pl-1.5 pr-3 py-1.5 rounded-full shadow-lg border border-slate-300 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 active:scale-95 cursor-pointer"
     >
       <!-- Avatar -->
       <div class="w-8 h-8 rounded-full bg-gradient-to-br from-teal-500 to-indigo-600 flex items-center justify-center text-white text-[10px] font-black shrink-0 shadow-md group-hover:scale-105 transition-transform">
@@ -174,7 +174,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
         <div class="p-3 space-y-1">
           <button
             @click="openPerfilModal"
-            class="group w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-2xl transition-all font-bold"
+            class="group w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-2xl transition-all font-bold cursor-pointer"
           >
             <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-teal-500 group-hover:text-white transition-colors">
               <User class="w-4 h-4" />
@@ -184,7 +184,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
           
           <button
             @click="openPasswordModal"
-            class="group w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-2xl transition-all font-bold"
+            class="group w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-2xl transition-all font-bold cursor-pointer"
           >
             <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-indigo-500 group-hover:text-white transition-colors">
               <KeyRound class="w-4 h-4" />
@@ -192,7 +192,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
             <span>Cambiar Contraseña</span>
           </button>
 
-          <div class="w-full flex items-center justify-between px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-2xl transition-colors font-bold">
+          <div class="w-full flex items-center justify-between px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-2xl transition-colors font-bold cursor-pointer">
             <div class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
               <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                 <Palette class="w-4 h-4" />
@@ -206,7 +206,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 
           <button
             @click="handleLogout"
-            class="group w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-2xl transition-all font-bold"
+            class="group w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-2xl transition-all font-bold cursor-pointer"
           >
             <div class="w-8 h-8 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-colors">
               <LogOut class="w-4 h-4" />
@@ -228,7 +228,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
       leave-from-class="opacity-100"
       leave-to-class="opacity-0"
     >
-      <div v-if="showPerfilModal" class="fixed inset-0 z-[300] bg-slate-900/60 backdrop-blur-sm" @click.self="showPerfilModal = false">
+      <div v-if="showPerfilModal" class="fixed inset-0 z-[300] bg-slate-900/60 backdrop-blur-sm cursor-pointer" @click.self="showPerfilModal = false">
         <div class="fixed inset-x-0 bottom-0 sm:inset-0 flex items-end sm:items-center justify-center sm:p-6 pointer-events-none">
           <div class="bg-white dark:bg-slate-900 w-full sm:max-w-xl max-h-[90vh] sm:max-h-none sm:h-auto flex flex-col rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden pointer-events-auto transform transition-transform duration-500 ease-out translate-y-0"
                :class="showPerfilModal ? 'translate-y-0' : 'translate-y-full sm:translate-y-0'">
@@ -249,7 +249,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-0.5">Información Personal</p>
                 </div>
               </div>
-              <button @click="showPerfilModal = false" class="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all">
+              <button @click="showPerfilModal = false" class="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer">
                 <X class="w-5 h-5" />
               </button>
             </div>
@@ -352,7 +352,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
             <!-- Footer -->
             <div class="px-8 py-6 border-t border-slate-300 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex justify-end">
               <button @click="showPerfilModal = false"
-                class="px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-sm rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all">
+                class="px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-sm rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer">
                 Entendido
               </button>
             </div>
@@ -372,7 +372,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
       leave-from-class="opacity-100"
       leave-to-class="opacity-0"
     >
-      <div v-if="showPasswordModal" class="fixed inset-0 z-[300] bg-slate-900/60 backdrop-blur-sm" @click.self="showPasswordModal = false">
+      <div v-if="showPasswordModal" class="fixed inset-0 z-[300] bg-slate-900/60 backdrop-blur-sm cursor-pointer" @click.self="showPasswordModal = false">
         <div class="fixed inset-x-0 bottom-0 sm:inset-0 flex items-end sm:items-center justify-center sm:p-6 pointer-events-none">
           <div class="bg-white dark:bg-slate-900 w-full sm:max-w-md max-h-[90vh] sm:max-h-none sm:h-auto flex flex-col rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden pointer-events-auto transform transition-transform duration-500 ease-out translate-y-0">
 
@@ -392,7 +392,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-0.5">Actualizar Contraseña</p>
                 </div>
               </div>
-              <button @click="showPasswordModal = false" class="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all">
+              <button @click="showPasswordModal = false" class="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer">
                 <X class="w-5 h-5" />
               </button>
             </div>
@@ -428,7 +428,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
                       class="w-full h-14 bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-800 rounded-2xl pl-12 pr-12 text-sm text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
                     />
                     <KeyRound class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-teal-500 transition-colors" />
-                    <button type="button" @click="showCurrent = !showCurrent" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white p-1">
+                    <button type="button" @click="showCurrent = !showCurrent" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 cursor-pointer">
                       <Eye v-if="!showCurrent" class="w-4 h-4" />
                       <EyeOff v-else class="w-4 h-4" />
                     </button>
@@ -446,7 +446,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
                       class="w-full h-14 bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-800 rounded-2xl pl-12 pr-12 text-sm text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
                     />
                     <Shield class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-                    <button type="button" @click="showNew = !showNew" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white p-1">
+                    <button type="button" @click="showNew = !showNew" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 cursor-pointer">
                       <Eye v-if="!showNew" class="w-4 h-4" />
                       <EyeOff v-else class="w-4 h-4" />
                     </button>
@@ -464,7 +464,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
                       class="w-full h-14 bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-800 rounded-2xl pl-12 pr-12 text-sm text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
                     />
                     <BadgeCheck class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-                    <button type="button" @click="showConfirm = !showConfirm" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white p-1">
+                    <button type="button" @click="showConfirm = !showConfirm" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 cursor-pointer">
                       <Eye v-if="!showConfirm" class="w-4 h-4" />
                       <EyeOff v-else class="w-4 h-4" />
                     </button>
@@ -476,13 +476,13 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
             <!-- Footer -->
             <div class="p-8 border-t border-slate-300 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex gap-3">
               <button @click="showPasswordModal = false"
-                class="flex-1 h-12 rounded-2xl border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold text-sm hover:bg-white dark:hover:bg-slate-700 transition-all">
+                class="flex-1 h-12 rounded-2xl border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold text-sm hover:bg-white dark:hover:bg-slate-700 transition-all cursor-pointer">
                 Cancelar
               </button>
               <button
                 @click="savePassword"
                 :disabled="savingPassword"
-                class="flex-[2] h-12 bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-black text-sm rounded-2xl shadow-xl shadow-teal-500/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2 active:scale-95">
+                class="flex-[2] h-12 bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-black text-sm rounded-2xl shadow-xl shadow-teal-500/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2 active:scale-95 cursor-pointer">
                 <Loader2 v-if="savingPassword" class="w-4 h-4 animate-spin" />
                 <span>Actualizar Contraseña</span>
               </button>

@@ -104,7 +104,7 @@ const rolLabel = computed(() => {
           </p>
         </div>
         <button @click="fetchMetricas" :disabled="loading"
-          class="group flex items-center justify-center gap-2 px-6 py-3 text-sm font-bold text-white bg-slate-900 dark:bg-white dark:text-slate-900 rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-slate-900/10 dark:shadow-white/5 disabled:opacity-50">
+          class="group flex items-center justify-center gap-2 px-6 py-3 text-sm font-bold text-white bg-slate-900 dark:bg-white dark:text-slate-900 rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-slate-900/10 dark:shadow-white/5 disabled:opacity-50 cursor-pointer">
           <RefreshCw class="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" :class="{'animate-spin': loading}" />
           <span>Actualizar Datos</span>
         </button>
@@ -117,7 +117,7 @@ const rolLabel = computed(() => {
             <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div> 
             {{ error }}
           </span>
-          <button @click="fetchMetricas" class="px-4 py-1.5 bg-red-100 dark:bg-red-500/20 rounded-xl font-bold hover:bg-red-200 dark:hover:bg-red-500/30 transition-colors">
+          <button @click="fetchMetricas" class="px-4 py-1.5 bg-red-100 dark:bg-red-500/20 rounded-xl font-bold hover:bg-red-200 dark:hover:bg-red-500/30 transition-colors cursor-pointer">
             Reintentar
           </button>
         </div>
@@ -139,7 +139,7 @@ const rolLabel = computed(() => {
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           
           <!-- Exámenes Totales -->
-          <div class="bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-300/60 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 group overflow-hidden relative">
+          <div class="bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-300/60 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="flex justify-between items-start mb-6">
               <div class="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400 transform group-hover:rotate-12 transition-transform">
@@ -157,7 +157,7 @@ const rolLabel = computed(() => {
           </div>
 
           <!-- Total Usuarios -->
-          <div class="bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-300/60 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 group overflow-hidden relative">
+          <div class="bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-300/60 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="flex justify-between items-start mb-6">
               <div class="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400 transform group-hover:-rotate-12 transition-transform">
@@ -169,7 +169,7 @@ const rolLabel = computed(() => {
           </div>
 
           <!-- Asignaciones -->
-          <div class="bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-300/60 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300 group overflow-hidden relative">
+          <div class="bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-300/60 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="flex justify-between items-start mb-6">
               <div class="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400 transform group-hover:scale-110 transition-transform">
@@ -181,7 +181,7 @@ const rolLabel = computed(() => {
           </div>
 
           <!-- Instituciones -->
-          <div class="bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-300/60 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 group overflow-hidden relative">
+          <div class="bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-300/60 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="flex justify-between items-start mb-6">
               <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 transform group-hover:rotate-6 transition-transform">
@@ -248,7 +248,7 @@ const rolLabel = computed(() => {
             
             <div class="space-y-10 flex-1 flex flex-col justify-center">
               <!-- Comunicación -->
-              <div class="group">
+              <div class="group cursor-pointer active:scale-95 transition-all">
                 <div class="flex justify-between items-center mb-4">
                   <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-500/10 flex items-center justify-center border border-teal-100 dark:border-teal-500/20 group-hover:scale-110 transition-transform">
@@ -270,7 +270,7 @@ const rolLabel = computed(() => {
               </div>
 
               <!-- Matemática -->
-              <div class="group">
+              <div class="group cursor-pointer active:scale-95 transition-all">
                 <div class="flex justify-between items-center mb-4">
                   <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center border border-indigo-100 dark:border-indigo-500/20 group-hover:scale-110 transition-transform">

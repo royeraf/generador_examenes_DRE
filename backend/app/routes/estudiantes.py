@@ -132,6 +132,13 @@ async def listar_examenes_estudiante(
         or_(
             AsignacionExamen.fecha_fin == None,
             AsignacionExamen.fecha_fin >= ahora,
+            # Mostrar siempre si el estudiante ya completó el examen (aunque esté vencido)
+            AsignacionExamen.id.in_(
+                select(IntentoExamen.asignacion_id).where(
+                    IntentoExamen.estudiante_id == current_user.id,
+                    IntentoExamen.estado == "completado",
+                ).distinct()
+            ),
         ),
     )
     result = await db.execute(q.order_by(AsignacionExamen.fecha_creacion.desc()))

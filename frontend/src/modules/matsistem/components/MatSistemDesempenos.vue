@@ -165,11 +165,11 @@ watch(() => props.error, () => { errorDismissed.value = false; });
                             {{ selectedDesempenosCount }}
                         </span>
                         <button v-if="selectedDesempenosCount > 0 && !collapsed" @click="emit('deselectAll')"
-                            class="p-1.5 rounded-full bg-white/10 hover:bg-white/25 text-white/80 hover:text-white transition-all duration-200 group flex items-center justify-center border border-white/10"
+                            class="p-1.5 rounded-full bg-white/10 hover:bg-white/25 text-white/80 hover:text-white transition-all duration-200 group flex items-center justify-center border border-white/10 cursor-pointer"
                             title="Deseleccionar todos (Global)">
                             <X class="w-3.5 h-3.5 transition-transform group-hover:rotate-90" />
                         </button>
-                        <button @click="emit('toggle-collapse')" class="p-1.5 rounded-full bg-white/10 hover:bg-white/25 text-white/80 hover:text-white transition-all duration-200 flex items-center justify-center border border-white/10" :title="collapsed ? 'Expandir' : 'Colapsar'">
+                        <button @click="emit('toggle-collapse')" class="p-1.5 rounded-full bg-white/10 hover:bg-white/25 text-white/80 hover:text-white transition-all duration-200 flex items-center justify-center border border-white/10 cursor-pointer" :title="collapsed ? 'Expandir' : 'Colapsar'">
                             <PanelRight class="w-3.5 h-3.5" />
                         </button>
                     </div>
@@ -260,14 +260,14 @@ watch(() => props.error, () => { errorDismissed.value = false; });
                             <button
                                 v-if="!allSelectedInTab"
                                 @click="emit('selectAllCapacidad', activeCapacidadTab)"
-                                class="text-[10px] font-semibold px-2 py-1 rounded-md transition-colors"
+                                class="text-[10px] font-semibold px-2 py-1 rounded-md transition-colors cursor-pointer"
                                 :class="getCapColor(activeCapacidadTab).text + ' hover:bg-white/50 dark:hover:bg-slate-800/50'">
                                 Todos
                             </button>
                             <button
                                 v-else
                                 @click="emit('deselectAllCapacidad', activeCapacidadTab)"
-                                class="text-[10px] font-semibold px-2 py-1 rounded-md text-slate-500 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors">
+                                class="text-[10px] font-semibold px-2 py-1 rounded-md text-slate-500 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer">
                                 Ninguno
                             </button>
                         </div>
@@ -317,7 +317,7 @@ watch(() => props.error, () => { errorDismissed.value = false; });
         <!-- Generate Button -->
         <button v-if="!collapsed" @click="emit('generarPreguntas')"
             :disabled="loading || !selectedGradoId || selectedDesempenoIds.length === 0"
-            class="flex-shrink-0 w-full px-4 py-4 sm:px-6 sm:py-5 font-bold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 shadow-xl hover:shadow-2xl hover:-translate-y-1 text-base sm:text-lg"
+            class="flex-shrink-0 w-full px-4 py-4 sm:px-6 sm:py-5 font-bold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 shadow-xl hover:shadow-2xl hover:-translate-y-1 text-base sm:text-lg cursor-pointer"
             :class="loading
                 ? 'bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 shadow-lg cursor-wait'
                 : 'bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-500 hover:from-indigo-600 hover:via-indigo-700 hover:to-purple-600 shadow-indigo-500/30 hover:shadow-indigo-500/40 text-white'">

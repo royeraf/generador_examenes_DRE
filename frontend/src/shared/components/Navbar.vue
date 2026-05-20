@@ -52,7 +52,7 @@ const router = useRouter();
       <button v-if="showHome" @click="router.push('/')"
         class="p-2 sm:px-3 sm:py-1.5 rounded-full bg-slate-200/60 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700
           border border-slate-300 dark:border-slate-700 transition-colors
-          text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5"
+          text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 cursor-pointer"
         title="Inicio">
         <Home class="w-3.5 h-3.5" />
         <span class="hidden sm:inline">Inicio</span>

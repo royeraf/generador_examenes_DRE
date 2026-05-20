@@ -50,10 +50,10 @@ const cerrarRetro = () => { modalRetro.value = null; };
 <template>
     <Teleport to="body">
         <Transition name="modal">
-            <div v-if="entry || isLoading" class="fixed inset-0 z-50 flex items-center justify-center p-4"
+            <div v-if="entry || isLoading" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 cursor-pointer"
                 @click.self="emit('close')">
                 <!-- Backdrop -->
-                <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
+                <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm -z-10 cursor-pointer" @click="emit('close')" />
 
                 <!-- Modal -->
                 <div
@@ -336,9 +336,9 @@ const cerrarRetro = () => { modalRetro.value = null; };
     <Teleport to="body">
         <Transition name="retro">
             <div v-if="modalRetro"
-                class="fixed inset-0 z-60 flex items-center justify-center p-4"
+                class="fixed inset-0 z-[110] flex items-center justify-center p-4 cursor-pointer"
                 @click.self="cerrarRetro">
-                <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="cerrarRetro" />
+                <div class="absolute inset-0 bg-black/40 backdrop-blur-sm cursor-pointer" @click="cerrarRetro" />
                 <div class="relative z-10 w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden">
                     <div class="flex items-center justify-between px-5 py-4 border-b border-slate-300 dark:border-slate-700">
                         <div class="flex items-center gap-2">

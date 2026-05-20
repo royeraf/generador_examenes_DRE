@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { formatFechaHoraCorta } from '../../shared/utils/dateUtils'
-import { ref, shallowRef, onMounted } from 'vue'
+import { ref, shallowRef, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { apiClient } from '../../shared/services/api'
 import { useTheme } from '../../shared/composables/useTheme'
@@ -26,6 +26,21 @@ interface AsignacionResumen {
 const examenes = ref<AsignacionResumen[]>([])
 const loading = ref(true)
 const error = ref('')
+
+type Tab = 'pendientes' | 'pasados'
+const activeTab = shallowRef<Tab>('pendientes')
+
+const puedeRendir = (e: AsignacionResumen) =>
+  !e.completado || e.mis_intentos < e.intentos_permitidos
+
+const examenesVisibles = computed(() =>
+  activeTab.value === 'pendientes'
+    ? examenes.value.filter(e => puedeRendir(e))
+    : examenes.value.filter(e => !puedeRendir(e))
+)
+
+const countPendientes = computed(() => examenes.value.filter(e => puedeRendir(e)).length)
+const countPasados   = computed(() => examenes.value.filter(e => !puedeRendir(e)).length)
 
 // Modal preview lectura
 interface PreviewLectura { titulo: string; texto: string }
@@ -130,6 +145,35 @@ const nivelLabels: Record<string, string> = {
       </div>
     </header>
 
+    <!-- Tabs -->
+    <div class="sticky top-16 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 transition-all duration-300">
+      <div class="max-w-4xl mx-auto px-6">
+        <div class="inline-flex p-1 bg-slate-100/80 dark:bg-slate-950/60 backdrop-blur-sm rounded-2xl border border-slate-200 dark:border-slate-800/80 relative w-full sm:w-auto shadow-inner">
+          <button
+            v-for="tab in [
+              { id: 'pendientes' as Tab, label: 'Pendientes', count: countPendientes, icon: Zap },
+              { id: 'pasados'    as Tab, label: 'Completados', count: countPasados, icon: CheckCircle2 },
+            ]"
+            :key="tab.id"
+            @click="activeTab = tab.id"
+            class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 cursor-pointer relative z-10 select-none"
+            :class="activeTab === tab.id
+              ? 'text-white shadow-md shadow-teal-500/20 bg-gradient-to-r from-teal-500 to-indigo-600 scale-[1.02] active:scale-[0.98]'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/40 active:scale-[0.98]'"
+          >
+            <component :is="tab.icon" class="w-4 h-4 transition-transform duration-300" :class="activeTab === tab.id ? 'rotate-12 scale-110' : ''" />
+            <span>{{ tab.label }}</span>
+            <span
+              class="text-[10px] font-black px-2 py-0.5 rounded-full min-w-[20px] text-center transition-all duration-300"
+              :class="activeTab === tab.id
+                ? 'bg-white/20 text-white backdrop-blur-sm'
+                : 'bg-slate-200 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400'"
+            >{{ tab.count }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <main class="max-w-4xl mx-auto px-6 py-8 relative">
       <div v-if="loading" class="flex flex-col items-center justify-center py-20 gap-4">
         <Loader2 class="w-10 h-10 animate-spin text-teal-500" />
@@ -144,6 +188,7 @@ const nivelLabels: Record<string, string> = {
         <button @click="router.go(0)" class="text-teal-600 dark:text-teal-400 font-bold text-sm hover:underline">Reintentar</button>
       </div>
 
+      <!-- Empty state global (sin ningún examen) -->
       <div v-else-if="examenes.length === 0"
         class="text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-xl">
         <div class="w-20 h-20 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center mx-auto mb-6">
@@ -153,9 +198,27 @@ const nivelLabels: Record<string, string> = {
         <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Tu docente aún no ha publicado evaluaciones para ti.</p>
       </div>
 
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div
-          v-for="examen in examenes"
+      <template v-else>
+        <!-- Empty state por tab -->
+        <div v-if="examenesVisibles.length === 0"
+          class="text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-xl">
+          <div class="w-20 h-20 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center mx-auto mb-6">
+            <CheckCircle2 v-if="activeTab === 'pendientes'" class="w-10 h-10 text-emerald-300 dark:text-emerald-700" />
+            <BookOpen v-else class="w-10 h-10 text-slate-300 dark:text-slate-600" />
+          </div>
+          <h3 class="text-xl font-bold text-slate-900 dark:text-white">
+            {{ activeTab === 'pendientes' ? '¡Todo al día!' : 'Aún no has completado exámenes' }}
+          </h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">
+            {{ activeTab === 'pendientes'
+              ? 'No tienes evaluaciones pendientes por rendir.'
+              : 'Tus exámenes completados aparecerán aquí.' }}
+          </p>
+        </div>
+
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div
+            v-for="examen in examenesVisibles"
           :key="examen.id"
           class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col group"
         >
@@ -235,7 +298,8 @@ const nivelLabels: Record<string, string> = {
             </button>
           </div>
         </div>
-      </div>
+        </div>
+      </template>
     </main>
 
     <!-- Modal Preview Lectura (Bottom Sheet) -->

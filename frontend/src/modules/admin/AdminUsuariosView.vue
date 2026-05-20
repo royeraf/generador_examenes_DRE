@@ -754,13 +754,13 @@ async function saveResetPassword() {
       <!-- Mobile Navigation Tabs (Premium Style) -->
       <div v-if="!isDesktop" class="shrink-0 flex items-center justify-around bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 p-1.5 mb-6 shadow-sm">
         <button @click="activeTab = 'usuarios'" 
-          class="flex-1 py-2.5 flex flex-col items-center justify-center gap-1 rounded-xl transition-all" 
+          class="flex-1 py-2.5 flex flex-col items-center justify-center gap-1 rounded-xl transition-all cursor-pointer" 
           :class="activeTab === 'usuarios' ? 'text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30' : 'text-slate-500'">
           <Users class="w-5 h-5" />
           <span class="text-[10px] font-black uppercase tracking-widest">Usuarios</span>
         </button>
         <button @click="activeTab = 'roles'" 
-          class="flex-1 py-2.5 flex flex-col items-center justify-center gap-1 rounded-xl transition-all" 
+          class="flex-1 py-2.5 flex flex-col items-center justify-center gap-1 rounded-xl transition-all cursor-pointer" 
           :class="activeTab === 'roles' ? 'text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30' : 'text-slate-500'">
           <KeyRound class="w-5 h-5" />
           <span class="text-[10px] font-black uppercase tracking-widest">Roles</span>
@@ -770,7 +770,7 @@ async function saveResetPassword() {
       <!-- Desktop Navigation Tabs -->
       <div v-if="isDesktop" class="flex items-center gap-1 bg-white/50 dark:bg-slate-800/50 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 mb-8 w-fit shadow-sm">
         <button @click="activeTab = 'usuarios'"
-          :class="['flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all',
+          :class="['flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer',
             activeTab === 'usuarios'
               ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white shadow-lg shadow-teal-500/20'
               : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700']">
@@ -778,7 +778,7 @@ async function saveResetPassword() {
           Usuarios
         </button>
         <button @click="activeTab = 'roles'"
-          :class="['flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all',
+          :class="['flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer',
             activeTab === 'roles'
               ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white shadow-lg shadow-teal-500/20'
               : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700']">
@@ -793,13 +793,13 @@ async function saveResetPassword() {
         <!-- Action Buttons -->
         <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
           <button @click="openCreate"
-            class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-bold px-4 md:px-5 py-2 md:py-2.5 rounded-xl shadow-lg transition-all duration-200 hover:-translate-y-0.5 text-xs sm:text-sm">
+            class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-bold px-4 md:px-5 py-2 md:py-2.5 rounded-xl shadow-lg transition-all duration-200 hover:-translate-y-0.5 text-xs sm:text-sm cursor-pointer">
             <Plus class="w-4 h-4" />
             <span>Nuevo Usuario</span>
           </button>
 
           <button @click="showStats = !showStats"
-            class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold px-4 md:px-5 py-2 md:py-2.5 rounded-xl shadow-sm border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200 text-xs sm:text-sm">
+            class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold px-4 md:px-5 py-2 md:py-2.5 rounded-xl shadow-sm border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200 text-xs sm:text-sm cursor-pointer">
             <EyeOff v-if="showStats" class="w-4 h-4 text-slate-400" />
             <Eye v-else class="w-4 h-4 text-slate-400" />
             <span class="hidden sm:inline">{{ showStats ? 'Ocultar Estadísticas' : 'Ver Estadísticas' }}</span>
@@ -816,7 +816,7 @@ async function saveResetPassword() {
             class="block w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl leading-5 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all shadow-sm font-bold text-sm"
             placeholder="Buscar por DNI, Nombres o Apellidos...">
           <div class="absolute inset-y-0 right-0 pr-3 flex items-center" v-if="searchQuery">
-            <button @click="searchQuery = ''; handleSearch()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+            <button @click="searchQuery = ''; handleSearch()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer">
               <X class="h-4 w-4" />
             </button>
           </div>
@@ -887,27 +887,27 @@ async function saveResetPassword() {
               <div class="grid grid-cols-2 gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
                 <div class="flex items-center gap-2">
                   <button @click="openDetails(docente)" 
-                    class="flex-1 flex items-center justify-center p-2.5 bg-slate-50 dark:bg-slate-700 rounded-xl text-slate-500 hover:text-indigo-600 transition-all">
+                    class="flex-1 flex items-center justify-center p-2.5 bg-slate-50 dark:bg-slate-700 rounded-xl text-slate-500 hover:text-indigo-600 transition-all cursor-pointer">
                     <Eye class="w-4 h-4" />
                   </button>
                   <button @click="openEdit(docente)" 
-                    class="flex-1 flex items-center justify-center p-2.5 bg-slate-50 dark:bg-slate-700 rounded-xl text-slate-500 hover:text-teal-600 transition-all">
+                    class="flex-1 flex items-center justify-center p-2.5 bg-slate-50 dark:bg-slate-700 rounded-xl text-slate-500 hover:text-teal-600 transition-all cursor-pointer">
                     <Edit2 class="w-4 h-4" />
                   </button>
                   <button @click="openResetPassword(docente)" 
-                    class="flex-1 flex items-center justify-center p-2.5 bg-slate-50 dark:bg-slate-700 rounded-xl text-slate-500 hover:text-amber-600 transition-all">
+                    class="flex-1 flex items-center justify-center p-2.5 bg-slate-50 dark:bg-slate-700 rounded-xl text-slate-500 hover:text-amber-600 transition-all cursor-pointer">
                     <KeyRound class="w-4 h-4" />
                   </button>
                 </div>
 
                 <div class="flex items-center gap-2 justify-end">
                    <button @click="toggleActive(docente)" 
-                    class="px-3 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all"
+                    class="px-3 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all cursor-pointer"
                     :class="docente.is_active ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-400'">
                     {{ docente.is_active ? 'Activo' : 'Pausado' }}
                   </button>
                   <button @click="deleteDocente(docente)" :disabled="docente.id === auth.user?.id"
-                    class="p-2.5 bg-red-50 dark:bg-red-900/20 rounded-xl text-red-400 transition-all disabled:opacity-30">
+                    class="p-2.5 bg-red-50 dark:bg-red-900/20 rounded-xl text-red-400 transition-all disabled:opacity-30 cursor-pointer">
                     <Trash2 class="w-4 h-4" />
                   </button>
                 </div>
@@ -998,22 +998,22 @@ async function saveResetPassword() {
                       <!-- Default Actions -->
                       <div v-if="showDeleteFor !== docente.id" class="flex items-center gap-2">
                         <button @click.stop="openDetails(docente)"
-                          class="has-tooltip relative flex items-center justify-center w-8 h-8 md:w-9 md:h-9 bg-slate-50 text-slate-400 hover:bg-indigo-500 hover:text-white dark:bg-slate-800/80 dark:text-slate-400 dark:hover:bg-indigo-500 dark:hover:text-white rounded-xl transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-indigo-500/20 transform hover:-translate-y-0.5">
+                          class="has-tooltip relative flex items-center justify-center w-8 h-8 md:w-9 md:h-9 bg-slate-50 text-slate-400 hover:bg-indigo-500 hover:text-white dark:bg-slate-800/80 dark:text-slate-400 dark:hover:bg-indigo-500 dark:hover:text-white rounded-xl transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-indigo-500/20 transform hover:-translate-y-0.5 cursor-pointer">
                           <Eye class="w-4 h-4 md:w-[18px] md:h-[18px]" />
                           <span class="tooltip-top">Ver detalles del usuario</span>
                         </button>
                         <button @click.stop="openEdit(docente)"
-                          class="has-tooltip relative flex items-center justify-center w-8 h-8 md:w-9 md:h-9 bg-slate-50 text-slate-400 hover:bg-teal-500 hover:text-white dark:bg-slate-800/80 dark:text-slate-400 dark:hover:bg-teal-500 dark:hover:text-white rounded-xl transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-teal-500/20 transform hover:-translate-y-0.5">
+                          class="has-tooltip relative flex items-center justify-center w-8 h-8 md:w-9 md:h-9 bg-slate-50 text-slate-400 hover:bg-teal-500 hover:text-white dark:bg-slate-800/80 dark:text-slate-400 dark:hover:bg-teal-500 dark:hover:text-white rounded-xl transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-teal-500/20 transform hover:-translate-y-0.5 cursor-pointer">
                           <Edit2 class="w-4 h-4 md:w-[18px] md:h-[18px]" />
                           <span class="tooltip-top">Editar información del usuario</span>
                         </button>
                         <button @click.stop="openResetPassword(docente)"
-                          class="has-tooltip relative flex items-center justify-center w-8 h-8 md:w-9 md:h-9 bg-slate-50 text-slate-400 hover:bg-amber-500 hover:text-white dark:bg-slate-800/80 dark:text-slate-400 dark:hover:bg-amber-500 dark:hover:text-white rounded-xl transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-amber-500/20 transform hover:-translate-y-0.5">
+                          class="has-tooltip relative flex items-center justify-center w-8 h-8 md:w-9 md:h-9 bg-slate-50 text-slate-400 hover:bg-amber-500 hover:text-white dark:bg-slate-800/80 dark:text-slate-400 dark:hover:bg-amber-500 dark:hover:text-white rounded-xl transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-amber-500/20 transform hover:-translate-y-0.5 cursor-pointer">
                           <KeyRound class="w-4 h-4 md:w-[18px] md:h-[18px]" />
                           <span class="tooltip-top">Restablecer contraseña mediante PIN</span>
                         </button>
                         <button @click.stop="showDeleteFor = docente.id" :disabled="docente.id === auth.user?.id"
-                          class="has-tooltip relative flex items-center justify-center w-8 h-8 md:w-9 md:h-9 bg-slate-50 text-slate-400 hover:bg-slate-700 hover:text-white dark:bg-slate-800/80 dark:text-slate-400 dark:hover:bg-slate-600 dark:hover:text-white rounded-xl transition-all duration-300 shadow-sm hover:shadow-md disabled:opacity-40 disabled:hover:bg-slate-50 disabled:hover:text-slate-400 disabled:hover:-translate-y-0 disabled:hover:shadow-sm transform hover:-translate-y-0.5 active:scale-95">
+                          class="has-tooltip relative flex items-center justify-center w-8 h-8 md:w-9 md:h-9 bg-slate-50 text-slate-400 hover:bg-slate-700 hover:text-white dark:bg-slate-800/80 dark:text-slate-400 dark:hover:bg-slate-600 dark:hover:text-white rounded-xl transition-all duration-300 shadow-sm hover:shadow-md disabled:opacity-40 disabled:hover:bg-slate-50 disabled:hover:text-slate-400 disabled:hover:-translate-y-0 disabled:hover:shadow-sm transform hover:-translate-y-0.5 active:scale-95 cursor-pointer">
                           <MoreVertical class="w-4 h-4 md:w-[18px] md:h-[18px]" />
                           <span class="tooltip-top">Desplegar opciones avanzadas</span>
                         </button>
@@ -1038,7 +1038,7 @@ async function saveResetPassword() {
                         <div class="w-px h-4 bg-slate-200 dark:bg-slate-700"></div>
 
                         <button @click.stop="deleteDocente(docente)"
-                          class="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-red-600 hover:text-white dark:text-red-400 hover:bg-red-500 rounded-xl transition-colors">
+                          class="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-red-600 hover:text-white dark:text-red-400 hover:bg-red-500 rounded-xl transition-colors cursor-pointer">
                           <Trash2 class="w-3.5 h-3.5 shrink-0" />
                           <span class="hidden xl:inline">Eliminar</span>
                         </button>
@@ -1046,7 +1046,7 @@ async function saveResetPassword() {
                         <div class="w-px h-4 bg-slate-200 dark:bg-slate-700"></div>
 
                         <button @click.stop="showDeleteFor = null"
-                          class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-xl transition-colors"
+                          class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-xl transition-colors cursor-pointer"
                           title="Cancelar">
                           <X class="w-3.5 h-3.5 shrink-0" />
                         </button>
@@ -1080,14 +1080,14 @@ async function saveResetPassword() {
           <div class="flex items-center gap-1">
             <!-- Prev -->
             <button @click="prevPage" :disabled="currentPage === 1"
-              class="p-1.5 sm:p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+              class="p-1.5 sm:p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
               <ChevronLeft class="w-4 h-4" />
             </button>
 
             <!-- Pages -->
             <div class="flex items-center gap-1 mx-1">
               <button v-for="p in totalPages" :key="p" @click="setPage(p)" :class="[
-                'w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-xs font-bold transition-all',
+                'w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-xs font-bold transition-all cursor-pointer',
                 currentPage === p
                   ? 'bg-gradient-to-r from-teal-500 to-indigo-600 text-white shadow-md scale-110'
                   : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
@@ -1098,7 +1098,7 @@ async function saveResetPassword() {
 
             <!-- Next -->
             <button @click="nextPage" :disabled="currentPage === totalPages"
-              class="p-1.5 sm:p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+              class="p-1.5 sm:p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
               <ChevronRight class="w-4 h-4" />
             </button>
           </div>
@@ -1134,7 +1134,7 @@ async function saveResetPassword() {
                     </span>
                     <button v-if="!rolesEditMode[rol.codigo]"
                       @click="startEditRol(rol.codigo)"
-                      class="flex items-center gap-1 text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+                      class="flex items-center gap-1 text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer">
                       <Edit2 class="w-2.5 h-2.5" /> Editar
                     </button>
                   </div>
@@ -1183,7 +1183,7 @@ async function saveResetPassword() {
                     <!-- Acciones -->
                     <div class="flex items-center gap-2 pt-1">
                       <button @click="saveRolConfig(rol.codigo)" :disabled="savingRol[rol.codigo]"
-                        :class="['flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all',
+                        :class="['flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all cursor-pointer',
                           savingRol[rol.codigo]
                             ? 'bg-slate-100 dark:bg-slate-700 text-slate-400 cursor-not-allowed'
                             : 'bg-teal-500 hover:bg-teal-600 text-white']">
@@ -1192,7 +1192,7 @@ async function saveResetPassword() {
                         Guardar
                       </button>
                       <button @click="cancelEditRol(rol.codigo)" :disabled="savingRol[rol.codigo]"
-                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-all">
+                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-all cursor-pointer">
                         <RotateCcw class="w-3 h-3" />
                         Cancelar
                       </button>
@@ -1257,7 +1257,7 @@ async function saveResetPassword() {
           class="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:p-4 bg-slate-900/60 backdrop-blur-sm">
           
           <!-- Backdrop -->
-          <div class="absolute inset-0" @click="closeModal"></div>
+          <div class="absolute inset-0 cursor-pointer" @click="closeModal"></div>
 
           <!-- Bottom Sheet (Mobile) / Card (Desktop) -->
           <div class="relative bg-white dark:bg-slate-900 w-full sm:max-w-2xl max-h-[92dvh] sm:max-h-[90vh] flex flex-col sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden z-10 transition-transform duration-500 ease-out translate-y-0">
@@ -1282,7 +1282,7 @@ async function saveResetPassword() {
                 </div>
               </div>
               <button @click="closeModal"
-                class="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all">
+                class="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer">
                 <X class="w-5 h-5" />
               </button>
             </div>
@@ -1390,7 +1390,7 @@ async function saveResetPassword() {
                 <div class="flex items-center justify-between mb-1.5">
                   <label class="text-xs font-bold text-slate-600 dark:text-slate-300">Acceso a módulos</label>
                   <button type="button" @click="usandoDefaultModulos ? activarModulosPersonalizados() : resetModulosADefault()"
-                    class="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+                    class="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer">
                     {{ usandoDefaultModulos ? 'Personalizar' : 'Restablecer defaults del rol' }}
                   </button>
                 </div>
@@ -1448,7 +1448,7 @@ async function saveResetPassword() {
                         : 'border-slate-300 dark:border-slate-600 focus:ring-indigo-500/50 focus:border-indigo-500'
                     ]" />
                   <button type="button" @click="showPassword = !showPassword"
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">
                     <Eye v-if="!showPassword" class="w-4 h-4" />
                     <EyeOff v-else class="w-4 h-4" />
                   </button>
@@ -1502,7 +1502,7 @@ async function saveResetPassword() {
           class="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:p-4">
           
           <!-- Backdrop -->
-          <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showResetModal = false"></div>
+          <div class="absolute inset-0 bg-black/50 backdrop-blur-sm cursor-pointer" @click="showResetModal = false"></div>
 
           <!-- Bottom Sheet (Mobile) / Card (Desktop) -->
           <div class="relative bg-white dark:bg-slate-800 w-full sm:max-w-sm max-h-[92dvh] sm:max-h-[90vh] flex flex-col sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden z-10">
@@ -1598,7 +1598,7 @@ async function saveResetPassword() {
           class="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:p-4">
           
           <!-- Backdrop -->
-          <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showDetailsModal = false"></div>
+          <div class="absolute inset-0 bg-black/50 backdrop-blur-sm cursor-pointer" @click="showDetailsModal = false"></div>
 
           <!-- Bottom Sheet (Mobile) / Card (Desktop) -->
           <div class="relative bg-white dark:bg-slate-800 w-full sm:max-w-lg max-h-[92dvh] sm:max-h-[90vh] flex flex-col sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden z-10">

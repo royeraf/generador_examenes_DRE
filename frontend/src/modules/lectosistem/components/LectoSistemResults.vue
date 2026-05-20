@@ -149,11 +149,11 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
         <Teleport to="body">
             <Transition name="modal">
                 <div v-if="modalPregunta"
-                    class="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:p-4"
+                    class="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:p-4 cursor-pointer"
                     @click.self="cerrarModal">
 
                     <!-- Backdrop -->
-                    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="cerrarModal" />
+                    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm cursor-pointer" @click="cerrarModal" />
 
                     <!-- Dialog -->
                     <div class="relative z-10 w-full sm:max-w-lg bg-white dark:bg-slate-900 rounded-t-2xl sm:rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[85vh]">

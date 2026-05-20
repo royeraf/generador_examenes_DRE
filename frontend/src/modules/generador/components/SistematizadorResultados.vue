@@ -141,7 +141,7 @@ watch(() => props.stats, () => {
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
             <!-- Stat Cards - Educativo -->
             <div
-                class="bg-white dark:bg-slate-800 p-5 rounded-2xl border-2 border-teal-100 dark:border-slate-700 shadow-lg relative overflow-hidden group hover:-translate-y-1 transition-all duration-300">
+                class="bg-white dark:bg-slate-800 p-5 rounded-2xl border-2 border-teal-100 dark:border-slate-700 shadow-lg relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 cursor-pointer">
                 <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-teal-500 to-sky-500"></div>
                 <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-2 flex items-center gap-1">
                     <Users class="w-4 h-4" /> Total
@@ -151,7 +151,7 @@ watch(() => props.stats, () => {
 
             <div v-for="(count, key) in { 'Pre Inicio': stats['pre-inicio'], 'Inicio': stats['inicio'], 'Proceso': stats['proceso'], 'Satisfactorio': stats['satisfactorio'], 'Destacado': stats['destacado'] }"
                 :key="key"
-                class="bg-white dark:bg-slate-800 p-5 rounded-2xl border-2 dark:border-slate-700 shadow-lg relative overflow-hidden hover:-translate-y-1 transition-all duration-300"
+                class="bg-white dark:bg-slate-800 p-5 rounded-2xl border-2 dark:border-slate-700 shadow-lg relative overflow-hidden hover:-translate-y-1 transition-all duration-300 cursor-pointer"
                 :class="{
                     'border-red-100 dark:border-red-900/40': key === 'Pre Inicio',
                     'border-orange-100 dark:border-orange-900/40': key === 'Inicio',
