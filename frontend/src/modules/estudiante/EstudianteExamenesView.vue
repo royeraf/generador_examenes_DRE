@@ -136,7 +136,7 @@ const nivelLabels: Record<string, string> = {
         <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Cargando exámenes...</p>
       </div>
 
-      <div v-else-if="error" class="text-center py-20 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-red-100 dark:border-red-900/30 shadow-xl flex flex-col items-center gap-4">
+      <div v-else-if="error" class="text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-red-100 dark:border-red-900/30 shadow-xl flex flex-col items-center gap-4">
         <div class="w-16 h-16 rounded-full bg-red-50 dark:bg-red-500/10 flex items-center justify-center">
           <AlertCircle class="w-8 h-8 text-red-500" />
         </div>
@@ -145,8 +145,8 @@ const nivelLabels: Record<string, string> = {
       </div>
 
       <div v-else-if="examenes.length === 0"
-        class="text-center py-20 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-300 dark:border-slate-800 shadow-xl">
-        <div class="w-20 h-20 rounded-3xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center mx-auto mb-6">
+        class="text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-xl">
+        <div class="w-20 h-20 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center mx-auto mb-6">
           <BookOpen class="w-10 h-10 text-slate-300 dark:text-slate-600" />
         </div>
         <h3 class="text-xl font-bold text-slate-900 dark:text-white">Sin exámenes asignados</h3>
@@ -157,7 +157,7 @@ const nivelLabels: Record<string, string> = {
         <div
           v-for="examen in examenes"
           :key="examen.id"
-          class="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-300 dark:border-slate-800 p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col group"
+          class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col group"
         >
           <div class="flex items-start gap-4 mb-6">
             <div :class="examen.tipo_examen === 'lectura'
@@ -252,7 +252,7 @@ const nivelLabels: Record<string, string> = {
           <!-- Backdrop -->
           <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm -z-10" @click="showPreview = false"></div>
           
-          <div class="bg-white dark:bg-slate-900 w-full max-w-2xl max-h-[92vh] sm:max-h-[85vh] flex flex-col rounded-t-[2.5rem] sm:rounded-b-[2.5rem] shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden relative">
+          <div class="bg-white dark:bg-slate-900 w-full max-w-2xl max-h-[92vh] sm:max-h-[85vh] flex flex-col rounded-t-2xl sm:rounded-b-[2.5rem] shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden relative">
             
             <!-- Drag handle (mobile only) -->
             <div class="w-full h-10 flex justify-center items-center sm:hidden shrink-0 absolute top-0 z-20" @click="showPreview = false">

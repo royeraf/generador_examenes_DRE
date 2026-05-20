@@ -83,7 +83,7 @@ const nivelLabels: Record<string, string> = {
       </div>
 
       <div v-else-if="error" class="flex flex-col items-center justify-center py-20 text-center animate-slide-up">
-        <div class="w-20 h-20 rounded-3xl bg-red-50 dark:bg-red-500/10 flex items-center justify-center mb-6">
+        <div class="w-20 h-20 rounded-2xl bg-red-50 dark:bg-red-500/10 flex items-center justify-center mb-6">
           <AlertCircle class="w-10 h-10 text-red-500" />
         </div>
         <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-2">¡Ups! Algo salió mal</h2>
@@ -91,7 +91,7 @@ const nivelLabels: Record<string, string> = {
       </div>
 
       <div v-else-if="progreso.length === 0"
-        class="flex flex-col items-center justify-center py-24 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-300 dark:border-slate-800 shadow-xl text-center animate-slide-up">
+        class="flex flex-col items-center justify-center py-24 bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-xl text-center animate-slide-up">
         <div class="w-24 h-24 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center mb-8">
           <BarChart3 class="w-12 h-12 text-slate-200 dark:text-slate-700" />
         </div>
@@ -107,7 +107,7 @@ const nivelLabels: Record<string, string> = {
         <div
           v-for="(p, i) in progreso"
           :key="p.area"
-          class="group bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-300 dark:border-slate-800 p-8 shadow-xl hover:shadow-2xl transition-all duration-500 relative overflow-hidden animate-slide-up"
+          class="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 p-8 shadow-xl hover:shadow-2xl transition-all duration-500 relative overflow-hidden animate-slide-up"
           :style="{ animationDelay: `${i * 100}ms` }"
         >
           <!-- Decorative Background Icon -->

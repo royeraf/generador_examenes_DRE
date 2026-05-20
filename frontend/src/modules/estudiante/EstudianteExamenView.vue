@@ -331,7 +331,7 @@ const nivelMensaje: Record<string, string> = {
 
     <!-- Error -->
     <div v-else-if="error && !examen && !resultado" class="flex flex-col items-center justify-center min-h-screen gap-6 px-6 text-center">
-      <div class="w-20 h-20 rounded-3xl bg-red-50 dark:bg-red-500/10 flex items-center justify-center">
+      <div class="w-20 h-20 rounded-2xl bg-red-50 dark:bg-red-500/10 flex items-center justify-center">
         <AlertCircle class="w-10 h-10 text-red-500" />
       </div>
       <div>
@@ -356,10 +356,10 @@ const nivelMensaje: Record<string, string> = {
 
       <div class="w-full max-w-lg z-10">
         <!-- Success Card -->
-        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-300 dark:border-slate-800 shadow-2xl p-8 sm:p-10 mb-8 animate-slide-up-1 relative overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-2xl p-8 sm:p-10 mb-8 animate-slide-up-1 relative overflow-hidden">
           
           <div class="flex justify-center mb-8 animate-success-pop">
-            <div class="w-24 h-24 rounded-3xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center shadow-xl shadow-teal-500/20 rotate-12">
+            <div class="w-24 h-24 rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center shadow-xl shadow-teal-500/20 rotate-12">
               <Trophy class="w-12 h-12 text-white -rotate-12" />
             </div>
           </div>
@@ -450,7 +450,7 @@ const nivelMensaje: Record<string, string> = {
 
           <div class="space-y-6">
             <div v-for="preg in revision.preguntas" :key="preg.numero"
-              class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-300 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
               
               <button @click="togglePreguntaRevision(preg.numero)"
                 class="w-full flex items-center gap-4 p-6 text-left transition-colors">
@@ -512,7 +512,7 @@ const nivelMensaje: Record<string, string> = {
                   </div>
 
                   <!-- AI Insight -->
-                  <div class="bg-indigo-50/50 dark:bg-indigo-500/5 rounded-3xl p-6 border border-indigo-100/50 dark:border-indigo-500/10 relative overflow-hidden group">
+                  <div class="bg-indigo-50/50 dark:bg-indigo-500/5 rounded-2xl p-6 border border-indigo-100/50 dark:border-indigo-500/10 relative overflow-hidden group">
                     <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
                       <Lightbulb class="w-12 h-12 text-indigo-500" />
                     </div>
@@ -654,7 +654,7 @@ const nivelMensaje: Record<string, string> = {
               </Transition>
 
               <!-- Question Card -->
-              <div v-if="preguntaVisible" class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-300 dark:border-slate-800 p-8 sm:p-10 shadow-xl relative overflow-hidden group">
+              <div v-if="preguntaVisible" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 p-8 sm:p-10 shadow-xl relative overflow-hidden group">
                 <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform">
                   <Zap class="w-20 h-20 text-indigo-500" />
                 </div>
@@ -677,7 +677,7 @@ const nivelMensaje: Record<string, string> = {
                       :key="opcion.letra"
                       @click="seleccionar(preguntaVisible.numero, opcion.valor ?? opcion.letra)"
                       :class="[
-                        'w-full text-left p-5 rounded-[1.5rem] border-2 transition-all flex items-center gap-5 group/opt',
+                        'w-full text-left p-5 rounded-xl border-2 transition-all flex items-center gap-5 group/opt',
                         respuestas[preguntaVisible.numero] === (opcion.valor ?? opcion.letra)
                           ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-900 dark:text-indigo-300'
                           : 'border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:border-indigo-200 dark:hover:border-indigo-500/30 hover:bg-slate-50 dark:hover:bg-slate-800'

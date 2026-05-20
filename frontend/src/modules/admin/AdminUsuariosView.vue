@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { formatFecha } from '../../shared/utils/dateUtils'
 import { ref, watch, onMounted, onUnmounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
-const router = useRouter()
 import { useAuthStore } from '../../stores/auth'
 import { adminUsuariosService, ubigeoService, organizacionService, rolesConfigService, type DocenteCreatePayload, type DocenteUpdatePayload, type RolConfig } from '../../shared/services/api'
 import type { Docente, Provincia, Distrito, Ugel, InstitucionEducativa } from '../../shared/types'
 import {
   Plus, Edit2, Trash2,
   Shield, X, Eye, EyeOff, AlertCircle, KeyRound, CheckCircle,
-  ChevronLeft, ChevronRight, Loader2, MoreVertical, Search, MapPin, Save, RotateCcw
+  ChevronLeft, ChevronRight, Loader2, MoreVertical, Search, MapPin, Save, RotateCcw,
+  Users, User
 } from 'lucide-vue-next'
 import ComboBox from '../../shared/components/ComboBox.vue'
 import Header from '../../shared/components/Header.vue'
@@ -645,19 +644,13 @@ async function saveResetPassword() {
   <div @click="showDeleteFor = null"
     class="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 font-sans relative overflow-x-hidden">
     <EduBackground variant="indigo" />
+    
+    <Header title="Gestión" subtitle="Usuarios del Sistema" :is-dark="isDark"
+      :show-home="true"
+      gradient-class="from-teal-600 via-indigo-600 to-violet-600 shadow-indigo-500/20"
+      class="rounded-none mb-0 border-b border-slate-200 dark:border-slate-800" @toggle-theme="toggleTheme" />
 
     <div class="max-w-7xl mx-auto w-full relative z-10 flex-1 flex flex-col p-4 md:p-8">
-      <Header title="Gestión" subtitle="Usuarios del Sistema" :is-dark="isDark"
-        gradient-class="from-teal-600 via-indigo-600 to-violet-600 shadow-indigo-500/20"
-        class="rounded-[2.5rem] mb-8 sticky top-0" @toggle-theme="toggleTheme">
-        <template #actions-before>
-          <button @click="router.push('/')"
-            class="p-2.5 rounded-xl bg-slate-100 dark:bg-white/20 text-slate-600 dark:text-white border border-slate-200 dark:border-white/30 hover:bg-slate-200 dark:hover:bg-white/30 transition-all duration-300"
-            title="Inicio">
-            <Home class="w-5 h-5" />
-          </button>
-        </template>
-      </Header>
 
     <!-- Main Container Content -->
 
@@ -865,7 +858,7 @@ async function saveResetPassword() {
               Sin usuarios registrados
             </div>
             <div v-else v-for="docente in docentes" :key="docente.id"
-              class="bg-white dark:bg-slate-800 p-5 rounded-[2rem] border-2 border-slate-200 dark:border-slate-700 shadow-sm transition-all"
+              class="bg-white dark:bg-slate-800 p-5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm transition-all"
               :class="{ 'opacity-60 grayscale-[0.5]': !docente.is_active }">
               
               <div class="flex items-start justify-between mb-4">
@@ -1267,7 +1260,7 @@ async function saveResetPassword() {
           <div class="absolute inset-0" @click="closeModal"></div>
 
           <!-- Bottom Sheet (Mobile) / Card (Desktop) -->
-          <div class="relative bg-white dark:bg-slate-900 w-full sm:max-w-2xl max-h-[92dvh] sm:max-h-[90vh] flex flex-col sm:rounded-[2.5rem] rounded-t-[2.5rem] shadow-2xl overflow-hidden z-10 transition-transform duration-500 ease-out translate-y-0">
+          <div class="relative bg-white dark:bg-slate-900 w-full sm:max-w-2xl max-h-[92dvh] sm:max-h-[90vh] flex flex-col sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden z-10 transition-transform duration-500 ease-out translate-y-0">
             
             <!-- Drag handle (mobile) -->
             <div class="sm:hidden flex justify-center pt-4 pb-2 shrink-0 cursor-pointer" @click="closeModal">

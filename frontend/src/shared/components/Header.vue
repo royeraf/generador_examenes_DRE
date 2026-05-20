@@ -12,6 +12,7 @@ interface Props {
   gradientClass?: string;
   subtitleClass?: string;
   isDark?: boolean;
+  showHome?: boolean;
 }
 withDefaults(defineProps<Props>(), {
   subtitle: '',
@@ -22,12 +23,13 @@ withDefaults(defineProps<Props>(), {
   gradientClass: '',
   subtitleClass: '',
   isDark: false,
+  showHome: false,
 });
 defineEmits(['toggleTheme', 'toggleResults']);
 </script>
 
 <template>
-  <Navbar :title="title" :subtitle="subtitle">
+  <Navbar :title="title" :subtitle="subtitle" :show-home="showHome">
     <template #actions>
       <slot name="actions-before" />
       <slot name="actions-after" />

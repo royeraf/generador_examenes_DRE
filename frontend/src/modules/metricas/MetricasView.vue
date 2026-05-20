@@ -139,7 +139,7 @@ const rolLabel = computed(() => {
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           
           <!-- Exámenes Totales -->
-          <div class="bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-300/60 dark:border-slate-800/60 rounded-[2rem] p-6 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 group overflow-hidden relative">
+          <div class="bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-300/60 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 group overflow-hidden relative">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="flex justify-between items-start mb-6">
               <div class="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400 transform group-hover:rotate-12 transition-transform">
@@ -157,7 +157,7 @@ const rolLabel = computed(() => {
           </div>
 
           <!-- Total Usuarios -->
-          <div class="bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-300/60 dark:border-slate-800/60 rounded-[2rem] p-6 shadow-sm hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 group overflow-hidden relative">
+          <div class="bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-300/60 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 group overflow-hidden relative">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="flex justify-between items-start mb-6">
               <div class="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400 transform group-hover:-rotate-12 transition-transform">
@@ -169,7 +169,7 @@ const rolLabel = computed(() => {
           </div>
 
           <!-- Asignaciones -->
-          <div class="bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-300/60 dark:border-slate-800/60 rounded-[2rem] p-6 shadow-sm hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300 group overflow-hidden relative">
+          <div class="bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-300/60 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300 group overflow-hidden relative">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="flex justify-between items-start mb-6">
               <div class="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400 transform group-hover:scale-110 transition-transform">
@@ -181,7 +181,7 @@ const rolLabel = computed(() => {
           </div>
 
           <!-- Instituciones -->
-          <div class="bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-300/60 dark:border-slate-800/60 rounded-[2rem] p-6 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 group overflow-hidden relative">
+          <div class="bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-300/60 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 group overflow-hidden relative">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="flex justify-between items-start mb-6">
               <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 transform group-hover:rotate-6 transition-transform">
@@ -198,7 +198,7 @@ const rolLabel = computed(() => {
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
           
           <!-- Left Wing: Completion Gauge -->
-          <div class="lg:col-span-4 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-[2.5rem] p-8 shadow-sm flex flex-col relative overflow-hidden">
+          <div class="lg:col-span-4 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl p-8 shadow-sm flex flex-col relative overflow-hidden">
             <div class="absolute top-0 right-0 p-8 opacity-10">
               <CheckCircle2 class="w-32 h-32 text-emerald-500 rotate-12" />
             </div>
@@ -240,7 +240,7 @@ const rolLabel = computed(() => {
           </div>
 
           <!-- Middle Section: Distribution Bars -->
-          <div class="lg:col-span-4 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-[2.5rem] p-8 shadow-sm flex flex-col">
+          <div class="lg:col-span-4 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl p-8 shadow-sm flex flex-col">
             <h3 class="text-lg font-black text-slate-800 dark:text-white mb-8 flex items-center gap-3">
               <span class="w-2 h-8 bg-indigo-500 rounded-full"></span>
               Distribución Regional
@@ -303,7 +303,7 @@ const rolLabel = computed(() => {
           </div>
 
           <!-- Right Wing: Recent Activity -->
-          <div class="lg:col-span-4 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-[2.5rem] p-0 shadow-sm flex flex-col overflow-hidden">
+          <div class="lg:col-span-4 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl p-0 shadow-sm flex flex-col overflow-hidden">
             <div class="p-8 border-b border-slate-300 dark:border-slate-800">
               <h3 class="text-lg font-black text-slate-800 dark:text-white flex items-center gap-3">
                 <span class="w-2 h-8 bg-amber-500 rounded-full"></span>
@@ -321,7 +321,7 @@ const rolLabel = computed(() => {
               </div>
               
               <div v-for="item in resumen.recientes" :key="`${item.area}-${item.id}`"
-                class="flex items-center gap-4 p-4 rounded-3xl hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-all duration-300 border border-transparent hover:border-slate-300 dark:hover:border-slate-700/50 cursor-pointer group active:scale-95">
+                class="flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-all duration-300 border border-transparent hover:border-slate-300 dark:hover:border-slate-700/50 cursor-pointer group active:scale-95">
                 
                 <div :class="item.area === 'lectura'
                   ? 'bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 group-hover:bg-teal-500 group-hover:text-white'

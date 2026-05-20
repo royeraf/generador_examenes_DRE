@@ -149,7 +149,7 @@ const deleteItem = async (id: number) => {
         <div class="max-w-7xl mx-auto w-full relative z-10 flex-1 flex flex-col">
             <Header title="Gestión" subtitle="Currículo Nacional" :is-dark="isDark"
                 gradient-class="from-teal-600 via-teal-500 to-emerald-600 shadow-teal-500/20"
-                class="rounded-[2rem] mb-8 sticky top-0" @toggle-theme="toggleTheme">
+                class="rounded-2xl mb-8 sticky top-0" @toggle-theme="toggleTheme">
                 <template #actions-before>
                     <button @click="router.push('/')"
                         class="p-2.5 rounded-xl bg-slate-100 dark:bg-white/20 text-slate-600 dark:text-white border border-slate-200 dark:border-white/30 hover:bg-slate-200 dark:hover:bg-white/30 transition-all duration-300"
@@ -183,7 +183,7 @@ const deleteItem = async (id: number) => {
             </div>
 
             <!-- Tool Bar -->
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 bg-white dark:bg-slate-800 p-6 rounded-[2rem] border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-top-2 duration-500">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 bg-white dark:bg-slate-800 p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-top-2 duration-500">
                 <div v-if="activeTab === 'desempenos'" class="w-full sm:w-auto space-y-2">
                     <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Grado</label>
                     <div class="relative">
@@ -207,7 +207,7 @@ const deleteItem = async (id: number) => {
             <div class="flex-1 flex flex-col min-h-0">
                 
                 <!-- Desktop Table -->
-                <div v-if="isDesktop" class="bg-white dark:bg-slate-800 rounded-[2rem] border-2 border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden flex flex-col">
+                <div v-if="isDesktop" class="bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden flex flex-col">
                     <div class="overflow-x-auto custom-scrollbar">
                         <table class="w-full text-left border-collapse text-sm">
                             <thead>
@@ -280,12 +280,12 @@ const deleteItem = async (id: number) => {
 
                 <!-- Mobile Cards -->
                 <div v-else class="space-y-4 pb-8">
-                    <div v-if="loading" v-for="n in 3" :key="n" class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] border-2 border-slate-200 dark:border-slate-700 animate-pulse">
+                    <div v-if="loading" v-for="n in 3" :key="n" class="bg-white dark:bg-slate-800 p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 animate-pulse">
                         <div class="h-4 w-1/2 bg-slate-200 dark:bg-slate-700 rounded mb-4"></div>
                         <div class="h-3 w-3/4 bg-slate-200 dark:bg-slate-700 rounded mb-2"></div>
                     </div>
                     <div v-else v-for="item in (activeTab === 'grados' ? grados : activeTab === 'capacidades' ? capacidades : desempenos)" :key="item.id" 
-                        class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-500">
+                        class="bg-white dark:bg-slate-800 p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-500">
                         <div class="flex justify-between items-start mb-4">
                             <div class="space-y-1">
                                 <div class="text-[9px] font-mono font-bold text-slate-400 uppercase">ID #{{ item.id }}</div>
@@ -317,7 +317,7 @@ const deleteItem = async (id: number) => {
         <Teleport to="body">
             <Transition name="modal">
                 <div v-if="showModal" class="fixed inset-0 z-50 flex items-center sm:items-center justify-center items-end bg-slate-900/60 backdrop-blur-sm" @click.self="showModal = false">
-                    <div class="bg-white dark:bg-slate-800 rounded-t-[2.5rem] sm:rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative">
+                    <div class="bg-white dark:bg-slate-800 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative">
                         <div class="sm:hidden flex justify-center pt-4 pb-1" @click="showModal = false"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div></div>
                         <div class="flex items-center justify-between p-6 border-b border-slate-300 dark:border-slate-700">
                             <div class="flex items-center gap-4">

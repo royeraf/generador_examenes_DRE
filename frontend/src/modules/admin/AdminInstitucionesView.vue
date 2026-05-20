@@ -160,7 +160,7 @@ async function eliminar(ie: InstitucionEducativa) {
     confirmButtonText: 'Eliminar',
     cancelButtonText: 'Cancelar',
     customClass: {
-      popup: 'rounded-[2rem]',
+      popup: 'rounded-2xl',
       confirmButton: 'rounded-xl font-bold px-6 py-3',
       cancelButton: 'rounded-xl font-bold px-6 py-3'
     }
@@ -175,7 +175,7 @@ async function eliminar(ie: InstitucionEducativa) {
       icon: 'success',
       timer: 1500,
       showConfirmButton: false,
-      customClass: { popup: 'rounded-[2rem]' }
+      customClass: { popup: 'rounded-2xl' }
     })
   } catch (e: any) {
     Swal.fire('Error', e.response?.data?.detail ?? 'No se pudo eliminar', 'error')
@@ -190,7 +190,7 @@ async function eliminar(ie: InstitucionEducativa) {
     <div class="max-w-7xl mx-auto w-full relative z-10 flex-1 flex flex-col">
       <Header title="Gestión" subtitle="Instituciones Educativas" :is-dark="isDark"
         gradient-class="from-indigo-600 via-indigo-500 to-teal-500 shadow-indigo-500/20"
-        class="rounded-[2.5rem] mb-8 sticky top-0" @toggle-theme="toggleTheme">
+        class="rounded-2xl mb-8 sticky top-0" @toggle-theme="toggleTheme">
         <template #actions-before>
           <button @click="router.push('/')"
             class="p-2.5 rounded-xl bg-slate-100 dark:bg-white/20 text-slate-600 dark:text-white border border-slate-200 dark:border-white/30 hover:bg-slate-200 dark:hover:bg-white/30 transition-all duration-300"
@@ -201,7 +201,7 @@ async function eliminar(ie: InstitucionEducativa) {
       </Header>
 
       <!-- Main Action Bar -->
-      <div class="flex flex-col lg:flex-row items-center justify-between gap-4 mb-8 bg-white dark:bg-slate-800 p-6 rounded-[2.5rem] border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-top-2 duration-500">
+      <div class="flex flex-col lg:flex-row items-center justify-between gap-4 mb-8 bg-white dark:bg-slate-800 p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-top-2 duration-500">
         <div class="relative w-full lg:w-96">
           <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
           <input v-model="searchQuery" type="text" placeholder="Buscar por nombre o código..."
@@ -222,7 +222,7 @@ async function eliminar(ie: InstitucionEducativa) {
 
       <div v-else class="flex-1 flex flex-col">
         <!-- Desktop Table View -->
-        <div v-if="isDesktop" class="bg-white dark:bg-slate-800 rounded-[2.5rem] border-2 border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden flex flex-col">
+        <div v-if="isDesktop" class="bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden flex flex-col">
           <div class="overflow-x-auto custom-scrollbar">
             <table class="w-full text-left border-collapse text-sm">
               <thead>
@@ -287,7 +287,7 @@ async function eliminar(ie: InstitucionEducativa) {
         <!-- Mobile Card View -->
         <div v-else class="space-y-4 pb-20">
           <div v-for="ie in filtradas" :key="ie.id" 
-               class="bg-white dark:bg-slate-800 p-6 rounded-[2.5rem] border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-500">
+               class="bg-white dark:bg-slate-800 p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div class="flex justify-between items-start mb-4">
               <div class="space-y-1">
                 <div class="text-[9px] font-mono font-black text-indigo-500 uppercase tracking-widest">Modular: {{ ie.codigo_modular }}</div>
@@ -328,13 +328,13 @@ async function eliminar(ie: InstitucionEducativa) {
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showModal" class="fixed inset-0 z-50 flex items-center sm:items-center justify-center items-end bg-slate-900/60 backdrop-blur-sm" @click.self="showModal = false">
-          <div class="bg-white dark:bg-slate-800 rounded-t-[3rem] sm:rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden relative">
+          <div class="bg-white dark:bg-slate-800 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden relative">
             <!-- Mobile handle -->
             <div class="sm:hidden flex justify-center pt-4 pb-1" @click="showModal = false"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div></div>
             
             <div class="flex items-center justify-between p-8 border-b border-slate-100 dark:border-slate-700">
               <div class="flex items-center gap-5">
-                <div class="w-12 h-12 rounded-[1.25rem] bg-gradient-to-br from-indigo-500 to-teal-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-teal-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
                   <Building2 class="w-6 h-6 text-white" />
                 </div>
                 <div>

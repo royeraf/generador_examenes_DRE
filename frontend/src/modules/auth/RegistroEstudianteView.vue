@@ -111,7 +111,7 @@ async function registrar() {
       <Transition mode="out-in" enter-active-class="transition duration-500 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100">
         
         <!-- Success Card -->
-        <div v-if="success" key="success" class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl border border-slate-300 dark:border-slate-800 p-10 text-center space-y-6">
+        <div v-if="success" key="success" class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-800 p-10 text-center space-y-6">
           <div class="w-20 h-20 rounded-full bg-green-50 dark:bg-green-500/10 flex items-center justify-center mx-auto">
             <CheckCircle class="w-10 h-10 text-green-500" />
           </div>
@@ -136,7 +136,7 @@ async function registrar() {
         </div>
 
         <!-- Form Card -->
-        <div v-else key="form" class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl border border-slate-300 dark:border-slate-800 overflow-hidden">
+        <div v-else key="form" class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-800 overflow-hidden">
           
           <Transition mode="out-in" enter-active-class="transition duration-300 ease-out" enter-from-class="transform translate-x-8 opacity-0" enter-to-class="transform translate-x-0 opacity-100" leave-active-class="transition duration-200 ease-in" leave-from-class="transform translate-x-0 opacity-100" leave-to-class="transform -translate-x-8 opacity-0">
             

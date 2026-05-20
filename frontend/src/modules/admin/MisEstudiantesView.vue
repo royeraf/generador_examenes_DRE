@@ -316,7 +316,7 @@ function nombreGrado(id: number | null) {
     <div class="flex-1 w-full max-w-7xl mx-auto p-4 md:p-8 relative z-10 overflow-hidden flex flex-col">
       <Header title="Gestión" subtitle="Mis Estudiantes" :is-dark="isDark"
         gradient-class="from-teal-600 via-teal-500 to-emerald-600 shadow-teal-500/20"
-        class="rounded-[2.5rem] mb-8 sticky top-0" @toggle-theme="toggleTheme">
+        class="rounded-2xl mb-8 sticky top-0" @toggle-theme="toggleTheme">
         <template #actions-before>
           <button @click="router.push('/')"
             class="p-2.5 rounded-xl bg-slate-100 dark:bg-white/20 text-slate-600 dark:text-white border border-slate-200 dark:border-white/30 hover:bg-slate-200 dark:hover:bg-white/30 transition-all duration-300"
@@ -345,7 +345,7 @@ function nombreGrado(id: number | null) {
       <!-- Header & Actions -->
       <div v-show="isDesktop || mobileTab === 'filtros'" class="mb-6 flex flex-col lg:flex-row lg:items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
         <div class="flex items-center gap-5">
-          <div class="w-14 h-14 rounded-[1.5rem] bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center shadow-xl shadow-teal-500/20 shrink-0">
+          <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center shadow-xl shadow-teal-500/20 shrink-0">
             <Users class="w-7 h-7 text-white" />
           </div>
           <div>
@@ -373,7 +373,7 @@ function nombreGrado(id: number | null) {
       </div>
 
       <!-- Filters -->
-      <div v-show="isDesktop || mobileTab === 'filtros'" class="mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-6 bg-white dark:bg-slate-800 rounded-[2rem] border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-top-2 duration-700">
+      <div v-show="isDesktop || mobileTab === 'filtros'" class="mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-6 bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-top-2 duration-700">
         <div class="space-y-2">
           <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Filtrar Grado</label>
           <div class="relative">
@@ -407,7 +407,7 @@ function nombreGrado(id: number | null) {
       <div v-show="isDesktop || mobileTab === 'estudiantes'" class="flex-1 flex flex-col min-h-0">
         
         <!-- Desktop View: Table -->
-        <div v-if="isDesktop" class="bg-white dark:bg-slate-800 rounded-[2rem] border-2 border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden flex flex-col">
+        <div v-if="isDesktop" class="bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden flex flex-col">
           <div class="overflow-x-auto custom-scrollbar">
             <table class="w-full border-collapse text-sm">
               <thead>
@@ -455,7 +455,7 @@ function nombreGrado(id: number | null) {
 
         <!-- Mobile View: Cards -->
         <div v-else class="flex-1 overflow-y-auto space-y-4 pb-4">
-          <div v-for="est in estudiantesFiltrados" :key="est.id" class="bg-white dark:bg-slate-800 p-5 rounded-[2rem] border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <div v-for="est in estudiantesFiltrados" :key="est.id" class="bg-white dark:bg-slate-800 p-5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div class="flex justify-between items-start mb-4">
               <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center font-black text-teal-600 text-lg">
@@ -492,7 +492,7 @@ function nombreGrado(id: number | null) {
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showModal" class="fixed inset-0 z-50 flex items-center sm:items-center justify-center items-end bg-slate-900/60 backdrop-blur-sm" @click.self="closeModal">
-          <div class="bg-white dark:bg-slate-800 rounded-t-[2.5rem] sm:rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative">
+          <div class="bg-white dark:bg-slate-800 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative">
             <div class="sm:hidden flex justify-center pt-4 pb-1" @click="closeModal"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div></div>
             <div class="flex items-center justify-between p-6 border-b border-slate-300 dark:border-slate-700">
               <div class="flex items-center gap-4">
@@ -560,7 +560,7 @@ function nombreGrado(id: number | null) {
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showImportModal" class="fixed inset-0 z-50 flex items-center sm:items-center justify-center items-end bg-slate-900/60 backdrop-blur-sm" @click.self="closeImportModal">
-          <div class="w-full max-w-lg overflow-hidden rounded-t-[2.5rem] sm:rounded-2xl bg-white shadow-2xl dark:bg-slate-800 relative">
+          <div class="w-full max-w-lg overflow-hidden rounded-t-2xl sm:rounded-2xl bg-white shadow-2xl dark:bg-slate-800 relative">
             <div class="sm:hidden flex justify-center pt-4 pb-1" @click="closeImportModal"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div></div>
             <div class="flex items-center justify-between border-b border-slate-300 p-6 dark:border-slate-700">
               <div class="flex items-center gap-4">
@@ -573,7 +573,7 @@ function nombreGrado(id: number | null) {
               <button @click="closeImportModal" class="p-2 text-slate-400"><X class="h-5 w-5" /></button>
             </div>
             <div class="space-y-6 p-6">
-              <div class="rounded-[1.5rem] border border-teal-100 bg-teal-50/50 p-5 text-xs font-bold text-teal-700 shadow-sm flex items-start gap-3">
+              <div class="rounded-xl border border-teal-100 bg-teal-50/50 p-5 text-xs font-bold text-teal-700 shadow-sm flex items-start gap-3">
                 <AlertCircle class="w-5 h-5 shrink-0" />
                 <div><p class="text-base font-black tracking-tight">Columnas: dni, nombres, apellidos</p></div>
               </div>
@@ -622,9 +622,9 @@ function nombreGrado(id: number | null) {
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showSuccessModal" class="fixed inset-0 z-50 flex items-center sm:items-center justify-center items-end bg-slate-900/60 backdrop-blur-sm">
-          <div class="bg-white dark:bg-slate-800 rounded-t-[2.5rem] sm:rounded-3xl shadow-2xl w-full max-w-sm p-8 text-center space-y-6 relative">
+          <div class="bg-white dark:bg-slate-800 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-sm p-8 text-center space-y-6 relative">
             <div class="sm:hidden flex justify-center pb-2" @click="showSuccessModal = false"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div></div>
-            <div class="w-20 h-20 rounded-[2rem] bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto shadow-inner"><CheckCircle class="w-10 h-10 text-emerald-500" /></div>
+            <div class="w-20 h-20 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto shadow-inner"><CheckCircle class="w-10 h-10 text-emerald-500" /></div>
             <div>
               <h2 class="text-2xl font-black text-slate-800 dark:text-white tracking-tight leading-none mb-1">¡Registro Exitoso!</h2>
               <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Usuario Generado</p>

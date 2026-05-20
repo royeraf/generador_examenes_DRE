@@ -160,8 +160,8 @@ function descargarQR() {
 
     <!-- Lista vacía -->
     <div v-else-if="codigos.length === 0"
-      class="text-center py-20 bg-white dark:bg-slate-900/40 backdrop-blur-xl rounded-[2.5rem] border border-slate-300 dark:border-slate-800 shadow-sm group">
-      <div class="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
+      class="text-center py-20 bg-white dark:bg-slate-900/40 backdrop-blur-xl rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm group">
+      <div class="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
         <School class="w-10 h-10 text-slate-300 dark:text-slate-600" />
       </div>
       <p class="text-slate-800 dark:text-white font-black text-xl">No tienes aulas creadas</p>
@@ -179,7 +179,7 @@ function descargarQR() {
       <!-- Mobile View: Cards -->
       <div class="grid grid-cols-1 gap-4 md:hidden">
         <div v-for="c in codigos" :key="c.id" 
-          class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-3xl p-5 shadow-sm relative overflow-hidden"
+          class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl p-5 shadow-sm relative overflow-hidden"
           :class="{ 'opacity-60': !c.is_active }">
           
           <div class="flex justify-between items-start mb-4">
@@ -227,7 +227,7 @@ function descargarQR() {
       </div>
 
       <!-- Desktop View: Table -->
-      <div class="hidden md:block bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-[2rem] overflow-hidden shadow-sm">
+      <div class="hidden md:block bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
         <table class="w-full text-sm">
           <thead>
             <tr class="bg-slate-50 dark:bg-slate-800/50 text-[11px] font-black text-slate-400 uppercase tracking-[0.1em]">
@@ -295,7 +295,7 @@ function descargarQR() {
         @click.self="qrModal = null">
 
         <!-- Card -->
-        <div class="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
+        <div class="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
 
           <!-- Close bar -->
           <div class="flex justify-end px-5 pt-4 pb-0">
@@ -384,7 +384,7 @@ function descargarQR() {
         <!-- Backdrop -->
         <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showModal = false"></div>
 
-        <div class="relative bg-white dark:bg-slate-900 w-full sm:max-w-md max-h-[92dvh] sm:max-h-fit flex flex-col sm:rounded-[2.5rem] rounded-t-[2.5rem] shadow-2xl overflow-hidden z-10 animate-slide-up">
+        <div class="relative bg-white dark:bg-slate-900 w-full sm:max-w-md max-h-[92dvh] sm:max-h-fit flex flex-col sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden z-10 animate-slide-up">
           
           <!-- Drag handle (mobile) -->
           <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0" @click="showModal = false">

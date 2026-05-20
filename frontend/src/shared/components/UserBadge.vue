@@ -149,7 +149,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
     >
       <div
         v-if="isOpen"
-        class="absolute right-0 top-full mt-3 w-72 bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-300 dark:border-slate-800 overflow-hidden z-50 animate-in fade-in zoom-in duration-200"
+        class="absolute right-0 top-full mt-3 w-72 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-800 overflow-hidden z-50 animate-in fade-in zoom-in duration-200"
       >
         <!-- User info -->
         <div class="p-6 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
@@ -230,7 +230,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
     >
       <div v-if="showPerfilModal" class="fixed inset-0 z-[300] bg-slate-900/60 backdrop-blur-sm" @click.self="showPerfilModal = false">
         <div class="fixed inset-x-0 bottom-0 sm:inset-0 flex items-end sm:items-center justify-center sm:p-6 pointer-events-none">
-          <div class="bg-white dark:bg-slate-900 w-full sm:max-w-xl max-h-[90vh] sm:max-h-none sm:h-auto flex flex-col rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden pointer-events-auto transform transition-transform duration-500 ease-out translate-y-0"
+          <div class="bg-white dark:bg-slate-900 w-full sm:max-w-xl max-h-[90vh] sm:max-h-none sm:h-auto flex flex-col rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden pointer-events-auto transform transition-transform duration-500 ease-out translate-y-0"
                :class="showPerfilModal ? 'translate-y-0' : 'translate-y-full sm:translate-y-0'">
 
             <!-- Drag handle mobile -->
@@ -258,7 +258,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
             <div class="overflow-y-auto p-8 space-y-8 custom-scrollbar">
               
               <!-- Aviso solo lectura -->
-              <div class="flex items-start gap-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/50 text-indigo-700 dark:text-indigo-400 p-4 rounded-[1.5rem] text-xs font-medium leading-relaxed">
+              <div class="flex items-start gap-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/50 text-indigo-700 dark:text-indigo-400 p-4 rounded-xl text-xs font-medium leading-relaxed">
                 <Info class="w-4 h-4 shrink-0 mt-0.5" />
                 <span>Esta es una vista informativa. Si necesitas actualizar algún dato, por favor contacta con el equipo de soporte técnico.</span>
               </div>
@@ -374,7 +374,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
     >
       <div v-if="showPasswordModal" class="fixed inset-0 z-[300] bg-slate-900/60 backdrop-blur-sm" @click.self="showPasswordModal = false">
         <div class="fixed inset-x-0 bottom-0 sm:inset-0 flex items-end sm:items-center justify-center sm:p-6 pointer-events-none">
-          <div class="bg-white dark:bg-slate-900 w-full sm:max-w-md max-h-[90vh] sm:max-h-none sm:h-auto flex flex-col rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden pointer-events-auto transform transition-transform duration-500 ease-out translate-y-0">
+          <div class="bg-white dark:bg-slate-900 w-full sm:max-w-md max-h-[90vh] sm:max-h-none sm:h-auto flex flex-col rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden pointer-events-auto transform transition-transform duration-500 ease-out translate-y-0">
 
             <!-- Drag handle mobile -->
             <div class="sm:hidden flex justify-center pt-4 pb-2 shrink-0 cursor-pointer" @click="showPasswordModal = false">

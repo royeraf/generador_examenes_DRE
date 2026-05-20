@@ -148,7 +148,7 @@ const TIPO_BADGE: Record<string, string> = {
     <Transition name="modal">
       <div v-if="showModal" class="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:p-4 bg-slate-900/60 backdrop-blur-sm" @click.self="showModal = false">
         <div class="absolute inset-0" @click="showModal = false" />
-        <div class="relative z-10 w-full sm:max-w-2xl bg-white dark:bg-slate-900 rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[85vh] transition-transform duration-500 ease-out translate-y-0">
+        <div class="relative z-10 w-full sm:max-w-2xl bg-white dark:bg-slate-900 rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[85vh] transition-transform duration-500 ease-out translate-y-0">
           
           <!-- Drag handle (mobile) -->
           <div class="sm:hidden flex justify-center pt-4 pb-2 shrink-0 cursor-pointer" @click="showModal = false">

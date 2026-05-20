@@ -97,7 +97,7 @@ async function eliminar(ugel: Ugel) {
     confirmButtonText: 'Eliminar',
     cancelButtonText: 'Cancelar',
     customClass: {
-      popup: 'rounded-[2.5rem]',
+      popup: 'rounded-2xl',
       confirmButton: 'rounded-xl font-bold px-6 py-3',
       cancelButton: 'rounded-xl font-bold px-6 py-3'
     }
@@ -111,7 +111,7 @@ async function eliminar(ugel: Ugel) {
       icon: 'success',
       timer: 1500,
       showConfirmButton: false,
-      customClass: { popup: 'rounded-[2.5rem]' }
+      customClass: { popup: 'rounded-2xl' }
     })
   } catch (e: any) {
     Swal.fire('Error', e.response?.data?.detail ?? 'No se pudo eliminar', 'error')
@@ -126,7 +126,7 @@ async function eliminar(ugel: Ugel) {
     <div class="max-w-6xl mx-auto w-full relative z-10 flex-1 flex flex-col">
       <Header title="Gestión" subtitle="UGELes Regionales" :is-dark="isDark"
         gradient-class="from-violet-600 via-indigo-500 to-indigo-600 shadow-indigo-500/20"
-        class="rounded-[2.5rem] mb-8 sticky top-0" @toggle-theme="toggleTheme">
+        class="rounded-2xl mb-8 sticky top-0" @toggle-theme="toggleTheme">
         <template #actions-before>
           <button @click="router.push('/')"
             class="p-2.5 rounded-xl bg-slate-100 dark:bg-white/20 text-slate-600 dark:text-white border border-slate-200 dark:border-white/30 hover:bg-slate-200 dark:hover:bg-white/30 transition-all duration-300"
@@ -137,7 +137,7 @@ async function eliminar(ugel: Ugel) {
       </Header>
 
       <!-- Action Bar -->
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 bg-white dark:bg-slate-800 p-6 rounded-[2.5rem] border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-top-2 duration-500">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 bg-white dark:bg-slate-800 p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-top-2 duration-500">
         <h2 class="text-lg font-black text-slate-800 dark:text-white tracking-tight uppercase">Unidades Ejecutoras</h2>
         <button @click="openCreate"
           class="w-full sm:w-auto flex items-center justify-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black px-8 py-4 rounded-2xl shadow-xl hover:-translate-y-1 transition-all active:scale-95 text-xs uppercase tracking-widest">
@@ -153,7 +153,7 @@ async function eliminar(ugel: Ugel) {
 
       <div v-else class="flex-1 flex flex-col">
         <!-- Desktop Table -->
-        <div v-if="isDesktop" class="bg-white dark:bg-slate-800 rounded-[2.5rem] border-2 border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden">
+        <div v-if="isDesktop" class="bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden">
           <table class="w-full text-left border-collapse text-sm">
             <thead>
               <tr class="bg-slate-50 dark:bg-slate-900 border-b-2 border-slate-100 dark:border-slate-700">
@@ -193,7 +193,7 @@ async function eliminar(ugel: Ugel) {
 
         <!-- Mobile Cards -->
         <div v-else class="space-y-4 pb-20">
-          <div v-for="ugel in ugeles" :key="ugel.id" class="bg-white dark:bg-slate-800 p-6 rounded-[2.5rem] border-2 border-slate-200 dark:border-slate-700 shadow-sm">
+          <div v-for="ugel in ugeles" :key="ugel.id" class="bg-white dark:bg-slate-800 p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm">
             <div class="flex justify-between items-start mb-4">
               <div class="space-y-1">
                 <div class="text-[9px] font-mono font-black text-indigo-500 uppercase tracking-widest">{{ ugel.codigo }}</div>
@@ -222,11 +222,11 @@ async function eliminar(ugel: Ugel) {
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showModal" class="fixed inset-0 z-50 flex items-center sm:items-center justify-center items-end bg-slate-900/60 backdrop-blur-sm" @click.self="showModal = false">
-          <div class="bg-white dark:bg-slate-800 rounded-t-[3rem] sm:rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden relative">
+          <div class="bg-white dark:bg-slate-800 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative">
             <div class="sm:hidden flex justify-center pt-4 pb-1" @click="showModal = false"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div></div>
             <div class="flex items-center justify-between p-8 border-b border-slate-100 dark:border-slate-700">
               <div class="flex items-center gap-5">
-                <div class="w-12 h-12 rounded-[1.25rem] bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center shadow-lg shadow-indigo-500/20">
                   <Building class="w-6 h-6 text-white" />
                 </div>
                 <div>

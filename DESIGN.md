@@ -412,9 +412,10 @@ El lenguaje de formas es **Rounded Progresivo**: el radio crece con el tamaño d
 | Inputs, selects | `0.75rem` / 12px | `rounded-xl` |
 | Botones | `0.75rem` / 12px | `rounded-xl` |
 | Tarjetas admin (pequeñas) | `0.75rem` / 12px | `rounded-xl` |
-| Tarjetas estándar | `1rem` / 16px | `rounded-2xl` |
-| Tarjetas de módulo (Home) | `1rem` / 16px | `rounded-2xl` |
-| Modales | `1rem` / 16px (arriba) | `rounded-t-2xl sm:rounded-2xl` |
+| Tarjetas estándar | 1rem / 16px | rounded-2xl |
+| Tarjetas de módulo (Home) | 1rem / 16px | rounded-2xl |
+| Modales | 1rem / 16px (arriba) | rounded-t-2xl sm:rounded-2xl |
+| **Importante** | Evitar radios > 1rem | No usar `rounded-[2rem]` o superiores |
 | Badges / pills | `9999px` | `rounded-full` |
 | Íconos-contenedor pequeños | `0.5rem` / 8px | `rounded-lg` |
 | Íconos-contenedor medianos | `0.75rem` / 12px | `rounded-xl` |

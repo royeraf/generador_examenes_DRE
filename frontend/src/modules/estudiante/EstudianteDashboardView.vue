@@ -150,7 +150,7 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
     <main class="max-w-3xl mx-auto px-6 py-8 relative">
 
       <!-- ── Hero Section ── -->
-      <section class="relative mb-8 rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-teal-500 via-indigo-500 to-purple-600 p-8 sm:p-10 shadow-2xl shadow-indigo-500/20 group">
+      <section class="relative mb-8 rounded-2xl overflow-hidden bg-gradient-to-br from-teal-500 via-indigo-500 to-purple-600 p-8 sm:p-10 shadow-2xl shadow-indigo-500/20 group">
         <!-- Decoration -->
         <div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle,white_1px,transparent_1px)] bg-[length:24px_24px]" />
         <div class="absolute -top-24 -right-24 w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-1000" />
@@ -178,7 +178,7 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
           </div>
 
           <!-- Motivational Badge -->
-          <div v-if="nivelActual" class="hidden md:flex flex-col items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-3xl p-4 min-w-[140px]">
+          <div v-if="nivelActual" class="hidden md:flex flex-col items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-4 min-w-[140px]">
             <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
               <component :is="nivelActual.icon" class="w-6 h-6 text-white" />
             </div>
@@ -260,7 +260,7 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
         
         <!-- Action Card: Exámenes -->
         <button @click="router.push('/estudiante/examenes')"
-          class="relative overflow-hidden rounded-[2rem] p-6 text-left group transition-all duration-300 hover:-translate-y-1.5"
+          class="relative overflow-hidden rounded-2xl p-6 text-left group transition-all duration-300 hover:-translate-y-1.5"
           style="background: linear-gradient(135deg, #14b8a6, #0ea5e9)">
           
           <div class="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors" />
@@ -284,7 +284,7 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
 
         <!-- Action Card: Progreso -->
         <button @click="router.push('/estudiante/progreso')"
-          class="relative overflow-hidden rounded-[2rem] p-6 text-left group transition-all duration-300 hover:-translate-y-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10">
+          class="relative overflow-hidden rounded-2xl p-6 text-left group transition-all duration-300 hover:-translate-y-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10">
           
           <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-50 dark:bg-indigo-500/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
           
@@ -347,8 +347,8 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
 
       <!-- ── Empty State ── -->
       <section v-if="!loadingStats && progreso.length === 0"
-        class="bg-white dark:bg-slate-900 rounded-[2.5rem] border-2 border-dashed border-slate-300 dark:border-slate-800 p-12 text-center mb-10 group">
-        <div class="w-20 h-20 rounded-3xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+        class="bg-white dark:bg-slate-900 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-800 p-12 text-center mb-10 group">
+        <div class="w-20 h-20 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
           <Library class="w-10 h-10 text-slate-300 dark:text-slate-600" />
         </div>
         <h3 class="text-xl font-bold text-slate-900 dark:text-white">¡Bienvenido a tu nueva etapa!</h3>

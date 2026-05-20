@@ -12,7 +12,7 @@ import {
   ClipboardList, BookOpen, Calculator,
   Trash2, Loader2, Users, ChevronDown,
   Clock, AlertCircle, Plus, X, BookMarked, Save, User, Pencil,
-  RefreshCw, TrendingUp
+  RefreshCw, TrendingUp, GraduationCap
 } from 'lucide-vue-next'
 import type { Grado } from '../../shared/types'
 import { useAuthStore } from '../../stores/auth'
@@ -100,13 +100,19 @@ const examenSeleccionado = computed(() =>
   examenesActuales.value.find(ex => ex.id === examenSeleccionadoId.value) ?? null
 )
 const codigoClaseId = ref<number | null>(null)
+const claseDropdownOpen = shallowRef(false)
 const gradoSeleccionadoId = ref<number | null>(null)
+const gradoDropdownOpen = shallowRef(false)
 const seccion = ref('')
+const seccionDropdownOpen = shallowRef(false)
 
 // Para docentes: usa codigos_clase; para roles superiores: usa grado+sección libres
 const usarCodigosClase = computed(() => auth.isDocente || auth.isAuxiliar)
 const codigoClaseSeleccionado = computed(() =>
   codigosClase.value.find(c => c.id === codigoClaseId.value) ?? null
+)
+const gradoSeleccionado = computed(() =>
+  grados.value.find(g => g.id === gradoSeleccionadoId.value) ?? null
 )
 const fechaAplicacion = ref('')
 const horaInicio = ref('')
@@ -137,6 +143,9 @@ function closeModal() {
   showModal.value = false
   editingId.value = null
   examenDropdownOpen.value = false
+  claseDropdownOpen.value = false
+  gradoDropdownOpen.value = false
+  seccionDropdownOpen.value = false
 }
 
 // extraerFechaHora importado de shared/utils/dateUtils
@@ -382,8 +391,8 @@ const estadoColors: Record<string, string> = {
 
       <!-- Empty -->
       <div v-else-if="asignaciones.length === 0"
-        class="bg-white dark:bg-slate-900/40 backdrop-blur-xl rounded-[2.5rem] border border-slate-300 dark:border-slate-800 p-12 text-center shadow-sm group">
-        <div class="w-24 h-24 bg-slate-50 dark:bg-slate-800 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
+        class="bg-white dark:bg-slate-900/40 backdrop-blur-xl rounded-2xl border border-slate-300 dark:border-slate-800 p-12 text-center shadow-sm group">
+        <div class="w-24 h-24 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
            <ClipboardList class="w-12 h-12 text-slate-300 dark:text-slate-600" />
         </div>
         <h3 class="text-2xl font-black text-slate-800 dark:text-white mb-2 tracking-tight">Sin asignaciones aún</h3>
@@ -400,7 +409,7 @@ const estadoColors: Record<string, string> = {
       <!-- List -->
       <div v-else class="grid grid-cols-1 gap-4 md:gap-6">
         <div v-for="asig in asignaciones" :key="asig.id"
-          class="bg-white dark:bg-slate-900/60 backdrop-blur-md rounded-[2.5rem] border border-slate-300 dark:border-slate-800 p-6 md:p-8 shadow-sm hover:shadow-xl hover:shadow-violet-500/5 transition-all duration-300 relative group overflow-hidden">
+          class="bg-white dark:bg-slate-900/60 backdrop-blur-md rounded-2xl border border-slate-300 dark:border-slate-800 p-6 md:p-8 shadow-sm hover:shadow-xl hover:shadow-violet-500/5 transition-all duration-300 relative group overflow-hidden">
           
           <div class="absolute -right-8 -top-8 w-32 h-32 bg-violet-500/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
 
@@ -409,7 +418,7 @@ const estadoColors: Record<string, string> = {
             <div :class="asig.tipo_examen === 'lectura'
               ? 'bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400'
               : 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'"
-              class="w-16 h-16 rounded-3xl flex items-center justify-center flex-shrink-0 transform group-hover:rotate-6 transition-transform shadow-inner">
+              class="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 transform group-hover:rotate-6 transition-transform shadow-inner">
               <BookOpen v-if="asig.tipo_examen === 'lectura'" class="w-8 h-8" />
               <Calculator v-else class="w-8 h-8" />
             </div>
@@ -486,7 +495,7 @@ const estadoColors: Record<string, string> = {
           <!-- Backdrop -->
           <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" @click="closeModal()"></div>
 
-          <div class="relative bg-white dark:bg-slate-900 w-full sm:max-w-2xl max-h-[94dvh] sm:max-h-[85vh] flex flex-col sm:rounded-[2.5rem] rounded-t-[2.5rem] shadow-2xl overflow-hidden z-10 animate-slide-up">
+          <div class="relative bg-white dark:bg-slate-900 w-full sm:max-w-2xl max-h-[94dvh] sm:max-h-[85vh] flex flex-col sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden z-10 animate-slide-up">
             
             <!-- Drag handle mobile -->
             <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0" @click="closeModal()">
@@ -614,33 +623,132 @@ const estadoColors: Record<string, string> = {
                       <div v-if="codigosClase.length === 0" class="p-5 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 text-center">
                          <p class="text-xs font-bold text-slate-500">No tienes aulas activas. Crea una primero en la sección "Aulas".</p>
                       </div>
-                      <select v-else v-model="codigoClaseId"
-                        class="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-violet-500/50 rounded-2xl py-4 px-5 text-base font-bold text-slate-900 dark:text-white outline-none appearance-none cursor-pointer transition-all">
-                        <option :value="null">— Todas mis secciones —</option>
-                        <option v-for="c in codigosClase" :key="c.id" :value="c.id">
-                          {{ c.grado_nombre }} — Sección {{ c.seccion }}
-                        </option>
-                      </select>
-                      <div v-if="codigoClaseSeleccionado" class="mt-3 flex items-center gap-3 bg-violet-50 dark:bg-violet-500/5 p-3 rounded-xl border border-violet-100 dark:border-violet-500/10">
-                        <Users class="w-4 h-4 text-violet-500" />
-                        <span class="text-xs font-bold text-violet-700 dark:text-violet-300">
-                          {{ codigoClaseSeleccionado.total_estudiantes }} estudiantes registrados
-                        </span>
+                      <div v-else class="relative">
+                        <button type="button" @click="claseDropdownOpen = !claseDropdownOpen"
+                          :class="[
+                            'w-full flex items-center justify-between gap-4 px-5 py-4 rounded-2xl border-2 transition-all text-left',
+                            claseDropdownOpen
+                              ? 'border-violet-500 ring-4 ring-violet-500/10 bg-white dark:bg-slate-800'
+                              : 'border-transparent bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700'
+                          ]">
+                          <div v-if="codigoClaseSeleccionado" class="min-w-0">
+                            <p class="text-sm font-black text-slate-800 dark:text-white truncate leading-tight">
+                              {{ codigoClaseSeleccionado.grado_nombre }} — Sección {{ codigoClaseSeleccionado.seccion }}
+                            </p>
+                            <p class="text-[10px] font-bold text-slate-400 flex items-center gap-1.5 mt-1 uppercase">
+                              <Users class="w-3 h-3" />
+                              <span>{{ codigoClaseSeleccionado.total_estudiantes }} estudiantes</span>
+                            </p>
+                          </div>
+                          <span v-else class="text-slate-400 text-sm font-bold">— Todas mis secciones —</span>
+                          <ChevronDown class="w-5 h-5 text-slate-400 transition-transform duration-300" :class="claseDropdownOpen ? 'rotate-180' : ''" />
+                        </button>
+
+                        <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100"
+                          leave-active-class="transition duration-150 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
+                          <div v-if="claseDropdownOpen"
+                            class="absolute z-[120] left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
+                            <div class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 custom-scrollbar">
+                              <button type="button" @click="codigoClaseId = null; claseDropdownOpen = false"
+                                class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
+                                <div :class="codigoClaseId === null ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0 transition-colors"></div>
+                                <p class="text-sm font-black text-slate-800 dark:text-white">Todas mis secciones</p>
+                              </button>
+                              <button v-for="c in codigosClase" :key="c.id" type="button"
+                                @click="codigoClaseId = c.id; claseDropdownOpen = false"
+                                class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
+                                <div :class="codigoClaseId === c.id ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0 transition-colors"></div>
+                                <div class="min-w-0">
+                                  <p class="text-sm font-black text-slate-800 dark:text-white truncate">{{ c.grado_nombre }} — Sección {{ c.seccion }}</p>
+                                  <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase">{{ c.total_estudiantes }} estudiantes registrados</p>
+                                </div>
+                              </button>
+                            </div>
+                          </div>
+                        </Transition>
                       </div>
                     </div>
 
                     <!-- Roles superiores: Grado + Sección libres -->
                     <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <select v-model="gradoSeleccionadoId"
-                        class="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-violet-500/50 rounded-2xl py-4 px-5 text-sm font-bold text-slate-900 dark:text-white outline-none appearance-none transition-all">
-                        <option :value="null">— Todos los grados —</option>
-                        <option v-for="g in grados" :key="g.id" :value="g.id">{{ g.nombre }}</option>
-                      </select>
-                      <select v-model="seccion"
-                        class="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-violet-500/50 rounded-2xl py-4 px-5 text-sm font-bold text-slate-900 dark:text-white outline-none appearance-none transition-all">
-                        <option value="">— Todas las secciones —</option>
-                        <option v-for="s in ['A','B','C','D','E','F','G','H','I','J','Única']" :key="s" :value="s">{{ s }}</option>
-                      </select>
+                      <!-- Grado Dropdown -->
+                      <div class="relative">
+                        <button type="button" @click="gradoDropdownOpen = !gradoDropdownOpen"
+                          :class="[
+                            'w-full flex items-center justify-between gap-4 px-5 py-4 rounded-2xl border-2 transition-all text-left',
+                            gradoDropdownOpen
+                              ? 'border-violet-500 ring-4 ring-violet-500/10 bg-white dark:bg-slate-800'
+                              : 'border-transparent bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700'
+                          ]">
+                          <div class="min-w-0 flex items-center gap-3">
+                            <div v-if="gradoSeleccionado" class="p-1.5 rounded-lg bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400">
+                              <GraduationCap class="w-4 h-4" />
+                            </div>
+                            <div>
+                              <p v-if="gradoSeleccionado" class="text-sm font-black text-slate-800 dark:text-white truncate leading-tight">{{ gradoSeleccionado.nombre }}</p>
+                              <span v-else class="text-slate-400 text-sm font-bold">— Todos los grados —</span>
+                            </div>
+                          </div>
+                          <ChevronDown class="w-5 h-5 text-slate-400 transition-transform duration-300" :class="gradoDropdownOpen ? 'rotate-180' : ''" />
+                        </button>
+
+                        <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100"
+                          leave-active-class="transition duration-150 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
+                          <div v-if="gradoDropdownOpen"
+                            class="absolute z-[120] left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
+                            <div class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 custom-scrollbar">
+                              <button type="button" @click="gradoSeleccionadoId = null; gradoDropdownOpen = false"
+                                class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
+                                <div :class="gradoSeleccionadoId === null ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0 transition-colors"></div>
+                                <p class="text-sm font-black text-slate-800 dark:text-white">Todos los grados</p>
+                              </button>
+                              <button v-for="g in grados" :key="g.id" type="button"
+                                @click="gradoSeleccionadoId = g.id; gradoDropdownOpen = false"
+                                class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
+                                <div :class="gradoSeleccionadoId === g.id ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0 transition-colors"></div>
+                                <p class="text-sm font-black text-slate-800 dark:text-white">{{ g.nombre }}</p>
+                              </button>
+                            </div>
+                          </div>
+                        </Transition>
+                      </div>
+
+                      <!-- Sección Dropdown -->
+                      <div class="relative">
+                        <button type="button" @click="seccionDropdownOpen = !seccionDropdownOpen"
+                          :class="[
+                            'w-full flex items-center justify-between gap-4 px-5 py-4 rounded-2xl border-2 transition-all text-left',
+                            seccionDropdownOpen
+                              ? 'border-violet-500 ring-4 ring-violet-500/10 bg-white dark:bg-slate-800'
+                              : 'border-transparent bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700'
+                          ]">
+                          <div class="min-w-0">
+                            <p v-if="seccion" class="text-sm font-black text-slate-800 dark:text-white truncate leading-tight">Sección {{ seccion }}</p>
+                            <span v-else class="text-slate-400 text-sm font-bold">— Todas las secciones —</span>
+                          </div>
+                          <ChevronDown class="w-5 h-5 text-slate-400 transition-transform duration-300" :class="seccionDropdownOpen ? 'rotate-180' : ''" />
+                        </button>
+
+                        <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100"
+                          leave-active-class="transition duration-150 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
+                          <div v-if="seccionDropdownOpen"
+                            class="absolute z-[120] left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
+                            <div class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 custom-scrollbar">
+                              <button type="button" @click="seccion = ''; seccionDropdownOpen = false"
+                                class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
+                                <div :class="seccion === '' ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0 transition-colors"></div>
+                                <p class="text-sm font-black text-slate-800 dark:text-white">Todas las secciones</p>
+                              </button>
+                              <button v-for="s in ['A','B','C','D','E','F','G','H','I','J','Única']" :key="s" type="button"
+                                @click="seccion = s; seccionDropdownOpen = false"
+                                class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
+                                <div :class="seccion === s ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0 transition-colors"></div>
+                                <p class="text-sm font-black text-slate-800 dark:text-white">Sección {{ s }}</p>
+                              </button>
+                            </div>
+                          </div>
+                        </Transition>
+                      </div>
                     </div>
                   </div>
 
@@ -661,7 +769,7 @@ const estadoColors: Record<string, string> = {
                 <!-- Horarios -->
                 <div class="space-y-4">
                   <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest">Programación Horaria</label>
-                  <div class="bg-slate-50 dark:bg-slate-800/40 rounded-3xl p-6 border border-slate-300 dark:border-slate-800 space-y-4 shadow-inner">
+                  <div class="bg-slate-50 dark:bg-slate-800/40 rounded-2xl p-6 border border-slate-300 dark:border-slate-800 space-y-4 shadow-inner">
                     <div>
                       <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Fecha de aplicación</label>
                       <input v-model="fechaAplicacion" type="date"
@@ -757,7 +865,7 @@ const estadoColors: Record<string, string> = {
           
           <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showResultados = false"></div>
 
-          <div class="relative bg-white dark:bg-slate-900 w-full sm:max-w-2xl max-h-[94dvh] sm:max-h-[85vh] flex flex-col sm:rounded-[2.5rem] rounded-t-[2.5rem] shadow-2xl overflow-hidden z-10 animate-slide-up">
+          <div class="relative bg-white dark:bg-slate-900 w-full sm:max-w-2xl max-h-[94dvh] sm:max-h-[85vh] flex flex-col sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden z-10 animate-slide-up">
 
             <!-- Drag handle mobile -->
             <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0" @click="showResultados = false">
@@ -813,7 +921,7 @@ const estadoColors: Record<string, string> = {
 
               <div v-else-if="(resultados[resultadosAsig?.id ?? 0] ?? []).length === 0"
                 class="flex flex-col items-center justify-center py-24 gap-4 text-center px-8">
-                <div class="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-3xl flex items-center justify-center mb-2">
+                <div class="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mb-2">
                    <Users class="w-10 h-10 text-slate-300 dark:text-slate-600" />
                 </div>
                 <div>
