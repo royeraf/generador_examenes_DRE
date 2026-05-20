@@ -4,8 +4,9 @@ import { useRoute, useRouter } from 'vue-router'
 import { apiClient } from '../../shared/services/api'
 import {
   ChevronLeft, ChevronRight, Clock, AlertCircle, CheckCircle2,
-  Loader2, BookOpen, ClipboardList, ChevronDown, ChevronUp,
-  CheckCircle, XCircle, Lightbulb, Zap, Target, Trophy, ArrowLeft
+  Loader2, BookOpen, ClipboardList,
+  CheckCircle, XCircle, Lightbulb, Zap, Target, Trophy, ArrowLeft,
+  X
 } from 'lucide-vue-next'
 import ThinkingLoader from '../../shared/components/ThinkingLoader.vue'
 import { useTheme } from '../../shared/composables/useTheme'
@@ -75,9 +76,10 @@ const resultado = ref<any>(null)
 // Revisión
 const revision = ref<Revision | null>(null)
 const loadingRevision = ref(false)
-const mostrarRevision = ref(false)
-const preguntaRevisionAbierta = ref<number | null>(null)
 const intentoIdFinalizado = ref<number | null>(null)
+
+const mostrarModalRevision = ref(false)
+const preguntaRevisionActual = ref(0)
 
 interface ConfettiParticle {
   id: number
@@ -254,10 +256,11 @@ async function cargarRevision() {
   const intenId = intentoIdFinalizado.value
   if (!intenId && !route.query.intento_id) {
     loadingRevision.value = true
-    mostrarRevision.value = true
     try {
       const res = await apiClient.get(`/estudiante/examenes/${asignacionId}/revision`)
       revision.value = res.data
+      preguntaRevisionActual.value = 0
+      mostrarModalRevision.value = true
     } catch (e: any) {
       error.value = e.response?.data?.detail ?? 'Error al cargar revisión'
     } finally {
@@ -268,10 +271,11 @@ async function cargarRevision() {
 
   const id = intenId ?? Number(route.query.intento_id)
   loadingRevision.value = true
-  mostrarRevision.value = true
   try {
     const res = await apiClient.get(`/estudiante/intentos/${id}/revision`)
     revision.value = res.data
+    preguntaRevisionActual.value = 0
+    mostrarModalRevision.value = true
   } catch (e: any) {
     error.value = e.response?.data?.detail ?? 'Error al cargar revisión'
   } finally {
@@ -279,9 +283,23 @@ async function cargarRevision() {
   }
 }
 
-function togglePreguntaRevision(num: number) {
-  preguntaRevisionAbierta.value = preguntaRevisionAbierta.value === num ? null : num
+function anteriorRevision() {
+  if (preguntaRevisionActual.value > 0) {
+    preguntaRevisionActual.value--
+  }
 }
+
+function siguienteRevision() {
+  if (revision.value && preguntaRevisionActual.value < revision.value.preguntas.length - 1) {
+    preguntaRevisionActual.value++
+  } else {
+    mostrarModalRevision.value = false
+  }
+}
+
+const activeRevisionPregunta = computed(() => {
+  return revision.value?.preguntas[preguntaRevisionActual.value] || null
+})
 
 const nivelColors: Record<string, string> = {
   pre_inicio: 'text-red-500 bg-red-50 dark:bg-red-500/10 border-red-100 dark:border-red-500/20',
@@ -431,107 +449,196 @@ const nivelMensaje: Record<string, string> = {
         </div>
       </div>
 
-      <!-- Revision Detail (Slide-in) -->
-      <Transition
-        enter-active-class="transition duration-500 ease-out"
-        enter-from-class="opacity-0 translate-y-10"
-        enter-to-class="opacity-100 translate-y-0"
-      >
-        <div v-if="mostrarRevision && revision" class="w-full max-w-2xl mt-12 mb-20 z-10">
-          <div class="flex items-center gap-3 mb-8 px-2">
-            <div class="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center">
-              <ClipboardList class="w-5 h-5 text-violet-500" />
+      <!-- Full-screen Practice-style Feedback Modal -->
+      <Teleport to="body">
+        <Transition
+          enter-active-class="transition duration-300 ease-out"
+          enter-from-class="opacity-0 translate-y-8"
+          enter-to-class="opacity-100 translate-y-0"
+          leave-active-class="transition duration-200 ease-in"
+          leave-from-class="opacity-100 translate-y-0"
+          leave-to-class="opacity-0 translate-y-8"
+        >
+          <div v-if="mostrarModalRevision && revision" class="fixed inset-0 z-50 bg-slate-50 dark:bg-slate-950 flex flex-col font-sans overflow-hidden">
+            
+            <!-- Premium Background Blurs -->
+            <div class="absolute inset-0 pointer-events-none overflow-hidden -z-10">
+              <div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-teal-500/5 dark:bg-teal-500/10 rounded-full blur-[120px]"></div>
+              <div class="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[100px]"></div>
             </div>
-            <div>
-              <h2 class="text-xl font-bold text-slate-900 dark:text-white">Análisis de Desempeño</h2>
-              <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-0.5">Revisión detallada por pregunta</p>
+
+            <!-- Header -->
+            <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/80 h-16 flex items-center shrink-0 px-6 justify-between relative z-10 shadow-sm">
+              <div class="flex items-center gap-4 min-w-0">
+                <button @click="mostrarModalRevision = false" 
+                  class="w-10 h-10 rounded-xl flex items-center justify-center text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer">
+                  <X class="w-5 h-5" />
+                </button>
+                <div class="min-w-0">
+                  <h1 class="font-bold text-slate-900 dark:text-white text-base truncate leading-none mb-1">Revisión de Evaluación</h1>
+                  <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none">
+                    Práctica y retroalimentación inteligente
+                  </p>
+                </div>
+              </div>
+
+              <!-- Stats/Score Badge in Header -->
+              <div class="flex items-center gap-3">
+                <div class="hidden sm:flex flex-col items-end">
+                  <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Logro obtenido</span>
+                  <span class="text-sm font-black text-teal-600 dark:text-teal-400 leading-none mt-1">
+                    {{ resultado?.puntaje_total?.toFixed(0) }}% ({{ resultado?.preguntas_correctas }}/{{ resultado?.preguntas_total }})
+                  </span>
+                </div>
+                <div class="w-px h-8 bg-slate-200 dark:bg-slate-800 hidden sm:block"></div>
+                <span :class="nivelColors[resultado?.nivel_logro || ''] || 'bg-slate-100 text-slate-600'"
+                  class="px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border border-transparent">
+                  {{ nivelLabels[resultado?.nivel_logro || ''] || '—' }}
+                </span>
+              </div>
+            </header>
+
+            <!-- Progress Bar under header -->
+            <div class="h-1.5 bg-slate-100 dark:bg-slate-900 w-full relative">
+              <div class="h-full bg-gradient-to-r from-teal-500 to-indigo-600 transition-all duration-300 ease-out"
+                :style="{ width: ((preguntaRevisionActual + 1) / revision.preguntas.length) * 100 + '%' }"></div>
             </div>
-          </div>
 
-          <div class="space-y-6">
-            <div v-for="preg in revision.preguntas" :key="preg.numero"
-              class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-              
-              <button @click="togglePreguntaRevision(preg.numero)"
-                class="w-full flex items-center gap-4 p-6 text-left transition-colors">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-                  :class="preg.es_correcta
-                    ? 'bg-emerald-500/10 text-emerald-500'
-                    : 'bg-red-500/10 text-red-500'">
-                  <CheckCircle v-if="preg.es_correcta" class="w-5 h-5" />
-                  <XCircle v-else class="w-5 h-5" />
-                </div>
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-3 mb-1">
-                    <span class="text-[10px] font-black uppercase tracking-widest"
-                      :class="preg.es_correcta ? 'text-emerald-500' : 'text-red-500'">
-                      Pregunta {{ preg.numero }}
-                    </span>
-                    <span v-if="preg.nivel" class="text-[10px] font-bold text-slate-400 border border-slate-300 dark:border-slate-800 px-2 py-0.5 rounded-full uppercase">
-                      {{ preg.nivel }}
-                    </span>
-                  </div>
-                  <p class="text-slate-700 dark:text-slate-200 font-bold leading-snug line-clamp-2">{{ preg.enunciado }}</p>
-                </div>
-                <div class="w-10 h-10 rounded-full flex items-center justify-center bg-slate-50 dark:bg-slate-800 text-slate-400">
-                  <ChevronDown v-if="preguntaRevisionAbierta !== preg.numero" class="w-5 h-5" />
-                  <ChevronUp v-else class="w-5 h-5" />
-                </div>
-              </button>
-
-              <Transition
-                enter-active-class="transition duration-200 ease-out"
-                enter-from-class="opacity-0 max-h-0"
-                enter-to-class="opacity-100 max-h-[1000px]"
-                leave-active-class="transition duration-150 ease-in"
-                leave-from-class="opacity-100 max-h-[1000px]"
-                leave-to-class="opacity-0 max-h-0"
-              >
-                <div v-if="preguntaRevisionAbierta === preg.numero" class="px-6 pb-6 pt-0 space-y-6">
-                  <!-- Options -->
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div v-for="opcion in preg.opciones" :key="opcion.letra"
-                      class="flex items-center gap-3 px-4 py-3 rounded-2xl border text-sm transition-all"
-                      :class="
-                        opcion.letra === preg.respuesta_correcta
-                          ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-500 text-emerald-900 dark:text-emerald-300 font-bold'
-                          : opcion.letra === preg.respuesta_dada && !preg.es_correcta
-                            ? 'bg-red-50 dark:bg-red-500/10 border-red-500 text-red-900 dark:text-red-300'
-                            : 'bg-slate-50 dark:bg-slate-800/50 border-transparent text-slate-500 dark:text-slate-400'
-                      ">
-                      <span class="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black shrink-0 shadow-sm"
-                        :class="
-                          opcion.letra === preg.respuesta_correcta
-                            ? 'bg-emerald-500 text-white'
-                            : opcion.letra === preg.respuesta_dada && !preg.es_correcta
-                              ? 'bg-red-500 text-white'
-                              : 'bg-white dark:bg-slate-700 text-slate-400'
-                        ">{{ opcion.letra }}</span>
-                      <span class="flex-1 leading-tight">{{ opcion.texto }}</span>
-                    </div>
-                  </div>
-
-                  <!-- AI Insight -->
-                  <div class="bg-indigo-50/50 dark:bg-indigo-500/5 rounded-2xl p-6 border border-indigo-100/50 dark:border-indigo-500/10 relative overflow-hidden group">
-                    <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
-                      <Lightbulb class="w-12 h-12 text-indigo-500" />
-                    </div>
-                    <div class="flex items-center gap-2 mb-3">
-                      <div class="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                        <Zap class="w-4 h-4 text-white" />
+            <!-- Main Scrollable Practice Area -->
+            <div class="flex-1 overflow-y-auto px-4 py-8 md:py-12 flex flex-col items-center justify-start">
+              <div class="w-full max-w-3xl flex flex-col gap-6 relative">
+                
+                <!-- Active Card with Vue transition -->
+                <Transition name="card-fade" mode="out-in">
+                  <div v-if="activeRevisionPregunta" :key="preguntaRevisionActual" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 md:p-8 shadow-2xl relative flex flex-col w-full">
+                    
+                    <!-- Card Header: Number, Level, Correctness -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-100 dark:border-slate-800/60">
+                      <div class="flex items-center gap-3">
+                        <span class="text-xs font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1.5 rounded-xl border border-indigo-100/50 dark:border-indigo-900/30">
+                          Pregunta {{ activeRevisionPregunta.numero }} de {{ revision.preguntas.length }}
+                        </span>
+                        <span v-if="activeRevisionPregunta.nivel" class="text-[10px] font-black text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-800 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                          {{ activeRevisionPregunta.nivel }}
+                        </span>
                       </div>
-                      <span class="text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Insight de Aprendizaje</span>
+
+                      <div class="flex items-center gap-2">
+                        <span v-if="activeRevisionPregunta.es_correcta" 
+                          class="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5">
+                          <CheckCircle class="w-3.5 h-3.5" /> Correcta
+                        </span>
+                        <span v-else 
+                          class="bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-500/20 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5">
+                          <XCircle class="w-3.5 h-3.5" /> Incorrecta
+                        </span>
+                      </div>
                     </div>
-                    <p class="text-sm text-indigo-900 dark:text-indigo-200 leading-relaxed font-medium">
-                      {{ preg.retroalimentacion_ia }}
-                    </p>
+
+                    <!-- Question Text -->
+                    <div class="mb-8">
+                      <h3 class="text-lg md:text-xl font-bold text-slate-900 dark:text-white leading-relaxed">
+                        {{ activeRevisionPregunta.enunciado }}
+                      </h3>
+                    </div>
+
+                    <!-- Options Grid -->
+                    <div class="space-y-3 mb-8">
+                      <div v-for="opcion in activeRevisionPregunta.opciones" :key="opcion.letra"
+                        class="flex items-center gap-4 px-5 py-4 rounded-xl border text-sm transition-all"
+                        :class="
+                          opcion.letra === activeRevisionPregunta.respuesta_correcta
+                            ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-500 text-emerald-950 dark:text-emerald-300 font-bold shadow-sm shadow-emerald-500/5'
+                            : opcion.letra === activeRevisionPregunta.respuesta_dada && !activeRevisionPregunta.es_correcta
+                              ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-500 text-rose-950 dark:text-rose-300 shadow-sm shadow-rose-500/5'
+                              : 'bg-slate-50 dark:bg-slate-800/40 border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-800/70'
+                        ">
+                        <span class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black shrink-0 shadow-sm transition-colors duration-300"
+                          :class="
+                            opcion.letra === activeRevisionPregunta.respuesta_correcta
+                              ? 'bg-emerald-500 text-white'
+                              : opcion.letra === activeRevisionPregunta.respuesta_dada && !activeRevisionPregunta.es_correcta
+                                ? 'bg-rose-500 text-white'
+                                : 'bg-white dark:bg-slate-700 text-slate-400 border border-slate-200 dark:border-slate-600'
+                          ">{{ opcion.letra }}</span>
+                        
+                        <div class="flex-1 leading-snug">
+                          <span class="block">{{ opcion.texto }}</span>
+                          <span v-if="opcion.letra === activeRevisionPregunta.respuesta_correcta" class="inline-block text-[9px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mt-1">
+                            Respuesta Correcta
+                          </span>
+                          <span v-else-if="opcion.letra === activeRevisionPregunta.respuesta_dada && !activeRevisionPregunta.es_correcta" class="inline-block text-[9px] font-black uppercase tracking-wider text-rose-600 dark:text-rose-400 mt-1">
+                            Tu Respuesta
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- AI Insight Container -->
+                    <div class="bg-gradient-to-br from-indigo-50/60 to-purple-50/40 dark:from-indigo-950/30 dark:to-purple-950/20 rounded-xl p-6 border border-indigo-100/50 dark:border-indigo-500/10 relative overflow-hidden group">
+                      <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
+                        <Lightbulb class="w-12 h-12 text-indigo-500" />
+                      </div>
+                      <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                          <div class="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                            <Zap class="w-4 h-4 text-white" />
+                          </div>
+                          <span class="text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Insight de Aprendizaje con IA</span>
+                        </div>
+                        <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800/80 px-2 py-0.5 rounded-md">Gemini AI</span>
+                      </div>
+                      <p class="text-sm text-indigo-900/90 dark:text-indigo-200/90 leading-relaxed font-medium">
+                        {{ activeRevisionPregunta.retroalimentacion_ia }}
+                      </p>
+                    </div>
+
                   </div>
-                </div>
-              </Transition>
+                </Transition>
+
+              </div>
             </div>
+
+            <!-- Footer Navigation Bar -->
+            <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-6 px-6 shrink-0 relative z-10 shadow-lg">
+              <div class="max-w-3xl mx-auto flex items-center justify-between gap-4">
+                
+                <!-- Previous Button -->
+                <button @click="anteriorRevision" :disabled="preguntaRevisionActual === 0"
+                  class="flex-1 sm:flex-initial h-12 px-6 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-40 disabled:hover:bg-slate-100 dark:disabled:hover:bg-slate-800 font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer select-none">
+                  <ChevronLeft class="w-4 h-4" />
+                  <span>Anterior</span>
+                </button>
+
+                <!-- Progress Dots (Desktop only) -->
+                <div class="hidden sm:flex items-center gap-1.5">
+                  <button v-for="(p, idx) in revision.preguntas" :key="idx"
+                    @click="preguntaRevisionActual = idx"
+                    class="w-3 h-3 rounded-full transition-all duration-300 cursor-pointer"
+                    :class="
+                      idx === preguntaRevisionActual
+                        ? 'bg-gradient-to-r from-teal-500 to-indigo-600 scale-125 w-6'
+                        : p.es_correcta
+                          ? 'bg-emerald-500/40 hover:bg-emerald-500/60'
+                          : 'bg-rose-500/40 hover:bg-rose-500/60'
+                    "
+                    :title="'Ir a Pregunta ' + p.numero"
+                  />
+                </div>
+
+                <!-- Next / Finish Button -->
+                <button @click="siguienteRevision"
+                  class="flex-1 sm:flex-initial h-12 px-6 bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:scale-[1.02] active:scale-[0.98] font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-slate-900/10 dark:shadow-white/5 select-none">
+                  <span>{{ preguntaRevisionActual === revision.preguntas.length - 1 ? 'Finalizar Revisión' : 'Siguiente' }}</span>
+                  <ChevronRight class="w-4 h-4" />
+                </button>
+
+              </div>
+            </footer>
+
           </div>
-        </div>
-      </Transition>
+        </Transition>
+      </Teleport>
     </div>
 
     <!-- Examen en curso -->
@@ -804,4 +911,17 @@ const nivelMensaje: Record<string, string> = {
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+.card-fade-enter-active,
+.card-fade-leave-active {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-fade-enter-from {
+  opacity: 0;
+  transform: translateY(12px) scale(0.98);
+}
+.card-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-12px) scale(0.98);
+}
 </style>

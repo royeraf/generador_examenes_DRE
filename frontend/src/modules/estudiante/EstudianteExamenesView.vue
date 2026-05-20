@@ -129,7 +129,7 @@ const nivelLabels: Record<string, string> = {
 
     <!-- Sticky Header -->
     <header class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-300 dark:border-slate-800 shadow-sm">
-      <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         <div class="flex items-center gap-4">
           <button @click="router.push('/estudiante')" 
             class="w-10 h-10 rounded-xl flex items-center justify-center text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-300 dark:hover:border-slate-700">
@@ -147,7 +147,7 @@ const nivelLabels: Record<string, string> = {
 
     <!-- Tabs -->
     <div class="sticky top-16 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 transition-all duration-300">
-      <div class="max-w-4xl mx-auto px-6">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6">
         <div class="inline-flex p-1 bg-slate-100/80 dark:bg-slate-950/60 backdrop-blur-sm rounded-2xl border border-slate-200 dark:border-slate-800/80 relative w-full sm:w-auto shadow-inner">
           <button
             v-for="tab in [
@@ -156,15 +156,15 @@ const nivelLabels: Record<string, string> = {
             ]"
             :key="tab.id"
             @click="activeTab = tab.id"
-            class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 cursor-pointer relative z-10 select-none"
+            class="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 cursor-pointer relative z-10 select-none"
             :class="activeTab === tab.id
               ? 'text-white shadow-md shadow-teal-500/20 bg-gradient-to-r from-teal-500 to-indigo-600 scale-[1.02] active:scale-[0.98]'
               : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/40 active:scale-[0.98]'"
           >
-            <component :is="tab.icon" class="w-4 h-4 transition-transform duration-300" :class="activeTab === tab.id ? 'rotate-12 scale-110' : ''" />
+            <component :is="tab.icon" class="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-300" :class="activeTab === tab.id ? 'rotate-12 scale-110' : ''" />
             <span>{{ tab.label }}</span>
             <span
-              class="text-[10px] font-black px-2 py-0.5 rounded-full min-w-[20px] text-center transition-all duration-300"
+              class="text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-full min-w-[18px] sm:min-w-[20px] text-center transition-all duration-300"
               :class="activeTab === tab.id
                 ? 'bg-white/20 text-white backdrop-blur-sm'
                 : 'bg-slate-200 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400'"
@@ -174,7 +174,7 @@ const nivelLabels: Record<string, string> = {
       </div>
     </div>
 
-    <main class="max-w-4xl mx-auto px-6 py-8 relative">
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 py-8 relative">
       <div v-if="loading" class="flex flex-col items-center justify-center py-20 gap-4">
         <Loader2 class="w-10 h-10 animate-spin text-teal-500" />
         <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Cargando exámenes...</p>
@@ -191,7 +191,7 @@ const nivelLabels: Record<string, string> = {
       <!-- Empty state global (sin ningún examen) -->
       <div v-else-if="examenes.length === 0"
         class="text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-xl">
-        <div class="w-20 h-20 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center mx-auto mb-6">
+        <div class="w-20 h-20 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center mx-auto mb-6">
           <BookOpen class="w-10 h-10 text-slate-300 dark:text-slate-600" />
         </div>
         <h3 class="text-xl font-bold text-slate-900 dark:text-white">Sin exámenes asignados</h3>
@@ -202,7 +202,7 @@ const nivelLabels: Record<string, string> = {
         <!-- Empty state por tab -->
         <div v-if="examenesVisibles.length === 0"
           class="text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-xl">
-          <div class="w-20 h-20 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center mx-auto mb-6">
+          <div class="w-20 h-20 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center mx-auto mb-6">
             <CheckCircle2 v-if="activeTab === 'pendientes'" class="w-10 h-10 text-emerald-300 dark:text-emerald-700" />
             <BookOpen v-else class="w-10 h-10 text-slate-300 dark:text-slate-600" />
           </div>
@@ -220,15 +220,15 @@ const nivelLabels: Record<string, string> = {
           <div
             v-for="examen in examenesVisibles"
           :key="examen.id"
-          class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col group"
+          class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 p-5 sm:p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col group"
         >
-          <div class="flex items-start gap-4 mb-6">
+          <div class="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
             <div :class="examen.tipo_examen === 'lectura'
               ? 'from-teal-400 to-emerald-500 shadow-teal-500/20'
               : 'from-indigo-400 to-purple-500 shadow-indigo-500/20'"
-              class="w-14 h-14 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-lg shrink-0 group-hover:scale-105 transition-transform">
-              <BookOpen v-if="examen.tipo_examen === 'lectura'" class="w-7 h-7 text-white" />
-              <Calculator v-else class="w-7 h-7 text-white" />
+              class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg shrink-0 group-hover:scale-105 transition-transform">
+              <BookOpen v-if="examen.tipo_examen === 'lectura'" class="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+              <Calculator v-else class="w-6 h-6 sm:w-7 sm:h-7 text-white" />
             </div>
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 mb-1">
@@ -239,7 +239,7 @@ const nivelLabels: Record<string, string> = {
                   <Clock class="w-3 h-3" /> {{ examen.duracion_minutos }}'
                 </span>
               </div>
-              <h3 class="font-bold text-slate-900 dark:text-white text-lg leading-snug line-clamp-2">{{ examen.titulo }}</h3>
+              <h3 class="font-bold text-slate-900 dark:text-white text-base sm:text-lg leading-snug line-clamp-2">{{ examen.titulo }}</h3>
             </div>
           </div>
 
@@ -262,7 +262,7 @@ const nivelLabels: Record<string, string> = {
               </div>
             </div>
 
-            <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 space-y-2">
+            <div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3.5 sm:p-4 space-y-2">
               <div class="flex justify-between text-[11px] font-medium text-slate-500 dark:text-slate-400">
                 <span>Vence:</span>
                 <span class="font-bold text-slate-700 dark:text-slate-200">{{ examen.fecha_fin ? formatFechaHoraCorta(examen.fecha_fin) : 'Sin límite' }}</span>
@@ -278,23 +278,23 @@ const nivelLabels: Record<string, string> = {
             </div>
           </div>
 
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2 sm:gap-3">
             <button @click="abrirPreview(examen)"
-              class="w-12 h-12 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-400 hover:text-teal-500 hover:border-teal-500 dark:hover:border-teal-500 transition-all flex items-center justify-center shrink-0"
+              class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-400 hover:text-teal-500 hover:border-teal-500 dark:hover:border-teal-500 transition-all flex items-center justify-center shrink-0"
               title="Previsualizar">
               <BookText class="w-5 h-5" />
             </button>
             <template v-if="!examen.completado || examen.mis_intentos < examen.intentos_permitidos">
               <button @click="router.push(`/estudiante/examen/${examen.id}`)"
-                class="flex-1 h-12 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-sm rounded-xl shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
-                {{ examen.mis_intentos > 0 ? 'Reintentar' : 'Comenzar Examen' }}
+                class="flex-1 h-11 sm:h-12 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-sm rounded-xl shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                {{ examen.mis_intentos > 0 ? 'Reintentar' : 'Comenzar' }}
                 <ArrowRight class="w-4 h-4" />
               </button>
             </template>
             <button v-else @click="router.push(`/estudiante/examen/${examen.id}?modo=resultados`)"
-              class="flex-1 h-12 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold text-sm rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2">
+              class="flex-1 h-11 sm:h-12 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold text-sm rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2">
               <Target class="w-4 h-4" />
-              Ver Resultados
+              Resultados
             </button>
           </div>
         </div>
@@ -316,7 +316,7 @@ const nivelLabels: Record<string, string> = {
           <!-- Backdrop -->
           <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm -z-10" @click="showPreview = false"></div>
           
-          <div class="bg-white dark:bg-slate-900 w-full max-w-2xl max-h-[92vh] sm:max-h-[85vh] flex flex-col rounded-t-2xl sm:rounded-b-[2.5rem] shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden relative">
+          <div class="bg-white dark:bg-slate-900 w-full max-w-2xl max-h-[92vh] sm:max-h-[85vh] flex flex-col rounded-t-2xl sm:rounded-2xl shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden relative">
             
             <!-- Drag handle (mobile only) -->
             <div class="w-full h-10 flex justify-center items-center sm:hidden shrink-0 absolute top-0 z-20" @click="showPreview = false">
@@ -324,9 +324,9 @@ const nivelLabels: Record<string, string> = {
             </div>
 
             <!-- Header -->
-            <div class="flex items-center justify-between px-8 pt-10 sm:pt-8 pb-6 border-b border-slate-300 dark:border-slate-800 shrink-0">
+            <div class="flex items-center justify-between px-6 sm:px-8 pt-8 sm:pt-8 pb-5 sm:pb-6 border-b border-slate-300 dark:border-slate-800 shrink-0">
               <div class="flex items-center gap-4 min-w-0">
-                <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg"
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-lg"
                   :class="previewData?.tipo_examen === 'matematica'
                     ? 'bg-gradient-to-br from-orange-400 to-amber-500'
                     : 'bg-gradient-to-br from-teal-500 to-indigo-600'">
@@ -349,7 +349,7 @@ const nivelLabels: Record<string, string> = {
             </div>
 
             <!-- Toolbar de lectura -->
-            <div class="px-8 py-3.5 bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-300 dark:border-slate-800 shrink-0 flex items-center gap-6 overflow-x-auto no-scrollbar">
+            <div class="px-6 sm:px-8 py-3 bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-300 dark:border-slate-800 shrink-0 flex items-center gap-4 sm:gap-6 overflow-x-auto no-scrollbar">
               <!-- Tema -->
               <div class="flex items-center gap-2">
                 <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Tema</span>
@@ -412,8 +412,8 @@ const nivelLabels: Record<string, string> = {
                   </button>
                 </div>
                 <div :class="[themeClasses[readingTheme], fontClasses[readingFont]]"
-                  class="min-h-full px-8 py-8 transition-colors duration-200">
-                  <div v-if="previewData.instrucciones" class="mb-8 p-5 bg-black/5 dark:bg-white/5 rounded-2xl border-l-4 border-teal-500">
+                  class="min-h-full px-6 sm:px-8 py-6 sm:py-8 transition-colors duration-200">
+                  <div v-if="previewData.instrucciones" class="mb-6 sm:mb-8 p-4 sm:p-5 bg-black/5 dark:bg-white/5 rounded-xl border-l-4 border-teal-500">
                     <p class="text-[10px] font-bold uppercase tracking-widest mb-2 opacity-50">Instrucciones</p>
                     <p class="text-sm leading-relaxed">{{ previewData.instrucciones }}</p>
                   </div>
@@ -433,7 +433,7 @@ const nivelLabels: Record<string, string> = {
             </div>
 
             <!-- Footer -->
-            <div class="px-8 py-6 border-t border-slate-300 dark:border-slate-800 shrink-0 flex flex-col sm:flex-row items-center gap-4 bg-white dark:bg-slate-900">
+            <div class="px-6 sm:px-8 py-5 sm:py-6 border-t border-slate-300 dark:border-slate-800 shrink-0 flex flex-col sm:flex-row items-center gap-3 sm:gap-4 bg-white dark:bg-slate-900">
               <button @click="showPreview = false"
                 class="w-full sm:w-auto px-6 py-3 text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all">
                 Cerrar Vista Previa
