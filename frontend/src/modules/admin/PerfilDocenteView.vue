@@ -36,7 +36,7 @@ function rolLabel(codigo?: string | null) {
           <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Consulta tu información registrada en el sistema</p>
         </div>
         <button @click="router.push('/')"
-          class="flex items-center gap-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium px-4 py-2.5 rounded-xl shadow border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all text-sm">
+          class="flex items-center gap-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium px-4 py-2.5 rounded-xl shadow border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all text-sm">
           <Home class="w-4 h-4" />
           <span class="hidden sm:inline">Inicio</span>
         </button>
@@ -49,7 +49,7 @@ function rolLabel(codigo?: string | null) {
       </div>
 
       <!-- Tarjeta perfil -->
-      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 overflow-hidden">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-300 dark:border-slate-700 overflow-hidden">
 
         <!-- Banner con nombre -->
         <div class="bg-gradient-to-r from-teal-500 to-indigo-600 px-6 py-6 flex items-center gap-4 text-white">
@@ -95,7 +95,7 @@ function rolLabel(codigo?: string | null) {
             </div>
           </div>
 
-          <div class="border-t border-slate-100 dark:border-slate-700 pt-5">
+          <div class="border-t border-slate-300 dark:border-slate-700 pt-5">
             <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-3 flex items-center gap-1.5">
               <Building2 class="w-3.5 h-3.5" /> Institución educativa
             </p>
@@ -111,7 +111,7 @@ function rolLabel(codigo?: string | null) {
             </div>
           </div>
 
-          <div class="border-t border-slate-100 dark:border-slate-700 pt-5">
+          <div class="border-t border-slate-300 dark:border-slate-700 pt-5">
             <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-3 flex items-center gap-1.5">
               <MapPin class="w-3.5 h-3.5" /> Ubicación
             </p>
@@ -137,7 +137,7 @@ function rolLabel(codigo?: string | null) {
             </div>
           </div>
 
-          <div class="border-t border-slate-100 dark:border-slate-700 pt-5">
+          <div class="border-t border-slate-300 dark:border-slate-700 pt-5">
             <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-3 flex items-center gap-1.5">
               <BadgeCheck class="w-3.5 h-3.5" /> Cuenta
             </p>

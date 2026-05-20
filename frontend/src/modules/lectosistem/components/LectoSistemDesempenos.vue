@@ -48,7 +48,7 @@ const getCapacidadLabel = (tipo: string): string => {
     <div class="flex flex-col h-full bg-transparent">
         
         <!-- Header -->
-        <div class="h-14 px-3 border-b border-slate-200 dark:border-slate-700 flex items-center shrink-0" :class="collapsed ? 'justify-center' : 'justify-between'">
+        <div class="h-14 px-3 border-b border-slate-300 dark:border-slate-700 flex items-center shrink-0" :class="collapsed ? 'justify-center' : 'justify-between'">
             <div v-show="!collapsed" class="flex items-center gap-2 min-w-0">
                 <h2 class="text-sm font-medium text-slate-800 dark:text-white flex items-center gap-2 pl-1"><Target class="w-4 h-4 text-slate-500 dark:text-slate-400 shrink-0"/> Desempeños</h2>
                 <span v-if="selectedDesempenosCount > 0" class="shrink-0 px-2 py-0.5 rounded text-[10px] bg-slate-200 dark:bg-slate-700/50 text-slate-800 dark:text-white font-medium">
@@ -81,7 +81,7 @@ const getCapacidadLabel = (tipo: string): string => {
         <div v-else-if="desempenos.length > 0" class="flex-1 flex flex-col min-h-0">
             
             <!-- Tabs L/I/C -->
-            <div class="flex p-2 gap-1 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950/30 shrink-0">
+            <div class="flex p-2 gap-1 border-b border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950/30 shrink-0">
                 <div v-for="tipo in ['literal', 'inferencial', 'critico']" :key="tipo" class="flex-1">
                     <button @click="emit('update:activeCapacidadTab', tipo)"
                         class="w-full py-1.5 text-[10px] sm:text-xs font-medium rounded-lg transition-all flex items-center justify-center gap-1.5"
@@ -109,7 +109,7 @@ const getCapacidadLabel = (tipo: string): string => {
                     <Checkbox v-for="des in desempenosPorCapacidad[activeCapacidadTab]" :key="des.id"
                         v-model="localSelectedDesempenoIds" :value="des.id"
                         class="p-3 rounded-xl border transition-colors"
-                        :class="localSelectedDesempenoIds.includes(des.id) ? 'bg-teal-500 dark:bg-teal-600 border-slate-300 dark:border-slate-600' : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:border-slate-600'"
+                        :class="localSelectedDesempenoIds.includes(des.id) ? 'bg-teal-500 dark:bg-teal-600 border-slate-300 dark:border-slate-600' : 'bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-700 hover:border-slate-300 dark:border-slate-600'"
                         color="checked:bg-sky-500 checked:border-sky-500 focus:ring-sky-500/50">
                         <div class="mb-1">
                             <span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-mono">{{ des.codigo }}</span>
@@ -128,7 +128,7 @@ const getCapacidadLabel = (tipo: string): string => {
         </div>
 
         <!-- Generate Button fixed at bottom -->
-        <div v-if="!collapsed" class="p-4 border-t border-slate-200 dark:border-slate-700 shrink-0 bg-white dark:bg-slate-800">
+        <div v-if="!collapsed" class="p-4 border-t border-slate-300 dark:border-slate-700 shrink-0 bg-white dark:bg-slate-800">
             <button @click="emit('generar-preguntas')"
                 :disabled="loading || !selectedGradoId || selectedDesempenoIds.length === 0 || isBreakdownValid === false"
                 class="w-full py-2.5 rounded-full font-medium transition-all flex items-center justify-center gap-2 text-sm"

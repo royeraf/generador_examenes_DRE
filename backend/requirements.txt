@@ -23,6 +23,7 @@ bcrypt
 
 # AI services
 google-generativeai
+google-genai
 openai
 
 # File handling

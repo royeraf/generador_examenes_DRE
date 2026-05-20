@@ -204,11 +204,11 @@ watch(() => props.stats, () => {
                     <h4 class="text-sm font-bold text-slate-600 dark:text-slate-400 mb-4 flex items-center gap-2">
                         <FileText class="w-4 h-4" /> Resumen de Niveles
                     </h4>
-                    <div class="overflow-x-auto rounded-xl border-2 border-slate-100 dark:border-slate-700">
+                    <div class="overflow-x-auto rounded-xl border-2 border-slate-300 dark:border-slate-700">
                         <table class="w-full text-sm">
                             <thead>
                                 <tr
-                                    class="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-900 dark:to-slate-950 border-b-2 border-slate-200 dark:border-slate-700">
+                                    class="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-900 dark:to-slate-950 border-b-2 border-slate-300 dark:border-slate-700">
                                     <th class="py-3 px-4 text-left font-bold text-slate-700 dark:text-slate-400">
                                         Nivel
                                     </th>
@@ -327,10 +327,10 @@ watch(() => props.stats, () => {
 
             <!-- Resumen Table -->
             <div
-                class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col">
+                class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-300 dark:border-slate-700 shadow-sm flex flex-col">
                 <h3 class="font-bold text-slate-700 dark:text-slate-200 mb-6">Resumen por Estudiante</h3>
                 <div
-                    class="overflow-y-auto flex-1 max-h-[300px] border rounded-lg border-slate-100 dark:border-slate-700">
+                    class="overflow-y-auto flex-1 max-h-[300px] border rounded-lg border-slate-300 dark:border-slate-700">
                     <table class="w-full text-sm">
                         <thead class="bg-slate-50 dark:bg-slate-900 sticky top-0">
                             <tr>

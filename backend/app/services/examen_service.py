@@ -297,30 +297,55 @@ class ExamenService:
         preg_r = await db.execute(select(PreguntaExamen).where(PreguntaExamen.id.in_(preg_ids)))
         preguntas_map = {p.id: p for p in preg_r.scalars().all()}
 
-        if not all(r.retroalimentacion_ia for r in respuestas):
-            preguntas_para_ia = sorted([
-                {
-                    "numero": p.numero,
-                    "enunciado": p.enunciado,
-                    "opcion_a": p.opcion_a,
-                    "opcion_b": p.opcion_b,
-                    "opcion_c": p.opcion_c,
-                    "opcion_d": p.opcion_d,
-                    "respuesta_correcta": p.respuesta_correcta,
-                    "respuesta_dada": r.respuesta_dada,
-                    "es_correcta": r.es_correcta,
-                }
-                for r in respuestas
+        # Poblar retroalimentacion_ia desde los campos pre-generados en PreguntaExamen.
+        # Si la pregunta no tiene retroalimentación pre-generada (exámenes antiguos),
+        # se genera en tiempo real con una sola llamada a la IA.
+        respuestas_sin_retro = [r for r in respuestas if not r.retroalimentacion_ia]
+        if respuestas_sin_retro:
+            preguntas_con_retro_previa = [
+                r for r in respuestas_sin_retro
                 if (p := preguntas_map.get(r.pregunta_id))
-            ], key=lambda x: x["numero"])
+                and (p.retroalimentacion_correcta or p.retroalimentacion_incorrecta)
+            ]
+            preguntas_sin_retro_previa = [
+                r for r in respuestas_sin_retro
+                if not (p := preguntas_map.get(r.pregunta_id))
+                or not (p.retroalimentacion_correcta or p.retroalimentacion_incorrecta)
+            ]
 
-            nombre = f"{current_user.nombres or ''} {current_user.apellidos or ''}".strip() or "estudiante"
-            retro_map = await self.generar_retroalimentacion(preguntas_para_ia, lectura_texto, nombre)
-
-            for r in respuestas:
+            # Usar retroalimentación pre-generada cuando esté disponible
+            for r in preguntas_con_retro_previa:
                 p = preguntas_map.get(r.pregunta_id)
-                if p and p.numero in retro_map:
-                    r.retroalimentacion_ia = retro_map[p.numero]
+                r.retroalimentacion_ia = (
+                    p.retroalimentacion_correcta if r.es_correcta else p.retroalimentacion_incorrecta
+                ) or ""
+
+            # Fallback: llamar a la IA solo para preguntas de exámenes antiguos sin retroalimentación previa
+            if preguntas_sin_retro_previa:
+                preguntas_para_ia = sorted([
+                    {
+                        "numero": p.numero,
+                        "enunciado": p.enunciado,
+                        "opcion_a": p.opcion_a,
+                        "opcion_b": p.opcion_b,
+                        "opcion_c": p.opcion_c,
+                        "opcion_d": p.opcion_d,
+                        "respuesta_correcta": p.respuesta_correcta,
+                        "respuesta_dada": r.respuesta_dada,
+                        "es_correcta": r.es_correcta,
+                    }
+                    for r in preguntas_sin_retro_previa
+                    if (p := preguntas_map.get(r.pregunta_id))
+                ], key=lambda x: x["numero"])
+
+                nombre = f"{current_user.nombres or ''} {current_user.apellidos or ''}".strip() or "estudiante"
+                retro_map = await self.generar_retroalimentacion(preguntas_para_ia, lectura_texto, nombre)
+
+                for r in preguntas_sin_retro_previa:
+                    p = preguntas_map.get(r.pregunta_id)
+                    if p and p.numero in retro_map:
+                        r.retroalimentacion_ia = retro_map[p.numero]
+
             await db.flush()
 
         preguntas_out = sorted([

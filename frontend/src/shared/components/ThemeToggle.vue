@@ -13,7 +13,7 @@ const options: { value: ThemeMode; icon: typeof Sun; label: string }[] = [
 
 <template>
   <div
-    class="inline-flex items-center bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-full p-1 shadow-lg border border-slate-200/60 dark:border-slate-700/60 gap-0.5"
+    class="inline-flex items-center bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-full p-1 shadow-lg border border-slate-300/60 dark:border-slate-700/60 gap-0.5"
     role="group"
     aria-label="Tema de color"
   >

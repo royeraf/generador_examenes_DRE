@@ -3,7 +3,10 @@ import { formatFecha } from '../../shared/utils/dateUtils'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { apiClient } from '../../shared/services/api'
-import { GraduationCap, ChevronLeft, Loader2, AlertCircle, BarChart3, BookOpen, Calculator } from 'lucide-vue-next'
+import {
+  GraduationCap, ChevronLeft, Loader2, AlertCircle, BarChart3,
+  BookOpen, Calculator, Target, TrendingUp, Calendar, Award
+} from 'lucide-vue-next'
 
 const router = useRouter()
 
@@ -30,106 +33,162 @@ onMounted(async () => {
   }
 })
 
-const nivelColors: Record<string, { bar: string; badge: string }> = {
-  pre_inicio: { bar: 'bg-red-400', badge: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' },
-  inicio: { bar: 'bg-orange-400', badge: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' },
-  proceso: { bar: 'bg-yellow-400', badge: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' },
-  satisfactorio: { bar: 'bg-green-500', badge: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
-  destacado: { bar: 'bg-teal-500', badge: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400' },
+const nivelColors: Record<string, string> = {
+  pre_inicio: 'text-red-500 bg-red-50 dark:bg-red-500/10 border-red-100 dark:border-red-500/20',
+  inicio: 'text-orange-500 bg-orange-50 dark:bg-orange-500/10 border-orange-100 dark:border-orange-500/20',
+  proceso: 'text-yellow-600 bg-yellow-50 dark:bg-yellow-500/10 border-yellow-100 dark:border-yellow-500/20',
+  satisfactorio: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20',
+  destacado: 'text-teal-500 bg-teal-50 dark:bg-teal-500/10 border-teal-100 dark:border-teal-100/20',
 }
 
 const nivelLabels: Record<string, string> = {
   pre_inicio: 'Pre Inicio', inicio: 'Inicio', proceso: 'En Proceso',
   satisfactorio: 'Satisfactorio', destacado: 'Destacado',
 }
-
-// formatFecha importado de shared/utils/dateUtils
 </script>
 
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-teal-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800">
-    <header class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-700 sticky top-0 z-40">
-      <div class="max-w-4xl mx-auto px-4 h-14 flex items-center gap-3">
-        <button @click="router.push('/estudiante')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
-          <ChevronLeft class="w-5 h-5" />
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500 font-sans selection:bg-teal-500/20">
+
+    <!-- Header -->
+    <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-300 dark:border-slate-800 sticky top-0 z-50 px-6">
+      <div class="max-w-4xl mx-auto h-20 flex items-center gap-4">
+        <button @click="router.push('/estudiante')"
+          class="w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-90">
+          <ChevronLeft class="w-6 h-6" />
         </button>
-        <div class="flex items-center gap-2">
-          <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-            <GraduationCap class="w-4 h-4 text-white" />
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+            <GraduationCap class="w-6 h-6 text-white" />
           </div>
-          <span class="font-bold text-slate-800 dark:text-white text-sm">Mi Progreso</span>
+          <div>
+            <h1 class="text-xl font-bold text-slate-900 dark:text-white leading-none">Mi Progreso</h1>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Análisis de aprendizaje</p>
+          </div>
         </div>
       </div>
     </header>
 
-    <main class="max-w-4xl mx-auto px-4 py-8">
-      <div v-if="loading" class="flex justify-center py-16">
-        <Loader2 class="w-8 h-8 animate-spin text-teal-500" />
+    <main class="max-w-4xl mx-auto px-6 py-10 relative">
+
+      <!-- Background Orbs -->
+      <div class="fixed inset-0 pointer-events-none overflow-hidden opacity-40">
+        <div class="absolute top-[20%] right-[-10%] w-[500px] h-[500px] bg-teal-500/5 dark:bg-teal-500/10 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[10%] left-[-10%] w-[400px] h-[400px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[100px]"></div>
       </div>
 
-      <div v-else-if="error" class="text-center py-16 text-red-500 flex flex-col items-center gap-3">
-        <AlertCircle class="w-8 h-8" />
-        <p>{{ error }}</p>
+      <div v-if="loading" class="flex flex-col items-center justify-center py-24 gap-4 animate-pulse">
+        <Loader2 class="w-10 h-10 animate-spin text-teal-500" />
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Cargando estadísticas...</p>
+      </div>
+
+      <div v-else-if="error" class="flex flex-col items-center justify-center py-20 text-center animate-slide-up">
+        <div class="w-20 h-20 rounded-3xl bg-red-50 dark:bg-red-500/10 flex items-center justify-center mb-6">
+          <AlertCircle class="w-10 h-10 text-red-500" />
+        </div>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-2">¡Ups! Algo salió mal</h2>
+        <p class="text-slate-500 dark:text-slate-400 max-w-xs">{{ error }}</p>
       </div>
 
       <div v-else-if="progreso.length === 0"
-        class="text-center py-16 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
-        <BarChart3 class="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
-        <p class="text-slate-500 dark:text-slate-400 font-medium">Sin progreso aún</p>
-        <p class="text-sm text-slate-400 dark:text-slate-500 mt-1">Completa al menos un examen para ver tu progreso</p>
+        class="flex flex-col items-center justify-center py-24 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-300 dark:border-slate-800 shadow-xl text-center animate-slide-up">
+        <div class="w-24 h-24 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center mb-8">
+          <BarChart3 class="w-12 h-12 text-slate-200 dark:text-slate-700" />
+        </div>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Sin actividad aún</h2>
+        <p class="text-slate-500 dark:text-slate-400 max-w-xs">Completa al menos una evaluación para comenzar a trackear tu progreso.</p>
+        <button @click="router.push('/estudiante/examenes')"
+          class="mt-8 px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold transition-all active:scale-95 shadow-lg">
+          Ver exámenes
+        </button>
       </div>
 
-      <div v-else class="space-y-5">
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div
-          v-for="p in progreso"
+          v-for="(p, i) in progreso"
           :key="p.area"
-          class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-6 shadow-sm"
+          class="group bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-300 dark:border-slate-800 p-8 shadow-xl hover:shadow-2xl transition-all duration-500 relative overflow-hidden animate-slide-up"
+          :style="{ animationDelay: `${i * 100}ms` }"
         >
-          <div class="flex items-center gap-3 mb-5">
-            <div :class="p.area === 'comunicacion' ? 'from-teal-500 to-indigo-600' : 'from-orange-500 to-amber-500'"
-              class="w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center">
-              <BookOpen v-if="p.area === 'comunicacion'" class="w-5 h-5 text-white" />
-              <Calculator v-else class="w-5 h-5 text-white" />
+          <!-- Decorative Background Icon -->
+          <div class="absolute top-0 right-0 p-8 opacity-[0.03] dark:opacity-[0.05] group-hover:scale-110 transition-transform duration-700 pointer-events-none">
+            <BookOpen v-if="p.area === 'comunicacion'" class="w-32 h-32" />
+            <Calculator v-else class="w-32 h-32" />
+          </div>
+
+          <div class="relative z-10">
+            <div class="flex items-center gap-4 mb-10">
+              <div :class="p.area === 'comunicacion' ? 'from-teal-400 to-emerald-500' : 'from-indigo-400 to-purple-500'"
+                class="w-14 h-14 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-lg transition-transform group-hover:rotate-6">
+                <BookOpen v-if="p.area === 'comunicacion'" class="w-7 h-7 text-white" />
+                <Calculator v-else class="w-7 h-7 text-white" />
+              </div>
+              <div class="min-w-0">
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white">
+                  {{ p.area === 'comunicacion' ? 'Comunicación' : 'Matemática' }}
+                </h3>
+                <div class="flex items-center gap-2 mt-1">
+                  <Calendar class="w-3 h-3 text-slate-400" />
+                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    {{ formatFecha(p.ultima_actividad) }}
+                  </p>
+                </div>
+              </div>
             </div>
-            <div>
-              <h3 class="font-bold text-slate-800 dark:text-white">
-                {{ p.area === 'comunicacion' ? 'Comunicación' : 'Matemática' }}
-              </h3>
-              <p class="text-xs text-slate-500 dark:text-slate-400">Última actividad: {{ formatFecha(p.ultima_actividad) }}</p>
-            </div>
-            <div class="ml-auto">
-              <span v-if="p.nivel_logro_actual"
-                :class="(nivelColors[p.nivel_logro_actual] || { badge: 'bg-slate-100 text-slate-600' }).badge"
-                class="px-2.5 py-1 rounded-full text-xs font-bold">
+
+            <!-- Nivel de Logro Badge -->
+            <div class="mb-8">
+              <div class="flex items-center gap-2 mb-3">
+                <Award class="w-4 h-4 text-slate-400" />
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Nivel Actual</span>
+              </div>
+              <div v-if="p.nivel_logro_actual"
+                :class="nivelColors[p.nivel_logro_actual] || 'bg-slate-100 text-slate-600'"
+                class="inline-flex px-5 py-2 rounded-full text-xs font-black uppercase tracking-[0.15em] border border-transparent shadow-sm">
                 {{ nivelLabels[p.nivel_logro_actual] ?? p.nivel_logro_actual }}
-              </span>
+              </div>
+              <div v-else class="text-xs font-bold text-slate-400 bg-slate-50 dark:bg-slate-800/50 px-4 py-2 rounded-full border border-transparent inline-block">
+                Pendiente de evaluación
+              </div>
             </div>
-          </div>
 
-          <!-- Puntaje promedio -->
-          <div class="mb-4">
-            <div class="flex justify-between items-center mb-1.5">
-              <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Puntaje promedio</span>
-              <span class="text-sm font-bold text-slate-700 dark:text-slate-200">{{ p.puntaje_promedio.toFixed(1) }}%</span>
+            <!-- Puntaje promedio -->
+            <div class="mb-10">
+              <div class="flex justify-between items-end mb-3">
+                <div class="flex items-center gap-2">
+                  <Target class="w-4 h-4 text-slate-400" />
+                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Dominio promedio</span>
+                </div>
+                <div class="text-right">
+                  <span class="text-3xl font-black text-slate-900 dark:text-white tabular-nums">{{ p.puntaje_promedio.toFixed(0) }}</span>
+                  <span class="text-sm font-bold text-slate-400 ml-1">%</span>
+                </div>
+              </div>
+              <div class="h-3 bg-slate-50 dark:bg-slate-800/50 rounded-full overflow-hidden p-0.5 border border-slate-300/50 dark:border-slate-800">
+                <div
+                  class="h-full rounded-full transition-all duration-1000 ease-out bg-gradient-to-r"
+                  :class="p.area === 'comunicacion' ? 'from-teal-400 to-emerald-500' : 'from-indigo-400 to-purple-500'"
+                  :style="{ width: p.puntaje_promedio + '%' }"
+                ></div>
+              </div>
             </div>
-            <div class="h-2.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-              <div
-                :class="(nivelColors[p.nivel_logro_actual || ''] || { bar: 'bg-slate-400' }).bar"
-                class="h-full rounded-full transition-all duration-500"
-                :style="{ width: p.puntaje_promedio + '%' }"
-              ></div>
-            </div>
-          </div>
 
-          <!-- Stats -->
-          <div class="grid grid-cols-2 gap-3">
-            <div class="bg-slate-50 dark:bg-slate-700 rounded-xl p-3 text-center">
-              <p class="text-xl font-bold text-slate-700 dark:text-slate-200">{{ p.total_examenes_completados }}</p>
-              <p class="text-xs text-slate-500 dark:text-slate-400">Exámenes completados</p>
-            </div>
-            <div class="bg-slate-50 dark:bg-slate-700 rounded-xl p-3 text-center">
-              <p class="text-xl font-bold text-slate-700 dark:text-slate-200">{{ p.puntaje_promedio.toFixed(0) }}%</p>
-              <p class="text-xs text-slate-500 dark:text-slate-400">Promedio general</p>
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-slate-50/50 dark:bg-slate-800/30 rounded-2xl p-5 border border-slate-300/50 dark:border-slate-800/50 transition-colors group-hover:bg-white dark:group-hover:bg-slate-800/50">
+                <div class="flex items-center gap-2 mb-2 text-indigo-500">
+                  <BarChart3 class="w-4 h-4" />
+                </div>
+                <p class="text-2xl font-black text-slate-900 dark:text-white leading-none">{{ p.total_examenes_completados }}</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Evaluaciones</p>
+              </div>
+              <div class="bg-slate-50/50 dark:bg-slate-800/30 rounded-2xl p-5 border border-slate-300/50 dark:border-slate-800/50 transition-colors group-hover:bg-white dark:group-hover:bg-slate-800/50">
+                <div class="flex items-center gap-2 mb-2 text-teal-500">
+                  <TrendingUp class="w-4 h-4" />
+                </div>
+                <p class="text-2xl font-black text-slate-900 dark:text-white leading-none">{{ p.puntaje_promedio.toFixed(0) }}%</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Efectividad</p>
+              </div>
             </div>
           </div>
         </div>
@@ -137,3 +196,14 @@ const nivelLabels: Record<string, string> = {
     </main>
   </div>
 </template>
+
+<style scoped>
+@keyframes slide-up {
+  0% { transform: translateY(30px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+</style>

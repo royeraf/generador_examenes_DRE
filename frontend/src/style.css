@@ -165,3 +165,20 @@ h1, h2, h3, h4, h5, h6 {
 .mascota-glow:hover {
   filter: drop-shadow(0 0 20px rgba(13, 148, 136, 0.5));
 }
+
+
+/* Curriculum admin shared field style */
+.curriculum-field {
+  @apply w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 outline-none transition-all;
+}
+.curriculum-field:focus {
+  @apply ring-4 ring-teal-500/10 border-teal-500;
+}
+.curriculum-field:disabled {
+  @apply opacity-60 cursor-not-allowed bg-slate-50 dark:bg-slate-900;
+}
+
+/* Global input focus improvements */
+input:focus, select:focus, textarea:focus {
+  @apply ring-4 ring-teal-500/10 border-teal-500 transition-all;
+}

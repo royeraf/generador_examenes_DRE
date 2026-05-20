@@ -1,13 +1,15 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import {
     X, Award, Clock, GraduationCap, FileText, Link, Trash2,
     ClipboardCheck, BookOpen, HelpCircle, FileSearch, Lightbulb,
-    Check, LayoutGrid, Sparkles, Loader2, Download
+    Check, LayoutGrid, Sparkles, Loader2, Download,
+    MessageSquare, CheckCircle2, XCircle
 } from 'lucide-vue-next';
-import type { ExamenHistoryEntry } from '../../../shared/types';
+import type { ExamenHistoryEntry, FilaTablaRespuestas } from '../../../shared/types';
 import { formatFechaHora } from '../../../shared/utils/dateUtils';
 
-defineProps<{
+const props = defineProps<{
     entry: ExamenHistoryEntry | null;
     loadingDelete?: boolean;
     isLoading?: boolean;
@@ -30,7 +32,23 @@ const getNivelBadgeClass = (nivel: string): string => {
     return classes[nivel] || 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
 };
 
-// formatFechaHora importado de shared/utils/dateUtils
+// ── Retroalimentación sub-modal ───────────────────────────────────────────────
+
+const modalRetro = ref<FilaTablaRespuestas | null>(null);
+
+const getTablaRow = (numeroPregunta: number): FilaTablaRespuestas | undefined =>
+    props.entry?.resultado.examen.tabla_respuestas.find(t => t.pregunta === numeroPregunta);
+
+const abrirRetro = (numeroPregunta: number) => {
+    modalRetro.value = getTablaRow(numeroPregunta) ?? null;
+};
+
+const cerrarRetro = () => { modalRetro.value = null; };
+
+const tieneRetro = (numeroPregunta: number): boolean => {
+    const row = getTablaRow(numeroPregunta);
+    return !!(row?.retroalimentacion_correcta || row?.retroalimentacion_incorrecta);
+};
 </script>
 
 <template>
@@ -174,22 +192,31 @@ const getNivelBadgeClass = (nivel: string): string => {
                                 </h4>
 
                                 <div v-for="pregunta in entry.resultado.examen.preguntas" :key="pregunta.numero"
-                                    class="bg-white dark:bg-slate-800 rounded-xl p-5 border-2 border-slate-100 dark:border-slate-700 hover:border-teal-200 dark:hover:border-teal-700 transition-all duration-300">
+                                    class="bg-white dark:bg-slate-800 rounded-xl p-5 border-2 border-slate-300 dark:border-slate-700 hover:border-teal-200 dark:hover:border-teal-700 transition-all duration-300">
                                     <div class="flex items-start gap-4">
                                         <span
                                             class="w-10 h-10 bg-gradient-to-br from-teal-500 to-sky-500 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-lg shadow-teal-500/20">
                                             {{ pregunta.numero }}
                                         </span>
-                                        <div class="flex-1">
-                                            <span
-                                                class="inline-flex items-center gap-1 px-3 py-1 text-[10px] font-bold uppercase rounded-full mb-2"
-                                                :class="getNivelBadgeClass(pregunta.nivel)">
-                                                <BookOpen v-if="pregunta.nivel === 'LITERAL'" class="w-3 h-3" />
-                                                <FileSearch v-else-if="pregunta.nivel === 'INFERENCIAL'"
-                                                    class="w-3 h-3" />
-                                                <Lightbulb v-else class="w-3 h-3" />
-                                                {{ pregunta.nivel }}
-                                            </span>
+                                        <div class="flex-1 min-w-0">
+                                            <!-- Nivel + botón retroalimentación -->
+                                            <div class="flex items-center gap-2 mb-2 flex-wrap">
+                                                <span
+                                                    class="inline-flex items-center gap-1 px-3 py-1 text-[10px] font-bold uppercase rounded-full"
+                                                    :class="getNivelBadgeClass(pregunta.nivel)">
+                                                    <BookOpen v-if="pregunta.nivel === 'LITERAL'" class="w-3 h-3" />
+                                                    <FileSearch v-else-if="pregunta.nivel === 'INFERENCIAL'" class="w-3 h-3" />
+                                                    <Lightbulb v-else class="w-3 h-3" />
+                                                    {{ pregunta.nivel }}
+                                                </span>
+                                                <button v-if="tieneRetro(pregunta.numero)"
+                                                    @click="abrirRetro(pregunta.numero)"
+                                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-semibold rounded-full bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 text-teal-600 dark:text-teal-400 border border-teal-200 dark:border-teal-800 transition-colors">
+                                                    <MessageSquare class="w-3 h-3" />
+                                                    Retroalimentación
+                                                </button>
+                                            </div>
+
                                             <p class="text-slate-800 dark:text-slate-200 font-semibold mb-4">
                                                 {{ pregunta.enunciado }}
                                             </p>
@@ -317,6 +344,83 @@ const getNivelBadgeClass = (nivel: string): string => {
             </div>
         </Transition>
     </Teleport>
+
+    <!-- ── Sub-modal de Retroalimentación (z-60, sobre el modal principal z-50) ── -->
+    <Teleport to="body">
+        <Transition name="retro">
+            <div v-if="modalRetro"
+                class="fixed inset-0 z-60 flex items-center justify-center p-4"
+                @click.self="cerrarRetro">
+
+                <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="cerrarRetro" />
+
+                <div class="relative z-10 w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden">
+
+                    <!-- Header -->
+                    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-300 dark:border-slate-700">
+                        <div class="flex items-center gap-2">
+                            <MessageSquare class="w-4 h-4 text-teal-500" />
+                            <span class="text-sm font-semibold text-slate-800 dark:text-white">
+                                Retroalimentación — Pregunta {{ modalRetro.pregunta }}
+                            </span>
+                        </div>
+                        <button @click="cerrarRetro"
+                            class="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                            <X class="w-4 h-4" />
+                        </button>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="p-5 space-y-4 max-h-[65vh] overflow-y-auto">
+
+                        <div v-if="modalRetro.retroalimentacion_correcta"
+                            class="rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/10 p-4 space-y-2">
+                            <div class="flex items-center gap-2">
+                                <CheckCircle2 class="w-4 h-4 text-emerald-500 shrink-0" />
+                                <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">
+                                    Si respondió correctamente
+                                </span>
+                            </div>
+                            <p class="text-sm text-emerald-800 dark:text-emerald-300 leading-relaxed">
+                                {{ modalRetro.retroalimentacion_correcta }}
+                            </p>
+                        </div>
+
+                        <div v-if="modalRetro.retroalimentacion_incorrecta"
+                            class="rounded-xl border border-rose-200 dark:border-rose-800/50 bg-rose-50 dark:bg-rose-900/10 p-4 space-y-2">
+                            <div class="flex items-center gap-2">
+                                <XCircle class="w-4 h-4 text-rose-500 shrink-0" />
+                                <span class="text-xs font-semibold text-rose-700 dark:text-rose-400 uppercase tracking-wide">
+                                    Si respondió incorrectamente
+                                </span>
+                            </div>
+                            <p class="text-sm text-rose-800 dark:text-rose-300 leading-relaxed">
+                                {{ modalRetro.retroalimentacion_incorrecta }}
+                            </p>
+                        </div>
+
+                        <div v-if="modalRetro.justificacion"
+                            class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-4 space-y-2">
+                            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                                Justificación de la respuesta correcta
+                            </span>
+                            <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                                {{ modalRetro.justificacion }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="px-5 py-3 border-t border-slate-300 dark:border-slate-700 flex justify-end">
+                        <button @click="cerrarRetro"
+                            class="px-4 py-2 text-xs font-medium rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </Transition>
+    </Teleport>
 </template>
 
 <style scoped>
@@ -349,5 +453,23 @@ const getNivelBadgeClass = (nivel: string): string => {
     .modal-leave-to .modal-content {
         transform: scale(0.95);
     }
+}
+
+/* Sub-modal retroalimentación */
+.retro-enter-active,
+.retro-leave-active {
+    transition: opacity 0.15s ease;
+}
+.retro-enter-active .relative,
+.retro-leave-active .relative {
+    transition: transform 0.15s ease, opacity 0.15s ease;
+}
+.retro-enter-from,
+.retro-leave-to {
+    opacity: 0;
+}
+.retro-enter-from .relative {
+    transform: scale(0.96) translateY(6px);
+    opacity: 0;
 }
 </style>

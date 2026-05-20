@@ -6,7 +6,6 @@ from typing import Optional, List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
-import json
 
 from app.models.db_models import (
     Grado,
@@ -15,6 +14,7 @@ from app.models.db_models import (
     DesempenoMatematica,
     EstandarMatematica
 )
+from app.models.ai_schemas import RespuestaMat, RespuestaActividad
 from app.core.config import get_settings
 from app.services.ai_factory import ai_factory
 
@@ -103,7 +103,7 @@ Responde ÚNICAMENTE con un JSON válido sin comentarios ni texto adicional:
             }}
         ],
         "tabla_respuestas": [
-            {{"pregunta": 1, "capacidad": "Capacidad", "desempeno": "Resumen", "respuesta_esperada": "Elementos clave de la respuesta", "justificacion": "Explicación"}}
+            {{"pregunta": 1, "capacidad": "Capacidad", "desempeno": "Resumen", "respuesta_esperada": "Elementos clave de la respuesta", "justificacion": "Explicación", "retroalimentacion_correcta": "Felicitación y refuerzo de los elementos clave que el estudiante demostró comprender.", "retroalimentacion_incorrecta": "Explicación amable de los elementos clave que debía considerar para responder correctamente."}}
         ]
     }}
 }}"""
@@ -139,7 +139,7 @@ Responde ÚNICAMENTE con un JSON válido sin comentarios ni texto adicional:
             }}
         ],
         "tabla_respuestas": [
-            {{"pregunta": 1, "capacidad": "Capacidad", "desempeno": "Resumen", "respuesta_correcta": "B", "justificacion": "Explicación"}}
+            {{"pregunta": 1, "capacidad": "Capacidad", "desempeno": "Resumen", "respuesta_correcta": "B", "justificacion": "Explicación", "retroalimentacion_correcta": "Felicitación breve y refuerzo de por qué es correcta.", "retroalimentacion_incorrecta": "Explicación amable de por qué la opción elegida no es correcta y por qué la correcta sí lo es."}}
         ]
     }}
 }}"""
@@ -174,7 +174,7 @@ Responde ÚNICAMENTE con un JSON válido sin comentarios ni texto adicional:
             }}
         ],
         "tabla_respuestas": [
-            {{"pregunta": 1, "capacidad": "Capacidad", "desempeno": "Resumen", "respuesta_correcta": "B", "justificacion": "Explicación"}}
+            {{"pregunta": 1, "capacidad": "Capacidad", "desempeno": "Resumen", "respuesta_correcta": "B", "justificacion": "Explicación", "retroalimentacion_correcta": "Felicitación breve y refuerzo de por qué es correcta.", "retroalimentacion_incorrecta": "Explicación amable de por qué la opción elegida no es correcta y por qué la correcta sí lo es."}}
         ]
     }}
 }}"""
@@ -204,7 +204,7 @@ Responde ÚNICAMENTE con un JSON válido sin comentarios ni texto adicional:
             }}
         ],
         "tabla_respuestas": [
-            {{"pregunta": 1, "capacidad": "Capacidad", "desempeno": "Resumen", "respuesta_esperada": "Elementos clave", "justificacion": "Explicación"}}
+            {{"pregunta": 1, "capacidad": "Capacidad", "desempeno": "Resumen", "respuesta_esperada": "Elementos clave", "justificacion": "Explicación", "retroalimentacion_correcta": "Felicitación y refuerzo de los elementos clave que el estudiante demostró comprender.", "retroalimentacion_incorrecta": "Explicación amable de los elementos clave que debía considerar para responder correctamente."}}
         ]
     }}
 }}"""
@@ -462,64 +462,44 @@ El contexto debe ser PERUANO, auténtico y motivador para la edad del estudiante
             tipo_producto=tipo_producto
         )
 
-        max_retries = 2
-        last_error = None
+        # Seleccionar schema según tipo de producto
+        schema = RespuestaActividad if tipo_producto == 5 else RespuestaMat
 
-        for attempt in range(max_retries):
-            try:
-                response_text = await ai_service.generate_content(prompt)
-                response_text = ai_service.clean_json_response(response_text)
+        try:
+            data = await ai_service.generate_structured_content(prompt, schema)
 
-                try:
-                    data = json.loads(response_text)
-                except json.JSONDecodeError as je:
-                    print(f"FAILED MATSISTEM JSON (intento {attempt + 1}/{max_retries}): {response_text[:500]}...")
-                    last_error = je
-                    if attempt < max_retries - 1:
-                        print(f"Reintentando generación (intento {attempt + 2}/{max_retries})...")
-                        continue
-                    raise ValueError(f"Error al parsear respuesta JSON de matemática después de {max_retries} intentos: {je}")
+            desempenos_texto = "\n".join([
+                f"{d.codigo}. {d.descripcion} (Cap: {d.capacidad.nombre})"
+                for d in desempenos
+            ])
 
-                # Construir texto de desempeños usados
-                desempenos_texto = "\n".join([
-                    f"{d.codigo}. {d.descripcion} (Cap: {d.capacidad.nombre})"
-                    for d in desempenos
-                ])
+            tipo_info = TIPOS_PRODUCTO.get(tipo_producto, TIPOS_PRODUCTO[1])
+            is_actividad = tipo_producto == 5
+            examen_data = data.get("actividad" if is_actividad else "examen", {})
 
-                # Normalizar la respuesta según el tipo de producto
-                tipo_info = TIPOS_PRODUCTO.get(tipo_producto, TIPOS_PRODUCTO[1])
-                is_actividad = tipo_producto == 5
+            if is_actividad:
+                desarrollo = examen_data.get("desarrollo", {})
+                total = len(desarrollo.get("actividades", []) if isinstance(desarrollo, dict) else [])
+            else:
+                total = len(examen_data.get("preguntas", []) if isinstance(examen_data, dict) else [])
 
-                examen_data = data.get("actividad" if is_actividad else "examen", {})
+            return {
+                "grado": grado.nombre,
+                "competencia": competencia.nombre,
+                "desempenos_usados": desempenos_texto,
+                "estandar": estandar_descripcion,
+                "tipo_producto": tipo_producto,
+                "tipo_producto_nombre": tipo_info["nombre"],
+                "saludo": data.get("saludo", ""),
+                "examen": examen_data,
+                "es_actividad": is_actividad,
+                "total_preguntas": total
+            }
 
-                if is_actividad:
-                    desarrollo = examen_data.get("desarrollo", {})
-                    total = len(desarrollo.get("actividades", []) if isinstance(desarrollo, dict) else [])
-                else:
-                    total = len(examen_data.get("preguntas", []) if isinstance(examen_data, dict) else [])
-
-                return {
-                    "grado": grado.nombre,
-                    "competencia": competencia.nombre,
-                    "desempenos_usados": desempenos_texto,
-                    "estandar": estandar_descripcion,
-                    "tipo_producto": tipo_producto,
-                    "tipo_producto_nombre": tipo_info["nombre"],
-                    "saludo": data.get("saludo", ""),
-                    "examen": examen_data,
-                    "es_actividad": is_actividad,
-                    "total_preguntas": total
-                }
-
-            except json.JSONDecodeError as e:
-                raise ValueError(f"Error al parsear respuesta de {modelo}: {e}")
-            except ValueError:
-                raise
-            except Exception as e:
-                if attempt < max_retries - 1 and "parsear" not in str(e):
-                    print(f"Error en intento {attempt + 1}/{max_retries}: {e}. Reintentando...")
-                    continue
-                raise ValueError(f"Error al generar examen de matemática: {e}")
+        except ValueError:
+            raise
+        except Exception as e:
+            raise ValueError(f"Error al generar examen de matemática: {e}")
 
 
 # Singleton instance

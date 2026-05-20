@@ -95,7 +95,7 @@ const localCompetencia = computed({
 
                     <div class="space-y-3 mb-4">
                         <div v-for="(pregunta, idx) in nivel.preguntas" :key="idx"
-                            class="group relative bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-900 dark:to-slate-950 p-4 rounded-xl border-2 border-slate-100 dark:border-slate-700 hover:border-teal-200 dark:hover:border-teal-700 transition-all duration-300">
+                            class="group relative bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-900 dark:to-slate-950 p-4 rounded-xl border-2 border-slate-300 dark:border-slate-700 hover:border-teal-200 dark:hover:border-teal-700 transition-all duration-300">
                             <span
                                 class="absolute -left-2 -top-2 flex items-center justify-center w-7 h-7 rounded-full text-white text-xs font-bold shadow-lg ring-2 ring-white dark:ring-slate-800"
                                 :style="{ backgroundColor: nivel.color }">
@@ -111,16 +111,16 @@ const localCompetencia = computed({
 
                             <!-- Fallback or Full Text Edit -->
                             <textarea v-model="pregunta.descripcion" placeholder="Descripción del desempeño..." rows="2"
-                                class="w-full text-sm p-3 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-slate-700 dark:text-slate-300 resize-none transition-all"></textarea>
+                                class="w-full text-sm p-3 bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-slate-700 dark:text-slate-300 resize-none transition-all"></textarea>
 
                             <div
-                                class="flex items-center justify-between mt-3 pt-3 border-t-2 border-slate-100 dark:border-slate-700">
+                                class="flex items-center justify-between mt-3 pt-3 border-t-2 border-slate-300 dark:border-slate-700">
                                 <div class="flex items-center gap-2">
                                     <span class="text-xs font-bold text-slate-500 flex items-center gap-1">
                                         <Key class="w-3 h-3" /> Clave:
                                     </span>
                                     <select v-model="pregunta.clave"
-                                        class="text-sm bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-600 rounded-xl px-3 py-1.5 font-bold focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all text-slate-700 dark:text-slate-200">
+                                        class="text-sm bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 rounded-xl px-3 py-1.5 font-bold focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all text-slate-700 dark:text-slate-200">
                                         <option value="">-</option>
                                         <option value="A">A</option>
                                         <option value="B">B</option>

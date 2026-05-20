@@ -464,6 +464,8 @@ class PreguntaExamen(Base):
     desempeno_codigo = Column(String(50), nullable=True)
     desempeno_descripcion = Column(Text, nullable=True)
     justificacion = Column(Text, nullable=True)
+    retroalimentacion_correcta = Column(Text, nullable=True)   # pre-generada: si el estudiante acierta
+    retroalimentacion_incorrecta = Column(Text, nullable=True) # pre-generada: si el estudiante falla
 
     __table_args__ = (
         CheckConstraint(

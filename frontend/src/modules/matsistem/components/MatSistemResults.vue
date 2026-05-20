@@ -1,22 +1,13 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import {
-    Zap,
-    AlertTriangle,
-    Award,
-    Loader2,
-    Download,
-    ClipboardCheck,
-    BookOpen,
-    HelpCircle,
-    Lightbulb,
-    Check,
-    LayoutGrid,
-    Sparkles,
-    GraduationCap,
-    Target
+    Zap, AlertTriangle, Award, Loader2, Download,
+    ClipboardCheck, BookOpen, HelpCircle, Lightbulb,
+    Check, LayoutGrid, Sparkles, GraduationCap, Target,
+    MessageSquare, CheckCircle2, XCircle, X
 } from 'lucide-vue-next';
 import ThinkingLoader from '../../../shared/components/ThinkingLoader.vue';
-import type { Examen } from '../../../shared/types';
+import type { Examen, FilaTablaRespuestas } from '../../../shared/types';
 
 interface Resultado {
     grado: string;
@@ -35,21 +26,29 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     (e: 'descargarExamenWord'): void;
-    // (e: 'vincularSistematizador'): void;
 }>();
 
-const getJustificacion = (numeroPregunta: number): string | undefined => {
-    return props.resultado?.examen.tabla_respuestas.find(t => t.pregunta === numeroPregunta)?.justificacion;
+const getTablaRow = (n: number): FilaTablaRespuestas | undefined =>
+    props.resultado?.examen.tabla_respuestas.find(t => t.pregunta === n);
+
+const getJustificacion = (n: number) => getTablaRow(n)?.justificacion;
+
+const tieneRetro = (n: number) => {
+    const r = getTablaRow(n);
+    return !!(r?.retroalimentacion_correcta || r?.retroalimentacion_incorrecta);
 };
+
+const modalRetro = ref<FilaTablaRespuestas | null>(null);
+const abrirRetro = (n: number) => { modalRetro.value = getTablaRow(n) ?? null; };
+const cerrarRetro = () => { modalRetro.value = null; };
 
 const getCapacidadBadgeClass = (capacidad?: string): string => {
     if (!capacidad) return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
     const cap = capacidad.toLowerCase();
-    if (cap.includes('cantidad')) return 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400';
+    if (cap.includes('cantidad'))    return 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400';
     if (cap.includes('regularidad')) return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
-    if (cap.includes('forma')) return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
-    if (cap.includes('datos')) return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
-
+    if (cap.includes('forma'))       return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
+    if (cap.includes('datos'))       return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
     return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400';
 };
 </script>
@@ -179,21 +178,30 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                     </h4>
 
                     <div v-for="pregunta in resultado.examen.preguntas" :key="pregunta.numero"
-                        class="bg-white dark:bg-slate-800 rounded-xl p-3 sm:p-5 border-2 border-slate-100 dark:border-slate-700 hover:border-teal-200 dark:hover:border-teal-700 transition-all duration-300">
+                        class="bg-white dark:bg-slate-800 rounded-xl p-3 sm:p-5 border-2 border-slate-300 dark:border-slate-700 hover:border-teal-200 dark:hover:border-teal-700 transition-all duration-300">
                         <div class="flex items-start gap-2.5 sm:gap-4">
                             <span
                                 class="w-10 h-10 bg-gradient-to-br from-teal-500 to-sky-500 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-lg shadow-teal-500/20">
                                 {{ pregunta.numero }}
                             </span>
-                            <div class="flex-1">
-                                <span
-                                    class="inline-flex items-center gap-1 px-3 py-1 text-[10px] font-bold uppercase rounded-full mb-2"
-                                    :class="getCapacidadBadgeClass((pregunta as any).capacidad || pregunta.nivel)">
-                                    <Target class="w-3 h-3" />
-                                    {{ (pregunta as any).capacidad || pregunta.nivel }}
-                                </span>
-                                <p class="text-slate-800 dark:text-slate-200 font-semibold mb-4">{{ pregunta.enunciado
-                                }}</p>
+                            <div class="flex-1 min-w-0">
+                                <!-- Badge capacidad + botón retroalimentación -->
+                                <div class="flex items-center gap-2 mb-2 flex-wrap">
+                                    <span
+                                        class="inline-flex items-center gap-1 px-3 py-1 text-[10px] font-bold uppercase rounded-full"
+                                        :class="getCapacidadBadgeClass((pregunta as any).capacidad || pregunta.nivel)">
+                                        <Target class="w-3 h-3" />
+                                        {{ (pregunta as any).capacidad || pregunta.nivel }}
+                                    </span>
+                                    <button v-if="tieneRetro(pregunta.numero)"
+                                        @click="abrirRetro(pregunta.numero)"
+                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-semibold rounded-full bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 transition-colors">
+                                        <MessageSquare class="w-3 h-3" />
+                                        Retroalimentación
+                                    </button>
+                                </div>
+
+                                <p class="text-slate-800 dark:text-slate-200 font-semibold mb-4">{{ pregunta.enunciado }}</p>
 
                                 <div class="space-y-2">
                                     <div v-for="opcion in pregunta.opciones" :key="opcion.letra"
@@ -203,8 +211,9 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                                             : 'bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-gray-300'">
                                         <span
                                             class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm"
-                                            :class="opcion.es_correcta ? 'bg-teal-500 text-white' : 'bg-gray-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'">{{
-                                                opcion.letra }}</span>
+                                            :class="opcion.es_correcta ? 'bg-teal-500 text-white' : 'bg-gray-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'">
+                                            {{ opcion.letra }}
+                                        </span>
                                         <span class="flex-1">{{ opcion.texto }}</span>
                                         <Check v-if="opcion.es_correcta" class="w-5 h-5 text-teal-500" />
                                     </div>
@@ -212,13 +221,13 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
 
                                 <div v-if="getJustificacion(pregunta.numero)"
                                     class="mt-4 p-4 rounded-xl bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/30">
-                                    <h5
-                                        class="flex items-center gap-2 text-xs font-bold text-indigo-700 dark:text-indigo-400 mb-1.5">
+                                    <h5 class="flex items-center gap-2 text-xs font-bold text-indigo-700 dark:text-indigo-400 mb-1.5">
                                         <Lightbulb class="w-3.5 h-3.5" />
                                         Justificación
                                     </h5>
-                                    <p class="text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed">{{
-                                        getJustificacion(pregunta.numero) }}</p>
+                                    <p class="text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                                        {{ getJustificacion(pregunta.numero) }}
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -303,4 +312,74 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
 
         </div>
     </div>
+
+    <Teleport to="body">
+        <Transition name="retro">
+            <div v-if="modalRetro"
+                class="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:p-4"
+                @click.self="cerrarRetro">
+                <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="cerrarRetro" />
+                <div class="relative z-10 w-full sm:max-w-lg bg-white dark:bg-slate-900 rounded-t-2xl sm:rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[85vh]">
+                    
+                    <!-- Drag handle (mobile) -->
+                    <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0" @click="cerrarRetro">
+                        <div class="w-10 h-1 rounded-full bg-slate-200 dark:bg-slate-600"></div>
+                    </div>
+                    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-300 dark:border-slate-700">
+                        <div class="flex items-center gap-2">
+                            <MessageSquare class="w-4 h-4 text-indigo-500" />
+                            <span class="text-sm font-semibold text-slate-800 dark:text-white">
+                                Retroalimentación — Pregunta {{ modalRetro.pregunta }}
+                            </span>
+                        </div>
+                        <button @click="cerrarRetro"
+                            class="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                            <X class="w-4 h-4" />
+                        </button>
+                    </div>
+                    <div class="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
+                        <div v-if="modalRetro.retroalimentacion_correcta"
+                            class="rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/10 p-4 space-y-2">
+                            <div class="flex items-center gap-2">
+                                <CheckCircle2 class="w-4 h-4 text-emerald-500 shrink-0" />
+                                <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">Si respondió correctamente</span>
+                            </div>
+                            <p class="text-sm text-emerald-800 dark:text-emerald-300 leading-relaxed">{{ modalRetro.retroalimentacion_correcta }}</p>
+                        </div>
+                        <div v-if="modalRetro.retroalimentacion_incorrecta"
+                            class="rounded-xl border border-rose-200 dark:border-rose-800/50 bg-rose-50 dark:bg-rose-900/10 p-4 space-y-2">
+                            <div class="flex items-center gap-2">
+                                <XCircle class="w-4 h-4 text-rose-500 shrink-0" />
+                                <span class="text-xs font-semibold text-rose-700 dark:text-rose-400 uppercase tracking-wide">Si respondió incorrectamente</span>
+                            </div>
+                            <p class="text-sm text-rose-800 dark:text-rose-300 leading-relaxed">{{ modalRetro.retroalimentacion_incorrecta }}</p>
+                        </div>
+                        <div v-if="modalRetro.justificacion"
+                            class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-4 space-y-2">
+                            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Justificación</span>
+                            <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{{ modalRetro.justificacion }}</p>
+                        </div>
+                    </div>
+                    <div class="px-5 py-3 border-t border-slate-300 dark:border-slate-700 flex justify-end">
+                        <button @click="cerrarRetro"
+                            class="px-4 py-2 text-xs font-medium rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </Transition>
+    </Teleport>
 </template>
+
+<style scoped>
+.retro-enter-active, .retro-leave-active { transition: opacity 0.25s ease; }
+.retro-enter-active .relative, .retro-leave-active .relative { transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+.retro-enter-from, .retro-leave-to { opacity: 0; }
+/* Mobile slides from bottom */
+.retro-enter-from .relative, .retro-leave-to .relative { transform: translateY(100%); }
+/* Desktop scales from center */
+@media (min-width: 640px) {
+    .retro-enter-from .relative, .retro-leave-to .relative { transform: translateY(0) scale(0.95); }
+}
+</style>

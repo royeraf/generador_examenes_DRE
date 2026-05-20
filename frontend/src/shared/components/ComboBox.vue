@@ -121,7 +121,7 @@ onUnmounted(() => {
         <div class="relative" :class="disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'" @click="toggleDropdown">
             <input type="text" readonly :value="displayValue" :placeholder="placeholder" class="w-full px-4 py-3 pr-10
                bg-white dark:bg-slate-900
-               border-2 border-slate-200 dark:border-slate-600
+               border-2 border-slate-300 dark:border-slate-600
                rounded-xl
                text-slate-900 dark:text-white
                text-sm font-medium

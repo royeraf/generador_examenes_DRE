@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { ref, shallowRef, onMounted } from 'vue';
+import { ref, shallowRef, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { adminService } from '../../shared/services/api';
 import type { Grado, Capacidad, DesempenoItem } from '../../shared/types';
-import { Trash2, Edit, Plus, Save, X, Home } from 'lucide-vue-next';
+import { 
+  Trash2, Edit, Plus, Save, X, Home, GraduationCap, Shield, BookOpen, ChevronDown
+} from 'lucide-vue-next';
 
 const router = useRouter();
 import Header from '../../shared/components/Header.vue';
@@ -12,6 +14,10 @@ import { useTheme } from '../../shared/composables/useTheme';
 import { showError, showSuccess, showDeleteConfirm } from '../../shared/utils/swal';
 
 const { isDark, toggleTheme } = useTheme();
+
+// Responsive State
+const isDesktop = ref(window.innerWidth >= 1024);
+const onResize = () => { isDesktop.value = window.innerWidth >= 1024; };
 
 // State
 const activeTab = shallowRef<'grados' | 'capacidades' | 'desempenos'>('desempenos');
@@ -65,7 +71,12 @@ const fetchDesempenos = async () => {
 };
 
 onMounted(() => {
+    window.addEventListener('resize', onResize);
     fetchData();
+});
+
+onUnmounted(() => {
+    window.removeEventListener('resize', onResize);
 });
 
 // CRUD Actions
@@ -130,304 +141,283 @@ const deleteItem = async (id: number) => {
     }
 };
 
-// Computed/Watchers
 </script>
 
 <template>
-    <div class="min-h-screen bg-slate-50 dark:bg-slate-900 p-4 sm:p-8 font-sans relative">
+    <div class="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 sm:p-8 font-sans relative flex flex-col overflow-x-hidden">
         <EduBackground variant="emerald" />
-        <div class="max-w-6xl mx-auto relative z-10">
-            <Header title="Admin" subtitle="Gestión de Comunicación" :is-dark="isDark"
+        <div class="max-w-7xl mx-auto w-full relative z-10 flex-1 flex flex-col">
+            <Header title="Gestión" subtitle="Currículo Nacional" :is-dark="isDark"
                 gradient-class="from-teal-600 via-teal-500 to-emerald-600 shadow-teal-500/20"
-                class="rounded-xl sm:rounded-2xl mb-6 sticky top-0" @toggle-theme="toggleTheme">
+                class="rounded-[2rem] mb-8 sticky top-0" @toggle-theme="toggleTheme">
                 <template #actions-before>
                     <button @click="router.push('/')"
-                        class="p-2.5 rounded-xl bg-white/20 text-white border border-white/30 hover:bg-white/30 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600 transition-all duration-300"
+                        class="p-2.5 rounded-xl bg-slate-100 dark:bg-white/20 text-slate-600 dark:text-white border border-slate-200 dark:border-white/30 hover:bg-slate-200 dark:hover:bg-white/30 transition-all duration-300"
                         title="Inicio">
                         <Home class="w-5 h-5" />
                     </button>
                 </template>
             </Header>
 
-            <!-- Tab Navigation -->
-            <div class="mb-8 flex justify-center">
-                <div
-                    class="flex bg-white dark:bg-slate-800 p-1.5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+            <!-- Mobile Navigation Tabs (Premium Style) -->
+            <div v-if="!isDesktop" class="shrink-0 flex items-center justify-around bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 p-1.5 mb-8 shadow-sm">
+                <button v-for="tab in ['grados', 'capacidades', 'desempenos']" :key="tab"
+                    @click="activeTab = tab as any"
+                    class="flex-1 py-2.5 flex flex-col items-center justify-center gap-1 rounded-xl transition-all" 
+                    :class="activeTab === tab ? 'text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30' : 'text-slate-500'">
+                    <component :is="tab === 'grados' ? GraduationCap : tab === 'capacidades' ? Shield : BookOpen" class="w-5 h-5" />
+                    <span class="text-[10px] font-black uppercase tracking-widest">{{ tab }}</span>
+                </button>
+            </div>
+
+            <!-- Desktop Navigation Tabs -->
+            <div v-else class="mb-8 flex justify-center">
+                <div class="flex items-center gap-1 bg-white/50 dark:bg-slate-800/50 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 w-fit shadow-sm">
                     <button v-for="tab in ['grados', 'capacidades', 'desempenos']" :key="tab"
                         @click="activeTab = tab as any"
-                        class="px-5 py-2.5 rounded-lg text-sm font-medium capitalize transition-all"
-                        :class="activeTab === tab ? 'bg-teal-500 text-white shadow-md' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'">
+                        class="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all"
+                        :class="activeTab === tab ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white shadow-lg shadow-teal-500/20' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'">
                         {{ tab }}
                     </button>
                 </div>
             </div>
 
             <!-- Tool Bar -->
-            <div
-                class="flex flex-wrap items-center justify-between gap-4 mb-6 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-                <div v-if="activeTab === 'desempenos'" class="flex items-center gap-2">
-                    <span class="text-sm font-bold text-slate-700 dark:text-slate-300">Grado:</span>
-                    <select v-model="selectedGradoId" @change="fetchDesempenos"
-                        class="px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-sm text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-teal-500">
-                        <option v-for="g in grados" :key="g.id" :value="g.id">{{ g.nombre }}</option>
-                    </select>
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 bg-white dark:bg-slate-800 p-6 rounded-[2rem] border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-top-2 duration-500">
+                <div v-if="activeTab === 'desempenos'" class="w-full sm:w-auto space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Grado</label>
+                    <div class="relative">
+                        <select v-model="selectedGradoId" @change="fetchDesempenos"
+                            class="w-full sm:w-64 bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-4 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none appearance-none cursor-pointer">
+                            <option v-for="g in grados" :key="g.id" :value="g.id">{{ g.nombre }}</option>
+                        </select>
+                        <ChevronDown class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                    </div>
                 </div>
                 <div v-else></div>
 
                 <button @click="openModal()"
-                    class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-sm font-bold flex items-center gap-2 transition-colors shadow-lg shadow-teal-500/20">
-                    <Plus class="w-4 h-4" /> Nuevo {{ activeTab.slice(0, -1) }}
+                    class="w-full sm:w-auto flex items-center justify-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black px-6 py-3.5 rounded-2xl shadow-xl hover:-translate-y-1 transition-all active:scale-95 text-xs uppercase tracking-widest">
+                    <Plus class="w-5 h-5" />
+                    <span>Nuevo {{ activeTab.slice(0, -1) }}</span>
                 </button>
             </div>
 
-            <!-- Content -->
-            <div
-                class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr
-                                class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
-                                <th class="p-4 text-xs font-bold text-slate-500 uppercase">ID</th>
-
-                                <!-- Dynamic Headers -->
-                                <template v-if="activeTab === 'grados'">
-                                    <th class="p-4 text-xs font-bold text-slate-500 uppercase">Nombre</th>
-                                    <th class="p-4 text-xs font-bold text-slate-500 uppercase">Número</th>
-                                    <th class="p-4 text-xs font-bold text-slate-500 uppercase">Nivel</th>
-                                </template>
-
-                                <template v-else-if="activeTab === 'capacidades'">
-                                    <th class="p-4 text-xs font-bold text-slate-500 uppercase">Nombre</th>
-                                    <th class="p-4 text-xs font-bold text-slate-500 uppercase">Tipo</th>
-                                </template>
-
-                                <template v-else>
-                                    <th class="p-4 text-xs font-bold text-slate-500 uppercase">Código</th>
-                                    <th class="p-4 text-xs font-bold text-slate-500 uppercase">Descripción</th>
-                                    <th class="p-4 text-xs font-bold text-slate-500 uppercase">Capacidad</th>
-                                </template>
-
-                                <th class="p-4 text-xs font-bold text-slate-500 uppercase text-right">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-                            <template v-if="loading">
-                                <tr v-for="n in 5" :key="n" class="animate-pulse">
-                                    <td class="p-4">
-                                        <div class="h-4 w-8 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                                    </td>
+            <!-- Content Area -->
+            <div class="flex-1 flex flex-col min-h-0">
+                
+                <!-- Desktop Table -->
+                <div v-if="isDesktop" class="bg-white dark:bg-slate-800 rounded-[2rem] border-2 border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden flex flex-col">
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-50 dark:bg-slate-900 border-b-2 border-slate-100 dark:border-slate-700">
+                                    <th class="p-4 text-xs font-black text-slate-500 uppercase tracking-widest">ID</th>
                                     <template v-if="activeTab === 'grados'">
-                                        <td class="p-4">
-                                            <div class="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                                        </td>
-                                        <td class="p-4">
-                                            <div class="h-4 w-8 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                                        </td>
-                                        <td class="p-4">
-                                            <div class="h-6 w-16 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                                        </td>
+                                        <th class="p-4 text-xs font-black text-slate-500 uppercase tracking-widest">Nombre</th>
+                                        <th class="p-4 text-xs font-black text-slate-500 uppercase tracking-widest">Número</th>
+                                        <th class="p-4 text-xs font-black text-slate-500 uppercase tracking-widest">Nivel</th>
                                     </template>
                                     <template v-else-if="activeTab === 'capacidades'">
-                                        <td class="p-4">
-                                            <div class="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                                        </td>
-                                        <td class="p-4">
-                                            <div class="h-6 w-16 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                                        </td>
+                                        <th class="p-4 text-xs font-black text-slate-500 uppercase tracking-widest">Nombre</th>
+                                        <th class="p-4 text-xs font-black text-slate-500 uppercase tracking-widest">Tipo</th>
                                     </template>
                                     <template v-else>
-                                        <td class="p-4">
-                                            <div class="h-4 w-12 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                                        </td>
-                                        <td class="p-4">
-                                            <div class="h-4 w-64 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                                        </td>
-                                        <td class="p-4">
-                                            <div class="h-4 w-24 bg-slate-200 dark:bg-slate-700 rounded"></div>
-                                        </td>
+                                        <th class="p-4 text-xs font-black text-slate-500 uppercase tracking-widest">Código</th>
+                                        <th class="p-4 text-xs font-black text-slate-500 uppercase tracking-widest">Descripción</th>
+                                        <th class="p-4 text-xs font-black text-slate-500 uppercase tracking-widest">Capacidad</th>
                                     </template>
-                                    <td class="p-4 text-right">
-                                        <div class="h-8 w-16 bg-slate-200 dark:bg-slate-700 rounded ml-auto"></div>
-                                    </td>
+                                    <th class="p-4 text-xs font-black text-slate-500 uppercase tracking-widest text-right"></th>
                                 </tr>
-                            </template>
-                            <template
-                                v-else-if="(activeTab === 'grados' ? grados : activeTab === 'capacidades' ? capacidades : desempenos).length > 0">
-                                <tr v-for="item in (activeTab === 'grados' ? grados : activeTab === 'capacidades' ? capacidades : desempenos)"
-                                    :key="item.id"
-                                    class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                                    <td class="p-4 text-sm text-slate-400 font-mono">#{{ item.id }}</td>
-
-                                    <!-- Dynamic Body -->
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                                <tr v-if="loading" v-for="n in 5" :key="n" class="animate-pulse">
+                                    <td class="p-4"><div class="h-4 w-8 bg-slate-200 dark:bg-slate-700 rounded"></div></td>
+                                    <td colspan="3" class="p-4"><div class="h-4 w-3/4 bg-slate-200 dark:bg-slate-700 rounded"></div></td>
+                                    <td class="p-4 text-right"><div class="h-8 w-16 bg-slate-200 dark:bg-slate-700 rounded ml-auto"></div></td>
+                                </tr>
+                                <tr v-else v-for="item in (activeTab === 'grados' ? grados : activeTab === 'capacidades' ? capacidades : desempenos)" :key="item.id" class="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
+                                    <td class="p-4 text-xs text-slate-400 font-mono font-bold">#{{ item.id }}</td>
+                                    
                                     <template v-if="activeTab === 'grados'">
-                                        <td class="p-4 text-sm font-medium text-slate-800 dark:text-slate-200">
-                                            {{ (item as Grado).nombre }}
-                                        </td>
-                                        <td class="p-4 text-sm text-slate-600 dark:text-slate-400">
-                                            {{ (item as Grado).numero }}
-                                        </td>
-                                        <td class="p-4 text-sm capitalize">
-                                            <span class="px-2 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded text-xs font-bold">
+                                        <td class="p-4 text-sm font-black text-slate-800 dark:text-slate-200">{{ (item as Grado).nombre }}</td>
+                                        <td class="p-4 text-sm font-bold text-slate-600 dark:text-slate-400">{{ (item as Grado).numero }}</td>
+                                        <td class="p-4 capitalize">
+                                            <span class="px-3 py-1 bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400 rounded-lg text-[10px] font-black uppercase tracking-widest">
                                                 {{ (item as Grado).nivel }}
                                             </span>
                                         </td>
                                     </template>
 
                                     <template v-else-if="activeTab === 'capacidades'">
-                                        <td class="p-4 text-sm font-medium text-slate-800 dark:text-slate-200">
-                                            {{ (item as Capacidad).nombre }}
-                                        </td>
-                                        <td class="p-4 text-sm capitalize">
-                                            <span
-                                                class="px-2 py-1 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 rounded-full text-xs font-bold">
+                                        <td class="p-4 text-sm font-black text-slate-800 dark:text-slate-200">{{ (item as Capacidad).nombre }}</td>
+                                        <td class="p-4 capitalize">
+                                            <span class="px-3 py-1 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 rounded-lg text-[10px] font-black uppercase tracking-widest">
                                                 {{ (item as Capacidad).tipo }}
                                             </span>
                                         </td>
                                     </template>
 
                                     <template v-else>
-                                        <td class="p-4 text-sm font-mono font-bold text-teal-600">
-                                            {{ (item as DesempenoItem).codigo }}
-                                        </td>
-                                        <td class="p-4 text-sm text-slate-600 dark:text-slate-300 max-w-md">
-                                            {{ (item as DesempenoItem).descripcion }}
-                                        </td>
-                                        <td class="p-4 text-sm text-slate-500">
-                                            {{ (item as DesempenoItem).capacidad_nombre || (item as
-                                                DesempenoItem).capacidad_tipo }}
+                                        <td class="p-4 text-sm font-mono font-black text-teal-600">{{ (item as DesempenoItem).codigo }}</td>
+                                        <td class="p-4 text-sm font-bold text-slate-600 dark:text-slate-300 max-w-md">{{ (item as DesempenoItem).descripcion }}</td>
+                                        <td class="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                            {{ (item as DesempenoItem).capacidad_nombre || (item as DesempenoItem).capacidad_tipo }}
                                         </td>
                                     </template>
 
-                                    <td class="p-4 text-right space-x-2">
-                                        <button @click="openModal(item)"
-                                            class="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-colors">
-                                            <Edit class="w-4 h-4" />
-                                        </button>
-                                        <button @click="deleteItem(item.id)"
-                                            class="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors">
-                                            <Trash2 class="w-4 h-4" />
-                                        </button>
+                                    <td class="p-4 text-right">
+                                        <div class="flex items-center justify-end gap-1">
+                                            <button @click="openModal(item)" class="p-2.5 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all"><Edit class="w-4 h-4" /></button>
+                                            <button @click="deleteItem(item.id)" class="p-2.5 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all"><Trash2 class="w-4 h-4" /></button>
+                                        </div>
                                     </td>
                                 </tr>
-                            </template>
-                            <tr v-else>
-                                <td colspan="100" class="p-8 text-center text-slate-400">
-                                    No hay registros encontrados
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Mobile Cards -->
+                <div v-else class="space-y-4 pb-8">
+                    <div v-if="loading" v-for="n in 3" :key="n" class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] border-2 border-slate-200 dark:border-slate-700 animate-pulse">
+                        <div class="h-4 w-1/2 bg-slate-200 dark:bg-slate-700 rounded mb-4"></div>
+                        <div class="h-3 w-3/4 bg-slate-200 dark:bg-slate-700 rounded mb-2"></div>
+                    </div>
+                    <div v-else v-for="item in (activeTab === 'grados' ? grados : activeTab === 'capacidades' ? capacidades : desempenos)" :key="item.id" 
+                        class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-500">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="space-y-1">
+                                <div class="text-[9px] font-mono font-bold text-slate-400 uppercase">ID #{{ item.id }}</div>
+                                <h3 class="font-black text-slate-800 dark:text-white tracking-tight text-lg leading-tight">
+                                    {{ activeTab === 'grados' ? (item as Grado).nombre : activeTab === 'capacidades' ? (item as Capacidad).nombre : (item as DesempenoItem).codigo }}
+                                </h3>
+                            </div>
+                            <div class="flex gap-1">
+                                <button @click="openModal(item)" class="p-2.5 bg-slate-50 dark:bg-slate-700 rounded-xl text-slate-400 transition-all"><Edit class="w-4 h-4" /></button>
+                                <button @click="deleteItem(item.id)" class="p-2.5 bg-red-50 dark:bg-red-900/20 rounded-xl text-red-400 transition-all"><Trash2 class="w-4 h-4" /></button>
+                            </div>
+                        </div>
+                        <div v-if="activeTab === 'grados'" class="flex items-center gap-2">
+                            <span class="px-3 py-1 bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 rounded-lg text-[9px] font-black uppercase tracking-widest">{{ (item as Grado).nivel }}</span>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Grado {{ (item as Grado).numero }}</span>
+                        </div>
+                        <div v-else-if="activeTab === 'capacidades'">
+                            <span class="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 rounded-lg text-[9px] font-black uppercase tracking-widest">{{ (item as Capacidad).tipo }}</span>
+                        </div>
+                        <div v-else class="space-y-3">
+                            <p class="text-xs font-bold text-slate-600 dark:text-slate-400 leading-relaxed">{{ (item as DesempenoItem).descripcion }}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Modal Form -->
-        <div v-if="showModal"
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-            <div
-                class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 dark:border-slate-700">
-                <div
-                    class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
-                    <h3 class="font-bold text-lg text-slate-800 dark:text-white">
-                        {{ isEditing ? 'Editar' : 'Nuevo' }} {{ activeTab.slice(0, -1) }}
-                    </h3>
-                    <button @click="showModal = false"
-                        class="text-slate-400 hover:text-slate-600 dark:hover:text-white">
-                        <X class="w-5 h-5" />
-                    </button>
+        <Teleport to="body">
+            <Transition name="modal">
+                <div v-if="showModal" class="fixed inset-0 z-50 flex items-center sm:items-center justify-center items-end bg-slate-900/60 backdrop-blur-sm" @click.self="showModal = false">
+                    <div class="bg-white dark:bg-slate-800 rounded-t-[2.5rem] sm:rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative">
+                        <div class="sm:hidden flex justify-center pt-4 pb-1" @click="showModal = false"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div></div>
+                        <div class="flex items-center justify-between p-6 border-b border-slate-300 dark:border-slate-700">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center shadow-lg shadow-teal-500/20">
+                                    <component :is="activeTab === 'grados' ? GraduationCap : activeTab === 'capacidades' ? Shield : BookOpen" class="w-5 h-5 text-white" />
+                                </div>
+                                <div>
+                                    <h2 class="text-lg font-black text-slate-800 dark:text-white tracking-tight">
+                                        {{ isEditing ? 'Editar' : 'Nuevo' }} {{ activeTab.slice(0, -1) }}
+                                    </h2>
+                                    <p class="text-xs text-slate-500 font-bold uppercase tracking-widest">Currículo Nacional</p>
+                                </div>
+                            </div>
+                            <button @click="showModal = false" class="p-2 rounded-xl text-slate-400 hover:bg-slate-100 transition-all"><X class="w-5 h-5" /></button>
+                        </div>
+
+                        <div class="p-6 space-y-5 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                            <template v-if="activeTab === 'grados'">
+                                <div class="space-y-1.5">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nombre</label>
+                                    <input v-model="editItem.nombre" type="text" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-4 text-sm font-bold outline-none focus:border-teal-500 transition-all" />
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="space-y-1.5">
+                                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Número</label>
+                                        <input v-model.number="editItem.numero" type="number" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-4 text-sm font-bold outline-none focus:border-teal-500 transition-all" />
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nivel</label>
+                                        <select v-model="editItem.nivel" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-4 text-sm font-bold outline-none">
+                                            <option value="primaria">Primaria</option>
+                                            <option value="secundaria">Secundaria</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <template v-if="activeTab === 'capacidades'">
+                                <div class="space-y-1.5">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nombre</label>
+                                    <input v-model="editItem.nombre" type="text" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-4 text-sm font-bold outline-none focus:border-teal-500 transition-all" />
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Tipo</label>
+                                    <select v-model="editItem.tipo" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-4 text-sm font-bold outline-none">
+                                        <option value="literal">Literal</option>
+                                        <option value="inferencial">Inferencial</option>
+                                        <option value="critico">Crítico</option>
+                                    </select>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Descripción</label>
+                                    <textarea v-model="editItem.descripcion" rows="3" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-4 text-sm font-bold outline-none focus:border-teal-500 transition-all"></textarea>
+                                </div>
+                            </template>
+
+                            <template v-if="activeTab === 'desempenos'">
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div class="col-span-1 space-y-1.5">
+                                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Código</label>
+                                        <input v-model="editItem.codigo" type="text" placeholder="Ej: 01" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-4 text-sm font-bold outline-none focus:border-teal-500 transition-all" />
+                                    </div>
+                                    <div class="col-span-2 space-y-1.5">
+                                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Capacidad</label>
+                                        <select v-model="editItem.capacidad_id" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-4 text-sm font-bold outline-none">
+                                            <option v-for="c in capacidades" :key="c.id" :value="c.id">{{ c.nombre }} ({{ c.tipo }})</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Descripción</label>
+                                    <textarea v-model="editItem.descripcion" rows="4" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-4 text-sm font-bold outline-none focus:border-teal-500 transition-all"></textarea>
+                                </div>
+                            </template>
+                        </div>
+
+                        <div class="p-6 bg-slate-50 dark:bg-slate-900/50 flex flex-col sm:flex-row gap-3">
+                            <button @click="showModal = false" class="flex-1 px-6 py-3.5 text-xs font-black uppercase tracking-widest text-slate-500 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 transition-all">Cancelar</button>
+                            <button @click="saveItem" class="flex-1 flex items-center justify-center gap-3 py-3.5 bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-black text-xs rounded-2xl shadow-xl shadow-teal-500/20 transition-all transform active:scale-95">
+                                <Save class="w-4 h-4" />
+                                <span class="uppercase tracking-widest">Guardar Cambios</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-
-                <div class="p-6 space-y-4">
-                    <!-- Grados Fields -->
-                    <template v-if="activeTab === 'grados'">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Nombre</label>
-                            <input v-model="editItem.nombre" type="text"
-                                class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-700 dark:text-slate-100">
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Número</label>
-                                <input v-model.number="editItem.numero" type="number"
-                                    class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-700 dark:text-slate-100">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Orden</label>
-                                <input v-model.number="editItem.orden" type="number"
-                                    class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-700 dark:text-slate-100">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Nivel</label>
-                            <select v-model="editItem.nivel"
-                                class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-700 dark:text-slate-100">
-                                <option value="primaria">Primaria</option>
-                                <option value="secundaria">Secundaria</option>
-                            </select>
-                        </div>
-                    </template>
-
-                    <!-- Capacidades Fields -->
-                    <template v-if="activeTab === 'capacidades'">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Nombre</label>
-                            <input v-model="editItem.nombre" type="text"
-                                class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-700 dark:text-slate-100">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Tipo</label>
-                            <select v-model="editItem.tipo"
-                                class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-700 dark:text-slate-100">
-                                <option value="literal">Literal</option>
-                                <option value="inferencial">Inferencial</option>
-                                <option value="critico">Crítico</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Descripción</label>
-                            <textarea v-model="editItem.descripcion" rows="3"
-                                class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-700 dark:text-slate-100"></textarea>
-                        </div>
-                    </template>
-
-                    <!-- Desempenos Fields -->
-                    <template v-if="activeTab === 'desempenos'">
-                        <div class="grid grid-cols-3 gap-4">
-                            <div class="col-span-1">
-                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Código</label>
-                                <input v-model="editItem.codigo" type="text" placeholder="Ej: 01"
-                                    class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-700 dark:text-slate-100">
-                            </div>
-                            <div class="col-span-2">
-                                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Capacidad</label>
-                                <select v-model="editItem.capacidad_id"
-                                    class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-700 dark:text-slate-100">
-                                    <option v-for="c in capacidades" :key="c.id" :value="c.id">{{ c.nombre }} ({{ c.tipo
-                                        }})</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Descripción</label>
-                            <textarea v-model="editItem.descripcion" rows="4"
-                                class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white dark:bg-slate-700 dark:border-slate-600 text-slate-700 dark:text-slate-100"></textarea>
-                        </div>
-                        <!-- Hidden Grado ID stored in state -->
-                    </template>
-
-                </div>
-
-                <div
-                    class="px-6 py-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 flex justify-end gap-3">
-                    <button @click="showModal = false"
-                        class="px-4 py-2 text-slate-600 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-700 rounded-xl font-bold text-sm transition-colors">Cancelar</button>
-                    <button @click="saveItem"
-                        class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg shadow-teal-500/20 transition-all transform hover:scale-105">
-                        <Save class="w-4 h-4" /> Guardar
-                    </button>
-                </div>
-            </div>
-        </div>
+            </Transition>
+        </Teleport>
     </div>
 </template>
+
+<style scoped>
+.modal-enter-active, .modal-leave-active { transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+.modal-enter-active .relative, .modal-leave-active .relative { transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+.modal-enter-from, .modal-leave-to { opacity: 0; }
+.modal-enter-from .relative, .modal-leave-to .relative { transform: translateY(100%); }
+@media (min-width: 640px) {
+    .modal-enter-from .relative, .modal-leave-to .relative { transform: translateY(0) scale(0.9) translateZ(0); }
+}
+
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.2); border-radius: 10px; }
+</style>

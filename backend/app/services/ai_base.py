@@ -1,21 +1,21 @@
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Any, Optional, Type
 import json
 import re
 
 class AIService(ABC):
     """Abstract base class for AI services."""
-    
+
     @abstractmethod
     def is_configured(self) -> bool:
         """Check if the service is properly configured (e.g. API key)."""
         pass
-        
+
     @abstractmethod
     async def generate_content(self, prompt: str) -> str:
         """Generate text content from a prompt."""
         pass
-    
+
     @abstractmethod
     async def generar_preguntas(
         self,
@@ -26,6 +26,16 @@ class AIService(ABC):
     ) -> list[Any]:
         """Generate questions (legacy method mainly used by preguntas.py)."""
         pass
+
+    async def generate_structured_content(self, prompt: str, schema: Type) -> dict:
+        """Generate structured JSON output conforming to a Pydantic schema.
+
+        Default implementation: generates text and parses as JSON.
+        Override in subclasses (e.g. GeminiService) for native structured output.
+        """
+        text = await self.generate_content(prompt)
+        text = self.clean_json_response(text)
+        return json.loads(text)
 
     def clean_json_response(self, response_text: str) -> str:
         """Helper to clean JSON code blocks and recover JSON from text.

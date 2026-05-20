@@ -85,7 +85,7 @@ const hasPreguntas = () => {
 
                         <template v-for="(nivel, key) in niveles" :key="key">
                             <th v-if="nivel.preguntas.length" :colspan="nivel.preguntas.length"
-                                class="p-3 border-b-2 border-r-2 border-slate-200 dark:border-slate-700 text-center font-bold text-xs uppercase tracking-wider"
+                                class="p-3 border-b-2 border-r-2 border-slate-300 dark:border-slate-700 text-center font-bold text-xs uppercase tracking-wider"
                                 :style="{ backgroundColor: nivel.bg, color: nivel.color }">
                                 {{ nivel.nombre }}
                             </th>
@@ -101,7 +101,7 @@ const hasPreguntas = () => {
                     <tr>
                         <template v-for="(nivel, key) in niveles" :key="key + '-sub'">
                             <th v-for="(preg, idx) in nivel.preguntas" :key="idx"
-                                class="p-2 border-b border-r border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs text-center text-slate-500 dark:text-slate-400"
+                                class="p-2 border-b border-r border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-xs text-center text-slate-500 dark:text-slate-400"
                                 :title="preg.descripcion">
                                 <div class="flex flex-col items-center">
                                     <span>P{{ idx + 1 }}</span>
@@ -117,16 +117,16 @@ const hasPreguntas = () => {
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
                     <tr v-for="(est, i) in estudiantes" :key="i"
                         class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                        <td class="p-3 border-r border-slate-100 dark:border-slate-700 text-center text-slate-500">
+                        <td class="p-3 border-r border-slate-300 dark:border-slate-700 text-center text-slate-500">
                             {{ i + 1 }}</td>
-                        <td class="p-3 border-r border-slate-100 dark:border-slate-700">
+                        <td class="p-3 border-r border-slate-300 dark:border-slate-700">
                             <input v-model="est.nombre" type="text" placeholder="Nombre del estudiante"
                                 class="w-full bg-transparent outline-none text-slate-700 dark:text-slate-200" />
                         </td>
 
                         <template v-for="(nivel, key) in niveles" :key="key">
                             <td v-for="(_pregunta, idx) in nivel.preguntas" :key="idx"
-                                class="p-1 border-r border-slate-100 dark:border-slate-700 text-center">
+                                class="p-1 border-r border-slate-300 dark:border-slate-700 text-center">
                                 <select :value="est.respuestas[String(key)]?.[idx] || ''" @change="(e) => {
                                     if (!est.respuestas[String(key)]) est.respuestas[String(key)] = [];
                                     const respArray = est.respuestas[String(key)];

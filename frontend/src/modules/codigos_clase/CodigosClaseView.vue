@@ -137,229 +137,308 @@ function descargarQR() {
 
   <main class="max-w-4xl mx-auto px-4 py-8">
 
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
       <div>
-        <h2 class="text-lg font-bold text-slate-800 dark:text-white">Mis Aulas</h2>
+        <h2 class="text-2xl font-black text-slate-800 dark:text-white">Mis Aulas</h2>
         <p class="text-sm text-slate-500 dark:text-slate-400">Gestiona tus aulas y códigos de acceso para estudiantes</p>
       </div>
       <button @click="openCreate"
-        class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-bold text-sm rounded-xl shadow transition-all">
-        <Plus class="w-4 h-4" /> Nuevo código
+        class="flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-bold text-sm rounded-2xl shadow-lg shadow-indigo-500/20 hover:-translate-y-0.5 transition-all active:scale-95">
+        <Plus class="w-5 h-5" /> 
+        <span>Nuevo Código</span>
       </button>
     </div>
 
     <!-- Cargando -->
-    <div v-if="loading" class="flex items-center justify-center py-16">
-      <Loader2 class="w-8 h-8 animate-spin text-teal-500" />
+    <div v-if="loading" class="flex flex-col items-center justify-center py-24">
+      <div class="relative w-12 h-12">
+        <div class="absolute inset-0 rounded-full border-4 border-slate-300 dark:border-slate-800"></div>
+        <div class="absolute inset-0 rounded-full border-4 border-teal-500 border-t-transparent animate-spin"></div>
+      </div>
+      <p class="mt-4 text-sm font-bold text-slate-400 dark:text-slate-500 tracking-widest uppercase">Cargando Aulas</p>
     </div>
 
     <!-- Lista vacía -->
     <div v-else-if="codigos.length === 0"
-      class="text-center py-16 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
-      <School class="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
-      <p class="text-slate-500 dark:text-slate-400 font-medium">No tienes aulas creadas</p>
-      <p class="text-sm text-slate-400 dark:text-slate-500 mt-1">Crea una aula para que tus estudiantes puedan registrarse</p>
+      class="text-center py-20 bg-white dark:bg-slate-900/40 backdrop-blur-xl rounded-[2.5rem] border border-slate-300 dark:border-slate-800 shadow-sm group">
+      <div class="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
+        <School class="w-10 h-10 text-slate-300 dark:text-slate-600" />
+      </div>
+      <p class="text-slate-800 dark:text-white font-black text-xl">No tienes aulas creadas</p>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-xs mx-auto">
+        Crea una aula para que tus estudiantes puedan registrarse y rendir sus evaluaciones.
+      </p>
+      <button @click="openCreate" class="mt-8 text-teal-600 dark:text-teal-400 font-bold hover:underline">
+        Comenzar ahora →
+      </button>
     </div>
 
-    <!-- Tabla -->
-    <div v-else class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-hidden shadow-sm">
-      <table class="w-full text-sm">
-        <thead class="bg-slate-50 dark:bg-slate-700/50 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-          <tr>
-            <th class="px-4 py-3 text-left">Código</th>
-            <th class="px-4 py-3 text-left">Grado / Sección</th>
-            <th class="px-4 py-3 text-center">Estudiantes</th>
-            <th class="px-4 py-3 text-center">Estado</th>
-            <th class="px-4 py-3 text-left">Creado</th>
-            <th class="px-4 py-3"></th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-          <tr v-for="c in codigos" :key="c.id" class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-            <td class="px-4 py-3">
+    <!-- Lista de Aulas -->
+    <div v-else class="space-y-4">
+      
+      <!-- Mobile View: Cards -->
+      <div class="grid grid-cols-1 gap-4 md:hidden">
+        <div v-for="c in codigos" :key="c.id" 
+          class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-3xl p-5 shadow-sm relative overflow-hidden"
+          :class="{ 'opacity-60': !c.is_active }">
+          
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{{ c.grado_nombre || `Grado ${c.grado_id}` }}</p>
+              <h3 class="text-xl font-black text-slate-800 dark:text-white">Sección {{ c.seccion }}</h3>
+            </div>
+            <button @click="toggle(c)" class="p-2 bg-slate-50 dark:bg-slate-800 rounded-xl transition-colors">
+              <ToggleRight v-if="c.is_active" class="w-7 h-7 text-teal-500" />
+              <ToggleLeft v-else class="w-7 h-7 text-slate-400" />
+            </button>
+          </div>
+
+          <div class="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl mb-4 border border-slate-300 dark:border-slate-700/50">
+            <div class="flex-1">
+              <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Código de Acceso</p>
               <div class="flex items-center gap-2">
-                <span class="font-mono font-bold text-teal-600 dark:text-teal-400 tracking-widest text-base">{{ c.codigo }}</span>
-                <button @click="copiar(c.codigo)" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-                  <Copy class="w-3.5 h-3.5" />
+                <span class="font-mono font-black text-2xl text-teal-600 dark:text-teal-400 tracking-widest">{{ c.codigo }}</span>
+                <button @click="copiar(c.codigo)" class="p-1.5 text-slate-400 hover:text-teal-500 transition-colors">
+                  <Copy class="w-4 h-4" />
                 </button>
               </div>
-            </td>
-            <td class="px-4 py-3">
-              <span class="font-medium text-slate-700 dark:text-slate-200">{{ c.grado_nombre || `Grado ${c.grado_id}` }}</span>
-              <span class="text-slate-400 ml-1">Sec. {{ c.seccion }}</span>
-            </td>
-            <td class="px-4 py-3 text-center">
-              <span class="text-slate-600 dark:text-slate-300">{{ c.total_estudiantes }}/{{ c.max_estudiantes }}</span>
-            </td>
-            <td class="px-4 py-3 text-center">
-              <button @click="toggle(c)" class="transition-colors">
-                <ToggleRight v-if="c.is_active" class="w-6 h-6 text-teal-500" />
-                <ToggleLeft v-else class="w-6 h-6 text-slate-400" />
+            </div>
+            <div class="text-right">
+              <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Alumnos</p>
+              <p class="text-lg font-black text-slate-800 dark:text-white">
+                {{ c.total_estudiantes }}<span class="text-sm font-normal text-slate-400">/{{ c.max_estudiantes }}</span>
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-2">
+            <span class="text-[10px] font-bold text-slate-400">{{ formatFecha(c.fecha_creacion) }}</span>
+            <div class="flex items-center gap-2">
+              <button @click="abrirQR(c)" class="flex items-center gap-2 px-4 py-2 bg-teal-500/10 text-teal-600 dark:text-teal-400 font-bold text-xs rounded-xl hover:bg-teal-500 hover:text-white transition-all">
+                <QrCode class="w-4 h-4" />
+                <span>Ver QR</span>
               </button>
-            </td>
-            <td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs">{{ formatFecha(c.fecha_creacion) }}</td>
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-2">
-                <button @click="abrirQR(c)" class="text-teal-500 hover:text-teal-600 dark:hover:text-teal-400 transition-colors" title="Mostrar QR de registro">
-                  <QrCode class="w-4 h-4" />
+              <button @click="eliminar(c)" class="p-2 text-red-500 bg-red-50 dark:bg-red-500/10 rounded-xl hover:bg-red-500 hover:text-white transition-all">
+                <Trash2 class="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Desktop View: Table -->
+      <div class="hidden md:block bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-[2rem] overflow-hidden shadow-sm">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-slate-50 dark:bg-slate-800/50 text-[11px] font-black text-slate-400 uppercase tracking-[0.1em]">
+              <th class="px-6 py-4 text-left">Código Acceso</th>
+              <th class="px-6 py-4 text-left">Grado / Sección</th>
+              <th class="px-6 py-4 text-center">Estudiantes</th>
+              <th class="px-6 py-4 text-center">Estado</th>
+              <th class="px-6 py-4 text-left">Fecha Creación</th>
+              <th class="px-6 py-4 text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+            <tr v-for="c in codigos" :key="c.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all duration-200" :class="{ 'opacity-60': !c.is_active }">
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <span class="font-mono font-black text-lg text-teal-600 dark:text-teal-400 tracking-widest">{{ c.codigo }}</span>
+                  <button @click="copiar(c.codigo)" class="p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-400 hover:text-teal-500 transition-all group">
+                    <Copy class="w-4 h-4 group-hover:scale-110" />
+                  </button>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex flex-col">
+                  <span class="font-black text-slate-800 dark:text-white">{{ c.grado_nombre || `Grado ${c.grado_id}` }}</span>
+                  <span class="text-xs font-bold text-slate-400 uppercase">Sección {{ c.seccion }}</span>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-center">
+                <div class="inline-flex items-center px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-full">
+                  <span class="text-sm font-black text-slate-700 dark:text-slate-200">{{ c.total_estudiantes }}</span>
+                  <span class="text-[10px] text-slate-400 mx-1">/</span>
+                  <span class="text-xs font-bold text-slate-400">{{ c.max_estudiantes }}</span>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-center">
+                <button @click="toggle(c)" class="hover:scale-110 transition-transform">
+                  <ToggleRight v-if="c.is_active" class="w-8 h-8 text-teal-500" />
+                  <ToggleLeft v-else class="w-8 h-8 text-slate-300 dark:text-slate-700" />
                 </button>
-                <button @click="eliminar(c)" class="text-red-400 hover:text-red-600 transition-colors">
-                  <Trash2 class="w-4 h-4" />
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+              </td>
+              <td class="px-6 py-4 text-slate-500 dark:text-slate-400 font-medium">{{ formatFecha(c.fecha_creacion) }}</td>
+              <td class="px-6 py-4">
+                <div class="flex items-center justify-end gap-2">
+                  <button @click="abrirQR(c)" class="p-2.5 bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 rounded-xl hover:bg-teal-500 hover:text-white transition-all shadow-sm" title="Ver QR">
+                    <QrCode class="w-5 h-5" />
+                  </button>
+                  <button @click="eliminar(c)" class="p-2.5 bg-red-50 dark:bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm">
+                    <Trash2 class="w-5 h-5" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
   </main>
 
-  <!-- Modal QR -->
+  <!-- Modal QR — estilo WhatsApp -->
   <Teleport to="body">
-    <Transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100"
-      leave-active-class="transition ease-in duration-150" leave-from-class="opacity-100" leave-to-class="opacity-0">
-      <div v-if="qrModal" class="fixed inset-0 z-50 flex flex-col bg-white dark:bg-slate-900">
+    <Transition name="qr-modal">
+      <div v-if="qrModal"
+        class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+        @click.self="qrModal = null">
 
-        <!-- Header -->
-        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 shrink-0">
-          <div>
-            <h2 class="text-lg font-bold text-slate-800 dark:text-white">Código QR de Registro</h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400">
-              {{ qrModal.grado_nombre }} — Sección {{ qrModal.seccion }}
-            </p>
-          </div>
-          <div class="flex items-center gap-2">
-            <button @click="descargarQR" :disabled="!qrDataUrl"
-              class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-bold text-sm rounded-xl shadow transition-all disabled:opacity-50">
-              <Download class="w-4 h-4" /> Descargar
-            </button>
-            <button @click="qrModal = null" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+        <!-- Card -->
+        <div class="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
+
+          <!-- Close bar -->
+          <div class="flex justify-end px-5 pt-4 pb-0">
+            <button @click="qrModal = null"
+              class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
               <X class="w-5 h-5" />
             </button>
           </div>
-        </div>
 
-        <!-- Layout dos columnas, scrollable si el viewport es pequeño -->
-        <div class="flex-1 min-h-0 overflow-y-auto">
-          <div class="flex flex-col md:flex-row items-center md:items-start justify-center gap-8 p-6 md:p-10 min-h-full md:min-h-0">
+          <!-- Body: dos columnas -->
+          <div class="flex flex-col sm:flex-row items-center sm:items-stretch gap-8 px-8 pb-10 pt-2">
 
-            <!-- Columna izquierda: QR -->
-            <div class="flex flex-col items-center gap-3 shrink-0">
-              <div v-if="qrLoading" class="w-64 h-64 flex items-center justify-center bg-slate-50 dark:bg-slate-800 rounded-2xl">
-                <Loader2 class="w-8 h-8 animate-spin text-teal-500" />
+            <!-- Izquierda: instrucciones -->
+            <div class="flex-1 flex flex-col justify-center min-w-0">
+
+              <h2 class="text-2xl font-black text-slate-800 dark:text-white mb-7 leading-tight">
+                Escanea para unirte
+              </h2>
+
+              <!-- Pasos numerados -->
+              <div class="space-y-4 mb-7">
+                <div class="flex items-start gap-3">
+                  <span class="w-6 h-6 rounded-full border-2 border-slate-400 dark:border-slate-500 flex items-center justify-center shrink-0 mt-0.5 text-[11px] font-bold text-slate-500 dark:text-slate-400">1</span>
+                  <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">Abre la cámara de tu dispositivo</p>
+                </div>
+                <div class="flex items-start gap-3">
+                  <span class="w-6 h-6 rounded-full border-2 border-slate-400 dark:border-slate-500 flex items-center justify-center shrink-0 mt-0.5 text-[11px] font-bold text-slate-500 dark:text-slate-400">2</span>
+                  <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">Apunta al código QR de la pantalla</p>
+                </div>
+                <div class="flex items-start gap-3">
+                  <span class="w-6 h-6 rounded-full border-2 border-slate-400 dark:border-slate-500 flex items-center justify-center shrink-0 mt-0.5 text-[11px] font-bold text-slate-500 dark:text-slate-400">3</span>
+                  <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">Completa el registro con tus datos en el formulario</p>
+                </div>
               </div>
-              <img v-else-if="qrDataUrl" :src="qrDataUrl" alt="QR de registro"
-                class="w-64 h-64 lg:w-72 lg:h-72 rounded-2xl shadow-xl border-4 border-slate-100 dark:border-slate-700" />
-              <p class="text-[10px] text-slate-400 dark:text-slate-500 text-center break-all max-w-[16rem]">
+
+              <div class="h-px bg-slate-200 dark:bg-slate-700 mb-6" />
+
+              <!-- Info del aula -->
+              <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">
+                {{ qrModal.grado_nombre }} — Sección {{ qrModal.seccion }}
+              </p>
+              <div class="flex items-center gap-3 mb-3">
+                <span class="font-mono font-black text-3xl text-teal-600 dark:text-teal-400 tracking-[0.2em]">{{ qrModal.codigo }}</span>
+                <button @click="copiar(qrModal.codigo)"
+                  class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-400 hover:text-teal-500 transition-all">
+                  <Copy class="w-4 h-4" />
+                </button>
+              </div>
+              <p class="text-[11px] text-teal-600 dark:text-teal-400 font-mono break-all mb-7 leading-relaxed select-all">
                 {{ registroUrl(qrModal.codigo) }}
               </p>
+
+              <!-- Botón descargar -->
+              <button @click="descargarQR" :disabled="!qrDataUrl"
+                class="self-start flex items-center gap-2 px-5 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-sm rounded-xl shadow transition-all hover:-translate-y-0.5 active:scale-95 disabled:opacity-40">
+                <Download class="w-4 h-4" />
+                Descargar imagen
+              </button>
             </div>
 
-            <!-- Divisor -->
-            <div class="hidden md:block w-px self-stretch bg-slate-200 dark:bg-slate-700 shrink-0 mx-2"></div>
-            <div class="block md:hidden w-full max-w-xs h-px bg-slate-200 dark:bg-slate-700 shrink-0"></div>
+            <!-- Separador vertical -->
+            <div class="hidden sm:block w-px bg-slate-200 dark:bg-slate-700 shrink-0" />
 
-            <!-- Columna derecha: datos -->
-            <div class="flex flex-col justify-center gap-6 w-full max-w-xs md:max-w-sm">
-
-              <!-- Info de la sección como lista tipográfica -->
-              <div class="space-y-4">
-                <div>
-                  <p class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-0.5">Grado</p>
-                  <p class="text-base font-bold text-slate-800 dark:text-white leading-tight">{{ qrModal.grado_nombre }}</p>
-                </div>
-                <div class="h-px bg-slate-100 dark:bg-slate-800"></div>
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-0.5">Sección</p>
-                    <p class="text-base font-bold text-slate-800 dark:text-white">{{ qrModal.seccion }}</p>
-                  </div>
-                  <div class="text-right">
-                    <p class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-0.5">Estudiantes</p>
-                    <p class="text-base font-bold text-slate-800 dark:text-white">
-                      {{ qrModal.total_estudiantes }}<span class="text-sm font-normal text-slate-400"> / {{ qrModal.max_estudiantes }}</span>
-                    </p>
-                  </div>
-                </div>
-                <div class="h-px bg-slate-100 dark:bg-slate-800"></div>
-                <div>
-                  <p class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Código de acceso</p>
-                  <div class="flex items-center gap-2">
-                    <span class="font-mono font-black text-3xl text-teal-600 dark:text-teal-400 tracking-[0.2em]">{{ qrModal.codigo }}</span>
-                    <button @click="copiar(qrModal.codigo)" class="text-slate-400 hover:text-teal-500 transition-colors" title="Copiar código">
-                      <Copy class="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
+            <!-- Derecha: QR -->
+            <div class="flex items-center justify-center shrink-0">
+              <div v-if="qrLoading"
+                class="w-52 h-52 flex items-center justify-center bg-slate-50 dark:bg-slate-800 rounded-2xl animate-pulse">
+                <Loader2 class="w-10 h-10 animate-spin text-teal-500" />
               </div>
-
-              <!-- Instrucción -->
-              <div class="flex items-start gap-2.5 bg-teal-50 dark:bg-teal-900/20 rounded-xl px-3 py-3 border border-teal-100 dark:border-teal-800/30">
-                <QrCode class="w-3.5 h-3.5 text-teal-500 shrink-0 mt-0.5" />
-                <p class="text-xs text-slate-600 dark:text-slate-300">
-                  Proyecta este QR en clase. Los estudiantes lo escanean y se registran directamente en tu sección.
-                </p>
-              </div>
-
+              <img v-else-if="qrDataUrl"
+                :src="qrDataUrl" alt="QR"
+                class="w-52 h-52 rounded-2xl border-8 border-white dark:border-slate-800 shadow-lg bg-white" />
             </div>
+
           </div>
         </div>
       </div>
     </Transition>
   </Teleport>
 
-  <!-- Modal crear código -->
+  <!-- Modal crear código: Bottom Sheet pattern -->
   <Teleport to="body">
-    <Transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100"
-      leave-active-class="transition ease-in duration-150" leave-from-class="opacity-100" leave-to-class="opacity-0">
-      <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" @click.self="showModal = false">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm">
-          <div class="p-5 border-b border-slate-100 dark:border-slate-700">
-            <h2 class="text-base font-bold text-slate-800 dark:text-white">Nueva Aula</h2>
+    <Transition name="details-modal">
+      <div v-if="showModal" class="fixed inset-0 z-[110] flex items-end sm:items-center justify-center sm:p-4">
+        
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showModal = false"></div>
+
+        <div class="relative bg-white dark:bg-slate-900 w-full sm:max-w-md max-h-[92dvh] sm:max-h-fit flex flex-col sm:rounded-[2.5rem] rounded-t-[2.5rem] shadow-2xl overflow-hidden z-10 animate-slide-up">
+          
+          <!-- Drag handle (mobile) -->
+          <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0" @click="showModal = false">
+              <div class="w-10 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800"></div>
           </div>
-          <div class="p-5 space-y-4">
-            <div v-if="serverError" class="flex items-start gap-2 bg-red-50 dark:bg-red-900/20 text-red-600 text-xs p-3 rounded-xl border border-red-100">
-              <AlertCircle class="w-3.5 h-3.5 shrink-0 mt-0.5" /> {{ serverError }}
+
+          <div class="px-8 py-6 border-b border-slate-300 dark:border-slate-800 flex items-center justify-between">
+            <h2 class="text-xl font-black text-slate-800 dark:text-white tracking-tight">Nueva Aula</h2>
+            <button @click="showModal = false" class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+              <X class="w-6 h-6" />
+            </button>
+          </div>
+
+          <div class="p-8 space-y-6 overflow-y-auto">
+            <div v-if="serverError" class="flex items-start gap-3 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-sm p-4 rounded-2xl border border-red-100 dark:border-red-500/20">
+              <AlertCircle class="w-5 h-5 shrink-0" /> 
+              <span class="font-bold">{{ serverError }}</span>
             </div>
+
             <div>
-              <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Grado</label>
+              <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Grado Académico</label>
               <select v-model="form.grado_id"
-                class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-teal-500/50">
+                class="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-teal-500/50 rounded-2xl py-4 px-5 text-base font-bold text-slate-900 dark:text-white outline-none transition-all appearance-none cursor-pointer">
                 <option v-for="g in grados" :key="g.id" :value="g.id">{{ g.nombre }}</option>
               </select>
             </div>
+
             <div>
-              <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Sección</label>
+              <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Sección</label>
               <select v-model="form.seccion"
-                class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all">
+                class="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-teal-500/50 rounded-2xl py-4 px-5 text-base font-bold text-slate-900 dark:text-white outline-none transition-all appearance-none cursor-pointer">
                 <option value="" disabled>Seleccione sección...</option>
-                <option value="A">A</option>
-                <option value="B">B</option>
-                <option value="C">C</option>
-                <option value="D">D</option>
-                <option value="E">E</option>
-                <option value="F">F</option>
-                <option value="G">G</option>
-                <option value="H">H</option>
-                <option value="I">I</option>
-                <option value="J">J</option>
-                <option value="Única">Única</option>
+                <option v-for="s in ['A','B','C','D','E','F','G','H','I','J','Única']" :key="s" :value="s">{{ s }}</option>
               </select>
             </div>
+
             <div>
-              <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Máx. estudiantes</label>
-              <input v-model.number="form.max_estudiantes" type="number" min="1" max="200"
-                class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
+              <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Límite de Estudiantes</label>
+              <div class="relative">
+                 <input v-model.number="form.max_estudiantes" type="number" min="1" max="200"
+                  class="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-teal-500/50 rounded-2xl py-4 px-5 text-base font-bold text-slate-900 dark:text-white outline-none transition-all" />
+                 <span class="absolute right-5 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400 uppercase">Capacidad</span>
+              </div>
             </div>
           </div>
-          <div class="flex justify-end gap-2 px-5 py-4 border-t border-slate-100 dark:border-slate-700">
-            <button @click="showModal = false" class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors">
+
+          <div class="px-8 py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-300 dark:border-slate-800 flex flex-col sm:flex-row gap-3">
+            <button @click="showModal = false" class="flex-1 px-6 py-4 text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-2xl transition-colors">
               Cancelar
             </button>
             <button @click="crear" :disabled="saving"
-              class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-bold text-sm rounded-xl shadow transition-all disabled:opacity-70">
-              <Loader2 v-if="saving" class="w-3.5 h-3.5 animate-spin" /> Crear
+              class="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-teal-500 to-indigo-600 text-white font-black text-sm rounded-2xl shadow-lg shadow-teal-500/20 active:scale-95 transition-all disabled:opacity-50">
+              <Loader2 v-if="saving" class="w-5 h-5 animate-spin" /> 
+              <span>Crear Aula</span>
             </button>
           </div>
         </div>
@@ -367,3 +446,50 @@ function descargarQR() {
     </Transition>
   </Teleport>
 </template>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 10px;
+}
+
+/* QR Modal animation */
+.qr-modal-enter-active, .qr-modal-leave-active {
+  transition: opacity 0.2s ease;
+}
+.qr-modal-enter-active .w-full, .qr-modal-leave-active .w-full {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.qr-modal-enter-from, .qr-modal-leave-to {
+  opacity: 0;
+}
+.qr-modal-enter-from .w-full {
+  transform: scale(0.96) translateY(8px);
+  opacity: 0;
+}
+
+/* Details Modal / Bottom Sheet Animation */
+.details-modal-enter-active, .details-modal-leave-active {
+  transition: opacity 0.3s ease;
+}
+.details-modal-enter-active .relative, .details-modal-leave-active .relative {
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.details-modal-enter-from, .details-modal-leave-to {
+  opacity: 0;
+}
+.details-modal-enter-from .relative, .details-modal-leave-to .relative {
+  transform: translateY(100%);
+}
+@media (min-width: 640px) {
+  .details-modal-enter-from .relative, .details-modal-leave-to .relative {
+    transform: translateY(0) scale(0.95);
+  }
+}
+</style>

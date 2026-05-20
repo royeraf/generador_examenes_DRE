@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { formatFecha } from '../../shared/utils/dateUtils'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 import * as XLSX from 'xlsx'
-import { ref, computed, onMounted, useTemplateRef } from 'vue'
+import { ref, computed, onMounted, onUnmounted, useTemplateRef } from 'vue'
 import {
   docenteEstudiantesService,
   organizacionService,
@@ -10,11 +11,15 @@ import {
   type RegistrarEstudianteDirectoPayload,
 } from '../../shared/services/api'
 import type { Grado } from '../../shared/types'
-import Navbar from '../../shared/components/Navbar.vue'
+import Header from '../../shared/components/Header.vue'
+import EduBackground from '../../shared/components/EduBackground.vue'
+import { useTheme } from '../../shared/composables/useTheme'
+const { isDark, toggleTheme } = useTheme()
 import Swal from 'sweetalert2'
 import {
   Plus, Edit2, Trash2, Search, X, Eye, EyeOff,
-  GraduationCap, Loader2, AlertCircle, CheckCircle, Users, Download, Upload, FileSpreadsheet
+  GraduationCap, Loader2, AlertCircle, CheckCircle, Users, Download, FileSpreadsheet,
+  Filter, ChevronDown, Home
 } from 'lucide-vue-next'
 
 // ── State ────────────────────────────────────────────────────────────────────
@@ -32,6 +37,17 @@ const importing = ref(false)
 const selectedImportFileName = ref('')
 const nominaFileInput = useTemplateRef<HTMLInputElement>('nominaFileInput')
 const currentEditStudent = ref<EstudianteDocente | null>(null)
+
+// Responsive State
+const isDesktop = ref(window.innerWidth >= 1024)
+const onResize = () => { isDesktop.value = window.innerWidth >= 1024 }
+onMounted(() => {
+  window.addEventListener('resize', onResize)
+  cargarEstudiantes()
+  cargarGrados()
+})
+onUnmounted(() => window.removeEventListener('resize', onResize))
+const mobileTab = ref<'filtros' | 'estudiantes'>('estudiantes')
 
 // Filtros
 const filtroQ = ref('')
@@ -64,12 +80,6 @@ const formError = computed(() => {
   return ''
 })
 
-// Secciones únicas de la lista actual
-const seccionesDisponibles = computed(() => {
-  const set = new Set(estudiantes.value.map(e => e.seccion).filter((s): s is string => Boolean(s)))
-  return Array.from(set).sort()
-})
-
 const estudiantesFiltrados = computed(() => {
   return estudiantes.value.filter(e => {
     const q = filtroQ.value.toLowerCase()
@@ -98,7 +108,15 @@ const editingPendingUser = computed(() =>
 
 // ── Lifecycle ────────────────────────────────────────────────────────────────
 onMounted(async () => {
+  const onResize = () => {
+    isDesktop.value = window.innerWidth >= 1024
+  }
+  window.addEventListener('resize', onResize)
   await Promise.all([cargarEstudiantes(), cargarGrados()])
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', () => {})
 })
 
 async function cargarEstudiantes() {
@@ -149,11 +167,8 @@ function closeModal() {
   currentEditStudent.value = null
 }
 
-function openImportModal() {
-  importForm.value = {
-    grado_id: grados.value[0]?.id || 0,
-    seccion: '',
-  }
+function openImport() {
+  importForm.value = { grado_id: grados.value[0]?.id || 0, seccion: '' }
   selectedImportFileName.value = ''
   showImportModal.value = true
 }
@@ -164,7 +179,7 @@ function closeImportModal() {
   if (nominaFileInput.value) nominaFileInput.value.value = ''
 }
 
-// ── CRUD ─────────────────────────────────────────────────────────────────────
+// ── Actions ──────────────────────────────────────────────────────────────────
 async function guardar() {
   if (formError.value) return
   serverError.value = ''
@@ -197,27 +212,23 @@ async function guardar() {
   }
 }
 
-function descargarPlantillaNomina() {
-  const wsData = [
-    ['dni', 'nombres', 'apellidos'],
-    ['12345678', 'María Fernanda', 'García López'],
-  ]
+function exportarExcel() {
+  const wsData = [['nombres', 'apellidos', 'dni', 'codigo', 'grado', 'sección']]
+  estudiantes.value.forEach(e => {
+    wsData.push([e.nombres || '', e.apellidos || '', e.dni || '', e.codigo_estudiante || '', e.grado_nombre || '', e.seccion || ''])
+  })
   const ws = XLSX.utils.aoa_to_sheet(wsData)
-  ws['!cols'] = [{ wch: 14 }, { wch: 24 }, { wch: 28 }]
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, 'Estudiantes')
+  XLSX.writeFile(wb, `estudiantes_${new Date().toISOString().split('T')[0]}.xlsx`)
+}
 
-  const instructions = XLSX.utils.aoa_to_sheet([
-    ['Indicaciones'],
-    ['1. Completa únicamente las columnas dni, nombres y apellidos.'],
-    ['2. El DNI debe tener 8 dígitos y no debe repetirse.'],
-    ['3. El grado y la sección se seleccionan en la plataforma antes de importar.'],
-    ['4. Después de subir la nómina, el usuario del estudiante se genera manualmente.'],
-  ])
-  instructions['!cols'] = [{ wch: 90 }]
-
+function descargarPlantillaNomina() {
+  const wsData = [['dni', 'nombres', 'apellidos'], ['12345678', 'María Fernanda', 'García López']]
+  const ws = XLSX.utils.aoa_to_sheet(wsData)
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, 'Nomina')
-  XLSX.utils.book_append_sheet(wb, instructions, 'Indicaciones')
-  XLSX.writeFile(wb, `plantilla_nomina_estudiantes_${new Date().toISOString().split('T')[0]}.xlsx`)
+  XLSX.writeFile(wb, 'plantilla_nomina.xlsx')
 }
 
 function seleccionarArchivoNomina() {
@@ -227,419 +238,317 @@ function seleccionarArchivoNomina() {
 async function onNominaFileChange(event: Event) {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
-  if (!file) {
-    selectedImportFileName.value = ''
-    return
-  }
-  selectedImportFileName.value = file.name
-}
-
-function obtenerFilasNomina(rows: unknown[][]): ImportarEstudianteFilaPayload[] {
-  if (rows.length < 2) {
-    throw new Error('El archivo no contiene filas de estudiantes')
-  }
-
-  const headers = rows[0]?.map(cell => String(cell ?? '').trim().toLowerCase()) ?? []
-  const dniIndex = headers.indexOf('dni')
-  const nombresIndex = headers.indexOf('nombres')
-  const apellidosIndex = headers.indexOf('apellidos')
-
-  if (dniIndex === -1 || nombresIndex === -1 || apellidosIndex === -1) {
-    throw new Error('La plantilla debe incluir las columnas dni, nombres y apellidos')
-  }
-
-  const estudiantesImportados: ImportarEstudianteFilaPayload[] = []
-  const errores: string[] = []
-
-  for (let i = 1; i < rows.length; i++) {
-    const row = rows[i] ?? []
-    const dni = String(row[dniIndex] ?? '').trim()
-    const nombres = String(row[nombresIndex] ?? '').trim()
-    const apellidos = String(row[apellidosIndex] ?? '').trim()
-
-    if (!dni && !nombres && !apellidos) continue
-
-    if (!dni || !nombres || !apellidos) {
-      errores.push(`Fila ${i + 1}: completa dni, nombres y apellidos`)
-      continue
-    }
-    if (!/^\d{8}$/.test(dni)) {
-      errores.push(`Fila ${i + 1}: el DNI debe tener 8 dígitos`)
-      continue
-    }
-
-    estudiantesImportados.push({ dni, nombres, apellidos })
-  }
-
-  if (errores.length > 0) {
-    throw new Error(errores.slice(0, 5).join('\n'))
-  }
-  if (estudiantesImportados.length === 0) {
-    throw new Error('No se encontraron estudiantes válidos en el archivo')
-  }
-
-  return estudiantesImportados
+  if (file) selectedImportFileName.value = file.name
 }
 
 async function importarNomina() {
   if (importFormError.value) return
-
   const file = nominaFileInput.value?.files?.[0]
   if (!file) return
-
   importing.value = true
   try {
     const data = new Uint8Array(await file.arrayBuffer())
     const workbook = XLSX.read(data, { type: 'array' })
-    const firstSheetName = workbook.SheetNames[0]
-    if (!firstSheetName) throw new Error('El archivo Excel no contiene hojas')
+    const sheetName = workbook.SheetNames[0]
+    if (!sheetName) throw new Error('El archivo Excel está vacío')
+    const sheet = workbook.Sheets[sheetName]
+    if (!sheet) throw new Error('No se encontró la hoja en el archivo')
+    const rows = XLSX.utils.sheet_to_json<any[]>(sheet, { header: 1, defval: '' })
+    
+    // Obtener filas válidas
+    const estudiantesImportados: ImportarEstudianteFilaPayload[] = rows.slice(1)
+        .filter(r => r[0] && r[1] && r[2]) // Asegurar que tenga DNI, nombres y apellidos
+        .map(r => ({ 
+            dni: String(r[0]).trim(), 
+            nombres: String(r[1]).trim(), 
+            apellidos: String(r[2]).trim() 
+        }))
 
-    const worksheet = workbook.Sheets[firstSheetName]
-    if (!worksheet) throw new Error('No se pudo leer la hoja principal del archivo')
-    const rows = XLSX.utils.sheet_to_json<unknown[]>(worksheet, { header: 1, defval: '' })
-    const estudiantesImportados = obtenerFilasNomina(rows)
+    if (estudiantesImportados.length === 0) {
+        throw new Error('No se encontraron estudiantes válidos en el archivo')
+    }
 
-    const response = await docenteEstudiantesService.importarNomina({
+    await docenteEstudiantesService.importarNomina({
       grado_id: importForm.value.grado_id,
       seccion: importForm.value.seccion.trim(),
       estudiantes: estudiantesImportados,
     })
-
     closeImportModal()
     await cargarEstudiantes()
-    Swal.fire({
-      icon: 'success',
-      title: 'Nómina importada',
-      text: `Se cargaron ${response.creados} estudiantes. Sus usuarios quedan pendientes para generación manual.`,
-    })
+    Swal.fire('Éxito', 'Nómina importada correctamente', 'success')
   } catch (error: any) {
-    Swal.fire('Error', error?.response?.data?.detail ?? error?.message ?? 'No se pudo importar la nómina', 'error')
+    Swal.fire('Error', error.message || 'No se pudo importar la nómina', 'error')
   } finally {
     importing.value = false
   }
 }
 
 async function eliminar(est: EstudianteDocente) {
-  const nombre = [est.nombres, est.apellidos].filter(Boolean).join(' ') || est.codigo_estudiante || `#${est.id}`
-  const result = await Swal.fire({
-    title: '¿Eliminar estudiante?',
-    html: `¿Seguro de eliminar a <strong>${nombre}</strong>? Esta acción no se puede deshacer.`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#ef4444',
-    cancelButtonColor: '#94a3b8',
-    confirmButtonText: 'Sí, eliminar',
-    cancelButtonText: 'Cancelar',
+  const nombre = [est.apellidos, est.nombres].filter(Boolean).join(', ') || est.codigo_estudiante || `#${est.id}`
+  const result = await Swal.fire({ 
+      title: '¿Eliminar estudiante?', 
+      html: `¿Seguro de eliminar a <strong>${nombre}</strong>?`,
+      icon: 'warning', 
+      showCancelButton: true, 
+      confirmButtonColor: '#ef4444', 
+      confirmButtonText: 'Eliminar',
+      cancelButtonText: 'Cancelar'
   })
-  if (!result.isConfirmed) return
-  try {
-    await docenteEstudiantesService.eliminar(est.id)
-    await cargarEstudiantes()
-    Swal.fire({ icon: 'success', title: 'Eliminado', showConfirmButton: false, timer: 1600 })
-  } catch (e: any) {
-    Swal.fire('Error', e.response?.data?.detail ?? 'No se pudo eliminar', 'error')
+  if (result.isConfirmed) {
+    try {
+      await docenteEstudiantesService.eliminar(est.id)
+      await cargarEstudiantes()
+      Swal.fire('Eliminado', 'Estudiante eliminado correctamente', 'success')
+    } catch {
+      Swal.fire('Error', 'No se pudo eliminar el estudiante', 'error')
+    }
   }
 }
 
 function nombreGrado(id: number | null) {
-  if (!id) return '—'
-  return grados.value.find(g => g.id === id)?.nombre ?? `Grado ${id}`
+  return grados.value.find(g => g.id === id)?.nombre ?? '—'
 }
-
-// formatFecha importado de shared/utils/dateUtils
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 to-teal-50 dark:from-slate-900 dark:to-slate-950">
+  <div class="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950">
+    <EduBackground variant="teal" />
+    <div class="flex-1 w-full max-w-7xl mx-auto p-4 md:p-8 relative z-10 overflow-hidden flex flex-col">
+      <Header title="Gestión" subtitle="Mis Estudiantes" :is-dark="isDark"
+        gradient-class="from-teal-600 via-teal-500 to-emerald-600 shadow-teal-500/20"
+        class="rounded-[2.5rem] mb-8 sticky top-0" @toggle-theme="toggleTheme">
+        <template #actions-before>
+          <button @click="router.push('/')"
+            class="p-2.5 rounded-xl bg-slate-100 dark:bg-white/20 text-slate-600 dark:text-white border border-slate-200 dark:border-white/30 hover:bg-slate-200 dark:hover:bg-white/30 transition-all duration-300"
+            title="Inicio">
+            <Home class="w-5 h-5" />
+          </button>
+        </template>
+      </Header>
+      
+      <!-- Mobile Navigation Tabs -->
+      <div v-if="!isDesktop" class="shrink-0 flex items-center justify-around bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 p-1.5 mb-6 shadow-sm">
+        <button @click="mobileTab = 'filtros'" 
+          class="flex-1 py-2.5 flex flex-col items-center justify-center gap-1 rounded-xl transition-all" 
+          :class="mobileTab === 'filtros' ? 'text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30' : 'text-slate-500'">
+          <Filter class="w-5 h-5" />
+          <span class="text-[10px] font-black uppercase tracking-widest">Filtros</span>
+        </button>
+        <button @click="mobileTab = 'estudiantes'" 
+          class="flex-1 py-2.5 flex flex-col items-center justify-center gap-1 rounded-xl transition-all" 
+          :class="mobileTab === 'estudiantes' ? 'text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30' : 'text-slate-500'">
+          <Users class="w-5 h-5" />
+          <span class="text-[10px] font-black uppercase tracking-widest">Estudiantes</span>
+        </button>
+      </div>
 
-    <Navbar
-      title="Mis Estudiantes"
-      subtitle="Gestión de Aula"
-      :has-resultado="false"
-      gradient-class="from-teal-500 via-emerald-500 to-cyan-600 shadow-teal-500/20"
-      subtitle-class="text-teal-100 dark:text-slate-400" :show-home="true" />
-
-    <div class="flex-1 w-full max-w-6xl mx-auto p-4 md:p-8">
-
-      <!-- Toolbar -->
-      <div class="mb-5 space-y-3">
-
-        <!-- Fila 1: acciones -->
-        <div class="flex items-center justify-between gap-3">
-          <p class="text-sm font-semibold text-slate-500 dark:text-slate-400">
-            {{ estudiantesFiltrados.length }} estudiante(s)
-          </p>
-          <div class="flex items-center gap-2">
-            <button @click="descargarPlantillaNomina"
-              class="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-teal-300 dark:hover:border-teal-700 transition-all text-left">
-              <Download class="w-4 h-4 text-teal-500 flex-shrink-0" />
-              <span>
-                <span class="block text-xs font-bold text-slate-700 dark:text-slate-200 leading-tight">Plantilla Excel</span>
-                <span class="block text-[10px] text-slate-400 dark:text-slate-500 leading-tight">Formato para importar nómina</span>
-              </span>
+      <!-- Header & Actions -->
+      <div v-show="isDesktop || mobileTab === 'filtros'" class="mb-6 flex flex-col lg:flex-row lg:items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
+        <div class="flex items-center gap-5">
+          <div class="w-14 h-14 rounded-[1.5rem] bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center shadow-xl shadow-teal-500/20 shrink-0">
+            <Users class="w-7 h-7 text-white" />
+          </div>
+          <div>
+            <h2 class="text-2xl font-black text-slate-800 dark:text-white tracking-tight leading-none">Mis Estudiantes</h2>
+            <p class="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1.5 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-teal-500 animate-pulse"></span>
+              {{ estudiantes.length }} registrados
+            </p>
+          </div>
+        </div>
+        
+        <div class="flex items-center gap-3 flex-wrap">
+          <button @click="openCreate" class="flex-1 lg:flex-none flex items-center justify-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black px-6 py-3.5 rounded-2xl shadow-xl hover:-translate-y-1 transition-all active:scale-95 text-xs uppercase tracking-widest">
+            <Plus class="w-5 h-5" /> Nuevo Alumno
+          </button>
+          <div class="flex items-center gap-2 flex-1 lg:flex-none">
+            <button @click="exportarExcel" class="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold px-5 py-3.5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition-all text-xs uppercase tracking-widest">
+              <Download class="w-4 h-4 text-teal-500" /> Exportar
             </button>
-            <button @click="openImportModal"
-              class="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-semibold text-sm hover:border-teal-300 dark:hover:border-teal-700 transition-all">
-              <Upload class="w-4 h-4 text-teal-500" />
-              Importar
-            </button>
-            <button @click="openCreate"
-              class="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-bold px-4 py-2 rounded-xl shadow transition-all text-sm">
-              <Plus class="w-4 h-4" />
-              Registrar
+            <button @click="openImport" class="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold px-5 py-3.5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition-all text-xs uppercase tracking-widest">
+              <FileSpreadsheet class="w-4 h-4 text-emerald-500" /> Importar
             </button>
           </div>
         </div>
+      </div>
 
-        <!-- Fila 2: filtros -->
-        <div class="flex items-center gap-2 flex-wrap">
-          <div class="relative flex-1 min-w-40">
-            <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-            <input v-model="filtroQ" type="text" placeholder="Buscar por nombre, código o DNI…"
-              class="w-full pl-9 pr-4 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm outline-none focus:ring-2 focus:ring-teal-400/40" />
+      <!-- Filters -->
+      <div v-show="isDesktop || mobileTab === 'filtros'" class="mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-6 bg-white dark:bg-slate-800 rounded-[2rem] border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-top-2 duration-700">
+        <div class="space-y-2">
+          <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Filtrar Grado</label>
+          <div class="relative">
+            <select v-model="filtroGrado" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-4 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none appearance-none cursor-pointer">
+              <option :value="null">Todos los grados</option>
+              <option v-for="g in grados" :key="g.id" :value="g.id">{{ g.nombre }}</option>
+            </select>
+            <ChevronDown class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
           </div>
-          <select v-model="filtroGrado"
-            class="px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm outline-none focus:ring-2 focus:ring-teal-400/40">
-            <option :value="null">Todos los grados</option>
-            <option v-for="g in grados" :key="g.id" :value="g.id">{{ g.nombre }}</option>
-          </select>
-          <select v-model="filtroSeccion"
-            class="px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm outline-none focus:ring-2 focus:ring-teal-400/40">
-            <option value="">Todas las secciones</option>
-            <option v-for="s in seccionesDisponibles" :key="s" :value="s">{{ s }}</option>
-          </select>
         </div>
-
-      </div>
-
-      <!-- Loading -->
-      <div v-if="loading" class="flex items-center justify-center py-20">
-        <Loader2 class="w-8 h-8 text-teal-500 animate-spin" />
-      </div>
-
-      <div v-if="!loading" class="mb-4 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
-        <FileSpreadsheet class="mt-0.5 h-4 w-4 shrink-0" />
-        <p>La nómina Excel solo debe incluir <strong>dni, nombres y apellidos</strong>. Después de importar, el usuario del estudiante queda pendiente y se genera manualmente al asignarle una contraseña.</p>
-      </div>
-
-      <!-- Empty State -->
-      <div v-if="!loading && estudiantes.length === 0"
-        class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-100 dark:border-slate-700 p-12 text-center">
-        <div class="w-16 h-16 rounded-2xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center mx-auto mb-4">
-          <Users class="w-8 h-8 text-teal-500" />
+        <div class="space-y-2">
+          <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Sección</label>
+          <div class="relative">
+            <select v-model="filtroSeccion" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl py-3 px-4 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none appearance-none cursor-pointer">
+              <option value="">Todas las secciones</option>
+              <option v-for="sec in ['A','B','C','D','E','F','G','H','I','J','Única']" :key="sec" :value="sec">{{ sec }}</option>
+            </select>
+            <ChevronDown class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+          </div>
         </div>
-        <h3 class="text-lg font-bold text-slate-700 dark:text-white mb-2">Sin estudiantes registrados</h3>
-        <p class="text-slate-500 dark:text-slate-400 text-sm mb-5">
-          Registra estudiantes directamente, importa la nómina Excel o comparte un código de aula para auto-registro.
-        </p>
-        <div class="flex flex-wrap items-center justify-center gap-2">
-          <button @click="openCreate"
-            class="inline-flex items-center gap-2 bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-bold px-5 py-2.5 rounded-xl shadow transition-all hover:-translate-y-0.5 text-sm">
-            <Plus class="w-4 h-4" /> Registrar primer estudiante
-          </button>
-          <button @click="openImportModal"
-            class="inline-flex items-center gap-2 border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition-all hover:-translate-y-0.5 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 rounded-xl">
-            <Upload class="w-4 h-4 text-teal-500" /> Importar nómina
-          </button>
+        <div class="sm:col-span-2 space-y-2">
+          <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Búsqueda Rápida</label>
+          <div class="relative">
+            <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <input v-model="filtroQ" type="text" placeholder="Nombre, apellido o DNI..." class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold outline-none focus:border-teal-500 transition-all" />
+          </div>
         </div>
       </div>
 
-      <!-- Tabla -->
-      <div v-else-if="!loading" class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-100 dark:border-slate-700 overflow-hidden">
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="bg-slate-50 dark:bg-slate-900/40 border-b border-slate-100 dark:border-slate-700">
-                <th class="text-left px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Estudiante</th>
-                <th class="text-left px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Código</th>
-                <th class="text-left px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Estado</th>
-                <th class="text-left px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">DNI</th>
-                <th class="text-left px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Grado</th>
-                <th class="text-left px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Sección</th>
-                <th class="text-left px-4 py-3 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Registro</th>
-                <th class="px-4 py-3"></th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-              <tr v-for="est in estudiantesFiltrados" :key="est.id"
-                class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                <td class="px-4 py-3">
-                  <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center shrink-0">
-                      <GraduationCap class="w-4 h-4 text-white" />
+      <!-- Main Content -->
+      <div v-show="isDesktop || mobileTab === 'estudiantes'" class="flex-1 flex flex-col min-h-0">
+        
+        <!-- Desktop View: Table -->
+        <div v-if="isDesktop" class="bg-white dark:bg-slate-800 rounded-[2rem] border-2 border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden flex flex-col">
+          <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full border-collapse text-sm">
+              <thead>
+                <tr class="bg-slate-50 dark:bg-slate-900 border-b-2 border-slate-100 dark:border-slate-700">
+                  <th class="p-4 text-left font-black text-slate-500 uppercase text-xs">Estudiante</th>
+                  <th class="p-4 text-left font-black text-slate-500 uppercase text-xs">Código</th>
+                  <th class="p-4 text-left font-black text-slate-500 uppercase text-xs">DNI</th>
+                  <th class="p-4 text-left font-black text-slate-500 uppercase text-xs">Grado/Sección</th>
+                  <th class="p-4 text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                <tr v-for="est in estudiantesFiltrados" :key="est.id" class="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
+                  <td class="p-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center font-black text-teal-600">
+                  {{ (est.nombres || '?').charAt(0) }}{{ (est.apellidos || '?').charAt(0) }}
+                      </div>
+                      <span class="font-bold text-slate-800 dark:text-white">{{ est.apellidos }}, {{ est.nombres }}</span>
                     </div>
-                    <div>
-                      <p class="font-semibold text-slate-800 dark:text-white">
-                        {{ [est.apellidos, est.nombres].filter(Boolean).join(', ') || '—' }}
-                      </p>
+                  </td>
+                  <td class="p-4">
+                    <span class="font-mono font-black text-teal-600 bg-teal-50 dark:bg-teal-900/20 px-3 py-1 rounded-full text-xs">
+                      {{ est.codigo_estudiante || 'Pendiente' }}
+                    </span>
+                  </td>
+                  <td class="p-4 font-medium text-slate-600 dark:text-slate-400">{{ est.dni || '—' }}</td>
+                  <td class="p-4 text-xs font-black uppercase text-slate-500">
+                    {{ nombreGrado(est.grado_id) }} · <span class="text-indigo-500">{{ est.seccion }}</span>
+                  </td>
+                  <td class="p-4 text-right">
+                    <div class="flex items-center justify-end gap-1">
+                      <button @click="openEdit(est)" class="p-2.5 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all"><Edit2 class="w-4 h-4" /></button>
+                      <button @click="eliminar(est)" class="p-2.5 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all"><Trash2 class="w-4 h-4" /></button>
                     </div>
-                  </div>
-                </td>
-                <td class="px-4 py-3">
-                  <span class="font-mono text-xs bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300 px-2 py-0.5 rounded-full">
-                    {{ est.codigo_estudiante || 'Pendiente' }}
-                  </span>
-                </td>
-                <td class="px-4 py-3">
-                  <span
-                    class="px-2 py-0.5 rounded-full text-xs font-bold"
-                    :class="est.is_active && est.codigo_estudiante
-                      ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300'
-                      : 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300'"
-                  >
-                    {{ est.is_active && est.codigo_estudiante ? 'Usuario generado' : 'Pendiente' }}
-                  </span>
-                </td>
-                <td class="px-4 py-3 text-slate-600 dark:text-slate-300">{{ est.dni || '—' }}</td>
-                <td class="px-4 py-3 text-slate-600 dark:text-slate-300 text-xs">{{ est.grado_nombre || nombreGrado(est.grado_id) }}</td>
-                <td class="px-4 py-3">
-                  <span class="bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 text-xs font-bold px-2 py-0.5 rounded-full">
-                    {{ est.seccion || '—' }}
-                  </span>
-                </td>
-                <td class="px-4 py-3 text-slate-500 dark:text-slate-400 text-xs">{{ formatFecha(est.fecha_creacion) }}</td>
-                <td class="px-4 py-3">
-                  <div class="flex items-center gap-1 justify-end">
-                    <button @click="openEdit(est)"
-                      class="p-1.5 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors" title="Editar">
-                      <Edit2 class="w-4 h-4" />
-                    </button>
-                    <button @click="eliminar(est)"
-                      class="p-1.5 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors" title="Eliminar">
-                      <Trash2 class="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr v-if="estudiantesFiltrados.length === 0">
-                <td colspan="8" class="px-4 py-8 text-center text-slate-500 dark:text-slate-400 text-sm">
-                  Sin resultados para los filtros seleccionados
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                  </td>
+                </tr>
+                <tr v-if="estudiantesFiltrados.length === 0">
+                  <td colspan="5" class="p-12 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">Sin resultados</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-        <div class="px-4 py-3 border-t border-slate-100 dark:border-slate-700 text-xs text-slate-400 dark:text-slate-500">
-          {{ estudiantesFiltrados.length }} de {{ estudiantes.length }} estudiante(s)
+
+        <!-- Mobile View: Cards -->
+        <div v-else class="flex-1 overflow-y-auto space-y-4 pb-4">
+          <div v-for="est in estudiantesFiltrados" :key="est.id" class="bg-white dark:bg-slate-800 p-5 rounded-[2rem] border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <div class="flex justify-between items-start mb-4">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center font-black text-teal-600 text-lg">
+                  {{ (est.nombres || '?').charAt(0) }}{{ (est.apellidos || '?').charAt(0) }}
+                </div>
+                <div>
+                  <h3 class="font-black text-slate-800 dark:text-white tracking-tight">{{ est.apellidos }}, {{ est.nombres }}</h3>
+                  <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mt-1">{{ nombreGrado(est.grado_id) }} · Secc. {{ est.seccion }}</p>
+                </div>
+              </div>
+              <div class="flex gap-1">
+                <button @click="openEdit(est)" class="p-2.5 bg-slate-50 dark:bg-slate-700 rounded-xl text-slate-400 transition-all"><Edit2 class="w-4 h-4" /></button>
+                <button @click="eliminar(est)" class="p-2.5 bg-red-50 dark:bg-red-900/20 rounded-xl text-red-400 transition-all"><Trash2 class="w-4 h-4" /></button>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100 dark:border-slate-700">
+              <div>
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Código Acceso</p>
+                <p class="font-mono font-bold text-teal-600 dark:text-teal-400">{{ est.codigo_estudiante || 'Pendiente' }}</p>
+              </div>
+              <div>
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">DNI</p>
+                <p class="font-bold text-slate-600 dark:text-slate-300">{{ est.dni || '—' }}</p>
+              </div>
+            </div>
+          </div>
+          <div v-if="estudiantesFiltrados.length === 0" class="py-12 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">Sin resultados</div>
         </div>
       </div>
     </div>
 
+    <!-- Modals -->
     <!-- ── Modal: Crear / Editar ── -->
     <Teleport to="body">
-      <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0"
-        enter-to-class="opacity-100" leave-active-class="transition duration-150" leave-from-class="opacity-100"
-        leave-to-class="opacity-0">
-        <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" @click.self="closeModal">
-          <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-            <!-- Header del modal -->
-            <div class="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-700">
-              <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center">
-                  <GraduationCap class="w-5 h-5 text-white" />
+      <Transition name="modal">
+        <div v-if="showModal" class="fixed inset-0 z-50 flex items-center sm:items-center justify-center items-end bg-slate-900/60 backdrop-blur-sm" @click.self="closeModal">
+          <div class="bg-white dark:bg-slate-800 rounded-t-[2.5rem] sm:rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative">
+            <div class="sm:hidden flex justify-center pt-4 pb-1" @click="closeModal"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div></div>
+            <div class="flex items-center justify-between p-6 border-b border-slate-300 dark:border-slate-700">
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center shadow-lg shadow-teal-500/20"><GraduationCap class="w-5 h-5 text-white" /></div>
+                <div>
+                  <h2 class="text-lg font-black text-slate-800 dark:text-white tracking-tight">{{ editingId ? 'Editar Estudiante' : 'Registrar Estudiante' }}</h2>
+                  <p class="text-xs text-slate-500 font-bold uppercase tracking-widest">Gestión de Aula</p>
                 </div>
-                <h2 class="text-base font-bold text-slate-800 dark:text-white">
-                  {{ editingId ? 'Editar Estudiante' : 'Registrar Estudiante' }}
-                </h2>
               </div>
-              <button @click="closeModal" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
-                <X class="w-4 h-4" />
-              </button>
+              <button @click="closeModal" class="p-2 rounded-xl text-slate-400 hover:bg-slate-100 transition-all"><X class="w-5 h-5" /></button>
             </div>
-
-            <!-- Formulario -->
-            <div class="p-5 space-y-4">
-              <!-- Error servidor -->
-              <div v-if="serverError" class="flex items-start gap-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-xl text-xs border border-red-100 dark:border-red-900/50">
-                <AlertCircle class="w-3.5 h-3.5 shrink-0 mt-0.5" />
-                {{ serverError }}
-              </div>
-
-              <div v-if="editingPendingUser" class="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
-                <AlertCircle class="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                Este estudiante fue importado desde la nómina. Para generar su usuario manualmente, asígnale una contraseña y guarda los cambios.
-              </div>
-
-              <!-- Nombres y Apellidos -->
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Nombres <span class="text-red-400">*</span></label>
-                  <input v-model="form.nombres" type="text" placeholder="Ej: María"
-                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500 transition-all" />
+            <div class="p-6 space-y-5 max-h-[70vh] overflow-y-auto custom-scrollbar">
+              <div v-if="serverError" class="bg-red-50 text-red-600 p-4 rounded-2xl text-xs font-bold border border-red-100">{{ serverError }}</div>
+              <div v-if="editingPendingUser" class="bg-amber-50 text-amber-700 p-4 rounded-2xl text-xs font-bold border border-amber-100">Falta activar usuario (asignar contraseña).</div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nombres</label>
+                  <input v-model="form.nombres" type="text" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 rounded-2xl py-3 px-4 text-sm font-bold outline-none focus:border-teal-500 transition-all" />
                 </div>
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Apellidos <span class="text-red-400">*</span></label>
-                  <input v-model="form.apellidos" type="text" placeholder="Ej: García López"
-                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500 transition-all" />
+                <div class="space-y-1.5">
+                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Apellidos</label>
+                  <input v-model="form.apellidos" type="text" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 rounded-2xl py-3 px-4 text-sm font-bold outline-none focus:border-teal-500 transition-all" />
                 </div>
               </div>
-
-              <!-- DNI -->
-              <div>
-                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">DNI <span class="text-slate-400 font-normal">(opcional)</span></label>
-                <input v-model="form.dni" type="text" placeholder="12345678" maxlength="8"
-                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500 transition-all" />
+              <div class="space-y-1.5">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">DNI</label>
+                <input v-model="form.dni" type="text" maxlength="8" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 rounded-2xl py-3 px-4 text-sm font-bold outline-none focus:border-teal-500 transition-all" />
               </div>
-
-              <!-- Grado y Sección -->
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Grado <span class="text-red-400">*</span></label>
-                  <select v-model="form.grado_id"
-                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500 transition-all">
-                    <option :value="0" disabled>Seleccionar...</option>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Grado</label>
+                  <select v-model="form.grado_id" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 rounded-2xl py-3 px-4 text-sm font-bold outline-none">
                     <option v-for="g in grados" :key="g.id" :value="g.id">{{ g.nombre }}</option>
                   </select>
                 </div>
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Sección <span class="text-red-400">*</span></label>
-                  <select v-model="form.seccion"
-                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500 transition-all">
-                    <option value="" disabled>Seleccione sección...</option>
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                    <option value="C">C</option>
-                    <option value="D">D</option>
-                    <option value="E">E</option>
-                    <option value="F">F</option>
-                    <option value="G">G</option>
-                    <option value="H">H</option>
-                    <option value="I">I</option>
-                    <option value="J">J</option>
-                    <option value="Única">Única</option>
+                <div class="space-y-1.5">
+                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Sección</label>
+                  <select v-model="form.seccion" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 rounded-2xl py-3 px-4 text-sm font-bold outline-none">
+                    <option v-for="sec in ['A','B','C','D','E','F','G','H','I','J','Única']" :key="sec" :value="sec">{{ sec }}</option>
                   </select>
                 </div>
               </div>
-
-              <!-- Contraseña -->
-              <div>
-                <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">
-                  Contraseña <span v-if="editingId" class="text-slate-400 font-normal">{{ editingPendingUser ? '(asígnala para generar el usuario)' : '(dejar vacío para no cambiar)' }}</span><span v-else class="text-red-400">*</span>
-                </label>
+              <div class="space-y-1.5">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Contraseña</label>
                 <div class="relative">
-                  <input v-model="form.password" :type="showPass ? 'text' : 'password'" placeholder="Mínimo 4 caracteres"
-                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 pl-3 pr-9 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500 transition-all" />
-                  <button type="button" @click="showPass = !showPass" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
-                    <Eye v-if="!showPass" class="w-3.5 h-3.5" /><EyeOff v-else class="w-3.5 h-3.5" />
-                  </button>
+                  <input v-model="form.password" :type="showPass ? 'text' : 'password'" class="w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 rounded-2xl py-3 pl-4 pr-12 text-sm font-bold outline-none focus:border-teal-500 transition-all" />
+                  <button @click="showPass = !showPass" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"><Eye v-if="!showPass" class="w-5 h-5" /><EyeOff v-else class="w-5 h-5" /></button>
                 </div>
               </div>
-
-              <!-- Error de formulario -->
-              <p v-if="formError" class="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
-                <AlertCircle class="w-3.5 h-3.5 shrink-0" /> {{ formError }}
-              </p>
+              <p v-if="formError" class="text-[10px] font-bold text-amber-600 uppercase">{{ formError }}</p>
             </div>
-
-            <!-- Acciones -->
-            <div class="flex gap-2 px-5 pb-5">
-              <button @click="closeModal" class="px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
-                Cancelar
-              </button>
-              <button @click="guardar" :disabled="saving || !!formError"
-                class="flex-1 flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-bold text-sm rounded-xl shadow transition-all disabled:opacity-60">
-                <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
-                {{ editingPendingUser ? 'Guardar y Generar Usuario' : editingId ? 'Guardar Cambios' : 'Registrar' }}
+            <div class="p-6 bg-slate-50 dark:bg-slate-900/50 flex flex-col sm:flex-row gap-3">
+              <button @click="closeModal" class="flex-1 px-6 py-3.5 text-xs font-black uppercase tracking-widest text-slate-500 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 transition-all">Cancelar</button>
+              <button @click="guardar" :disabled="saving || !!formError" class="flex-1 flex items-center justify-center gap-3 py-3.5 bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-black text-xs rounded-2xl shadow-xl shadow-teal-500/20 transition-all disabled:opacity-50 active:scale-95">
+                <Loader2 v-if="saving" class="w-5 h-5 animate-spin" />
+                <span class="uppercase tracking-widest">{{ editingPendingUser ? 'Activar' : editingId ? 'Actualizar' : 'Registrar' }}</span>
               </button>
             </div>
           </div>
@@ -649,97 +558,59 @@ function nombreGrado(id: number | null) {
 
     <!-- ── Modal: Importar nómina ── -->
     <Teleport to="body">
-      <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0"
-        enter-to-class="opacity-100" leave-active-class="transition duration-150" leave-from-class="opacity-100"
-        leave-to-class="opacity-0">
-        <div v-if="showImportModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" @click.self="closeImportModal">
-          <div class="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-slate-800">
-            <div class="flex items-center justify-between border-b border-slate-100 p-5 dark:border-slate-700">
-              <div class="flex items-center gap-3">
-                <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-teal-400 to-emerald-500">
-                  <FileSpreadsheet class="h-5 w-5 text-white" />
-                </div>
+      <Transition name="modal">
+        <div v-if="showImportModal" class="fixed inset-0 z-50 flex items-center sm:items-center justify-center items-end bg-slate-900/60 backdrop-blur-sm" @click.self="closeImportModal">
+          <div class="w-full max-w-lg overflow-hidden rounded-t-[2.5rem] sm:rounded-2xl bg-white shadow-2xl dark:bg-slate-800 relative">
+            <div class="sm:hidden flex justify-center pt-4 pb-1" @click="closeImportModal"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div></div>
+            <div class="flex items-center justify-between border-b border-slate-300 p-6 dark:border-slate-700">
+              <div class="flex items-center gap-4">
+                <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-500 shadow-lg shadow-teal-500/20"><FileSpreadsheet class="h-6 w-6 text-white" /></div>
                 <div>
-                  <h2 class="text-base font-bold text-slate-800 dark:text-white">Importar nómina Excel</h2>
-                  <p class="text-xs text-slate-500 dark:text-slate-400">Sube `dni`, `nombres` y `apellidos`. El usuario se genera después manualmente.</p>
+                  <h2 class="text-lg font-black text-slate-800 dark:text-white tracking-tight">Importar nómina Excel</h2>
+                  <p class="text-xs text-slate-500 font-bold uppercase tracking-widest">Carga Masiva</p>
                 </div>
               </div>
-              <button @click="closeImportModal" class="rounded-xl p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700">
-                <X class="h-4 w-4" />
-              </button>
+              <button @click="closeImportModal" class="p-2 text-slate-400"><X class="h-5 w-5" /></button>
             </div>
-
-            <div class="space-y-4 p-5">
-              <div class="rounded-2xl border border-teal-100 bg-teal-50 p-4 text-xs text-teal-700 dark:border-teal-900/40 dark:bg-teal-950/30 dark:text-teal-200">
-                <p class="font-bold">Columnas obligatorias del Excel</p>
-                <p class="mt-1">`dni`, `nombres`, `apellidos`</p>
+            <div class="space-y-6 p-6">
+              <div class="rounded-[1.5rem] border border-teal-100 bg-teal-50/50 p-5 text-xs font-bold text-teal-700 shadow-sm flex items-start gap-3">
+                <AlertCircle class="w-5 h-5 shrink-0" />
+                <div><p class="text-base font-black tracking-tight">Columnas: dni, nombres, apellidos</p></div>
               </div>
-
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="mb-1 block text-xs font-bold text-slate-600 dark:text-slate-300">Grado</label>
-                  <select v-model="importForm.grado_id"
-                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none transition-all focus:border-teal-500 focus:ring-2 focus:ring-teal-500/40 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200">
-                    <option :value="0" disabled>Seleccionar...</option>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Grado</label>
+                  <select v-model="importForm.grado_id" class="w-full rounded-2xl border-2 border-slate-300 bg-slate-50 px-4 py-3 text-sm font-bold outline-none transition-all focus:border-teal-500">
                     <option v-for="g in grados" :key="g.id" :value="g.id">{{ g.nombre }}</option>
                   </select>
                 </div>
-                <div>
-                  <label class="mb-1 block text-xs font-bold text-slate-600 dark:text-slate-300">Sección</label>
-                  <select v-model="importForm.seccion"
-                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none transition-all focus:border-teal-500 focus:ring-2 focus:ring-teal-500/40 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200">
-                    <option value="" disabled>Seleccione sección...</option>
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                    <option value="C">C</option>
-                    <option value="D">D</option>
-                    <option value="E">E</option>
-                    <option value="F">F</option>
-                    <option value="G">G</option>
-                    <option value="H">H</option>
-                    <option value="I">I</option>
-                    <option value="J">J</option>
-                    <option value="Única">Única</option>
+                <div class="space-y-1.5">
+                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Sección</label>
+                  <select v-model="importForm.seccion" class="w-full rounded-2xl border-2 border-slate-300 bg-slate-50 px-4 py-3 text-sm font-bold outline-none transition-all focus:border-teal-500">
+                    <option v-for="sec in ['A','B','C','D','E','F','G','H','I','J','Única']" :key="sec" :value="sec">{{ sec }}</option>
                   </select>
                 </div>
               </div>
-
               <input ref="nominaFileInput" type="file" accept=".xlsx,.xls" class="hidden" @change="onNominaFileChange" />
-
-              <div class="rounded-2xl border border-dashed border-slate-300 p-4 dark:border-slate-600">
-                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p class="text-sm font-bold text-slate-700 dark:text-slate-200">Archivo seleccionado</p>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">{{ selectedImportFileName || 'Ningún archivo seleccionado' }}</p>
+              <div class="rounded-2xl border-2 border-dashed border-slate-300 p-6 bg-slate-50/50">
+                <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                  <div class="min-w-0">
+                    <p class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tight mb-1">Archivo Excel</p>
+                    <p class="text-xs font-bold text-slate-400 truncate">{{ selectedImportFileName || 'No seleccionado' }}</p>
                   </div>
                   <div class="flex gap-2">
-                    <button @click="descargarPlantillaNomina"
-                      class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600">
-                      <Download class="h-4 w-4 text-teal-500" />
-                      Modelo
-                    </button>
-                    <button @click="seleccionarArchivoNomina"
-                      class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 px-4 py-2 text-sm font-bold text-white shadow transition-all hover:from-teal-600 hover:to-emerald-700">
-                      <Upload class="h-4 w-4" />
-                      Seleccionar
-                    </button>
+                    <button @click="descargarPlantillaNomina" class="px-4 py-2.5 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500">Modelo</button>
+                    <button @click="seleccionarArchivoNomina" class="px-4 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg">Subir</button>
                   </div>
                 </div>
               </div>
-
-              <p v-if="importFormError" class="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
-                <AlertCircle class="h-3.5 w-3.5 shrink-0" /> {{ importFormError }}
-              </p>
+              <p v-if="importFormError" class="text-[10px] font-bold text-amber-600 uppercase">{{ importFormError }}</p>
             </div>
-
-            <div class="flex gap-2 px-5 pb-5">
-              <button @click="closeImportModal" class="rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600">
-                Cancelar
-              </button>
-              <button @click="importarNomina" :disabled="importing || !!importFormError"
-                class="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 py-2.5 text-sm font-bold text-white shadow transition-all hover:from-teal-600 hover:to-emerald-700 disabled:opacity-60">
-                <Loader2 v-if="importing" class="h-4 w-4 animate-spin" />
-                Importar nómina
+            <div class="flex flex-col sm:flex-row gap-3 p-6 bg-slate-50 dark:bg-slate-900/50">
+              <button @click="closeImportModal" class="flex-1 rounded-2xl bg-white px-6 py-3.5 text-xs font-black uppercase tracking-widest text-slate-500 border border-slate-200">Cancelar</button>
+              <button @click="importarNomina" :disabled="importing || !!importFormError" class="flex-1 flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-600 py-3.5 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-teal-500/20 transition-all disabled:opacity-50">
+                <Loader2 v-if="importing" class="h-5 w-5 animate-spin" />
+                <span>Confirmar Importación</span>
               </button>
             </div>
           </div>
@@ -749,23 +620,25 @@ function nombreGrado(id: number | null) {
 
     <!-- ── Modal: Código generado ── -->
     <Teleport to="body">
-      <Transition enter-active-class="transition duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100"
-        leave-active-class="transition duration-150" leave-from-class="opacity-100" leave-to-class="opacity-0">
-        <div v-if="showSuccessModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center space-y-4">
-            <div class="w-14 h-14 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto">
-              <CheckCircle class="w-7 h-7 text-green-500" />
+      <Transition name="modal">
+        <div v-if="showSuccessModal" class="fixed inset-0 z-50 flex items-center sm:items-center justify-center items-end bg-slate-900/60 backdrop-blur-sm">
+          <div class="bg-white dark:bg-slate-800 rounded-t-[2.5rem] sm:rounded-3xl shadow-2xl w-full max-w-sm p-8 text-center space-y-6 relative">
+            <div class="sm:hidden flex justify-center pb-2" @click="showSuccessModal = false"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div></div>
+            <div class="w-20 h-20 rounded-[2rem] bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto shadow-inner"><CheckCircle class="w-10 h-10 text-emerald-500" /></div>
+            <div>
+              <h2 class="text-2xl font-black text-slate-800 dark:text-white tracking-tight leading-none mb-1">¡Registro Exitoso!</h2>
+              <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Usuario Generado</p>
             </div>
-            <h2 class="text-lg font-bold text-slate-800 dark:text-white">Estudiante Registrado</h2>
-            <p class="text-slate-500 dark:text-slate-400 text-sm">El código de acceso del estudiante es:</p>
-            <div class="bg-slate-100 dark:bg-slate-700 rounded-xl py-3 px-6">
-              <span class="text-2xl font-mono font-black text-teal-600 dark:text-teal-400 tracking-widest">{{ successCodigo }}</span>
+            <div class="space-y-2">
+                <p class="text-xs font-bold text-slate-500">El código de acceso es:</p>
+                <div class="bg-slate-50 dark:bg-slate-700/50 rounded-2xl py-5 px-6 border-2 border-dashed border-teal-500/30">
+                  <span class="text-4xl font-mono font-black text-teal-600 dark:text-teal-400 tracking-[0.2em]">{{ successCodigo }}</span>
+                </div>
             </div>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Comparte este código con el estudiante. Lo necesitará junto con su contraseña para iniciar sesión.</p>
-            <button @click="showSuccessModal = false"
-              class="w-full py-2.5 bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-bold rounded-xl shadow hover:from-teal-600 hover:to-emerald-700 transition-all">
-              Entendido
-            </button>
+            <div class="bg-amber-50 dark:bg-amber-900/20 rounded-2xl p-4 border border-amber-100 dark:border-amber-900/30">
+                <p class="text-[10px] font-bold text-amber-700 dark:text-amber-300 leading-relaxed uppercase tracking-tight">Comparte este código con el estudiante. Lo necesitará junto a su contraseña para entrar.</p>
+            </div>
+            <button @click="showSuccessModal = false" class="w-full py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black rounded-2xl shadow-xl transition-all active:scale-95 uppercase tracking-widest text-sm">Entendido</button>
           </div>
         </div>
       </Transition>
@@ -773,3 +646,17 @@ function nombreGrado(id: number | null) {
 
   </div>
 </template>
+
+<style scoped>
+.modal-enter-active, .modal-leave-active { transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+.modal-enter-active .relative, .modal-leave-active .relative { transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+.modal-enter-from, .modal-leave-to { opacity: 0; }
+.modal-enter-from .relative, .modal-leave-to .relative { transform: translateY(100%); }
+@media (min-width: 640px) {
+    .modal-enter-from .relative, .modal-leave-to .relative { transform: translateY(0) scale(0.9) translateZ(0); }
+}
+
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.2); border-radius: 10px; }
+</style>

@@ -5,9 +5,9 @@ import { useAuthStore } from '../../stores/auth'
 import { useTheme } from '../../shared/composables/useTheme'
 import { apiClient } from '../../shared/services/api'
 import {
-  BookOpen, BarChart3, Sun, Moon, LogOut, Zap, Star,
-  Trophy, Flame, Target, ChevronRight, Sparkles, Medal,
-  Rocket, GraduationCap, Sprout, Library,
+  Trophy, Flame, Target, Sparkles,
+  BookOpen, Star, Sun, Moon, LogOut, Zap,
+  Rocket, GraduationCap, Sprout,
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -53,7 +53,6 @@ const firstName = computed(() => {
 
 const nivelLogro = computed(() => {
   if (!progreso.value.length) return null
-  // Tomar el mejor nivel entre todas las áreas
   const niveles = ['pre_inicio', 'inicio', 'proceso', 'satisfactorio', 'destacado']
   let best = ''
   for (const p of progreso.value) {
@@ -114,294 +113,275 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
 </script>
 
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-indigo-50 via-teal-50/40 to-purple-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950/30 overflow-x-hidden">
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500 overflow-x-hidden font-sans">
 
-    <!-- Burbujas decorativas de fondo -->
+    <!-- Premium Background Elements -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden">
-      <div class="absolute top-10 left-[10%] w-48 h-48 rounded-full bg-teal-300/20 dark:bg-teal-500/10 blur-3xl animate-float-slow" />
-      <div class="absolute top-1/3 right-[5%] w-64 h-64 rounded-full bg-indigo-300/20 dark:bg-indigo-500/10 blur-3xl animate-float-medium" />
-      <div class="absolute bottom-1/4 left-[20%] w-40 h-40 rounded-full bg-purple-300/20 dark:bg-purple-500/10 blur-3xl animate-float-fast" />
+      <div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-teal-500/5 dark:bg-teal-500/10 rounded-full blur-[120px]"></div>
+      <div class="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[100px]"></div>
     </div>
 
-    <!-- Header -->
-    <header class="bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border-b border-white/60 dark:border-slate-700/60 sticky top-0 z-40">
-      <div class="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-br from-teal-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-teal-500/30">
-            <Rocket class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-300 dark:border-slate-800 shadow-sm">
+      <div class="max-w-3xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-indigo-600 flex items-center justify-center shadow-lg shadow-teal-500/20">
+            <Rocket class="w-5 h-5 text-white" />
           </div>
-          <span class="font-black text-slate-800 dark:text-white text-sm tracking-tight">SIEVA</span>
+          <div class="flex flex-col">
+            <span class="font-bold text-slate-900 dark:text-white text-base tracking-tight leading-none">SIEVA</span>
+            <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-0.5">Estudiante</span>
+          </div>
         </div>
         <div class="flex items-center gap-2">
           <button @click="toggleTheme()"
-            class="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
-            <Sun v-if="isDark" class="w-4 h-4" />
-            <Moon v-else class="w-4 h-4" />
+            class="w-10 h-10 rounded-xl flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-300 dark:hover:border-slate-700">
+            <Sun v-if="isDark" class="w-5 h-5" />
+            <Moon v-else class="w-5 h-5" />
           </button>
           <button @click="auth.logout(); router.push('/login')"
-            class="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all">
-            <LogOut class="w-4 h-4" />
+            class="w-10 h-10 rounded-xl flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all border border-transparent hover:border-red-100 dark:hover:border-red-900/30 ml-1">
+            <LogOut class="w-5 h-5" />
           </button>
         </div>
       </div>
     </header>
 
-    <main class="max-w-2xl mx-auto px-4 py-6 relative">
+    <main class="max-w-3xl mx-auto px-6 py-8 relative">
 
-      <!-- ── Hero / Saludo ── -->
-      <div class="relative mb-5 sm:mb-6 rounded-3xl overflow-hidden bg-gradient-to-br from-teal-500 via-indigo-500 to-purple-600 p-5 sm:p-6 shadow-2xl shadow-indigo-500/25">
-        <!-- Patrón de puntos -->
-        <div class="absolute inset-0 opacity-10"
-          style="background-image: radial-gradient(circle, white 1px, transparent 1px); background-size: 20px 20px;" />
-
-        <!-- Estrellitas flotantes -->
-        <div class="absolute top-4 right-6 sm:right-8 text-yellow-300 animate-spin-slow opacity-80">
-          <Star class="w-4 h-4 sm:w-5 sm:h-5 fill-yellow-300" />
-        </div>
-        <div class="absolute top-10 right-16 sm:right-20 text-white animate-pulse opacity-50">
-          <Sparkles class="w-3 h-3 sm:w-4 sm:h-4" />
-        </div>
-        <div class="absolute bottom-5 right-8 sm:right-12 text-yellow-200 animate-bounce opacity-60">
-          <Star class="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-yellow-200" />
-        </div>
-
-        <div class="relative z-10">
-          <!-- Avatar circular con iniciales -->
-          <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/20 backdrop-blur-sm border-2 border-white/40 flex items-center justify-center mb-3 sm:mb-4 shadow-lg">
-            <span class="text-xl sm:text-2xl font-black text-white">{{ (firstName[0] ?? '?').toUpperCase() }}</span>
+      <!-- ── Hero Section ── -->
+      <section class="relative mb-8 rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-teal-500 via-indigo-500 to-purple-600 p-8 sm:p-10 shadow-2xl shadow-indigo-500/20 group">
+        <!-- Decoration -->
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle,white_1px,transparent_1px)] bg-[length:24px_24px]" />
+        <div class="absolute -top-24 -right-24 w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-1000" />
+        
+        <div class="relative z-10 flex flex-col sm:flex-row sm:items-center gap-6">
+          <!-- Avatar -->
+          <div class="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur-md border-2 border-white/30 flex items-center justify-center shadow-xl shrink-0 group-hover:scale-105 transition-transform">
+            <span class="text-3xl font-black text-white">{{ (firstName[0] ?? '?').toUpperCase() }}</span>
           </div>
 
-          <p class="text-white/80 text-sm font-medium">{{ greeting }},</p>
-          <h1 class="text-2xl font-black text-white mt-0.5 leading-tight">{{ firstName }}!</h1>
+          <div class="flex-1">
+            <p class="text-white/80 text-sm font-bold uppercase tracking-widest">{{ greeting }},</p>
+            <h1 class="text-3xl sm:text-4xl font-bold text-white mt-1 leading-tight">{{ firstName }}!</h1>
 
-          <div class="flex items-center gap-2 mt-2 flex-wrap">
-            <span v-if="auth.user?.grado_nombre"
-              class="inline-flex items-center gap-1 bg-white/20 backdrop-blur-sm text-white text-[11px] font-semibold px-2.5 py-1 rounded-full border border-white/30">
-              <GraduationCap class="w-3 h-3" />
-              {{ auth.user.grado_nombre }}
-              <span v-if="auth.user?.seccion">· Sección {{ auth.user.seccion }}</span>
-            </span>
-            <span class="inline-flex items-center gap-1 bg-white/20 backdrop-blur-sm text-white/90 text-[11px] font-mono px-2.5 py-1 rounded-full border border-white/30">
-              {{ auth.user?.codigo_estudiante }}
-            </span>
+            <div class="flex items-center gap-2 mt-4 flex-wrap">
+              <span v-if="auth.user?.grado_nombre"
+                class="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1.5 rounded-full border border-white/20 uppercase tracking-wider">
+                <GraduationCap class="w-3.5 h-3.5" />
+                {{ auth.user.grado_nombre }} <span v-if="auth.user?.seccion" class="opacity-50 mx-1">|</span> {{ auth.user?.seccion }}
+              </span>
+              <span class="inline-flex items-center gap-2 bg-slate-900/20 backdrop-blur-md text-white/90 text-[10px] font-mono font-bold px-3 py-1.5 rounded-full border border-white/10 tracking-widest">
+                ID: {{ auth.user?.codigo_estudiante }}
+              </span>
+            </div>
           </div>
 
-          <!-- Mensaje motivacional según nivel -->
-          <p v-if="nivelActual" class="mt-3 text-white/90 text-sm font-medium flex items-center gap-2">
-            <component :is="nivelActual.icon" class="w-4 h-4 shrink-0" />
-            {{ nivelActual.msg }}
-          </p>
-          <p v-else-if="!loadingStats" class="mt-3 text-white/90 text-sm font-medium flex items-center gap-2">
-            <Rocket class="w-4 h-4 shrink-0" />
-            ¡Tu aventura de lectura comienza hoy!
-          </p>
-        </div>
-      </div>
-
-      <!-- ── Stats rápidas ── -->
-      <div class="grid grid-cols-3 gap-2 sm:gap-3 mb-5 sm:mb-6">
-        <!-- Exámenes completados -->
-        <div class="bg-white dark:bg-slate-800 rounded-2xl p-3 sm:p-4 text-center border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center">
-          <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center mb-1.5 sm:mb-2 shadow-lg shadow-teal-500/25">
-            <Trophy class="w-4 h-4 text-white" />
+          <!-- Motivational Badge -->
+          <div v-if="nivelActual" class="hidden md:flex flex-col items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-3xl p-4 min-w-[140px]">
+            <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+              <component :is="nivelActual.icon" class="w-6 h-6 text-white" />
+            </div>
+            <span class="text-[10px] font-bold text-white uppercase tracking-widest">{{ nivelActual.label }}</span>
           </div>
-          <template v-if="loadingStats">
-            <div class="h-5 w-8 bg-slate-100 dark:bg-slate-700 rounded animate-pulse mb-1" />
-          </template>
-          <template v-else>
-            <p class="text-lg sm:text-xl font-black text-slate-800 dark:text-white tabular-nums leading-tight">{{ totalExamenes }}</p>
-          </template>
-          <p class="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-medium leading-tight mt-0.5">Completados</p>
         </div>
 
-        <!-- Promedio -->
-        <div class="bg-white dark:bg-slate-800 rounded-2xl p-3 sm:p-4 text-center border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center">
-          <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mb-1.5 sm:mb-2 shadow-lg shadow-amber-500/25">
-            <Target class="w-4 h-4 text-white" />
+        <p v-if="nivelActual" class="relative z-10 mt-6 text-white/90 text-sm font-bold flex items-center gap-2">
+          <Sparkles class="w-4 h-4 text-yellow-300" />
+          {{ nivelActual.msg }}
+        </p>
+      </section>
+
+      <!-- ── Quick Stats Grid ── -->
+      <section class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <!-- Stat Card Template -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-300 dark:border-slate-800 shadow-sm flex items-center gap-4 group hover:shadow-md transition-all">
+          <div class="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-500/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+            <Trophy class="w-6 h-6 text-teal-500" />
           </div>
-          <template v-if="loadingStats">
-            <div class="h-5 w-10 bg-slate-100 dark:bg-slate-700 rounded animate-pulse mb-1" />
-          </template>
-          <template v-else>
-            <p class="text-lg sm:text-xl font-black tabular-nums leading-tight"
-              :class="promedioGeneral === null ? 'text-slate-400' : 'text-slate-800 dark:text-white'">
+          <div>
+            <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Completados</p>
+            <div v-if="loadingStats" class="h-6 w-12 bg-slate-100 dark:bg-slate-800 rounded animate-pulse mt-1" />
+            <p v-else class="text-2xl font-black text-slate-900 dark:text-white tabular-nums">{{ totalExamenes }}</p>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-300 dark:border-slate-800 shadow-sm flex items-center gap-4 group hover:shadow-md transition-all">
+          <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+            <Target class="w-6 h-6 text-indigo-500" />
+          </div>
+          <div>
+            <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Promedio</p>
+            <div v-if="loadingStats" class="h-6 w-16 bg-slate-100 dark:bg-slate-800 rounded animate-pulse mt-1" />
+            <p v-else class="text-2xl font-black text-slate-900 dark:text-white tabular-nums">
               {{ promedioGeneral !== null ? promedioGeneral + '%' : '—' }}
             </p>
-          </template>
-          <p class="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-medium leading-tight mt-0.5">Promedio</p>
-        </div>
-
-        <!-- Pendientes -->
-        <div class="bg-white dark:bg-slate-800 rounded-2xl p-3 sm:p-4 text-center border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center">
-          <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-violet-400 to-purple-600 flex items-center justify-center mb-1.5 sm:mb-2 shadow-lg shadow-violet-500/25">
-            <Flame class="w-4 h-4 text-white" />
           </div>
-          <template v-if="loadingStats">
-            <div class="h-5 w-6 bg-slate-100 dark:bg-slate-700 rounded animate-pulse mb-1" />
-          </template>
-          <template v-else>
-            <p class="text-lg sm:text-xl font-black text-slate-800 dark:text-white tabular-nums leading-tight">{{ examensPendientes }}</p>
-          </template>
-          <p class="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-medium leading-tight mt-0.5">Pendientes</p>
         </div>
-      </div>
 
-      <!-- ── Barra de nivel de logro ── -->
-      <div v-if="!loadingStats && nivelLogro"
-        class="bg-white dark:bg-slate-800 rounded-2xl p-4 mb-6 border border-slate-100 dark:border-slate-700 shadow-sm">
-        <div class="flex items-center justify-between mb-3">
-          <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tu nivel</span>
-          <span class="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full"
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-300 dark:border-slate-800 shadow-sm flex items-center gap-4 group hover:shadow-md transition-all">
+          <div class="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+            <Flame class="w-6 h-6 text-amber-500" />
+          </div>
+          <div>
+            <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Pendientes</p>
+            <div v-if="loadingStats" class="h-6 w-10 bg-slate-100 dark:bg-slate-800 rounded animate-pulse mt-1" />
+            <p v-else class="text-2xl font-black text-slate-900 dark:text-white tabular-nums">{{ examensPendientes }}</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Level Progress Bar ── -->
+      <section v-if="!loadingStats && nivelLogro" class="bg-white dark:bg-slate-900 rounded-2xl p-6 mb-8 border border-slate-300 dark:border-slate-800 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-widest">Nivel de Logro Actual</h3>
+          <span class="inline-flex items-center gap-1.5 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider"
             :class="nivelActual?.color"
-            style="background: color-mix(in srgb, currentColor 12%, transparent)">
-            <component :is="nivelActual?.icon" class="w-3 h-3" />
+            style="background: color-mix(in srgb, currentColor 10%, transparent)">
+            <component :is="nivelActual?.icon" class="w-3.5 h-3.5" />
             {{ nivelActual?.label }}
           </span>
         </div>
-        <!-- Pasos del camino -->
-        <div class="flex items-center gap-1">
+        <div class="flex items-center gap-1.5 h-3">
           <div v-for="(step, i) in nivelSteps" :key="step"
-            class="flex-1 h-2.5 rounded-full transition-all duration-700"
+            class="flex-1 h-full rounded-full transition-all duration-1000"
             :class="i <= nivelIdx
               ? (nivelActual?.bar ?? 'bg-teal-500')
-              : 'bg-slate-100 dark:bg-slate-700'" />
+              : 'bg-slate-100 dark:bg-slate-800'" />
         </div>
-        <div class="flex justify-between mt-1.5">
-          <span class="text-[9px] text-slate-400">Inicio</span>
-          <span class="text-[9px] text-slate-400">Destacado</span>
+        <div class="flex justify-between mt-3 px-1">
+          <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Base</span>
+          <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Élite</span>
         </div>
-      </div>
+      </section>
 
-      <!-- ── Acciones principales ── -->
-      <div class="space-y-3 mb-6">
-
-        <!-- Mis Exámenes — CTA principal -->
+      <!-- ── Main Navigation CTAs ── -->
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
+        
+        <!-- Action Card: Exámenes -->
         <button @click="router.push('/estudiante/examenes')"
-          class="w-full relative overflow-hidden rounded-2xl p-4 sm:p-5 text-left shadow-xl shadow-teal-500/20 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-teal-500/30 group"
-          style="background: linear-gradient(135deg, #14b8a6, #6366f1)">
-          <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            style="background: linear-gradient(135deg, #0d9488, #4f46e5)" />
-          <!-- Burbuja decorativa -->
-          <div class="absolute -top-4 -right-4 w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white/10 group-hover:scale-150 transition-transform duration-500" />
-          <div class="absolute bottom-2 right-8 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/10" />
-
-          <div class="relative flex items-center gap-3 sm:gap-4">
-            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/20 flex items-center justify-center shadow-lg shrink-0 group-hover:scale-110 transition-transform duration-300">
-              <BookOpen class="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+          class="relative overflow-hidden rounded-[2rem] p-6 text-left group transition-all duration-300 hover:-translate-y-1.5"
+          style="background: linear-gradient(135deg, #14b8a6, #0ea5e9)">
+          
+          <div class="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors" />
+          <div class="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
+          
+          <div class="relative flex items-center gap-5">
+            <div class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-xl shrink-0 group-hover:scale-110 transition-transform">
+              <BookOpen class="w-8 h-8 text-white" />
             </div>
             <div class="flex-1 min-w-0">
-              <p class="text-white/70 text-[10px] sm:text-xs font-semibold mb-0.5">¡A estudiar!</p>
-              <h3 class="text-white font-black text-base sm:text-lg leading-tight truncate">Mis Exámenes</h3>
-              <p class="text-white/70 text-[10px] sm:text-xs mt-0.5 truncate">
-                <span v-if="examensPendientes > 0 && !loadingStats"
-                  class="inline-flex items-center gap-1 bg-white/20 px-2 py-0.5 rounded-full font-bold truncate">
-                  <Zap class="w-3 h-3 shrink-0" /> {{ examensPendientes }} pendiente{{ examensPendientes !== 1 ? 's' : '' }}
-                </span>
-                <span v-else>Ver y rendir tus exámenes</span>
-              </p>
+              <span class="text-[10px] font-bold text-white/70 uppercase tracking-widest">Evaluaciones</span>
+              <h3 class="text-xl font-bold text-white mt-0.5">Mis Exámenes</h3>
+              <div v-if="examensPendientes > 0 && !loadingStats" class="mt-2 inline-flex items-center gap-1.5 bg-white/20 px-2.5 py-1 rounded-lg text-[10px] font-bold text-white border border-white/20">
+                <Zap class="w-3 h-3 fill-white" />
+                {{ examensPendientes }} PENDIENTE{{ examensPendientes !== 1 ? 'S' : '' }}
+              </div>
             </div>
-            <ChevronRight class="w-5 h-5 text-white/60 group-hover:translate-x-1 transition-transform duration-200 shrink-0 ml-1" />
+            <ChevronRight class="w-6 h-6 text-white/50 group-hover:translate-x-1 transition-transform" />
           </div>
         </button>
 
-        <!-- Mi Progreso -->
+        <!-- Action Card: Progreso -->
         <button @click="router.push('/estudiante/progreso')"
-          class="w-full relative overflow-hidden rounded-2xl p-4 sm:p-5 text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group">
-          <div class="absolute -top-3 -right-3 w-16 h-16 rounded-full bg-indigo-50 dark:bg-indigo-900/20 group-hover:scale-150 transition-transform duration-500" />
-
-          <div class="relative flex items-center gap-3 sm:gap-4">
-            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/25 shrink-0 group-hover:scale-110 transition-transform duration-300">
-              <BarChart3 class="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+          class="relative overflow-hidden rounded-[2rem] p-6 text-left group transition-all duration-300 hover:-translate-y-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10">
+          
+          <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-50 dark:bg-indigo-500/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
+          
+          <div class="relative flex items-center gap-5">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 shrink-0 group-hover:scale-110 transition-transform">
+              <BarChart3 class="w-8 h-8 text-white" />
             </div>
             <div class="flex-1 min-w-0">
-              <p class="text-slate-400 dark:text-slate-500 text-[10px] sm:text-xs font-semibold mb-0.5">Seguimiento</p>
-              <h3 class="font-black text-slate-800 dark:text-white text-base sm:text-lg leading-tight truncate">Mi Progreso</h3>
-              <p class="text-slate-400 dark:text-slate-500 text-[10px] sm:text-xs mt-0.5 truncate">Revisa tu evolución y nivel de logro</p>
+              <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Seguimiento</span>
+              <h3 class="text-xl font-bold text-slate-800 dark:text-white mt-0.5">Mi Progreso</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">Reporte detallado de áreas</p>
             </div>
-            <ChevronRight class="w-5 h-5 text-slate-300 dark:text-slate-600 group-hover:translate-x-1 group-hover:text-indigo-500 transition-all duration-200 shrink-0 ml-1" />
+            <ChevronRight class="w-6 h-6 text-slate-300 dark:text-slate-700 group-hover:translate-x-1 group-hover:text-indigo-500 transition-all" />
           </div>
         </button>
-      </div>
+      </section>
 
-      <!-- ── Progreso por área (inline) ── -->
-      <div v-if="!loadingStats && progreso.length > 0" class="mb-6">
-        <h2 class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-          <Medal class="w-3.5 h-3.5" /> Logros por área
-        </h2>
-        <div class="space-y-2.5">
+      <!-- ── Area Detail Section ── -->
+      <section v-if="!loadingStats && progreso.length > 0" class="mb-10">
+        <div class="flex items-center gap-3 mb-5 px-1">
+          <div class="w-1 h-4 bg-teal-500 rounded-full" />
+          <h2 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-widest">Logros por Área</h2>
+        </div>
+        
+        <div class="space-y-4">
           <div v-for="p in progreso" :key="p.area"
-            class="bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 px-4 py-3 flex items-center gap-3 shadow-sm">
-            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+            class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 p-5 flex items-center gap-4 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-colors">
+            
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-lg"
               :class="p.area === 'comunicacion'
-                ? 'bg-gradient-to-br from-teal-400 to-teal-600'
-                : 'bg-gradient-to-br from-orange-400 to-amber-500'">
-              <BookOpen v-if="p.area === 'comunicacion'" class="w-4 h-4 text-white" />
-              <Zap v-else class="w-4 h-4 text-white" />
+                ? 'bg-gradient-to-br from-teal-400 to-emerald-500 shadow-teal-500/20'
+                : 'bg-gradient-to-br from-indigo-400 to-purple-500 shadow-indigo-500/20'">
+              <BookOpen v-if="p.area === 'comunicacion'" class="w-6 h-6 text-white" />
+              <Zap v-else class="w-6 h-6 text-white" />
             </div>
+
             <div class="flex-1 min-w-0">
-              <div class="flex items-center justify-between mb-1.5">
-                <span class="text-xs font-bold text-slate-700 dark:text-slate-200">
+              <div class="flex items-center justify-between mb-2">
+                <h4 class="text-sm font-bold text-slate-900 dark:text-white">
                   {{ p.area === 'comunicacion' ? 'Comunicación' : 'Matemática' }}
-                </span>
-                <span class="text-xs font-black tabular-nums"
-                  :class="nivelConfig[p.nivel_logro_actual || '']?.color ?? 'text-slate-500'">
+                </h4>
+                <span class="text-sm font-black tabular-nums"
+                  :class="nivelConfig[p.nivel_logro_actual || '']?.color ?? 'text-slate-400'">
                   {{ Math.round(p.puntaje_promedio) }}%
                 </span>
               </div>
-              <div class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                <div class="h-full rounded-full transition-all duration-700"
-                  :class="nivelConfig[p.nivel_logro_actual || '']?.bar ?? 'bg-slate-400'"
+              <div class="h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                <div class="h-full rounded-full transition-all duration-1000"
+                  :class="nivelConfig[p.nivel_logro_actual || '']?.bar ?? 'bg-slate-300 dark:bg-slate-700'"
                   :style="{ width: p.puntaje_promedio + '%' }" />
               </div>
             </div>
-            <component
-              v-if="p.nivel_logro_actual && nivelConfig[p.nivel_logro_actual]"
-              :is="nivelConfig[p.nivel_logro_actual]!.icon"
-              class="w-5 h-5 shrink-0"
-              :class="nivelConfig[p.nivel_logro_actual]!.color" />
+
+            <div v-if="p.nivel_logro_actual && nivelConfig[p.nivel_logro_actual]" class="hidden sm:flex shrink-0">
+               <component :is="nivelConfig[p.nivel_logro_actual]!.icon" class="w-6 h-6" :class="nivelConfig[p.nivel_logro_actual]!.color" />
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- ── Mensaje motivacional si no hay progreso ── -->
-      <div v-if="!loadingStats && progreso.length === 0"
-        class="bg-white dark:bg-slate-800 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 p-6 text-center mb-6">
-        <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center mx-auto mb-3">
-          <Library class="w-6 h-6 text-slate-400 dark:text-slate-500" />
+      <!-- ── Empty State ── -->
+      <section v-if="!loadingStats && progreso.length === 0"
+        class="bg-white dark:bg-slate-900 rounded-[2.5rem] border-2 border-dashed border-slate-300 dark:border-slate-800 p-12 text-center mb-10 group">
+        <div class="w-20 h-20 rounded-3xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+          <Library class="w-10 h-10 text-slate-300 dark:text-slate-600" />
         </div>
-        <p class="font-bold text-slate-700 dark:text-slate-200 text-sm">¡Aún no has rendido ningún examen!</p>
-        <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Completa tu primer examen y comienza tu camino hacia el logro destacado.</p>
-      </div>
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white">¡Bienvenido a tu nueva etapa!</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-xs mx-auto">
+          Aún no has rendido exámenes. Empieza hoy mismo y desbloquea tus primeros logros.
+        </p>
+        <button @click="router.push('/estudiante/examenes')" class="mt-8 px-8 py-3 bg-teal-500 text-white font-bold rounded-xl shadow-lg shadow-teal-500/25 hover:scale-105 active:scale-95 transition-all">
+          Ver Exámenes Disponibles
+        </button>
+      </section>
 
-      <!-- Footer -->
-      <p class="text-center text-[11px] text-slate-400 dark:text-slate-600 pb-6">
-        {{ auth.user?.institucion_nombre }}
-      </p>
+      <!-- Footer Info -->
+      <footer class="mt-12 pt-8 border-t border-slate-300 dark:border-slate-800 text-center pb-12">
+        <p class="text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-widest leading-loose">
+          {{ auth.user?.institucion_nombre }}<br/>
+          Dirección Regional de Educación Huánuco
+        </p>
+      </footer>
 
     </main>
   </div>
 </template>
 
 <style scoped>
-@keyframes float-slow {
-  0%, 100% { transform: translateY(0px) scale(1); }
-  50% { transform: translateY(-20px) scale(1.05); }
-}
-@keyframes float-medium {
+@keyframes float {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-14px); }
-}
-@keyframes float-fast {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-}
-@keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  50% { transform: translateY(-15px); }
 }
 
-.animate-float-slow { animation: float-slow 7s ease-in-out infinite; }
-.animate-float-medium { animation: float-medium 5s ease-in-out infinite 1s; }
-.animate-float-fast { animation: float-fast 4s ease-in-out infinite 0.5s; }
-.animate-spin-slow { animation: spin-slow 8s linear infinite; }
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+    20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+.animate-shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
 </style>

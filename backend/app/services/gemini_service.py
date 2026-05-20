@@ -1,48 +1,52 @@
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 import json
 import asyncio
-from typing import Optional
+from typing import Optional, Type
 
 from app.core.config import get_settings
 from app.models.pregunta import Pregunta, TipoPregunta, OpcionMultiple
+from app.models.ai_schemas import RespuestaPreguntas
 from app.services.ai_base import AIService
 
 settings = get_settings()
 
 
 class GeminiService(AIService):
-    """Service for generating questions using Google Gemini API."""
-    
+    """Service for generating questions using Google Gemini 2.5 Flash (new SDK)."""
+
     def __init__(self):
-        self.model_name = 'gemini-3-flash-preview'
+        self.model_name = 'gemini-2.5-flash'
         if settings.google_api_key:
-            genai.configure(api_key=settings.google_api_key)
-            self.model = genai.GenerativeModel(self.model_name)
+            self.client = genai.Client(api_key=settings.google_api_key)
         else:
-            self.model = None
-            
+            self.client = None
+
     def is_configured(self) -> bool:
-        return self.model is not None
-        
+        return self.client is not None
+
     async def generate_content(self, prompt: str) -> str:
-        """Generate content implementation for Gemini."""
-        if not self.model:
+        """Generate raw text content from Gemini.
+
+        Thinking is disabled (budget=0) to keep latency and token usage
+        predictable for short-form outputs like retroalimentación.
+        """
+        if not self.client:
             raise ValueError("Google API key no configurada")
 
         try:
-            coro = self.model.generate_content_async(
-                prompt,
-                generation_config=genai.types.GenerationConfig(
+            coro = self.client.aio.models.generate_content(
+                model=self.model_name,
+                contents=prompt,
+                config=types.GenerateContentConfig(
                     max_output_tokens=8192,
+                    thinking_config=types.ThinkingConfig(thinking_budget=0),
                 ),
-                request_options={"retry": None, "timeout": 60.0}
             )
             response = await asyncio.wait_for(coro, timeout=45.0)
 
-            # Handle blocked or empty responses
             if not response.candidates:
-                block_reason = getattr(response.prompt_feedback, 'block_reason', 'desconocido')
-                raise ValueError(f"Respuesta bloqueada por filtros de seguridad: {block_reason}")
+                raise ValueError("Respuesta bloqueada por filtros de seguridad")
 
             text = response.text
             if not text or not text.strip():
@@ -50,29 +54,81 @@ class GeminiService(AIService):
 
             return text
         except asyncio.TimeoutError:
-            raise ValueError("La API de Google Gemini tardó demasiado en responder (Timeout). Es posible que la cuota gratuita esté al límite por generar tantas justificaciones detalladas o el modelo se quedó esperando. Intenta de nuevo o genera menos preguntas.")
+            raise ValueError(
+                "La API de Google Gemini tardó demasiado en responder (Timeout). "
+                "Es posible que la cuota gratuita esté al límite. Intenta de nuevo o genera menos preguntas."
+            )
         except ValueError:
             raise
         except Exception as e:
             if "Quota exceeded" in str(e) or "429" in str(e):
-                raise ValueError("Se excedió la cuota gratuita de peticiones por minuto a la API de Google Gemini (Token limit). Por favor espera un minuto para volver a intentar, o intenta generar menos preguntas.")
+                raise ValueError(
+                    "Se excedió la cuota de peticiones por minuto a la API de Google Gemini. "
+                    "Por favor espera un minuto antes de reintentar."
+                )
             raise ValueError(f"Error al generar contenido con Gemini: {e}")
-    
+
+    async def generate_structured_content(self, prompt: str, schema: Type) -> dict:
+        """Generate JSON output enforced by a Pydantic schema (Gemini structured output).
+
+        thinking_budget=0 reserves all max_output_tokens for the actual JSON
+        response, avoiding empty schemas caused by thinking tokens consuming
+        the output budget.
+        """
+        if not self.client:
+            raise ValueError("Google API key no configurada")
+
+        try:
+            coro = self.client.aio.models.generate_content(
+                model=self.model_name,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_schema=schema,
+                    max_output_tokens=8192,
+                    thinking_config=types.ThinkingConfig(thinking_budget=0),
+                ),
+            )
+            response = await asyncio.wait_for(coro, timeout=45.0)
+
+            if not response.candidates:
+                raise ValueError("Respuesta bloqueada por filtros de seguridad")
+
+            text = response.text
+            if not text or not text.strip():
+                raise ValueError("Gemini devolvió una respuesta vacía")
+
+            return json.loads(text)
+        except asyncio.TimeoutError:
+            raise ValueError(
+                "La API de Google Gemini tardó demasiado en responder (Timeout). "
+                "Es posible que la cuota gratuita esté al límite. Intenta de nuevo o genera menos preguntas."
+            )
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Error al parsear la respuesta estructurada de Gemini: {e}")
+        except ValueError:
+            raise
+        except Exception as e:
+            if "Quota exceeded" in str(e) or "429" in str(e):
+                raise ValueError(
+                    "Se excedió la cuota de peticiones por minuto a la API de Google Gemini. "
+                    "Por favor espera un minuto antes de reintentar."
+                )
+            raise ValueError(f"Error al generar contenido estructurado con Gemini: {e}")
+
     def _build_prompt(
-        self, 
-        competencias: list[dict], 
-        cantidad: int, 
-        tipo: str, 
+        self,
+        competencias: list[dict],
+        cantidad: int,
+        tipo: str,
         dificultad: str
     ) -> str:
-        """Build the prompt for question generation."""
-        
         competencias_texto = "\n".join([
-            f"- {c.get('nombre', '')}: {c.get('descripcion', '')}" 
+            f"- {c.get('nombre', '')}: {c.get('descripcion', '')}"
             for c in competencias
         ])
-        
-        prompt = f"""Eres un experto en educación y evaluación de estudiantes. 
+
+        return f"""Eres un experto en educación y evaluación de estudiantes.
 Genera exactamente {cantidad} preguntas de opción múltiple (4 alternativas) con nivel de dificultad {dificultad}.
 
 Las preguntas deben evaluar las siguientes competencias:
@@ -98,8 +154,7 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con la siguiente estructura
     ]
 }}
 """
-        return prompt
-    
+
     async def generar_preguntas(
         self,
         competencias: list[dict],
@@ -107,60 +162,38 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con la siguiente estructura
         tipo: str = "multiple",
         dificultad: str = "intermedio"
     ) -> list[Pregunta]:
-        """Generate questions using Gemini API."""
-        
+        """Generate questions using Gemini structured output."""
         prompt = self._build_prompt(competencias, cantidad, tipo, dificultad)
-        
-        max_retries = 2
-        last_error = None
-        
-        for attempt in range(max_retries):
-            try:
-                response_text = await self.generate_content(prompt)
-                response_text = self.clean_json_response(response_text)
-                
-                try:
-                    data = json.loads(response_text)
-                except json.JSONDecodeError as je:
-                    print(f"FAILED JSON (intento {attempt + 1}/{max_retries}): {response_text[:500]}...")
-                    last_error = je
-                    if attempt < max_retries - 1:
-                        print(f"Reintentando generación (intento {attempt + 2}/{max_retries})...")
-                        continue
-                    raise ValueError(f"Error al parsear respuesta JSON de Gemini después de {max_retries} intentos: {je}")
 
-                preguntas = []
-                
-                for p in data.get("preguntas", []):
-                    opciones = None
-                    if p.get("opciones"):
-                        opciones = [
-                            OpcionMultiple(texto=o["texto"], es_correcta=o.get("es_correcta", False))
-                            for o in p["opciones"]
-                        ]
-                    
-                    pregunta = Pregunta(
-                        enunciado=p["enunciado"],
-                        tipo=TipoPregunta(p.get("tipo", "multiple")),
-                        opciones=opciones,
-                        respuesta_correcta=p.get("respuesta_correcta"),
-                        explicacion=p.get("explicacion"),
-                        dificultad=p.get("dificultad", dificultad),
-                        competencia_asociada=p.get("competencia_asociada")
-                    )
-                    preguntas.append(pregunta)
-                
-                return preguntas
-                
-            except json.JSONDecodeError as e:
-                raise ValueError(f"Error al parsear respuesta de Gemini: {e}")
-            except ValueError:
-                raise
-            except Exception as e:
-                if attempt < max_retries - 1 and "parsear" not in str(e):
-                    print(f"Error en intento {attempt + 1}/{max_retries}: {e}. Reintentando...")
-                    continue
-                raise ValueError(f"Error al procesar preguntas con Gemini: {e}")
+        try:
+            data = await self.generate_structured_content(prompt, RespuestaPreguntas)
+
+            preguntas = []
+            for p in data.get("preguntas", []):
+                opciones = None
+                if p.get("opciones"):
+                    opciones = [
+                        OpcionMultiple(texto=o["texto"], es_correcta=o.get("es_correcta", False))
+                        for o in p["opciones"]
+                    ]
+
+                pregunta = Pregunta(
+                    enunciado=p["enunciado"],
+                    tipo=TipoPregunta(p.get("tipo", "multiple")),
+                    opciones=opciones,
+                    respuesta_correcta=p.get("respuesta_correcta"),
+                    explicacion=p.get("explicacion"),
+                    dificultad=p.get("dificultad", dificultad),
+                    competencia_asociada=p.get("competencia_asociada")
+                )
+                preguntas.append(pregunta)
+
+            return preguntas
+
+        except ValueError:
+            raise
+        except Exception as e:
+            raise ValueError(f"Error al procesar preguntas con Gemini: {e}")
 
 
 # Singleton instance

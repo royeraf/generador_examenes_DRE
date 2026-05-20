@@ -90,6 +90,7 @@ export interface Grado {
   nombre: string;
   numero: number;
   nivel: string;
+  orden: number;
 }
 
 export interface Capacidad {
@@ -152,6 +153,8 @@ export interface FilaTablaRespuestas {
   nivel: string;
   respuesta_correcta: string;
   justificacion?: string;
+  retroalimentacion_correcta?: string;
+  retroalimentacion_incorrecta?: string;
 }
 
 // Estructura del examen generado

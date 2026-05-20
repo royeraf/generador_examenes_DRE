@@ -690,7 +690,8 @@ export const registroService = {
 export interface AsignacionPayload {
   tipo_examen: 'lectura' | 'matematica'
   examen_id: number
-  grado_id: number
+  codigo_clase_id?: number | null
+  grado_id?: number | null
   seccion?: string | null
   fecha_inicio?: string | null
   fecha_fin?: string | null

@@ -39,7 +39,7 @@ const nivelLabel: Record<string, string> = { inicial: 'Inicial', primaria: 'Prim
 
     <div v-else-if="ugel" class="space-y-6">
       <!-- Info UGEL -->
-      <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-6 shadow-sm">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-300 dark:border-slate-700 p-6 shadow-sm">
         <div class="flex items-start gap-4">
           <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-indigo-600 flex items-center justify-center shrink-0">
             <Building2 class="w-6 h-6 text-white" />
@@ -60,27 +60,27 @@ const nivelLabel: Record<string, string> = { inicial: 'Inicial', primaria: 'Prim
 
       <!-- Estadísticas -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-4 shadow-sm text-center">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm text-center">
           <p class="text-2xl font-bold text-teal-600 dark:text-teal-400">{{ instituciones.length }}</p>
           <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Total Instituciones</p>
         </div>
-        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-4 shadow-sm text-center">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm text-center">
           <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ instituciones.filter(i => i.is_active).length }}</p>
           <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Activas</p>
         </div>
-        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-4 shadow-sm text-center">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm text-center">
           <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{{ instituciones.filter(i => Array.isArray(i.nivel_educativo) ? i.nivel_educativo.includes('primaria') : i.nivel_educativo === 'primaria').length }}</p>
           <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Primaria</p>
         </div>
-        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-4 shadow-sm text-center">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm text-center">
           <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">{{ instituciones.filter(i => Array.isArray(i.nivel_educativo) ? i.nivel_educativo.includes('secundaria') : i.nivel_educativo === 'secundaria').length }}</p>
           <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Secundaria</p>
         </div>
       </div>
 
       <!-- Lista de instituciones -->
-      <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-hidden shadow-sm">
-        <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-700">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-300 dark:border-slate-700 overflow-hidden shadow-sm">
+        <div class="px-5 py-4 border-b border-slate-300 dark:border-slate-700">
           <h3 class="font-bold text-slate-800 dark:text-white">Instituciones Educativas</h3>
         </div>
         <table class="w-full text-sm">

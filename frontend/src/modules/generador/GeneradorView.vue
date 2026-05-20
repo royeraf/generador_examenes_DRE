@@ -551,7 +551,7 @@ const getNivelBadgeClass = (nivel: string): string => {
               Grado Escolar
             </label>
             <div v-if="loadingGrados"
-              class="w-full h-[46px] bg-slate-50 dark:bg-slate-900/50 rounded-xl animate-pulse flex items-center px-4 border-2 border-slate-200/60 dark:border-slate-700/60 transition-all duration-300">
+              class="w-full h-[46px] bg-slate-50 dark:bg-slate-900/50 rounded-xl animate-pulse flex items-center px-4 border-2 border-slate-300/60 dark:border-slate-700/60 transition-all duration-300">
               <div class="h-4 w-1/3 bg-slate-200 dark:bg-slate-700 rounded"></div>
               <div class="ml-auto w-4 h-4 bg-slate-200 dark:bg-slate-700 rounded-sm"></div>
             </div>
@@ -766,7 +766,7 @@ const getNivelBadgeClass = (nivel: string): string => {
                 <!-- Skeleton for Tabs -->
                 <div class="flex gap-2 mb-2">
                   <div v-for="i in 3" :key="i"
-                    class="h-10 flex-1 bg-slate-100 dark:bg-slate-800/80 rounded-lg animate-pulse border border-slate-200/50 dark:border-slate-700">
+                    class="h-10 flex-1 bg-slate-100 dark:bg-slate-800/80 rounded-lg animate-pulse border border-slate-300/50 dark:border-slate-700">
                   </div>
                 </div>
                 <!-- Skeleton for Actions -->
@@ -780,9 +780,9 @@ const getNivelBadgeClass = (nivel: string): string => {
                 <!-- Skeleton for List Items -->
                 <div class="space-y-3">
                   <div v-for="i in 4" :key="i"
-                    class="flex items-start gap-4 p-4 rounded-xl border border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/30 animate-pulse">
+                    class="flex items-start gap-4 p-4 rounded-xl border border-slate-300 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/30 animate-pulse">
                     <div
-                      class="w-5 h-5 rounded border-2 border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 mt-0.5">
+                      class="w-5 h-5 rounded border-2 border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 mt-0.5">
                     </div>
                     <div class="flex-1 space-y-3">
                       <div class="h-5 w-16 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
@@ -800,7 +800,7 @@ const getNivelBadgeClass = (nivel: string): string => {
               <div v-else-if="desempenos.length > 0" class="flex-1 flex flex-col overflow-hidden">
 
                 <!-- Tab Navigation - Niveles de Comprensión -->
-                <div class="flex overflow-x-auto scrollbar-hide bg-slate-100 dark:bg-slate-900/80 p-1.5 gap-1 min-w-full border-b border-slate-200/60 dark:border-slate-700/60">
+                <div class="flex overflow-x-auto scrollbar-hide bg-slate-100 dark:bg-slate-900/80 p-1.5 gap-1 min-w-full border-b border-slate-300/60 dark:border-slate-700/60">
                   <button v-for="tipo in ['literal', 'inferencial', 'critico']" :key="tipo"
                     @click="activeCapacidadTab = tipo"
                     class="flex-1 min-w-[100px] relative px-2 sm:px-4 py-2 sm:py-2.5 text-[10px] sm:text-xs font-bold uppercase tracking-wide transition-all duration-300 rounded-lg whitespace-nowrap"
@@ -1046,7 +1046,7 @@ const getNivelBadgeClass = (nivel: string): string => {
                   </h4>
 
                   <div v-for="pregunta in resultado.examen.preguntas" :key="pregunta.numero"
-                    class="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-5 border-2 border-slate-100 dark:border-slate-700 hover:border-teal-200 dark:hover:border-teal-700 transition-all duration-300">
+                    class="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-5 border-2 border-slate-300 dark:border-slate-700 hover:border-teal-200 dark:hover:border-teal-700 transition-all duration-300">
                     <div class="flex items-start gap-3 sm:gap-4">
                       <span
                         class="w-10 h-10 bg-gradient-to-br from-teal-500 to-sky-500 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-lg shadow-teal-500/20">

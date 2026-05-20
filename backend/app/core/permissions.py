@@ -66,10 +66,18 @@ NIVEL_JERARQUIA: dict[RolCodigo, int] = {
 
 
 def puede_crear_rol(creador_rol: str, nuevo_rol: str) -> bool:
-    """Verifica si un rol puede crear usuarios de otro rol (solo puede crear roles de nivel inferior)."""
+    """Verifica si un rol puede crear usuarios de otro rol.
+
+    Los roles DRE (nivel 1, administradores del sistema) pueden crear
+    cualquier rol, incluidos otros DRE. El resto solo puede crear roles
+    de nivel inferior al propio.
+    """
     try:
         nivel_creador = NIVEL_JERARQUIA[RolCodigo(creador_rol)]
         nivel_nuevo = NIVEL_JERARQUIA[RolCodigo(nuevo_rol)]
+        # Nivel 1 = administrador DRE: acceso total a creación de usuarios
+        if nivel_creador == 1:
+            return True
         return nivel_creador < nivel_nuevo
     except (ValueError, KeyError):
         return False

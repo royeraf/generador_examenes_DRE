@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { formatFecha } from '../../shared/utils/dateUtils'
-import { ref, watch, onMounted, computed } from 'vue'
+import { ref, watch, onMounted, onUnmounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 import { useAuthStore } from '../../stores/auth'
 import { adminUsuariosService, ubigeoService, organizacionService, rolesConfigService, type DocenteCreatePayload, type DocenteUpdatePayload, type RolConfig } from '../../shared/services/api'
 import type { Docente, Provincia, Distrito, Ugel, InstitucionEducativa } from '../../shared/types'
@@ -10,7 +12,10 @@ import {
   ChevronLeft, ChevronRight, Loader2, MoreVertical, Search, MapPin, Save, RotateCcw
 } from 'lucide-vue-next'
 import ComboBox from '../../shared/components/ComboBox.vue'
-import Navbar from '../../shared/components/Navbar.vue'
+import Header from '../../shared/components/Header.vue'
+import EduBackground from '../../shared/components/EduBackground.vue'
+import { useTheme } from '../../shared/composables/useTheme'
+const { isDark, toggleTheme } = useTheme()
 import Swal from 'sweetalert2'
 import { useForm, useField } from 'vee-validate'
 import * as yup from 'yup'
@@ -19,6 +24,11 @@ const auth = useAuthStore()
 
 // Tabs
 const activeTab = ref<'usuarios' | 'roles'>('usuarios')
+
+// Responsive
+const isDesktop = ref(window.innerWidth >= 1024)
+const onResize = () => { isDesktop.value = window.innerWidth >= 1024 }
+onUnmounted(() => window.removeEventListener('resize', onResize))
 
 // Datos de roles del sistema
 const ROLES_SISTEMA = [
@@ -134,14 +144,16 @@ const TODOS_MODULOS = [
   { id: 'asignaciones',         label: 'Asignaciones' },
   { id: 'codigos_clase',        label: 'Aulas' },
   { id: 'metricas',             label: 'Métricas' },
-  { id: 'admin_desempenos',     label: 'Desempeños (Curricular)' },
+  { id: 'admin_desempenos_comunicacion', label: 'Curricular — Comunicación' },
+  { id: 'admin_desempenos_matematica',  label: 'Curricular — Matemática' },
+  { id: 'admin_desempenos',             label: 'Curricular — Ambas áreas' },
   { id: 'admin_ugeles',         label: 'Gestión UGELes' },
   { id: 'admin_instituciones',  label: 'Gestión Instituciones' },
   { id: 'admin_usuarios',       label: 'Gestión Usuarios' },
 ]
 const ROLE_MODULOS_DEFAULT: Record<string, string[]> = {
-  especialista_dre_comunicacion: ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas', 'admin_desempenos', 'admin_ugeles', 'admin_instituciones', 'admin_usuarios'],
-  especialista_dre_matematica:   ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas', 'admin_desempenos', 'admin_ugeles', 'admin_instituciones', 'admin_usuarios'],
+  especialista_dre_comunicacion: ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas', 'admin_desempenos_comunicacion', 'admin_ugeles', 'admin_instituciones', 'admin_usuarios'],
+  especialista_dre_matematica:   ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas', 'admin_desempenos_matematica',   'admin_ugeles', 'admin_instituciones', 'admin_usuarios'],
   responsable_ugel:              ['metricas', 'admin_instituciones', 'admin_usuarios'],
   director:                      ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas', 'admin_usuarios'],
   auxiliar:                      ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas'],
@@ -153,11 +165,11 @@ const modulosSeleccionados = ref<string[] | null>(null)
 const usandoDefaultModulos = ref(true)
 
 function toggleModulo(id: string) {
-  if (usandoDefaultModulos.value) return
-  if (!modulosSeleccionados.value) modulosSeleccionados.value = []
-  const idx = modulosSeleccionados.value.indexOf(id)
-  if (idx >= 0) modulosSeleccionados.value.splice(idx, 1)
-  else modulosSeleccionados.value.push(id)
+  // Primer click en modo default → activar personalización automáticamente
+  if (usandoDefaultModulos.value) activarModulosPersonalizados()
+  const idx = modulosSeleccionados.value!.indexOf(id)
+  if (idx >= 0) modulosSeleccionados.value!.splice(idx, 1)
+  else modulosSeleccionados.value!.push(id)
 }
 
 function resetModulosADefault() {
@@ -359,6 +371,7 @@ watch(provincia_id, async (newVal) => {
 })
 
 onMounted(async () => {
+  window.addEventListener('resize', onResize)
   loadDocentes()
   loadRolesConfig()
   try {
@@ -630,14 +643,23 @@ async function saveResetPassword() {
 
 <template>
   <div @click="showDeleteFor = null"
-    class="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 to-gray-100 dark:from-slate-900 dark:to-slate-950">
+    class="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 font-sans relative overflow-x-hidden">
+    <EduBackground variant="indigo" />
 
-    <Navbar title="Gestión de Usuarios" subtitle="Administración" :has-resultado="false"
-      gradient-class="from-teal-600 via-indigo-600 to-violet-600 shadow-indigo-500/20"
-      subtitle-class="text-indigo-100 dark:text-slate-400" :show-home="true" />
+    <div class="max-w-7xl mx-auto w-full relative z-10 flex-1 flex flex-col p-4 md:p-8">
+      <Header title="Gestión" subtitle="Usuarios del Sistema" :is-dark="isDark"
+        gradient-class="from-teal-600 via-indigo-600 to-violet-600 shadow-indigo-500/20"
+        class="rounded-[2.5rem] mb-8 sticky top-0" @toggle-theme="toggleTheme">
+        <template #actions-before>
+          <button @click="router.push('/')"
+            class="p-2.5 rounded-xl bg-slate-100 dark:bg-white/20 text-slate-600 dark:text-white border border-slate-200 dark:border-white/30 hover:bg-slate-200 dark:hover:bg-white/30 transition-all duration-300"
+            title="Inicio">
+            <Home class="w-5 h-5" />
+          </button>
+        </template>
+      </Header>
 
-    <!-- Main Container -->
-    <div class="flex-1 w-full max-w-7xl mx-auto p-4 md:p-8">
+    <!-- Main Container Content -->
 
       <!-- Stats Cards -->
       <Transition
@@ -652,7 +674,7 @@ async function saveResetPassword() {
 
           <!-- Total -->
           <div
-            class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-100 dark:border-slate-700 p-3 md:p-4 flex items-center gap-3 md:gap-4">
+            class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-300 dark:border-slate-700 p-3 md:p-4 flex items-center gap-3 md:gap-4">
             <div
               class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-gradient-to-br from-teal-400 to-indigo-500 flex items-center justify-center shadow-lg shrink-0">
               <svg class="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -673,7 +695,7 @@ async function saveResetPassword() {
 
           <!-- Activos -->
           <div
-            class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-100 dark:border-slate-700 p-3 md:p-4 flex items-center gap-3 md:gap-4">
+            class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-300 dark:border-slate-700 p-3 md:p-4 flex items-center gap-3 md:gap-4">
             <div
               class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center shadow-lg shrink-0">
               <svg class="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -693,7 +715,7 @@ async function saveResetPassword() {
 
           <!-- Inactivos -->
           <div
-            class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-100 dark:border-slate-700 p-3 md:p-4 flex items-center gap-3 md:gap-4">
+            class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-300 dark:border-slate-700 p-3 md:p-4 flex items-center gap-3 md:gap-4">
             <div
               class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-gradient-to-br from-red-400 to-rose-500 flex items-center justify-center shadow-lg shrink-0">
               <svg class="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -714,7 +736,7 @@ async function saveResetPassword() {
 
           <!-- Administradores -->
           <div
-            class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-100 dark:border-slate-700 p-3 md:p-4 flex items-center gap-3 md:gap-4">
+            class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-300 dark:border-slate-700 p-3 md:p-4 flex items-center gap-3 md:gap-4">
             <div
               class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center shadow-lg shrink-0">
               <svg class="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -736,22 +758,38 @@ async function saveResetPassword() {
         </div>
       </Transition>
 
-      <!-- Tab Navigation -->
-      <div class="flex gap-1 mb-6 bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm w-fit">
+      <!-- Mobile Navigation Tabs (Premium Style) -->
+      <div v-if="!isDesktop" class="shrink-0 flex items-center justify-around bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 p-1.5 mb-6 shadow-sm">
+        <button @click="activeTab = 'usuarios'" 
+          class="flex-1 py-2.5 flex flex-col items-center justify-center gap-1 rounded-xl transition-all" 
+          :class="activeTab === 'usuarios' ? 'text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30' : 'text-slate-500'">
+          <Users class="w-5 h-5" />
+          <span class="text-[10px] font-black uppercase tracking-widest">Usuarios</span>
+        </button>
+        <button @click="activeTab = 'roles'" 
+          class="flex-1 py-2.5 flex flex-col items-center justify-center gap-1 rounded-xl transition-all" 
+          :class="activeTab === 'roles' ? 'text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30' : 'text-slate-500'">
+          <KeyRound class="w-5 h-5" />
+          <span class="text-[10px] font-black uppercase tracking-widest">Roles</span>
+        </button>
+      </div>
+
+      <!-- Desktop Navigation Tabs -->
+      <div v-if="isDesktop" class="flex items-center gap-1 bg-white/50 dark:bg-slate-800/50 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 mb-8 w-fit shadow-sm">
         <button @click="activeTab = 'usuarios'"
-          :class="['flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all',
+          :class="['flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all',
             activeTab === 'usuarios'
-              ? 'bg-gradient-to-r from-teal-500 to-indigo-600 text-white shadow'
-              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200']">
-          <Shield class="w-3.5 h-3.5" />
+              ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white shadow-lg shadow-teal-500/20'
+              : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700']">
+          <Users class="w-4 h-4" />
           Usuarios
         </button>
         <button @click="activeTab = 'roles'"
-          :class="['flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all',
+          :class="['flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all',
             activeTab === 'roles'
-              ? 'bg-gradient-to-r from-teal-500 to-indigo-600 text-white shadow'
-              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200']">
-          <KeyRound class="w-3.5 h-3.5" />
+              ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white shadow-lg shadow-teal-500/20'
+              : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700']">
+          <KeyRound class="w-4 h-4" />
           Roles y Permisos
         </button>
       </div>
@@ -768,7 +806,7 @@ async function saveResetPassword() {
           </button>
 
           <button @click="showStats = !showStats"
-            class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold px-4 md:px-5 py-2 md:py-2.5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200 text-xs sm:text-sm">
+            class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold px-4 md:px-5 py-2 md:py-2.5 rounded-xl shadow-sm border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200 text-xs sm:text-sm">
             <EyeOff v-if="showStats" class="w-4 h-4 text-slate-400" />
             <Eye v-else class="w-4 h-4 text-slate-400" />
             <span class="hidden sm:inline">{{ showStats ? 'Ocultar Estadísticas' : 'Ver Estadísticas' }}</span>
@@ -782,7 +820,7 @@ async function saveResetPassword() {
             <Search class="h-5 w-5 text-slate-400 dark:text-slate-500" />
           </div>
           <input type="text" v-model="searchQuery" @input="handleSearch"
-            class="block w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl leading-5 bg-white dark:bg-slate-800/80 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 dark:focus:ring-teal-400/50 dark:focus:border-teal-400 transition-colors shadow-sm"
+            class="block w-full pl-10 pr-4 py-2.5 border border-slate-300 dark:border-slate-700 rounded-xl leading-5 bg-white dark:bg-slate-800/80 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 dark:focus:ring-teal-400/50 dark:focus:border-teal-400 transition-colors shadow-sm"
             placeholder="Buscar por DNI, Nombres o Apellidos...">
           <div class="absolute inset-y-0 right-0 pr-3 flex items-center" v-if="searchQuery">
             <button @click="searchQuery = ''; handleSearch()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
@@ -793,7 +831,7 @@ async function saveResetPassword() {
       </div>
 
       <!-- User List Container -->
-      <div v-if="activeTab === 'usuarios'" class="bg-white dark:bg-slate-800 md:rounded-2xl shadow-xl md:border border-slate-100 dark:border-slate-700 -mx-4 md:mx-0">
+      <div v-if="activeTab === 'usuarios'" class="bg-white dark:bg-slate-800 md:rounded-2xl shadow-xl md:border border-slate-300 dark:border-slate-700 -mx-4 md:mx-0">
         
         <!-- Mobile Cards View -->
         <div class="md:hidden">
@@ -822,89 +860,70 @@ async function saveResetPassword() {
             </div>
           </div>
 
-          <div v-else key="data" class="divide-y divide-slate-100 dark:divide-slate-700/50">
-            <div v-if="docentes.length === 0" class="text-center py-10 px-4 text-slate-400 dark:text-slate-500 text-sm">
-              No hay usuarios registrados.
+          <div v-else key="data" class="space-y-4 p-4">
+            <div v-if="docentes.length === 0" class="text-center py-12 text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest text-xs">
+              Sin usuarios registrados
             </div>
             <div v-else v-for="docente in docentes" :key="docente.id"
-              class="p-4 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/30"
-              :class="{ 'opacity-60': !docente.is_active }">
+              class="bg-white dark:bg-slate-800 p-5 rounded-[2rem] border-2 border-slate-200 dark:border-slate-700 shadow-sm transition-all"
+              :class="{ 'opacity-60 grayscale-[0.5]': !docente.is_active }">
               
-              <!-- Card Header: DNI & Name + Roles -->
-              <div class="flex justify-between items-start gap-4 mb-3">
-                <div class="min-w-0 flex-1">
-                  <div class="text-[11px] font-mono text-slate-500 dark:text-slate-400 mb-0.5">{{ docente.dni }}</div>
-                  <div class="font-bold text-slate-800 dark:text-white leading-tight">
-                    {{ [docente.nombres, docente.apellidos].filter(Boolean).join(' ') || '—' }}
-                    <span v-if="docente.id === auth.user?.id" 
-                      class="ml-1 align-middle inline-flex text-[10px] text-teal-600 dark:text-teal-400 font-bold bg-teal-50 dark:bg-teal-900/30 px-1.5 py-0.5 rounded-full">tú</span>
+              <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center font-black text-teal-600 dark:text-teal-400 text-lg">
+                    {{ (docente.nombres || '?').charAt(0) }}{{ (docente.apellidos || '?').charAt(0) }}
                   </div>
-                </div>
-                <div class="flex flex-col items-end gap-1.5 shrink-0">
-                  <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full" :class="rolColor(docente.rol_codigo)">
-                    <Shield class="w-3 h-3" />
-                    {{ rolLabel(docente.rol_codigo) }}
-                  </span>
-                </div>
-              </div>
-
-              <!-- Card Actions -->
-              <div class="flex items-center justify-end pt-3 mt-1 border-t border-slate-50 dark:border-slate-700/30 h-[48px] overflow-hidden">
-                  
-                  <!-- Default Actions -->
-                  <div v-if="showDeleteFor !== docente.id" class="flex items-center gap-2 w-full h-full">
-                    <button @click.stop="openDetails(docente)"
-                      class="has-tooltip relative flex flex-1 justify-center items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 hover:bg-indigo-100/80 dark:bg-indigo-900/30 dark:hover:bg-indigo-900/50 rounded-xl transition-all duration-200 border border-indigo-100/50 dark:border-indigo-800/60 shadow-sm hover:shadow h-full">
-                      <Eye class="w-4 h-4" /> <span class="hidden sm:inline">Ver</span>
-                      <span class="tooltip-top hidden sm:block">Ver detalles del usuario</span>
-                    </button>
-                    <button @click.stop="openEdit(docente)"
-                      class="has-tooltip relative flex flex-1 justify-center items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-teal-700 dark:text-teal-300 bg-teal-50 hover:bg-teal-100/80 dark:bg-teal-900/30 dark:hover:bg-teal-900/50 rounded-xl transition-all duration-200 border border-teal-100/50 dark:border-teal-800/60 shadow-sm hover:shadow h-full">
-                      <Edit2 class="w-4 h-4" /> <span class="hidden sm:inline">Editar</span>
-                      <span class="tooltip-top hidden sm:block">Modificar información</span>
-                    </button>
-                    <button @click.stop="openResetPassword(docente)"
-                      class="has-tooltip relative flex flex-1 justify-center items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 hover:bg-amber-100/80 dark:bg-amber-900/30 dark:hover:bg-amber-900/50 rounded-xl transition-all duration-200 border border-amber-100/50 dark:border-amber-800/60 shadow-sm hover:shadow h-full">
-                      <KeyRound class="w-4 h-4" /> <span class="hidden sm:inline">Pass</span>
-                      <span class="tooltip-top hidden sm:block">Restablecer la contraseña</span>
-                    </button>
-                    <button @click.stop="showDeleteFor = docente.id" :disabled="docente.id === auth.user?.id"
-                      class="has-tooltip relative flex items-center justify-center w-10 shrink-0 h-full rounded-xl text-slate-500 hover:text-slate-700 bg-slate-50 hover:bg-slate-200 dark:text-slate-400 dark:bg-slate-700/40 dark:hover:bg-slate-700 dark:hover:text-slate-200 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed border border-slate-200/50 dark:border-slate-700 shadow-sm hover:shadow transform hover:scale-105 active:scale-95">
-                      <MoreVertical class="w-5 h-5" />
-                      <span class="tooltip-top hidden sm:block">Acciones</span>
-                    </button>
-                  </div>
-
-                  <!-- Expanded Actions Toolbar -->
-                  <div v-else class="flex items-center gap-2 w-full h-full animate-pop-in">
-                    <button @click.stop="toggleActive(docente)"
-                      class="flex-[1.5] flex justify-center items-center gap-2 h-full bg-slate-50 dark:bg-slate-700/30 rounded-xl border border-slate-200/50 dark:border-slate-700 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors">
-                      <div class="relative w-11 h-6 rounded-full transition-colors flex items-center shrink-0"
-                          :class="docente.is_active ? 'bg-teal-500' : 'bg-slate-300 dark:bg-slate-600'">
-                        <div class="absolute w-5 h-5 bg-white rounded-full transition-transform duration-200 flex flex-col justify-center items-center shadow-sm"
-                            :class="docente.is_active ? 'translate-x-[22px]' : 'translate-x-0.5'">
-                             <Loader2 v-if="togglingId === docente.id" class="w-3.5 h-3.5 text-slate-500 animate-spin" />
-                        </div>
-                      </div>
-                      <span class="text-xs font-semibold" :class="docente.is_active ? 'text-teal-600 dark:text-teal-400' : 'text-slate-500 dark:text-slate-400'">
-                        {{ docente.is_active ? 'Activo' : 'Inactivo' }}
+                  <div>
+                    <h3 class="font-black text-slate-800 dark:text-white leading-tight">
+                      {{ [docente.nombres, docente.apellidos].filter(Boolean).join(' ') || '—' }}
+                      <span v-if="docente.id === auth.user?.id" 
+                        class="ml-1 text-[9px] font-black uppercase tracking-tighter text-teal-600 bg-teal-50 px-1.5 py-0.5 rounded-full border border-teal-200">tú</span>
+                    </h3>
+                    <div class="flex items-center gap-2 mt-1">
+                      <span class="inline-flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-lg uppercase tracking-widest" :class="rolColor(docente.rol_codigo)">
+                        <Shield class="w-2.5 h-2.5" />
+                        {{ rolLabel(docente.rol_codigo) }}
                       </span>
-                    </button>
-                    
-                    <button @click.stop="deleteDocente(docente)"
-                      class="flex-[2] flex items-center justify-center h-full gap-1.5 px-3 py-1.5 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-xl transition-colors shadow-sm shadow-red-500/20">
-                      <Trash2 class="w-4 h-4 shrink-0" />
-                      <span>Eliminar</span>
-                    </button>
-                    
-                    <button @click.stop="showDeleteFor = null"
-                      class="flex items-center justify-center w-10 shrink-0 h-full rounded-xl text-slate-500 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 dark:text-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 transition-colors"
-                      title="Cancelar">
-                      <X class="w-5 h-5" />
-                    </button>
+                      <span v-if="!docente.is_active" class="px-2 py-0.5 bg-red-50 text-red-500 rounded-lg text-[9px] font-black uppercase tracking-widest">Inactivo</span>
+                    </div>
                   </div>
+                </div>
               </div>
 
+              <!-- Actions Area (Premium Card Pattern) -->
+              <div class="grid grid-cols-2 gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
+                <div class="flex items-center gap-2">
+                  <button @click="openDetails(docente)" 
+                    class="flex-1 flex items-center justify-center p-2.5 bg-slate-50 dark:bg-slate-700 rounded-xl text-slate-500 hover:text-indigo-600 transition-all">
+                    <Eye class="w-4 h-4" />
+                  </button>
+                  <button @click="openEdit(docente)" 
+                    class="flex-1 flex items-center justify-center p-2.5 bg-slate-50 dark:bg-slate-700 rounded-xl text-slate-500 hover:text-teal-600 transition-all">
+                    <Edit2 class="w-4 h-4" />
+                  </button>
+                  <button @click="openResetPassword(docente)" 
+                    class="flex-1 flex items-center justify-center p-2.5 bg-slate-50 dark:bg-slate-700 rounded-xl text-slate-500 hover:text-amber-600 transition-all">
+                    <KeyRound class="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div class="flex items-center gap-2 justify-end">
+                   <button @click="toggleActive(docente)" 
+                    class="px-3 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all"
+                    :class="docente.is_active ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-400'">
+                    {{ docente.is_active ? 'Activo' : 'Pausado' }}
+                  </button>
+                  <button @click="deleteDocente(docente)" :disabled="docente.id === auth.user?.id"
+                    class="p-2.5 bg-red-50 dark:bg-red-900/20 rounded-xl text-red-400 transition-all disabled:opacity-30">
+                    <Trash2 class="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div class="mt-4 pt-3 border-t border-slate-50 dark:border-slate-700 flex items-center justify-between">
+                <div class="text-[10px] font-mono text-slate-400 dark:text-slate-500">DNI: {{ docente.dni }}</div>
+                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ formatFecha(docente.fecha_creacion) }}</div>
+              </div>
             </div>
           </div>
           </Transition>
@@ -914,7 +933,7 @@ async function saveResetPassword() {
         <div class="hidden md:block overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
-              <tr class="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700">
+              <tr class="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-300 dark:border-slate-700">
                 <th class="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300">DNI</th>
                 <th class="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300">Nombre Completo</th>
                 <th class="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 hidden xl:table-cell">
@@ -1008,7 +1027,7 @@ async function saveResetPassword() {
                       </div>
 
                       <!-- Expanded Actions Toolbar -->
-                      <div v-else class="flex items-center gap-1 xl:gap-1.5 bg-slate-50 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm animate-pop-in">
+                      <div v-else class="flex items-center gap-1 xl:gap-1.5 bg-slate-50 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-300 dark:border-slate-700 shadow-sm animate-pop-in">
                         <button @click.stop="toggleActive(docente)"
                           class="flex items-center gap-2 px-2.5 py-1.5 cursor-pointer rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700/50 transition-colors">
                           <div class="relative w-11 h-6 rounded-full transition-colors flex items-center shrink-0"
@@ -1055,7 +1074,7 @@ async function saveResetPassword() {
 
         <!-- Pagination Controls -->
         <div v-if="!loading && totalPages > 1"
-          class="px-4 py-4 bg-slate-50 dark:bg-slate-700/30 border-t border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
+          class="px-4 py-4 bg-slate-50 dark:bg-slate-700/30 border-t border-slate-300 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
 
           <div class="text-[11px] md:text-xs text-slate-500 dark:text-slate-400">
             Mostrando <span class="font-bold text-slate-700 dark:text-slate-200">{{ Math.min((currentPage - 1) *
@@ -1068,7 +1087,7 @@ async function saveResetPassword() {
           <div class="flex items-center gap-1">
             <!-- Prev -->
             <button @click="prevPage" :disabled="currentPage === 1"
-              class="p-1.5 sm:p-2 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+              class="p-1.5 sm:p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
               <ChevronLeft class="w-4 h-4" />
             </button>
 
@@ -1086,7 +1105,7 @@ async function saveResetPassword() {
 
             <!-- Next -->
             <button @click="nextPage" :disabled="currentPage === totalPages"
-              class="p-1.5 sm:p-2 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+              class="p-1.5 sm:p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
               <ChevronRight class="w-4 h-4" />
             </button>
           </div>
@@ -1103,7 +1122,7 @@ async function saveResetPassword() {
           <!-- Role Cards con edición inline -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div v-for="rol in ROLES_SISTEMA" :key="rol.codigo"
-              class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow overflow-hidden flex flex-col">
+              class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-300 dark:border-slate-700 shadow overflow-hidden flex flex-col">
               <div :class="['h-1.5 bg-gradient-to-r shrink-0', rol.gradiente]"></div>
               <div class="p-4 sm:p-5 flex flex-col flex-1 gap-3">
                 <!-- Header -->
@@ -1153,7 +1172,7 @@ async function saveResetPassword() {
                         :class="['flex items-center gap-2 px-2 py-1.5 rounded-xl border text-[11px] font-medium transition-colors cursor-pointer',
                           (rolesEditDraft[rol.codigo] ?? []).includes(m.id)
                             ? 'bg-teal-50 dark:bg-teal-900/20 border-teal-300 dark:border-teal-700 text-teal-700 dark:text-teal-300'
-                            : 'bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400']">
+                            : 'bg-slate-50 dark:bg-slate-700/50 border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400']">
                         <input type="checkbox" class="sr-only"
                           :checked="(rolesEditDraft[rol.codigo] ?? []).includes(m.id)"
                           @change="toggleRolModulo(rol.codigo, m.id)" />
@@ -1192,15 +1211,15 @@ async function saveResetPassword() {
           </div>
 
           <!-- Module Access Matrix (read-only overview) -->
-          <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-100 dark:border-slate-700">
+          <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-300 dark:border-slate-700 shadow overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-300 dark:border-slate-700">
               <h3 class="text-sm font-bold text-slate-800 dark:text-white">Matriz de Acceso a Módulos</h3>
               <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Resumen actual — edita cada tarjeta arriba para cambiar permisos</p>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-xs">
                 <thead>
-                  <tr class="border-b border-slate-100 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800/60">
+                  <tr class="border-b border-slate-300 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800/60">
                     <th class="text-left px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 min-w-[180px]">Módulo</th>
                     <th v-for="rol in ROLES_SISTEMA" :key="rol.codigo" class="px-3 py-3 text-center">
                       <div class="flex flex-col items-center gap-1.5">
@@ -1242,26 +1261,35 @@ async function saveResetPassword() {
     <Teleport to="body">
       <Transition name="details-modal">
         <div v-if="showModal"
-          class="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:p-4">
+          class="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:p-4 bg-slate-900/60 backdrop-blur-sm">
           
           <!-- Backdrop -->
-          <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="closeModal"></div>
+          <div class="absolute inset-0" @click="closeModal"></div>
 
           <!-- Bottom Sheet (Mobile) / Card (Desktop) -->
-          <div class="relative bg-white dark:bg-slate-800 w-full sm:max-w-lg max-h-[92dvh] sm:max-h-[90vh] flex flex-col sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden z-10">
+          <div class="relative bg-white dark:bg-slate-900 w-full sm:max-w-2xl max-h-[92dvh] sm:max-h-[90vh] flex flex-col sm:rounded-[2.5rem] rounded-t-[2.5rem] shadow-2xl overflow-hidden z-10 transition-transform duration-500 ease-out translate-y-0">
             
             <!-- Drag handle (mobile) -->
-            <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0" @click="closeModal">
-                <div class="w-10 h-1 rounded-full bg-slate-200 dark:bg-slate-600"></div>
+            <div class="sm:hidden flex justify-center pt-4 pb-2 shrink-0 cursor-pointer" @click="closeModal">
+                <div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800"></div>
             </div>
 
             <!-- Modal Header -->
-            <div class="flex items-center justify-between p-4 sm:p-6 sm:pt-6 pt-3 border-b border-slate-100 dark:border-slate-700 shrink-0">
-              <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white">
-                {{ editingId ? 'Editar Usuario' : 'Nuevo Usuario' }}
-              </h2>
+            <div class="flex items-center justify-between px-8 py-6 border-b border-slate-300 dark:border-slate-800 shrink-0">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-teal-500/20">
+                  <User v-if="editingId" class="w-6 h-6" />
+                  <Plus v-else class="w-6 h-6" />
+                </div>
+                <div>
+                  <h2 class="text-xl font-bold text-slate-800 dark:text-white leading-tight">
+                    {{ editingId ? 'Editar Usuario' : 'Nuevo Usuario' }}
+                  </h2>
+                  <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-0.5">Gestión de Cuenta</p>
+                </div>
+              </div>
               <button @click="closeModal"
-                class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl transition-colors">
+                class="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all">
                 <X class="w-5 h-5" />
               </button>
             </div>
@@ -1284,7 +1312,7 @@ async function saveResetPassword() {
                   'w-full bg-slate-50 dark:bg-slate-700 border rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed font-mono',
                   dniError
                     ? 'border-red-400 dark:border-red-500 focus:ring-red-400/40 focus:border-red-400'
-                    : 'border-slate-200 dark:border-slate-600 focus:ring-teal-500/50 focus:border-teal-500'
+                    : 'border-slate-300 dark:border-slate-600 focus:ring-teal-500/50 focus:border-teal-500'
                 ]" />
                 <p v-if="dniError" class="mt-1 text-xs text-red-500 flex items-center gap-1">
                   <AlertCircle class="w-3 h-3" /> {{ dniError }}
@@ -1300,7 +1328,7 @@ async function saveResetPassword() {
                     'w-full bg-slate-50 dark:bg-slate-700 border rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 transition-all',
                     nombresError
                       ? 'border-red-400 dark:border-red-500 focus:ring-red-400/40 focus:border-red-400'
-                      : 'border-slate-200 dark:border-slate-600 focus:ring-teal-500/50 focus:border-teal-500'
+                      : 'border-slate-300 dark:border-slate-600 focus:ring-teal-500/50 focus:border-teal-500'
                   ]" />
                   <p v-if="nombresError" class="mt-1 text-xs text-red-500 flex items-center gap-1">
                     <AlertCircle class="w-3 h-3" /> {{ nombresError }}
@@ -1313,7 +1341,7 @@ async function saveResetPassword() {
                     'w-full bg-slate-50 dark:bg-slate-700 border rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 transition-all',
                     apellidosError
                       ? 'border-red-400 dark:border-red-500 focus:ring-red-400/40 focus:border-red-400'
-                      : 'border-slate-200 dark:border-slate-600 focus:ring-teal-500/50 focus:border-teal-500'
+                      : 'border-slate-300 dark:border-slate-600 focus:ring-teal-500/50 focus:border-teal-500'
                   ]" />
                   <p v-if="apellidosError" class="mt-1 text-xs text-red-500 flex items-center gap-1">
                     <AlertCircle class="w-3 h-3" /> {{ apellidosError }}
@@ -1325,14 +1353,14 @@ async function saveResetPassword() {
               <div>
                 <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Profesión</label>
                 <input v-model="profesion" type="text" placeholder="Docente de Primaria"
-                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
+                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
               </div>
 
               <!-- Rol -->
               <div>
                 <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Rol *</label>
                 <select v-model="rol_codigo"
-                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all">
+                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all">
                   <option v-for="r in ROLES_OPTIONS" :key="r.value" :value="r.value">{{ r.label }}</option>
                 </select>
                 <p v-if="rolError" class="mt-1 text-xs text-red-500">{{ rolError }}</p>
@@ -1345,7 +1373,7 @@ async function saveResetPassword() {
                   <Loader2 v-if="loadingOrganizacion" class="inline w-3 h-3 animate-spin ml-1" />
                 </label>
                 <select v-model="ugel_id"
-                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all">
+                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all">
                   <option :value="null">— Sin especificar —</option>
                   <option v-for="u in ugeles" :key="u.id" :value="u.id">{{ u.nombre }}</option>
                 </select>
@@ -1358,7 +1386,7 @@ async function saveResetPassword() {
                   <Loader2 v-if="loadingOrganizacion" class="inline w-3 h-3 animate-spin ml-1" />
                 </label>
                 <select v-model="institucion_educativa_id"
-                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all">
+                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all">
                   <option :value="null">— Sin especificar —</option>
                   <option v-for="ie in instituciones" :key="ie.id" :value="ie.id">{{ ie.nombre }}</option>
                 </select>
@@ -1381,12 +1409,10 @@ async function saveResetPassword() {
                     :class="['flex items-center gap-2 px-2.5 py-2 rounded-xl border text-xs font-medium transition-colors cursor-pointer',
                       moduloActivo(m.id)
                         ? 'bg-teal-50 dark:bg-teal-900/20 border-teal-300 dark:border-teal-700 text-teal-700 dark:text-teal-300'
-                        : 'bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400',
-                      usandoDefaultModulos ? 'opacity-70 cursor-default' : ''
+                        : 'bg-slate-50 dark:bg-slate-700/50 border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400'
                     ]">
                     <input type="checkbox" class="sr-only"
                       :checked="moduloActivo(m.id)"
-                      :disabled="usandoDefaultModulos"
                       @change="toggleModulo(m.id)" />
                     <span :class="['w-3 h-3 rounded-sm border flex-shrink-0 flex items-center justify-center transition-colors',
                       moduloActivo(m.id) ? 'bg-teal-500 border-teal-500' : 'bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-500']">
@@ -1426,7 +1452,7 @@ async function saveResetPassword() {
                       'w-full bg-slate-50 dark:bg-slate-700 border rounded-xl py-2.5 pl-3.5 pr-10 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 transition-all',
                       passwordError
                         ? 'border-red-400 dark:border-red-500 focus:ring-red-400/40 focus:border-red-400'
-                        : 'border-slate-200 dark:border-slate-600 focus:ring-indigo-500/50 focus:border-indigo-500'
+                        : 'border-slate-300 dark:border-slate-600 focus:ring-indigo-500/50 focus:border-indigo-500'
                     ]" />
                   <button type="button" @click="showPassword = !showPassword"
                     class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
@@ -1459,7 +1485,7 @@ async function saveResetPassword() {
             </div>
 
             <!-- Modal Footer -->
-            <div class="flex justify-end gap-2 sm:gap-3 p-4 sm:px-6 sm:py-4 border-t border-slate-100 dark:border-slate-700 shrink-0 bg-slate-50 dark:bg-slate-800/50">
+            <div class="flex justify-end gap-2 sm:gap-3 p-4 sm:px-6 sm:py-4 border-t border-slate-300 dark:border-slate-700 shrink-0 bg-slate-50 dark:bg-slate-800/50">
               <button @click="closeModal"
                 class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors">
                 Cancelar
@@ -1494,7 +1520,7 @@ async function saveResetPassword() {
             </div>
 
             <!-- Header -->
-            <div class="flex items-center justify-between p-4 sm:p-5 sm:pt-5 pt-3 border-b border-slate-100 dark:border-slate-700 shrink-0">
+            <div class="flex items-center justify-between p-4 sm:p-5 sm:pt-5 pt-3 border-b border-slate-300 dark:border-slate-700 shrink-0">
               <div class="flex items-center gap-2.5 max-w-[85%]">
                 <div class="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
                   <KeyRound class="w-4 h-4 text-amber-600 dark:text-amber-400" />
@@ -1542,7 +1568,7 @@ async function saveResetPassword() {
                       'w-full bg-slate-50 dark:bg-slate-700 border rounded-xl py-2.5 pl-3.5 pr-9 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 transition-all',
                       resetPasswordError
                         ? 'border-red-400 dark:border-red-500 focus:ring-red-400/40 focus:border-red-400'
-                        : 'border-slate-200 dark:border-slate-600 focus:ring-amber-500/50 focus:border-amber-500'
+                        : 'border-slate-300 dark:border-slate-600 focus:ring-amber-500/50 focus:border-amber-500'
                     ]" />
                   <button type="button" @click="showResetPass = !showResetPass"
                     class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
@@ -1555,7 +1581,7 @@ async function saveResetPassword() {
             </div>
 
             <!-- Footer -->
-            <div class="flex items-center justify-end gap-2 p-4 sm:px-5 sm:py-4 border-t border-slate-100 dark:border-slate-700 shrink-0 bg-slate-50 dark:bg-slate-800/50">
+            <div class="flex items-center justify-end gap-2 p-4 sm:px-5 sm:py-4 border-t border-slate-300 dark:border-slate-700 shrink-0 bg-slate-50 dark:bg-slate-800/50">
               <button @click="showResetModal = false"
                 class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors">
                 Cerrar
@@ -1651,7 +1677,7 @@ async function saveResetPassword() {
                         </p>
                     </div>
 
-                    <div class="col-span-1 sm:col-span-2 pt-3 mt-3 border-t border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row gap-4">
+                    <div class="col-span-1 sm:col-span-2 pt-3 mt-3 border-t border-slate-300 dark:border-slate-700 flex flex-col sm:flex-row gap-4">
                         <div class="flex-1">
                            <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-1">Estado</p>
                            <div class="flex items-center gap-1.5">
@@ -1668,7 +1694,7 @@ async function saveResetPassword() {
                         </div>
                     </div>
                     
-                    <div class="col-span-1 sm:col-span-2 pt-3 mt-1 border-t border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row gap-4">
+                    <div class="col-span-1 sm:col-span-2 pt-3 mt-1 border-t border-slate-300 dark:border-slate-700 flex flex-col sm:flex-row gap-4">
                         <div class="flex-1">
                            <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-1">Creado por</p>
                            <p class="font-medium text-slate-700 dark:text-slate-200 text-sm">
@@ -1686,9 +1712,9 @@ async function saveResetPassword() {
                 </div>
             </div>
             
-            <div class="bg-slate-50 dark:bg-slate-800/50 p-4 border-t border-slate-100 dark:border-slate-700 flex justify-end shrink-0">
+            <div class="bg-slate-50 dark:bg-slate-800/50 p-4 border-t border-slate-300 dark:border-slate-700 flex justify-end shrink-0">
                <button @click="showDetailsModal = false"
-                  class="w-full sm:w-auto px-5 py-2.5 sm:py-2 text-sm font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-xl transition-all shadow-sm">
+                  class="w-full sm:w-auto px-5 py-2.5 sm:py-2 text-sm font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-xl transition-all shadow-sm">
                   Cerrar
                 </button>
             </div>
@@ -1713,14 +1739,14 @@ async function saveResetPassword() {
     opacity: 0;
 }
 
-/* Bottom Sheet / Modal Animations */
+/* Premium Bottom Sheet / Modal Animations */
 .details-modal-enter-active,
 .details-modal-leave-active {
-    transition: opacity 0.25s ease;
+    transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .details-modal-enter-active .relative,
 .details-modal-leave-active .relative {
-    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .details-modal-enter-from,
 .details-modal-leave-to {
@@ -1731,12 +1757,27 @@ async function saveResetPassword() {
 .details-modal-leave-to .relative {
     transform: translateY(100%);
 }
-/* Desktop scales from center */
+/* Desktop scales and fades from center */
 @media (min-width: 640px) {
     .details-modal-enter-from .relative,
     .details-modal-leave-to .relative {
-        transform: translateY(0) scale(0.95);
+        transform: translateY(0) scale(0.9) translateZ(0);
     }
+}
+
+/* Custom Scrollbar for Modal Body */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 10px;
+}
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
 }
 
 /* Tooltips */

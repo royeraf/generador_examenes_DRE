@@ -7,8 +7,7 @@ const LoginView = () => import('../modules/auth/LoginView.vue')
 const HomeView = () => import('../modules/home/HomeView.vue')
 const LectoSistemView = () => import('../modules/lectosistem/LectoSistemView.vue')
 const MatSistemView = () => import('../modules/matsistem/MatSistemView.vue')
-const AdminView = () => import('../modules/admin/AdminView.vue')
-const AdminMatView = () => import('../modules/admin/AdminMatView.vue')
+const AdminCurriculumView = () => import('../modules/admin/AdminCurriculumView.vue')
 const AdminUsuariosView = () => import('../modules/admin/AdminUsuariosView.vue')
 const MetricasView = () => import('../modules/metricas/MetricasView.vue')
 
@@ -42,8 +41,10 @@ declare module 'vue-router' {
     requiresAdmin?: boolean
     // Nuevo sistema: lista de roles permitidos (OR - cualquiera de estos)
     requiredRoles?: RolCodigo[]
-    // Módulo requerido para acceder
+    // Módulo requerido (el usuario debe tener ESTE módulo)
     requiredModulo?: string
+    // Módulos alternativos (el usuario debe tener AL MENOS UNO)
+    requiredModuloAny?: string[]
   }
 }
 
@@ -100,13 +101,12 @@ const routes: RouteRecordRaw[] = [
   // ── Admin DRE (Desempeños) ──────────────────────────────────────────────────
   {
     path: '/admin',
-    component: AdminView,
-    meta: { requiresAuth: true, requiresAdmin: true, requiredRoles: DRE_ROLES, requiredModulo: 'admin_desempenos' },
+    component: AdminCurriculumView,
+    meta: { requiresAuth: true, requiresAdmin: true, requiredRoles: DRE_ROLES, requiredModuloAny: ['admin_desempenos', 'admin_desempenos_comunicacion', 'admin_desempenos_matematica'] },
   },
   {
     path: '/admin/mat',
-    component: AdminMatView,
-    meta: { requiresAuth: true, requiresAdmin: true, requiredRoles: DRE_ROLES, requiredModulo: 'admin_desempenos' },
+    redirect: '/admin',
   },
   {
     path: '/admin/usuarios',
@@ -207,9 +207,17 @@ router.beforeEach(async (to) => {
     return auth.homeRoute
   }
 
-  // Verificar módulo requerido
+  // Módulo único requerido
   if (to.meta.requiredModulo && auth.user) {
     if (!auth.modulosEfectivos.includes(to.meta.requiredModulo)) {
+      return auth.homeRoute
+    }
+  }
+
+  // Al menos uno de estos módulos es requerido
+  if (to.meta.requiredModuloAny && auth.user) {
+    const allowed = (to.meta.requiredModuloAny as string[])
+    if (!allowed.some(m => auth.modulosEfectivos.includes(m))) {
       return auth.homeRoute
     }
   }

@@ -68,9 +68,8 @@ const managementItems = computed<NavItem[]>(() => {
     items.push({ label: 'Métricas', sub: 'Uso del sistema', icon: BarChart3, color: 'from-violet-400 to-pink-500', route: '/admin/metricas' });
   }
   if (auth.isEspecialista) {
-    if (auth.canAccessAdminDesempenos) {
-      items.push({ label: 'Desempeños Comunicación', sub: 'Gestión curricular', icon: BookOpen, color: 'from-teal-400 to-emerald-500', route: '/admin' });
-      items.push({ label: 'Desempeños Matemática', sub: 'Gestión curricular', icon: Calculator, color: 'from-indigo-400 to-purple-500', route: '/admin/mat' });
+    if (auth.canAccessGestionCurricular) {
+      items.push({ label: 'Gestión Curricular', sub: 'Desempeños por área', icon: BookOpen, color: 'from-teal-400 to-emerald-500', route: '/admin' });
     }
     if (auth.canAccessAdminUgeles) items.push({ label: 'UGELes', sub: 'Gestión', icon: MapPin, color: 'from-teal-500 to-cyan-600', route: '/admin/ugeles' });
     if (auth.canAccessAdminInstituciones) items.push({ label: 'Instituciones', sub: 'IEs del sistema', icon: Building2, color: 'from-indigo-400 to-blue-500', route: '/admin/instituciones' });
@@ -119,14 +118,14 @@ const nombreCompleto = computed(() => {
 
     <!-- Header -->
     <header
-      class="relative z-30 border-b border-slate-200/80 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm shrink-0">
+      class="relative z-30 border-b border-slate-300/80 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm shrink-0">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
         <div class="flex items-center gap-3">
           <div class="relative w-8 h-8 shrink-0">
             <div class="absolute -inset-0.5 bg-gradient-to-r from-teal-500 to-indigo-600 rounded-lg blur opacity-25">
             </div>
             <div
-              class="absolute inset-0 flex items-center justify-center p-1.5 bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 overflow-hidden">
+              class="absolute inset-0 flex items-center justify-center p-1.5 bg-white dark:bg-slate-800 rounded-lg border border-slate-300 dark:border-slate-700 overflow-hidden">
               <GraduationCap class="absolute w-4 h-4 text-teal-600 dark:text-teal-400 animate-logo-cycle-1" />
               <div class="absolute logo-gradient-display-static w-4 h-4 animate-logo-cycle-2"
                 :style="{ 'mask-image': `url(${logoDre})`, '-webkit-mask-image': `url(${logoDre})` }"></div>
@@ -173,7 +172,7 @@ const nombreCompleto = computed(() => {
 
             <!-- LectoSistem -->
             <button v-if="auth.canAccessLectosistem" @click="router.push('/lectosistem')"
-              class="module-card-teal group relative bg-white dark:bg-slate-900 rounded-2xl p-5 text-left overflow-hidden flex flex-col gap-4 border border-slate-100 dark:border-slate-800 hover:border-teal-200 dark:hover:border-teal-700/60 shadow-sm hover:shadow-lg hover:shadow-teal-500/10 transition-all duration-200 animate-slide-up"
+              class="module-card-teal group relative bg-white dark:bg-slate-900 rounded-2xl p-5 text-left overflow-hidden flex flex-col gap-4 border border-slate-300 dark:border-slate-800 hover:border-teal-200 dark:hover:border-teal-700/60 shadow-sm hover:shadow-lg hover:shadow-teal-500/10 transition-all duration-200 animate-slide-up"
               style="animation-delay:0ms">
               <div class="card-overlay absolute inset-0 rounded-2xl pointer-events-none"></div>
               <div class="card-line absolute bottom-0 left-6 right-6 h-[2px] rounded-full pointer-events-none"></div>
@@ -206,7 +205,7 @@ const nombreCompleto = computed(() => {
 
             <!-- MatSistem -->
             <button v-if="auth.canAccessMatsistem" @click="router.push('/matsistem')"
-              class="module-card-indigo group relative bg-white dark:bg-slate-900 rounded-2xl p-5 text-left overflow-hidden flex flex-col gap-4 border border-slate-100 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700/60 shadow-sm hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-200 animate-slide-up"
+              class="module-card-indigo group relative bg-white dark:bg-slate-900 rounded-2xl p-5 text-left overflow-hidden flex flex-col gap-4 border border-slate-300 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700/60 shadow-sm hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-200 animate-slide-up"
               style="animation-delay:80ms">
               <div class="card-overlay absolute inset-0 rounded-2xl pointer-events-none"></div>
               <div class="card-line absolute bottom-0 left-6 right-6 h-[2px] rounded-full pointer-events-none"></div>
@@ -248,11 +247,11 @@ const nombreCompleto = computed(() => {
           </div>
 
           <div
-            class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm">
+            class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 overflow-hidden shadow-sm">
             <button v-for="(item, i) in managementItems" :key="item.route" @click="router.push(item.route)"
               class="mgmt-item w-full flex items-center gap-3 px-4 py-3 text-left transition-all duration-150 hover:bg-slate-50 dark:hover:bg-slate-800/60 group animate-slide-up"
               :style="`animation-delay:${i * 40 + 160}ms`"
-              :class="i < managementItems.length - 1 ? 'border-b border-slate-100 dark:border-slate-800' : ''">
+              :class="i < managementItems.length - 1 ? 'border-b border-slate-300 dark:border-slate-800' : ''">
               <div
                 class="w-8 h-8 rounded-lg bg-gradient-to-br shrink-0 flex items-center justify-center shadow-sm mgmt-icon"
                 :class="item.color">

@@ -47,6 +47,7 @@ class UsuarioUpdate(BaseModel):
     is_active: Optional[bool] = None
     rol_codigo: Optional[str] = None
     password: Optional[str] = Field(None, min_length=4, max_length=72)
+    permisos_modulos: Optional[List[str]] = None
 
 
 class UsuarioInDBBase(UsuarioBase):

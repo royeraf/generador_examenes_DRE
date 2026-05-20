@@ -6,13 +6,13 @@ import { apiClient, asignacionesService, examenesService, organizacionService, c
 import type { UpdateAsignacionPayload, CodigoClase } from '../../shared/services/api'
 import Navbar from '../../shared/components/Navbar.vue'
 import Footer from '../../shared/components/Footer.vue'
-import Checkbox from '../../shared/components/Checkbox.vue'
 import { useTheme } from '../../shared/composables/useTheme'
 import { showDeleteConfirm, Toast } from '../../shared/utils/swal'
 import {
   ClipboardList, BookOpen, Calculator,
   Trash2, Loader2, Users, ChevronDown,
-  Clock, AlertCircle, Plus, X, BookMarked, Save, User, Pencil
+  Clock, AlertCircle, Plus, X, BookMarked, Save, User, Pencil,
+  RefreshCw, TrendingUp
 } from 'lucide-vue-next'
 import type { Grado } from '../../shared/types'
 import { useAuthStore } from '../../stores/auth'
@@ -335,99 +335,141 @@ const estadoColors: Record<string, string> = {
       gradient-class="from-violet-600 via-purple-600 to-indigo-600 shadow-violet-500/20"
       subtitle-class="text-violet-100 dark:text-slate-400" :show-home="true" />
 
-    <main class="flex-1 max-w-4xl mx-auto px-4 sm:px-6 py-6 w-full space-y-4">
+    <main class="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-6 md:py-10 space-y-6 md:space-y-10">
 
-      <!-- Toolbar -->
-      <div class="flex items-center justify-between gap-3">
-        <h2 class="text-sm font-semibold text-slate-500 dark:text-slate-400">
-          {{ asignaciones.length }} asignación(es) activas
-        </h2>
+      <!-- Header & Welcome -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-violet-600 dark:text-violet-400 font-bold text-sm tracking-wider uppercase">
+            <ClipboardList class="w-4 h-4" />
+            <span>Gestión de Evaluaciones</span>
+          </div>
+          <h2 class="text-3xl md:text-4xl font-black text-slate-800 dark:text-white tracking-tight">
+            {{ headerTitle }}
+          </h2>
+          <p class="text-slate-500 dark:text-slate-400 text-sm md:text-base max-w-2xl">
+            {{ asignaciones.length }} asignación(es) activas en el sistema.
+          </p>
+        </div>
         <button @click="openModal"
-          class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-500 to-indigo-600 hover:from-violet-600 hover:to-indigo-700 text-white font-bold text-sm rounded-xl shadow transition-all">
-          <Plus class="w-4 h-4" /> Nueva asignación
+          class="group flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-violet-600 to-indigo-700 hover:from-violet-700 hover:to-indigo-800 text-white font-bold text-sm rounded-2xl shadow-xl shadow-violet-500/20 hover:-translate-y-0.5 transition-all active:scale-95">
+          <Plus class="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
+          <span>Nueva Asignación</span>
         </button>
       </div>
 
       <!-- Error -->
-      <div v-if="error" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-xl p-4 text-red-600 dark:text-red-400 text-sm">
-        {{ error }}
-      </div>
+      <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="transform -translate-y-4 opacity-0" enter-to-class="transform translate-y-0 opacity-100">
+        <div v-if="error" class="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-2xl p-5 text-red-600 dark:text-red-400 text-sm flex items-center justify-between shadow-lg">
+          <span class="flex items-center gap-3 font-medium">
+            <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div> 
+            {{ error }}
+          </span>
+          <button @click="fetchAsignaciones" class="px-4 py-1.5 bg-red-100 dark:bg-red-500/20 rounded-xl font-bold hover:bg-red-200 dark:hover:bg-red-500/30 transition-colors">
+            Reintentar
+          </button>
+        </div>
+      </Transition>
 
       <!-- Loading -->
-      <div v-if="loading" class="flex justify-center py-20">
-        <Loader2 class="w-10 h-10 text-violet-500 animate-spin" />
+      <div v-if="loading" class="flex flex-col items-center justify-center py-24">
+        <div class="relative w-16 h-16">
+          <div class="absolute inset-0 rounded-full border-4 border-slate-300 dark:border-slate-800"></div>
+          <div class="absolute inset-0 rounded-full border-4 border-violet-500 border-t-transparent animate-spin"></div>
+        </div>
+        <p class="mt-4 text-sm font-bold text-slate-400 dark:text-slate-500 tracking-widest uppercase">Sincronizando Asignaciones</p>
       </div>
 
       <!-- Empty -->
       <div v-else-if="asignaciones.length === 0"
-        class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-12 text-center shadow-sm">
-        <ClipboardList class="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
-        <h3 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-2">Sin asignaciones aún</h3>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mb-5">
-          Asigna un examen generado a tus estudiantes usando el botón de arriba.
+        class="bg-white dark:bg-slate-900/40 backdrop-blur-xl rounded-[2.5rem] border border-slate-300 dark:border-slate-800 p-12 text-center shadow-sm group">
+        <div class="w-24 h-24 bg-slate-50 dark:bg-slate-800 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
+           <ClipboardList class="w-12 h-12 text-slate-300 dark:text-slate-600" />
+        </div>
+        <h3 class="text-2xl font-black text-slate-800 dark:text-white mb-2 tracking-tight">Sin asignaciones aún</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-8 max-w-sm mx-auto">
+          Comienza asignando uno de tus exámenes generados a un grado o sección específica.
         </p>
         <button @click="openModal"
-          class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-violet-500 to-indigo-600 text-white font-bold text-sm rounded-xl shadow transition-all hover:from-violet-600 hover:to-indigo-700">
-          <Plus class="w-4 h-4" /> Nueva asignación
+          class="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-violet-500 to-indigo-600 text-white font-black text-sm rounded-2xl shadow-xl shadow-violet-500/20 hover:from-violet-600 hover:to-indigo-700 transition-all active:scale-95">
+          <Plus class="w-5 h-5" />
+          <span>Crear Primera Asignación</span>
         </button>
       </div>
 
       <!-- List -->
-      <div v-else class="space-y-3">
+      <div v-else class="grid grid-cols-1 gap-4 md:gap-6">
         <div v-for="asig in asignaciones" :key="asig.id"
-          class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
+          class="bg-white dark:bg-slate-900/60 backdrop-blur-md rounded-[2.5rem] border border-slate-300 dark:border-slate-800 p-6 md:p-8 shadow-sm hover:shadow-xl hover:shadow-violet-500/5 transition-all duration-300 relative group overflow-hidden">
+          
+          <div class="absolute -right-8 -top-8 w-32 h-32 bg-violet-500/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
 
-          <!-- Header row -->
-          <div class="flex items-center gap-3 p-4">
+          <div class="flex flex-col md:flex-row md:items-center gap-6 relative z-10">
+            <!-- Icon & Type -->
             <div :class="asig.tipo_examen === 'lectura'
-              ? 'bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400'
-              : 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'"
-              class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0">
-              <BookOpen v-if="asig.tipo_examen === 'lectura'" class="w-4 h-4" />
-              <Calculator v-else class="w-4 h-4" />
+              ? 'bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400'
+              : 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'"
+              class="w-16 h-16 rounded-3xl flex items-center justify-center flex-shrink-0 transform group-hover:rotate-6 transition-transform shadow-inner">
+              <BookOpen v-if="asig.tipo_examen === 'lectura'" class="w-8 h-8" />
+              <Calculator v-else class="w-8 h-8" />
             </div>
 
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-bold text-slate-800 dark:text-white truncate">
-                {{ asig.titulo ?? (asig.tipo_examen === 'lectura' ? 'Examen de Lectura' : 'Examen de Matemática') }}
-              </p>
-              <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
-                {{ asig.grado_nombre ?? `Grado ${asig.grado_id}` }}<span v-if="asig.seccion"> — {{ asig.seccion }}</span>
-                <span class="mx-1">·</span>
-                <span class="text-emerald-600 dark:text-emerald-400 font-medium">{{ asig.completados }} completados</span>
-              </p>
-              <div class="flex items-center gap-2.5 mt-0.5 flex-wrap">
-                <span v-if="asig.duracion_minutos" class="flex items-center gap-1 text-[11px] text-slate-400 dark:text-slate-500">
-                  <Clock class="w-3 h-3" />{{ asig.duracion_minutos }}min
-                </span>
-                <span v-if="asig.fecha_fin" class="flex items-center gap-1 text-[11px] text-slate-400 dark:text-slate-500">
-                  <AlertCircle class="w-3 h-3" />{{ formatFechaHora(asig.fecha_inicio) }} – {{ formatFechaHora(asig.fecha_fin) }}
-                </span>
-                <span v-if="asig.asignado_por_nombre" class="flex items-center gap-1 text-[11px] text-slate-400 dark:text-slate-500">
-                  <User class="w-3 h-3" />{{ asig.asignado_por_nombre }}
-                </span>
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                 <span :class="asig.tipo_examen === 'lectura' ? 'text-teal-500 bg-teal-500/10' : 'text-indigo-500 bg-indigo-500/10'" 
+                   class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full">
+                   {{ asig.tipo_examen === 'lectura' ? 'LectoSistem' : 'MatSistem' }}
+                 </span>
+                 <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
+                    {{ asig.completados }} rindiendo
+                 </span>
+              </div>
+              <h3 class="text-xl font-black text-slate-800 dark:text-white truncate tracking-tight mb-1">
+                {{ asig.titulo ?? (asig.tipo_examen === 'lectura' ? 'Examen de Comunicación' : 'Examen de Matemática') }}
+              </h3>
+              <div class="flex items-center gap-2 text-sm font-bold text-slate-500 dark:text-slate-400 mb-3">
+                 <span class="text-violet-600 dark:text-violet-400">{{ asig.grado_nombre ?? `Grado ${asig.grado_id}` }}</span>
+                 <span v-if="asig.seccion" class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+                 <span v-if="asig.seccion">Sección {{ asig.seccion }}</span>
+              </div>
+              
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-2 gap-x-4">
+                <div v-if="asig.duracion_minutos" class="flex items-center gap-2 text-xs font-bold text-slate-400">
+                  <Clock class="w-3.5 h-3.5 text-violet-400" />
+                  <span>{{ asig.duracion_minutos }} min. de duración</span>
+                </div>
+                <div v-if="asig.fecha_fin" class="flex items-center gap-2 text-xs font-bold text-slate-400">
+                  <AlertCircle class="w-3.5 h-3.5 text-amber-400" />
+                  <span class="truncate">{{ formatFechaHora(asig.fecha_inicio) }} – {{ formatFechaHora(asig.fecha_fin) }}</span>
+                </div>
+                <div v-if="asig.asignado_por_nombre" class="flex items-center gap-2 text-xs font-bold text-slate-400">
+                  <User class="w-3.5 h-3.5 text-indigo-400" />
+                  <span class="truncate">{{ asig.asignado_por_nombre }}</span>
+                </div>
               </div>
             </div>
 
-            <div class="flex items-center gap-1 flex-shrink-0">
+            <div class="flex items-center md:flex-col lg:flex-row gap-2 mt-4 md:mt-0 pt-4 md:pt-0 border-t md:border-t-0 border-slate-300 dark:border-slate-800">
               <button @click="openResultados(asig)"
-                class="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 transition-colors"
+                class="flex-1 md:w-full lg:flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs rounded-2xl transition-all active:scale-95 border border-slate-300 dark:border-slate-700 shadow-sm"
                 title="Ver resultados">
                 <Users class="w-4 h-4" />
+                <span class="md:hidden lg:inline">Reporte</span>
               </button>
-              <button v-if="asig.puede_eliminar" @click="openEditModal(asig)"
-                class="p-2 rounded-xl hover:bg-violet-50 dark:hover:bg-violet-900/20 text-slate-400 hover:text-violet-500 dark:hover:text-violet-400 transition-colors"
-                title="Editar condiciones">
-                <Pencil class="w-4 h-4" />
-              </button>
-              <button v-if="asig.puede_eliminar" @click="eliminar(asig.id)" :disabled="loadingDelete === asig.id"
-                class="p-2 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 text-red-400 hover:text-red-500 transition-colors disabled:opacity-40">
-                <Loader2 v-if="loadingDelete === asig.id" class="w-4 h-4 animate-spin" />
-                <Trash2 v-else class="w-4 h-4" />
-              </button>
+              <div class="flex gap-2">
+                <button v-if="asig.puede_eliminar" @click="openEditModal(asig)"
+                  class="p-3 bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 rounded-2xl hover:bg-violet-600 hover:text-white transition-all active:scale-95 border border-violet-100 dark:border-violet-900/50 shadow-sm"
+                  title="Editar condiciones">
+                  <Pencil class="w-5 h-5" />
+                </button>
+                <button v-if="asig.puede_eliminar" @click="eliminar(asig.id)" :disabled="loadingDelete === asig.id"
+                  class="p-3 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 rounded-2xl hover:bg-red-600 hover:text-white transition-all active:scale-95 border border-red-100 dark:border-red-900/50 shadow-sm disabled:opacity-40">
+                  <Loader2 v-if="loadingDelete === asig.id" class="w-5 h-5 animate-spin" />
+                  <Trash2 v-else class="w-5 h-5" />
+                </button>
+              </div>
             </div>
           </div>
-
         </div>
       </div>
 
@@ -435,244 +477,270 @@ const estadoColors: Record<string, string> = {
 
     <Footer />
 
-    <!-- Modal Nueva Asignación -->
+    <!-- Modal Nueva Asignación: Premium Bottom Sheet pattern -->
     <Teleport to="body">
-      <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0"
-        enter-to-class="opacity-100" leave-active-class="transition duration-150"
-        leave-from-class="opacity-100" leave-to-class="opacity-0">
+      <Transition name="details-modal">
         <div v-if="showModal"
-          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-          @click.self="closeModal()">
-          <div class="bg-white dark:bg-slate-800 w-full max-w-lg max-h-[88vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden">
+          class="fixed inset-0 z-[120] flex items-end sm:items-center justify-center sm:p-4">
+          
+          <!-- Backdrop -->
+          <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" @click="closeModal()"></div>
+
+          <div class="relative bg-white dark:bg-slate-900 w-full sm:max-w-2xl max-h-[94dvh] sm:max-h-[85vh] flex flex-col sm:rounded-[2.5rem] rounded-t-[2.5rem] shadow-2xl overflow-hidden z-10 animate-slide-up">
+            
+            <!-- Drag handle mobile -->
+            <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0" @click="closeModal()">
+                <div class="w-10 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800"></div>
+            </div>
 
             <!-- Header -->
-            <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-700 shrink-0">
-              <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center">
-                  <BookMarked class="w-4 h-4 text-white" />
+            <div class="flex items-center justify-between px-8 py-6 border-b border-slate-300 dark:border-slate-800 shrink-0">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-700 flex items-center justify-center shadow-lg shadow-violet-500/20">
+                  <BookMarked class="w-6 h-6 text-white" />
                 </div>
-                <h2 class="text-base font-bold text-slate-800 dark:text-white">
-                  {{ isEditing ? 'Editar condiciones' : 'Nueva Asignación' }}
-                </h2>
+                <div>
+                  <h2 class="text-xl font-black text-slate-800 dark:text-white tracking-tight">
+                    {{ isEditing ? 'Ajustar Evaluación' : 'Asignar Nueva Evaluación' }}
+                  </h2>
+                  <p class="text-xs font-bold text-slate-500 dark:text-slate-400">Configuración de acceso y aleatoriedad</p>
+                </div>
               </div>
-              <button @click="closeModal()" class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl transition-colors">
-                <X class="w-5 h-5" />
+              <button @click="closeModal()" class="p-3 bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-2xl transition-all">
+                <X class="w-6 h-6" />
               </button>
             </div>
 
             <!-- Body -->
-            <div class="flex-1 min-h-0 overflow-y-auto p-5 space-y-4">
+            <div class="flex-1 min-h-0 overflow-y-auto p-8 space-y-8 custom-scrollbar">
 
-              <div v-if="modalError"
-                class="flex items-center gap-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-xl text-sm border border-red-100 dark:border-red-900/50">
-                <AlertCircle class="w-4 h-4 shrink-0" /> {{ modalError }}
-              </div>
+              <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="transform -translate-y-2 opacity-0" enter-to-class="transform translate-y-0 opacity-100">
+                <div v-if="modalError"
+                  class="flex items-start gap-4 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 p-5 rounded-2xl text-sm border border-red-100 dark:border-red-500/20 shadow-sm">
+                  <AlertCircle class="w-6 h-6 shrink-0" /> 
+                  <div class="flex-1">
+                    <p class="font-black mb-1">Hubo un problema</p>
+                    <p class="font-medium opacity-90">{{ modalError }}</p>
+                  </div>
+                </div>
+              </Transition>
 
               <!-- Tipo de examen / Examen / Grado / Sección — solo en creación -->
               <template v-if="!isEditing">
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-2">Tipo de examen</label>
-                  <div class="grid grid-cols-2 gap-2">
-                    <button type="button" @click="tipoExamen = 'lectura'; examenSeleccionadoId = null; examenDropdownOpen = false"
-                      :class="['flex items-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-semibold transition-all',
-                        tipoExamen === 'lectura'
-                          ? 'bg-teal-50 dark:bg-teal-900/20 border-teal-400 text-teal-700 dark:text-teal-300'
-                          : 'border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-slate-300']">
-                      <BookOpen class="w-4 h-4" /> Comunicación
-                    </button>
-                    <button type="button" @click="tipoExamen = 'matematica'; examenSeleccionadoId = null; examenDropdownOpen = false"
-                      :class="['flex items-center gap-2 px-3 py-2.5 rounded-xl border text-sm font-semibold transition-all',
-                        tipoExamen === 'matematica'
-                          ? 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-400 text-indigo-700 dark:text-indigo-300'
-                          : 'border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-slate-300']">
-                      <Calculator class="w-4 h-4" /> Matemática
-                    </button>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div class="space-y-4">
+                    <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest">Área Académica</label>
+                    <div class="grid grid-cols-2 gap-3">
+                      <button type="button" @click="tipoExamen = 'lectura'; examenSeleccionadoId = null; examenDropdownOpen = false"
+                        :class="['flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all group',
+                          tipoExamen === 'lectura'
+                            ? 'bg-teal-50 dark:bg-teal-500/10 border-teal-500 text-teal-700 dark:text-teal-400 shadow-lg shadow-teal-500/10'
+                            : 'bg-slate-50 dark:bg-slate-800 border-transparent text-slate-500 dark:text-slate-400 hover:border-slate-300']">
+                        <BookOpen class="w-6 h-6 group-hover:scale-110 transition-transform" /> 
+                        <span class="text-xs font-black uppercase">Comunicación</span>
+                      </button>
+                      <button type="button" @click="tipoExamen = 'matematica'; examenSeleccionadoId = null; examenDropdownOpen = false"
+                        :class="['flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all group',
+                          tipoExamen === 'matematica'
+                            ? 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-500 text-indigo-700 dark:text-indigo-400 shadow-lg shadow-indigo-500/10'
+                            : 'bg-slate-50 dark:bg-slate-800 border-transparent text-slate-500 dark:text-slate-400 hover:border-slate-300']">
+                        <Calculator class="w-6 h-6 group-hover:scale-110 transition-transform" /> 
+                        <span class="text-xs font-black uppercase">Matemática</span>
+                      </button>
+                    </div>
                   </div>
-                </div>
 
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">
-                    Examen a asignar <span class="text-red-500">*</span>
-                  </label>
-                  <div v-if="loadingExamenes" class="flex justify-center py-4">
-                    <Loader2 class="w-5 h-5 animate-spin text-violet-400" />
-                  </div>
-                  <div v-else-if="examenesActuales.length === 0"
-                    class="text-sm text-slate-400 dark:text-slate-500 italic py-2">
-                    No tienes exámenes de este tipo guardados.
-                    <button @click="router.push(tipoExamen === 'lectura' ? '/lectosistem' : '/matsistem'); closeModal()"
-                      class="text-violet-600 dark:text-violet-400 font-semibold hover:underline ml-1">
-                      Generar uno
-                    </button>
-                  </div>
-                  <div v-else class="relative">
-                    <!-- Trigger -->
-                    <button type="button" @click="examenDropdownOpen = !examenDropdownOpen"
-                      :class="[
-                        'w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border text-sm transition-all',
-                        examenDropdownOpen
-                          ? 'border-violet-500 ring-2 ring-violet-500/30 bg-white dark:bg-slate-700'
-                          : 'border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 hover:border-violet-300'
-                      ]">
-                      <div v-if="examenSeleccionado" class="flex-1 min-w-0 text-left">
-                        <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">{{ examenSeleccionado.titulo ?? 'Sin título' }}</p>
-                        <p class="text-[11px] text-slate-400 dark:text-slate-500 flex items-center gap-1.5 mt-0.5">
-                          <span v-if="examenSeleccionado.grado_nombre">{{ examenSeleccionado.grado_nombre }}</span>
-                          <span v-if="examenSeleccionado.grado_nombre">·</span>
-                          <span>{{ formatFechaHora(examenSeleccionado.fecha_creacion) }}</span>
-                        </p>
-                      </div>
-                      <span v-else class="text-slate-400 dark:text-slate-500 text-sm flex-1 text-left">— Selecciona un examen —</span>
-                      <ChevronDown class="w-4 h-4 flex-shrink-0 text-slate-400 transition-transform duration-200"
-                        :class="examenDropdownOpen ? 'rotate-180' : ''" />
-                    </button>
+                  <div class="space-y-4">
+                    <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest">Selección de Instrumento</label>
+                    <div v-if="loadingExamenes" class="flex justify-center py-6">
+                      <Loader2 class="w-8 h-8 animate-spin text-violet-500" />
+                    </div>
+                    <div v-else-if="examenesActuales.length === 0"
+                      class="bg-slate-50 dark:bg-slate-800 rounded-2xl p-6 text-center border-2 border-dashed border-slate-300 dark:border-slate-700">
+                      <p class="text-xs font-bold text-slate-500 mb-4">No tienes exámenes guardados en esta área.</p>
+                      <button @click="router.push(tipoExamen === 'lectura' ? '/lectosistem' : '/matsistem'); closeModal()"
+                        class="text-violet-600 dark:text-violet-400 font-black text-xs uppercase tracking-widest hover:underline">
+                        Generar ahora →
+                      </button>
+                    </div>
+                    <div v-else class="relative">
+                      <button type="button" @click="examenDropdownOpen = !examenDropdownOpen"
+                        :class="[
+                          'w-full flex items-center justify-between gap-4 px-5 py-4 rounded-2xl border-2 transition-all text-left',
+                          examenDropdownOpen
+                            ? 'border-violet-500 ring-4 ring-violet-500/10 bg-white dark:bg-slate-800'
+                            : 'border-transparent bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700'
+                        ]">
+                        <div v-if="examenSeleccionado" class="min-w-0">
+                          <p class="text-sm font-black text-slate-800 dark:text-white truncate leading-tight">{{ examenSeleccionado.titulo ?? 'Sin título' }}</p>
+                          <p class="text-[10px] font-bold text-slate-400 flex items-center gap-1.5 mt-1">
+                            <span>{{ examenSeleccionado.grado_nombre }}</span>
+                            <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+                            <span>{{ formatFechaHora(examenSeleccionado.fecha_creacion) }}</span>
+                          </p>
+                        </div>
+                        <span v-else class="text-slate-400 text-sm font-bold">— Seleccionar examen —</span>
+                        <ChevronDown class="w-5 h-5 text-slate-400 transition-transform duration-300" :class="examenDropdownOpen ? 'rotate-180' : ''" />
+                      </button>
 
-                    <!-- Backdrop para cerrar -->
-                    <div v-if="examenDropdownOpen" class="fixed inset-0 z-10" @click="examenDropdownOpen = false" />
-
-                    <!-- Panel flotante -->
-                    <div v-if="examenDropdownOpen"
-                      class="absolute z-20 left-0 right-0 top-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl shadow-lg overflow-hidden">
-                      <div class="max-h-52 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700">
-                        <button v-for="ex in examenesActuales" :key="ex.id" type="button"
-                          @click="examenSeleccionadoId = ex.id; examenDropdownOpen = false"
-                          :class="[
-                            'w-full text-left flex items-center gap-3 px-3.5 py-2.5 transition-colors',
-                            examenSeleccionadoId === ex.id
-                              ? 'bg-violet-50 dark:bg-violet-900/20'
-                              : 'hover:bg-slate-50 dark:hover:bg-slate-700/50'
-                          ]">
-                          <div :class="[
-                            'w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors',
-                            examenSeleccionadoId === ex.id ? 'border-violet-500' : 'border-slate-300 dark:border-slate-500'
-                          ]">
-                            <div v-if="examenSeleccionadoId === ex.id" class="w-2 h-2 rounded-full bg-violet-500" />
+                      <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100"
+                        leave-active-class="transition duration-150 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
+                        <div v-if="examenDropdownOpen"
+                          class="absolute z-[130] left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
+                          <div class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 custom-scrollbar">
+                            <button v-for="ex in examenesActuales" :key="ex.id" type="button"
+                              @click="examenSeleccionadoId = ex.id; examenDropdownOpen = false"
+                              class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group">
+                              <div :class="examenSeleccionadoId === ex.id ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0 transition-colors"></div>
+                              <div class="min-w-0">
+                                <p class="text-sm font-black text-slate-800 dark:text-white truncate">{{ ex.titulo ?? 'Sin título' }}</p>
+                                <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase">{{ ex.grado_nombre }} · {{ formatFechaHora(ex.fecha_creacion) }}</p>
+                              </div>
+                            </button>
                           </div>
-                          <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">{{ ex.titulo ?? 'Sin título' }}</p>
-                            <p class="text-[11px] text-slate-400 dark:text-slate-500 flex items-center gap-1.5 mt-0.5">
-                              <span v-if="ex.grado_nombre">{{ ex.grado_nombre }}</span>
-                              <span v-if="ex.grado_nombre">·</span>
-                              <span>{{ formatFechaHora(ex.fecha_creacion) }}</span>
-                            </p>
-                          </div>
-                        </button>
-                      </div>
+                        </div>
+                      </Transition>
                     </div>
                   </div>
                 </div>
 
-                <!-- Docentes/Auxiliares: picker de Códigos de Clase -->
-                <div v-if="usarCodigosClase">
-                  <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">
-                    Sección <span class="font-normal text-slate-400">(de mis aulas)</span>
-                  </label>
-                  <div v-if="codigosClase.length === 0" class="text-xs text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800 rounded-xl px-4 py-3 border border-slate-200 dark:border-slate-700">
-                    No tienes aulas activas. Crea una primero en la sección Aulas.
-                  </div>
-                  <template v-else>
-                    <select v-model="codigoClaseId"
-                      class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all">
-                      <option :value="null">— Todas mis secciones —</option>
-                      <option v-for="c in codigosClase" :key="c.id" :value="c.id">
-                        {{ c.grado_nombre }} — Sección {{ c.seccion }}
-                        <template v-if="c.total_estudiantes"> ({{ c.total_estudiantes }} est.)</template>
-                      </option>
-                    </select>
-                    <p v-if="codigoClaseSeleccionado" class="mt-1.5 text-[11px] text-slate-400 dark:text-slate-500 flex items-center gap-1">
-                      <QrCode class="w-3 h-3 shrink-0" />
-                      Código: <span class="font-mono font-bold">{{ codigoClaseSeleccionado.codigo }}</span>
-                      · {{ codigoClaseSeleccionado.total_estudiantes }} estudiante(s) registrado(s)
-                    </p>
-                  </template>
-                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <!-- Alcance de la asignación -->
+                  <div class="space-y-4">
+                    <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest">Grupo / Sección Objetivo</label>
+                    
+                    <!-- Docentes: picker de Códigos de Clase -->
+                    <div v-if="usarCodigosClase" class="relative">
+                      <div v-if="codigosClase.length === 0" class="p-5 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 text-center">
+                         <p class="text-xs font-bold text-slate-500">No tienes aulas activas. Crea una primero en la sección "Aulas".</p>
+                      </div>
+                      <select v-else v-model="codigoClaseId"
+                        class="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-violet-500/50 rounded-2xl py-4 px-5 text-base font-bold text-slate-900 dark:text-white outline-none appearance-none cursor-pointer transition-all">
+                        <option :value="null">— Todas mis secciones —</option>
+                        <option v-for="c in codigosClase" :key="c.id" :value="c.id">
+                          {{ c.grado_nombre }} — Sección {{ c.seccion }}
+                        </option>
+                      </select>
+                      <div v-if="codigoClaseSeleccionado" class="mt-3 flex items-center gap-3 bg-violet-50 dark:bg-violet-500/5 p-3 rounded-xl border border-violet-100 dark:border-violet-500/10">
+                        <Users class="w-4 h-4 text-violet-500" />
+                        <span class="text-xs font-bold text-violet-700 dark:text-violet-300">
+                          {{ codigoClaseSeleccionado.total_estudiantes }} estudiantes registrados
+                        </span>
+                      </div>
+                    </div>
 
-                <!-- Roles superiores: Grado + Sección libres -->
-                <template v-else>
-                  <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Grado</label>
-                    <select v-model="gradoSeleccionadoId"
-                      class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all">
-                      <option :value="null">— Todos los grados —</option>
-                      <option v-for="g in grados" :key="g.id" :value="g.id">{{ g.nombre }}</option>
-                    </select>
+                    <!-- Roles superiores: Grado + Sección libres -->
+                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <select v-model="gradoSeleccionadoId"
+                        class="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-violet-500/50 rounded-2xl py-4 px-5 text-sm font-bold text-slate-900 dark:text-white outline-none appearance-none transition-all">
+                        <option :value="null">— Todos los grados —</option>
+                        <option v-for="g in grados" :key="g.id" :value="g.id">{{ g.nombre }}</option>
+                      </select>
+                      <select v-model="seccion"
+                        class="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-violet-500/50 rounded-2xl py-4 px-5 text-sm font-bold text-slate-900 dark:text-white outline-none appearance-none transition-all">
+                        <option value="">— Todas las secciones —</option>
+                        <option v-for="s in ['A','B','C','D','E','F','G','H','I','J','Única']" :key="s" :value="s">{{ s }}</option>
+                      </select>
+                    </div>
                   </div>
-                  <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">
-                      Sección <span class="font-normal text-slate-400">(dejar vacío = todas)</span>
-                    </label>
-                    <select v-model="seccion"
-                      class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all">
-                      <option value="">— Todas las secciones —</option>
-                      <option v-for="s in ['A','B','C','D','E','F','G','H','I','J','Única']" :key="s" :value="s">{{ s }}</option>
-                    </select>
+
+                  <!-- Intentos -->
+                  <div class="space-y-4">
+                    <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest">Condiciones de Rendición</label>
+                    <div class="relative">
+                      <input v-model.number="intentosPermitidos" type="number" min="1" max="10"
+                        class="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-violet-500/50 rounded-2xl py-4 px-5 text-base font-bold text-slate-900 dark:text-white outline-none transition-all" />
+                      <span class="absolute right-5 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 uppercase">Intentos Máx</span>
+                    </div>
                   </div>
-                </template>
+                </div>
               </template>
 
-              <!-- Rango horario -->
-              <div class="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/40">
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Día de aplicación</label>
-                  <input v-model="fechaAplicacion" type="date"
-                    class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 transition-all" />
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                  <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Hora inicio</label>
-                    <input v-model="horaInicio" type="time"
-                      class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 transition-all" />
+              <!-- Programación y Reglas -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Horarios -->
+                <div class="space-y-4">
+                  <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest">Programación Horaria</label>
+                  <div class="bg-slate-50 dark:bg-slate-800/40 rounded-3xl p-6 border border-slate-300 dark:border-slate-800 space-y-4 shadow-inner">
+                    <div>
+                      <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Fecha de aplicación</label>
+                      <input v-model="fechaAplicacion" type="date"
+                        class="w-full bg-white dark:bg-slate-800 border-2 border-transparent focus:border-violet-500/50 rounded-xl py-3 px-4 text-sm font-bold text-slate-800 dark:text-white outline-none transition-all" />
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                      <div>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Hora inicio</label>
+                        <input v-model="horaInicio" type="time"
+                          class="w-full bg-white dark:bg-slate-800 border-2 border-transparent focus:border-violet-500/50 rounded-xl py-3 px-4 text-sm font-bold text-slate-800 dark:text-white outline-none transition-all" />
+                      </div>
+                      <div>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Hora fin</label>
+                        <input v-model="horaFin" type="time"
+                          class="w-full bg-white dark:bg-slate-800 border-2 border-transparent focus:border-violet-500/50 rounded-xl py-3 px-4 text-sm font-bold text-slate-800 dark:text-white outline-none transition-all" />
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                       <input v-model.number="duracionMinutos" type="number" placeholder="Libre"
+                        class="w-24 bg-white dark:bg-slate-800 border-2 border-transparent focus:border-violet-500/50 rounded-xl py-2 px-3 text-sm font-bold text-slate-800 dark:text-white outline-none transition-all" />
+                       <p class="text-xs font-bold text-slate-400 uppercase leading-tight">Minutos de duración <br/><span class="font-normal normal-case opacity-60">(opcional)</span></p>
+                    </div>
                   </div>
-                  <div>
-                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Hora fin</label>
-                    <input v-model="horaFin" type="time"
-                      class="w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 transition-all" />
-                  </div>
                 </div>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400">El examen quedará disponible solo ese día dentro del rango de horas indicado.</p>
-              </div>
 
-              <div class="space-y-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/40">
-                <Checkbox v-model="mezclarPreguntas"
-                  class="group flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 transition-all duration-150 dark:border-slate-700 dark:bg-slate-800/80"
-                  color="checked:bg-violet-600 checked:border-violet-600 dark:checked:bg-violet-500 dark:checked:border-violet-500 focus:ring-violet-500/50">
-                  <span>
-                    <strong class="block text-sm font-bold text-slate-700 dark:text-slate-200">Aleatorizar preguntas</strong>
-                    <span class="text-xs text-slate-500 dark:text-slate-400">El estudiante verá las preguntas en orden aleatorio.</span>
-                  </span>
-                </Checkbox>
-                <Checkbox v-model="mezclarAlternativas"
-                  class="group flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 transition-all duration-150 dark:border-slate-700 dark:bg-slate-800/80"
-                  color="checked:bg-violet-600 checked:border-violet-600 dark:checked:bg-violet-500 dark:checked:border-violet-500 focus:ring-violet-500/50">
-                  <span>
-                    <strong class="block text-sm font-bold text-slate-700 dark:text-slate-200">Aleatorizar alternativas</strong>
-                    <span class="text-xs text-slate-500 dark:text-slate-400">Las opciones se mostrarán mezcladas en cada pregunta.</span>
-                  </span>
-                </Checkbox>
-              </div>
+                <!-- Seguridad/Mezcla -->
+                <div class="space-y-4">
+                   <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest">Aleatoriedad y Seguridad</label>
+                   <div class="space-y-3">
+                      <button @click="mezclarPreguntas = !mezclarPreguntas"
+                        :class="mezclarPreguntas ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 border-2 border-transparent'"
+                        class="w-full flex items-center justify-between p-4 rounded-2xl font-bold transition-all group">
+                         <div class="flex items-center gap-3 text-left">
+                            <div :class="mezclarPreguntas ? 'bg-white/20' : 'bg-slate-200 dark:bg-slate-700'" class="w-10 h-10 rounded-xl flex items-center justify-center">
+                               <RefreshCw class="w-5 h-5" :class="mezclarPreguntas ? 'animate-spin-slow' : ''" />
+                            </div>
+                            <div class="min-w-0">
+                               <p class="text-sm">Preguntas Aleatorias</p>
+                               <p class="text-[10px] opacity-80" :class="mezclarPreguntas ? 'text-violet-100' : 'text-slate-400'">Evita copias entre estudiantes</p>
+                            </div>
+                         </div>
+                         <div :class="mezclarPreguntas ? 'bg-white' : 'bg-slate-300 dark:bg-slate-600'" class="w-6 h-6 rounded-full flex items-center justify-center shrink-0">
+                            <div v-if="mezclarPreguntas" class="w-2.5 h-2.5 rounded-full bg-violet-600"></div>
+                         </div>
+                      </button>
 
-              <!-- Intentos -->
-              <div class="grid grid-cols-1 gap-3">
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Intentos permitidos</label>
-                  <input v-model.number="intentosPermitidos" type="number" min="1" max="10"
-                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 transition-all" />
+                      <button @click="mezclarAlternativas = !mezclarAlternativas"
+                        :class="mezclarAlternativas ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 border-2 border-transparent'"
+                        class="w-full flex items-center justify-between p-4 rounded-2xl font-bold transition-all group">
+                         <div class="flex items-center gap-3 text-left">
+                            <div :class="mezclarAlternativas ? 'bg-white/20' : 'bg-slate-200 dark:bg-slate-700'" class="w-10 h-10 rounded-xl flex items-center justify-center">
+                               <TrendingUp class="w-5 h-5" />
+                            </div>
+                            <div class="min-w-0">
+                               <p class="text-sm">Alternativas Mezcladas</p>
+                               <p class="text-[10px] opacity-80" :class="mezclarAlternativas ? 'text-indigo-100' : 'text-slate-400'">Cambia el orden de respuestas</p>
+                            </div>
+                         </div>
+                         <div :class="mezclarAlternativas ? 'bg-white' : 'bg-slate-300 dark:bg-slate-600'" class="w-6 h-6 rounded-full flex items-center justify-center shrink-0">
+                            <div v-if="mezclarAlternativas" class="w-2.5 h-2.5 rounded-full bg-indigo-600"></div>
+                         </div>
+                      </button>
+                   </div>
                 </div>
               </div>
 
             </div>
 
             <!-- Footer -->
-            <div class="flex items-center justify-end gap-2 px-5 py-4 border-t border-slate-100 dark:border-slate-700 shrink-0">
+            <div class="px-8 py-6 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-300 dark:border-slate-800 flex flex-col sm:flex-row gap-4 shrink-0">
               <button @click="closeModal()"
-                class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors">
+                class="flex-1 px-6 py-4 text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-2xl transition-colors">
                 Cancelar
               </button>
               <button @click="guardar" :disabled="saving || (!isEditing && !examenSeleccionadoId)"
-                class="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-violet-500 to-indigo-600 hover:from-violet-600 hover:to-indigo-700 text-white font-bold text-sm rounded-xl shadow transition-all disabled:opacity-60 disabled:cursor-not-allowed">
-                <Loader2 v-if="saving" class="w-3.5 h-3.5 animate-spin" />
-                <Save v-else class="w-3.5 h-3.5" />
-                {{ isEditing ? 'Guardar cambios' : 'Asignar examen' }}
+                class="flex-[1.5] flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-violet-600 to-indigo-700 text-white font-black text-sm rounded-2xl shadow-xl shadow-violet-500/20 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                <Loader2 v-if="saving" class="w-5 h-5 animate-spin" />
+                <Save v-else class="w-5 h-5" />
+                <span>{{ isEditing ? 'Actualizar Evaluación' : 'Confirmar Asignación' }}</span>
               </button>
             </div>
 
@@ -681,100 +749,125 @@ const estadoColors: Record<string, string> = {
       </Transition>
     </Teleport>
 
-    <!-- Modal Resultados -->
+    <!-- Modal Resultados: Premium Bottom Sheet pattern -->
     <Teleport to="body">
-      <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0"
-        enter-to-class="opacity-100" leave-active-class="transition duration-150"
-        leave-from-class="opacity-100" leave-to-class="opacity-0">
+      <Transition name="details-modal">
         <div v-if="showResultados"
-          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-          @click.self="showResultados = false">
-          <div class="bg-white dark:bg-slate-800 w-full max-w-lg max-h-[85vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden">
+          class="fixed inset-0 z-[120] flex items-end sm:items-center justify-center sm:p-4">
+          
+          <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showResultados = false"></div>
+
+          <div class="relative bg-white dark:bg-slate-900 w-full sm:max-w-2xl max-h-[94dvh] sm:max-h-[85vh] flex flex-col sm:rounded-[2.5rem] rounded-t-[2.5rem] shadow-2xl overflow-hidden z-10 animate-slide-up">
 
             <!-- Drag handle mobile -->
-            <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
-              <div class="w-10 h-1 rounded-full bg-slate-200 dark:bg-slate-600"></div>
+            <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0" @click="showResultados = false">
+              <div class="w-10 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800"></div>
             </div>
 
             <!-- Header -->
-            <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-700 shrink-0">
-              <div class="flex items-center gap-2.5 min-w-0">
-                <div class="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-                  :class="resultadosAsig?.tipo_examen === 'lectura'
-                    ? 'bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400'
-                    : 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'">
-                  <BookOpen v-if="resultadosAsig?.tipo_examen === 'lectura'" class="w-4 h-4" />
-                  <Calculator v-else class="w-4 h-4" />
-                </div>
-                <div class="min-w-0">
-                  <h2 class="text-sm font-bold text-slate-800 dark:text-white truncate">
-                    {{ resultadosAsig?.titulo ?? 'Resultados' }}
-                  </h2>
-                  <p class="text-xs text-slate-400 dark:text-slate-500">
-                    {{ resultadosAsig?.grado_nombre ?? `Grado ${resultadosAsig?.grado_id}` }}<span v-if="resultadosAsig?.seccion"> — {{ resultadosAsig.seccion }}</span>
-                  </p>
-                </div>
-              </div>
-              <button @click="showResultados = false" class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl transition-colors flex-shrink-0">
-                <X class="w-5 h-5" />
-              </button>
-            </div>
-
-            <!-- Subheader con conteo -->
-            <div class="px-5 py-2.5 bg-slate-50 dark:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700 shrink-0 flex items-center gap-2">
-              <Users class="w-3.5 h-3.5 text-slate-400" />
-              <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                <template v-if="loadingResultados">Cargando…</template>
-                <template v-else>{{ (resultados[resultadosAsig?.id ?? 0] ?? []).length }} estudiante(s) asignado(s)</template>
-              </span>
+            <div class="px-8 py-6 border-b border-slate-300 dark:border-slate-800 flex flex-col gap-4 shrink-0">
+               <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-4 min-w-0">
+                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-inner"
+                      :class="resultadosAsig?.tipo_examen === 'lectura'
+                        ? 'bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400'
+                        : 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'">
+                      <BookOpen v-if="resultadosAsig?.tipo_examen === 'lectura'" class="w-7 h-7" />
+                      <Calculator v-else class="w-7 h-7" />
+                    </div>
+                    <div class="min-w-0">
+                      <h2 class="text-xl font-black text-slate-800 dark:text-white truncate tracking-tight">
+                        {{ resultadosAsig?.titulo ?? 'Resultados del Examen' }}
+                      </h2>
+                      <p class="text-sm font-bold text-slate-500 dark:text-slate-400">
+                        {{ resultadosAsig?.grado_nombre ?? `Grado ${resultadosAsig?.grado_id}` }}<span v-if="resultadosAsig?.seccion"> · Sección {{ resultadosAsig.seccion }}</span>
+                      </p>
+                    </div>
+                  </div>
+                  <button @click="showResultados = false" class="p-3 bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-2xl transition-all">
+                    <X class="w-6 h-6" />
+                  </button>
+               </div>
+               
+               <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-800/60 px-6 py-3 rounded-2xl border border-slate-300 dark:border-slate-800">
+                  <div class="flex items-center gap-2">
+                    <Users class="w-4 h-4 text-violet-500" />
+                    <span class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                      {{ (resultados[resultadosAsig?.id ?? 0] ?? []).length }} Estudiantes
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <span class="text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Sincronizado</span>
+                  </div>
+               </div>
             </div>
 
             <!-- Body -->
-            <div class="flex-1 min-h-0 overflow-y-auto">
+            <div class="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
 
-              <div v-if="loadingResultados" class="flex justify-center py-12">
-                <Loader2 class="w-6 h-6 text-violet-400 animate-spin" />
+              <div v-if="loadingResultados" class="flex flex-col items-center justify-center py-20">
+                <Loader2 class="w-10 h-10 text-violet-500 animate-spin mb-4" />
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Cargando reporte detallado…</p>
               </div>
 
               <div v-else-if="(resultados[resultadosAsig?.id ?? 0] ?? []).length === 0"
-                class="flex flex-col items-center justify-center py-12 gap-2 text-center px-6">
-                <Users class="w-8 h-8 text-slate-300 dark:text-slate-600" />
-                <p class="text-sm text-slate-400 dark:text-slate-500">Sin estudiantes en el alcance de esta asignación</p>
+                class="flex flex-col items-center justify-center py-24 gap-4 text-center px-8">
+                <div class="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-3xl flex items-center justify-center mb-2">
+                   <Users class="w-10 h-10 text-slate-300 dark:text-slate-600" />
+                </div>
+                <div>
+                  <p class="text-lg font-black text-slate-800 dark:text-white tracking-tight">Sin registros aún</p>
+                  <p class="text-sm text-slate-500 dark:text-slate-400 max-w-xs mx-auto">
+                    Los resultados aparecerán aquí a medida que los estudiantes completen sus evaluaciones.
+                  </p>
+                </div>
               </div>
 
-              <div v-else class="divide-y divide-slate-100 dark:divide-slate-700">
+              <div v-else class="divide-y divide-slate-50 dark:divide-slate-800">
                 <div v-for="r in resultados[resultadosAsig?.id ?? 0]" :key="r.codigo ?? r.estudiante"
-                  class="flex items-center gap-3 px-5 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                  <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-100 to-indigo-100 dark:from-violet-900/30 dark:to-indigo-900/30 flex items-center justify-center flex-shrink-0">
-                    <span class="text-xs font-black text-violet-600 dark:text-violet-400">
+                  class="flex items-center gap-4 px-8 py-5 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all group">
+                  
+                  <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-100 to-indigo-100 dark:from-violet-900/30 dark:to-indigo-900/30 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                    <span class="text-sm font-black text-violet-600 dark:text-violet-400">
                       {{ (r.estudiante || r.codigo || '?').slice(0, 2).toUpperCase() }}
                     </span>
                   </div>
+                  
                   <div class="flex-1 min-w-0">
-                    <p class="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate">{{ r.estudiante || r.codigo }}</p>
-                    <p class="text-[10px] text-slate-400">{{ r.codigo }}<span v-if="r.fecha"> · {{ formatFechaHora(r.fecha) }}</span></p>
+                    <p class="text-base font-black text-slate-800 dark:text-slate-200 truncate leading-tight">{{ r.estudiante || r.codigo }}</p>
+                    <div class="flex items-center gap-3 mt-1.5">
+                       <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider font-mono">{{ r.codigo }}</span>
+                       <span v-if="r.fecha" class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+                       <span v-if="r.fecha" class="text-[10px] font-bold text-slate-400 flex items-center gap-1">
+                          <Clock class="w-3 h-3" />
+                          {{ formatFechaHora(r.fecha) }}
+                       </span>
+                    </div>
                   </div>
-                  <div class="flex items-center gap-2 flex-shrink-0">
-                    <span :class="estadoColors[r.estado] ?? estadoColors.sin_intento"
-                      class="text-[10px] font-bold px-2 py-0.5 rounded-full">
-                      {{ estadoLabels[r.estado] ?? r.estado }}
-                    </span>
-                    <span v-if="r.correctas !== null && r.total !== null"
-                      class="text-sm font-black text-slate-700 dark:text-slate-200">
-                      {{ r.correctas }}/{{ r.total }}
-                    </span>
-                    <span v-if="r.puntaje !== null"
-                      class="text-sm font-black text-emerald-600 dark:text-emerald-400">
-                      {{ r.puntaje?.toFixed(1) }}%
-                    </span>
-                    <span v-if="r.nivel_logro" :class="nivelColors[r.nivel_logro]"
-                      class="text-[10px] font-bold px-2 py-0.5 rounded-full">
+
+                  <div class="flex flex-col items-end gap-2 shrink-0">
+                    <div class="flex items-center gap-2">
+                       <span v-if="r.puntaje !== null" class="text-lg font-black text-slate-800 dark:text-white leading-none">
+                          {{ r.puntaje?.toFixed(0) }}<span class="text-xs font-bold text-slate-400 ml-0.5">%</span>
+                       </span>
+                       <span :class="estadoColors[r.estado] ?? estadoColors.sin_intento"
+                        class="text-[10px] font-black uppercase px-2.5 py-1 rounded-full tracking-wider border-2 border-transparent">
+                        {{ estadoLabels[r.estado] ?? r.estado }}
+                      </span>
+                    </div>
+                    <div v-if="r.nivel_logro" :class="nivelColors[r.nivel_logro]"
+                      class="text-[10px] font-black uppercase px-2.5 py-1 rounded-full tracking-wider shadow-sm">
                       {{ nivelLabels[r.nivel_logro] ?? r.nivel_logro }}
-                    </span>
+                    </div>
                   </div>
                 </div>
               </div>
 
+            </div>
+
+            <div class="p-6 bg-slate-50 dark:bg-slate-800/40 text-center border-t border-slate-300 dark:border-slate-800">
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">LectoSistem Report Engine</p>
             </div>
           </div>
         </div>
@@ -783,3 +876,44 @@ const estadoColors: Record<string, string> = {
 
   </div>
 </template>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 10px;
+}
+
+.animate-spin-slow {
+  animation: spin 3s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Details Modal / Bottom Sheet Animation */
+.details-modal-enter-active, .details-modal-leave-active {
+  transition: opacity 0.3s ease;
+}
+.details-modal-enter-active .relative, .details-modal-leave-active .relative {
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.details-modal-enter-from, .details-modal-leave-to {
+  opacity: 0;
+}
+.details-modal-enter-from .relative, .details-modal-leave-to .relative {
+  transform: translateY(100%);
+}
+@media (min-width: 640px) {
+  .details-modal-enter-from .relative, .details-modal-leave-to .relative {
+    transform: translateY(0) scale(0.95);
+  }
+}
+</style>

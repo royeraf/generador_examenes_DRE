@@ -291,7 +291,9 @@ export function useMatSistem() {
             desempeno: t.desempeno,
             nivel: t.capacidad,
             respuesta_correcta: t.respuesta_correcta,
-            justificacion: t.justificacion
+            justificacion: t.justificacion,
+            retroalimentacion_correcta: t.retroalimentacion_correcta,
+            retroalimentacion_incorrecta: t.retroalimentacion_incorrecta
           }))
         },
         total_preguntas: response.total_preguntas ?? 0

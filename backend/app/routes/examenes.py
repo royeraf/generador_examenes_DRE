@@ -52,6 +52,8 @@ def _extraer_pregunta(p: dict, tabla_map: dict) -> dict:
         "desempeno_codigo": str(dc_raw)[:50] if dc_raw else None,
         "desempeno_descripcion": info.get("desempeno"),
         "justificacion": info.get("justificacion"),
+        "retroalimentacion_correcta": info.get("retroalimentacion_correcta"),
+        "retroalimentacion_incorrecta": info.get("retroalimentacion_incorrecta"),
     }
 
 
