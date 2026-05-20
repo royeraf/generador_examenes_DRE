@@ -456,16 +456,16 @@ const nivelMensaje: Record<string, string> = {
         <!-- Actions -->
         <div class="flex flex-col gap-4 animate-slide-up-2">
           <button @click="cargarRevision" :disabled="loadingRevision"
-            class="group w-full h-16 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3">
+            class="group w-full h-12 sm:h-14 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3 text-sm sm:text-base">
             <ThinkingLoader v-if="loadingRevision" text="Analizando respuestas..." :variant="isDark ? 'purple' : 'teal'" />
             <template v-else>
-              <ClipboardList class="w-5 h-5 group-hover:rotate-6 transition-transform" />
+              <ClipboardList class="w-4 h-4 sm:w-5 sm:h-5 group-hover:rotate-6 transition-transform" />
               <span>Ver Revisión con IA</span>
             </template>
           </button>
 
           <button @click="router.push('/estudiante/examenes')"
-            class="w-full h-14 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold rounded-2xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all active:scale-95 flex items-center justify-center gap-2">
+            class="w-full h-10 sm:h-12 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold rounded-2xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all active:scale-95 flex items-center justify-center gap-2 text-sm">
             <ArrowLeft class="w-4 h-4" />
             <span>Volver a la lista</span>
           </button>
@@ -536,7 +536,7 @@ const nivelMensaje: Record<string, string> = {
                   <div v-if="activeRevisionPregunta" :key="preguntaRevisionActual" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-6 md:p-8 shadow-xl relative flex flex-col w-full">
                     
                     <!-- Card Header: Number, Level, Correctness -->
-                    <div class="flex flex-wrap items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-100 dark:border-slate-800/60">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800/60">
                       <div class="flex items-center gap-3">
                         <span class="text-xs font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1.5 rounded-xl border border-indigo-100/50 dark:border-indigo-900/30">
                           Pregunta {{ activeRevisionPregunta.numero }} de {{ revision.preguntas.length }}
@@ -598,11 +598,11 @@ const nivelMensaje: Record<string, string> = {
                     </div>
 
                     <!-- AI Insight Container -->
-                    <div class="bg-gradient-to-br from-indigo-50/60 to-purple-50/40 dark:from-indigo-950/30 dark:to-purple-950/20 rounded-xl p-6 border border-indigo-100/50 dark:border-indigo-500/10 relative overflow-hidden group">
-                      <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
-                        <Lightbulb class="w-12 h-12 text-indigo-500" />
+                    <div class="bg-gradient-to-br from-indigo-50/60 to-purple-50/40 dark:from-indigo-950/30 dark:to-purple-950/20 rounded-xl p-3 sm:p-5 border border-indigo-100/50 dark:border-indigo-500/10 relative overflow-hidden group">
+                      <div class="absolute top-0 right-0 p-3 opacity-5 group-hover:scale-110 transition-transform">
+                        <Lightbulb class="w-10 h-10 text-indigo-500" />
                       </div>
-                      <div class="flex items-center justify-between mb-4">
+                      <div class="flex items-center justify-between mb-3">
                         <div class="flex items-center gap-2">
                           <div class="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
                             <Zap class="w-4 h-4 text-white" />
@@ -623,49 +623,33 @@ const nivelMensaje: Record<string, string> = {
             </div>
 
             <!-- Footer Navigation Bar -->
-            <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-6 px-6 shrink-0 relative z-10 shadow-lg">
-              <div class="max-w-3xl mx-auto flex items-center justify-between gap-4 w-full">
-                
-                <!-- Previous Button Container -->
-                <div class="flex-1 flex justify-start sm:flex-initial">
-                  <button @click="anteriorRevision" :disabled="preguntaRevisionActual === 0"
-                    class="w-full sm:w-auto h-12 px-6 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-40 disabled:hover:bg-slate-100 dark:disabled:hover:bg-slate-800 font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer select-none">
-                    <ChevronLeft class="w-4 h-4" />
-                    <span>Anterior</span>
-                  </button>
-                </div>
+            <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-3 px-4 sm:py-5 sm:px-6 shrink-0 relative z-10 shadow-lg">
+              <div class="max-w-3xl mx-auto flex items-center justify-between gap-2 sm:gap-4 w-full">
 
-                <!-- Progress Dots (Desktop only) -->
+                <button @click="anteriorRevision" :disabled="preguntaRevisionActual === 0"
+                  class="flex items-center justify-center gap-1.5 h-10 px-4 sm:px-6 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-40 font-bold text-xs sm:text-sm rounded-xl transition-all cursor-pointer select-none">
+                  <ChevronLeft class="w-4 h-4 shrink-0" />
+                  <span class="hidden sm:inline">Anterior</span>
+                </button>
+
+                <!-- Progress Dots (Desktop) / Counter (Mobile) -->
                 <div class="hidden sm:flex items-center gap-1.5">
                   <button v-for="(p, idx) in revision.preguntas" :key="idx"
                     @click="preguntaRevisionActual = idx"
-                    class="w-3 h-3 rounded-full transition-all duration-300 cursor-pointer"
-                    :class="
-                      idx === preguntaRevisionActual
-                        ? 'bg-gradient-to-r from-teal-500 to-indigo-600 scale-125 w-6'
-                        : p.es_correcta
-                          ? 'bg-emerald-500/40 hover:bg-emerald-500/60'
-                          : 'bg-rose-500/40 hover:bg-rose-500/60'
-                    "
-                    :title="'Ir a Pregunta ' + p.numero"
+                    class="w-2.5 h-2.5 rounded-full transition-all duration-300 cursor-pointer"
+                    :class="idx === preguntaRevisionActual ? 'bg-gradient-to-r from-teal-500 to-indigo-600 scale-125 w-5' : p.es_correcta ? 'bg-emerald-500/40 hover:bg-emerald-500/60' : 'bg-rose-500/40 hover:bg-rose-500/60'"
+                    :title="'Pregunta ' + p.numero"
                   />
                 </div>
+                <span class="sm:hidden px-2.5 py-1 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-800 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">
+                  {{ preguntaRevisionActual + 1 }} / {{ revision.preguntas.length }}
+                </span>
 
-                <!-- Question Progress Indicator (Mobile only) -->
-                <div class="flex-none flex sm:hidden justify-center px-2">
-                  <span class="px-3.5 py-1.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-800 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 shadow-sm whitespace-nowrap">
-                    {{ preguntaRevisionActual + 1 }} de {{ revision.preguntas.length }}
-                  </span>
-                </div>
-
-                <!-- Next / Finish Button Container -->
-                <div class="flex-1 flex justify-end sm:flex-initial">
-                  <button @click="siguienteRevision"
-                    class="w-full sm:w-auto h-12 px-6 bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:scale-[1.02] active:scale-[0.98] font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-slate-900/10 dark:shadow-white/5 select-none">
-                    <span>{{ preguntaRevisionActual === revision.preguntas.length - 1 ? 'Finalizar' : 'Siguiente' }}</span>
-                    <ChevronRight class="w-4 h-4" />
-                  </button>
-                </div>
+                <button @click="siguienteRevision"
+                  class="flex items-center justify-center gap-1.5 h-10 px-4 sm:px-6 bg-slate-900 dark:bg-white text-white dark:text-slate-900 active:scale-[0.98] font-bold text-xs sm:text-sm rounded-xl transition-all cursor-pointer shadow-md select-none">
+                  <span>{{ preguntaRevisionActual === revision.preguntas.length - 1 ? 'Finalizar' : 'Siguiente' }}</span>
+                  <ChevronRight class="w-4 h-4 shrink-0" />
+                </button>
 
               </div>
             </footer>
