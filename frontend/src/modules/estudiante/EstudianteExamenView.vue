@@ -6,7 +6,7 @@ import {
   ChevronLeft, ChevronRight, Clock, AlertCircle, CheckCircle2,
   Loader2, BookOpen, ClipboardList,
   CheckCircle, XCircle, Lightbulb, Zap, Target, Trophy, ArrowLeft,
-  X
+  X, ChevronDown
 } from 'lucide-vue-next'
 import ThinkingLoader from '../../shared/components/ThinkingLoader.vue'
 import { useTheme } from '../../shared/composables/useTheme'
@@ -111,6 +111,17 @@ function triggerConfetti() {
 }
 
 const lecturaTabActiva = shallowRef(0)
+const lecturaAcordeonAbierto = ref<number | null>(0)
+
+const toggleAcordeon = (idx: number) => {
+  if (lecturaAcordeonAbierto.value === idx) {
+    lecturaAcordeonAbierto.value = null
+  } else {
+    lecturaAcordeonAbierto.value = idx
+    lecturaTabActiva.value = idx
+  }
+}
+
 const lecturas = computed<TextoLectura[]>(() => {
   if (!examen.value) return []
   if (examen.value.lecturas?.length) return examen.value.lecturas
@@ -194,8 +205,20 @@ onMounted(async () => {
   }
 })
 
+// Aviso del navegador al intentar cerrar/recargar mientras el examen está activo
+function handleBeforeUnload(e: BeforeUnloadEvent) {
+  if (!examen.value || resultado.value) return
+  e.preventDefault()
+  e.returnValue = ''
+}
+
+onMounted(() => {
+  window.addEventListener('beforeunload', handleBeforeUnload)
+})
+
 onUnmounted(() => {
   if (timerInterval) clearInterval(timerInterval)
+  window.removeEventListener('beforeunload', handleBeforeUnload)
 })
 
 function seleccionar(preguntaNum: number, letra: string) {
@@ -683,35 +706,129 @@ const nivelMensaje: Record<string, string> = {
           <div class="absolute bottom-[20%] right-[-5%] w-[400px] h-[400px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[100px]"></div>
         </div>
 
-        <!-- Left: Reading Context -->
-        <aside v-if="lecturas.length" class="lg:w-1/2 h-1/2 lg:h-full border-b lg:border-b-0 lg:border-r border-slate-300 dark:border-slate-800 flex flex-col bg-white dark:bg-slate-900/50 z-10 relative">
-          <div class="px-8 py-6 border-b border-slate-50 dark:border-slate-800/50 flex items-center justify-between shrink-0">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center">
-                <BookOpen class="w-4 h-4 text-teal-500" />
+        <!-- Left: Reading Context (Responsive Accordion) -->
+        <aside 
+          v-if="lecturas.length" 
+          :class="[
+            'w-full lg:w-1/2 flex flex-col bg-white dark:bg-slate-900/50 z-10 relative transition-all duration-300 ease-in-out',
+            lecturaAcordeonAbierto !== null 
+              ? 'h-[40vh] sm:h-[45vh] lg:h-full border-b lg:border-b-0 lg:border-r border-slate-300 dark:border-slate-800' 
+              : 'h-auto shrink-0 border-b border-slate-300 dark:border-slate-800'
+          ]"
+        >
+          <!-- Single Lecture Accordion -->
+          <template v-if="lecturas.length === 1">
+            <!-- Accordion Header Button -->
+            <button 
+              @click="toggleAcordeon(0)"
+              class="w-full px-6 py-5 sm:px-8 sm:py-6 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/10 hover:bg-slate-50 dark:hover:bg-slate-800/20 border-b border-slate-200 dark:border-slate-800/50 transition-all select-none text-left focus:outline-none"
+            >
+              <div class="flex items-center gap-3 min-w-0">
+                <div :class="[
+                  'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors',
+                  lecturaAcordeonAbierto === 0 ? 'bg-teal-500/10' : 'bg-slate-100 dark:bg-slate-800'
+                ]">
+                  <BookOpen :class="['w-4 h-4 transition-colors', lecturaAcordeonAbierto === 0 ? 'text-teal-500' : 'text-slate-400']" />
+                </div>
+                <div class="min-w-0">
+                  <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-0.5">Contexto de Lectura</span>
+                  <h3 :class="['font-bold text-sm truncate leading-snug transition-colors', lecturaAcordeonAbierto === 0 ? 'text-teal-600 dark:text-teal-400' : 'text-slate-700 dark:text-slate-200']">
+                  {{ lecturas[0]?.titulo || 'Texto Principal' }}
+                  </h3>
+                </div>
               </div>
-              <h2 class="text-xs font-black uppercase tracking-widest text-slate-400">Contexto de Lectura</h2>
-            </div>
-          </div>
-          
-          <div v-if="lecturas.length > 1" class="flex border-b border-slate-50 dark:border-slate-800/50 bg-slate-50/30 dark:bg-slate-800/30 shrink-0 no-scrollbar overflow-x-auto">
-            <button v-for="(t, i) in lecturas" :key="i"
-              @click="lecturaTabActiva = i"
-              :class="[
-                'px-8 py-4 text-[10px] font-bold uppercase tracking-widest transition-all border-b-2',
-                lecturaTabActiva === i
-                  ? 'border-teal-500 text-teal-600 dark:text-teal-400 bg-white dark:bg-slate-900'
-                  : 'border-transparent text-slate-400 hover:text-slate-600'
-              ]">
-              {{ t.titulo || `Texto ${i + 1}` }}
+              <ChevronDown 
+                :class="[
+                  'w-5 h-5 text-slate-400 transition-transform duration-300 shrink-0',
+                  lecturaAcordeonAbierto === 0 ? 'rotate-180 text-teal-500' : ''
+                ]" 
+              />
             </button>
-          </div>
 
-          <div class="flex-1 overflow-y-auto p-8 sm:p-12 font-serif text-lg leading-relaxed text-slate-700 dark:text-slate-200 custom-scrollbar selection:bg-teal-500/20">
-            <div class="max-w-2xl mx-auto whitespace-pre-wrap">
-              {{ lecturas[lecturaTabActiva]?.texto }}
+            <!-- Accordion Body Content -->
+            <Transition
+              enter-active-class="transition duration-300 ease-out"
+              enter-from-class="opacity-0 max-h-0 scale-y-95 origin-top"
+              enter-to-class="opacity-100 max-h-[800px] scale-y-100 origin-top"
+              leave-active-class="transition duration-200 ease-in"
+              leave-from-class="opacity-100 max-h-[800px] scale-y-100 origin-top"
+              leave-to-class="opacity-0 max-h-0 scale-y-95 origin-top"
+            >
+              <div 
+                v-show="lecturaAcordeonAbierto === 0"
+                class="flex-1 overflow-y-auto p-6 sm:p-10 font-serif text-base sm:text-lg leading-relaxed text-slate-700 dark:text-slate-200 custom-scrollbar selection:bg-teal-500/20 bg-white dark:bg-slate-900"
+              >
+                <div class="max-w-2xl mx-auto whitespace-pre-wrap">
+                  {{ lecturas[0]?.texto }}
+                </div>
+              </div>
+            </Transition>
+          </template>
+
+          <!-- Multiple Lectures Accordion -->
+          <template v-else>
+            <!-- Label header (decorational, only on multiple) -->
+            <div class="px-8 py-4 bg-slate-50/50 dark:bg-slate-800/10 border-b border-slate-200 dark:border-slate-800/50 flex items-center justify-between shrink-0">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center shrink-0">
+                  <BookOpen class="w-4 h-4 text-teal-500" />
+                </div>
+                <h2 class="text-xs font-black uppercase tracking-widest text-slate-400">Contexto de Lectura (Múltiple)</h2>
+              </div>
             </div>
-          </div>
+
+            <!-- Accordion Wrapper -->
+            <div class="flex-1 flex flex-col overflow-y-auto custom-scrollbar">
+              <div v-for="(t, i) in lecturas" :key="i" class="border-b border-slate-200 dark:border-slate-800 last:border-b-0 flex flex-col">
+                <!-- Accordion Header -->
+                <button 
+                  @click="toggleAcordeon(i)"
+                  class="w-full px-6 py-4 sm:px-8 sm:py-5 flex items-center justify-between bg-slate-50/20 dark:bg-slate-800/5 hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-all select-none text-left focus:outline-none"
+                >
+                  <div class="flex items-center gap-3 min-w-0">
+                    <div :class="[
+                      'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors',
+                      lecturaAcordeonAbierto === i ? 'bg-teal-500/10' : 'bg-slate-100 dark:bg-slate-800'
+                    ]">
+                      <BookOpen :class="['w-4 h-4 transition-colors', lecturaAcordeonAbierto === i ? 'text-teal-500' : 'text-slate-400']" />
+                    </div>
+                    <div class="min-w-0">
+                      <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-0.5">Texto {{ i + 1 }}</span>
+                      <h3 :class="['font-bold text-sm truncate leading-snug transition-colors', lecturaAcordeonAbierto === i ? 'text-teal-600 dark:text-teal-400' : 'text-slate-700 dark:text-slate-200']">
+                        {{ t.titulo || `Lectura ${i + 1}` }}
+                      </h3>
+                    </div>
+                  </div>
+                  <ChevronDown 
+                    :class="[
+                      'w-5 h-5 text-slate-400 transition-transform duration-300 shrink-0',
+                      lecturaAcordeonAbierto === i ? 'rotate-180 text-teal-500' : ''
+                    ]" 
+                  />
+                </button>
+
+                <!-- Accordion Content -->
+                <Transition
+                  enter-active-class="transition duration-300 ease-out"
+                  enter-from-class="opacity-0 max-h-0 scale-y-95 origin-top"
+                  enter-to-class="opacity-100 max-h-[800px] scale-y-100 origin-top"
+                  leave-active-class="transition duration-200 ease-in"
+                  leave-from-class="opacity-100 max-h-[800px] scale-y-100 origin-top"
+                  leave-to-class="opacity-0 max-h-0 scale-y-95 origin-top"
+                >
+                  <div 
+                    v-show="lecturaAcordeonAbierto === i"
+                    class="overflow-y-auto p-6 sm:p-10 font-serif text-base sm:text-lg leading-relaxed text-slate-700 dark:text-slate-200 custom-scrollbar selection:bg-teal-500/20 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800/80"
+                    :class="lecturas.length > 1 ? 'max-h-[300px] lg:max-h-none lg:flex-1' : 'flex-1'"
+                  >
+                    <div class="max-w-2xl mx-auto whitespace-pre-wrap">
+                      {{ t.texto }}
+                    </div>
+                  </div>
+                </Transition>
+              </div>
+            </div>
+          </template>
         </aside>
 
         <!-- Right: Questions -->

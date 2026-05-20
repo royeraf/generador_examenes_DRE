@@ -227,28 +227,48 @@ async def iniciar_examen(
     if asig.institucion_educativa_id and asig.institucion_educativa_id != current_user.institucion_educativa_id:
         raise HTTPException(403, "No tienes acceso a este examen")
 
-    # Contar intentos previos
-    cnt_r = await db.execute(
-        select(func.count(IntentoExamen.id)).where(
+    # Reanudar intento en progreso si existe (recarga de página)
+    existing_r = await db.execute(
+        select(IntentoExamen).where(
             IntentoExamen.asignacion_id == asignacion_id,
             IntentoExamen.estudiante_id == current_user.id,
+            IntentoExamen.estado == "en_progreso",
         )
     )
-    num_intentos = cnt_r.scalar() or 0
-    if num_intentos >= asig.intentos_permitidos:
-        raise HTTPException(400, "Has agotado los intentos permitidos")
+    intento = existing_r.scalars().first()
 
-    # Crear intento
-    intento = IntentoExamen(
-        asignacion_id=asignacion_id,
-        estudiante_id=current_user.id,
-        numero_intento=num_intentos + 1,
-        estado="en_progreso",
-        fecha_inicio=datetime.now(timezone.utc),
-    )
-    db.add(intento)
-    await db.flush()
-    await db.refresh(intento)
+    if not intento:
+        # Solo contar intentos COMPLETADOS para verificar el límite
+        cnt_r = await db.execute(
+            select(func.count(IntentoExamen.id)).where(
+                IntentoExamen.asignacion_id == asignacion_id,
+                IntentoExamen.estudiante_id == current_user.id,
+                IntentoExamen.estado == "completado",
+            )
+        )
+        num_completados = cnt_r.scalar() or 0
+        if num_completados >= asig.intentos_permitidos:
+            raise HTTPException(400, "Has agotado los intentos permitidos")
+
+        # Contar todos los intentos para el número de secuencia
+        cnt_total_r = await db.execute(
+            select(func.count(IntentoExamen.id)).where(
+                IntentoExamen.asignacion_id == asignacion_id,
+                IntentoExamen.estudiante_id == current_user.id,
+            )
+        )
+        num_total = cnt_total_r.scalar() or 0
+
+        intento = IntentoExamen(
+            asignacion_id=asignacion_id,
+            estudiante_id=current_user.id,
+            numero_intento=num_total + 1,
+            estado="en_progreso",
+            fecha_inicio=datetime.now(timezone.utc),
+        )
+        db.add(intento)
+        await db.flush()
+        await db.refresh(intento)
 
     # Obtener preguntas desde la tabla normalizada
     if asig.tipo_examen == "lectura":
