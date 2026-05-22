@@ -412,7 +412,7 @@ onMounted(async () => {
         <aside v-show="isDesktop || mobileTab === 'config'" class="flex-1 lg:flex-none shrink-0 bg-white dark:bg-slate-800 rounded-xl flex flex-col overflow-hidden border border-slate-300 dark:border-slate-700 relative transition-all duration-200" :style="isDesktop ? { width: configCollapsed ? '88px' : col1Width + 'px' } : {}">
           <div class="h-14 px-3 border-b border-slate-300 dark:border-slate-700 flex items-center shrink-0" :class="configCollapsed ? 'justify-center' : 'justify-between'">
             <h2 v-show="!configCollapsed" class="text-sm font-medium text-slate-800 dark:text-white flex items-center gap-2 pl-1">Configuración</h2>
-            <button @click="configCollapsed = !configCollapsed" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors shrink-0 cursor-pointer" :title="configCollapsed ? 'Expandir' : 'Colapsar'">
+            <button v-if="isDesktop" @click="configCollapsed = !configCollapsed" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors shrink-0 cursor-pointer" :title="configCollapsed ? 'Expandir' : 'Colapsar'">
               <PanelLeft class="w-4 h-4" />
             </button>
           </div>

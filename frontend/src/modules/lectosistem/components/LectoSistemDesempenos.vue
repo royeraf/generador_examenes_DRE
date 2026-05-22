@@ -55,7 +55,7 @@ const getCapacidadLabel = (tipo: string): string => {
                     {{ selectedDesempenosCount }}
                 </span>
             </div>
-            <button @click="emit('toggle-collapse')" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors shrink-0 cursor-pointer" :title="collapsed ? 'Expandir' : 'Colapsar'">
+            <button @click="emit('toggle-collapse')" class="hidden lg:inline-flex p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors shrink-0 cursor-pointer" :title="collapsed ? 'Expandir' : 'Colapsar'">
                 <PanelRight class="w-4 h-4" />
             </button>
         </div>

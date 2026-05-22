@@ -169,7 +169,7 @@ watch(() => props.error, () => { errorDismissed.value = false; });
                             title="Deseleccionar todos (Global)">
                             <X class="w-3.5 h-3.5 transition-transform group-hover:rotate-90" />
                         </button>
-                        <button @click="emit('toggle-collapse')" class="p-1.5 rounded-full bg-white/10 hover:bg-white/25 text-white/80 hover:text-white transition-all duration-200 flex items-center justify-center border border-white/10 cursor-pointer" :title="collapsed ? 'Expandir' : 'Colapsar'">
+                        <button @click="emit('toggle-collapse')" class="hidden lg:flex p-1.5 rounded-full bg-white/10 hover:bg-white/25 text-white/80 hover:text-white transition-all duration-200 items-center justify-center border border-white/10 cursor-pointer" :title="collapsed ? 'Expandir' : 'Colapsar'">
                             <PanelRight class="w-3.5 h-3.5" />
                         </button>
                     </div>
