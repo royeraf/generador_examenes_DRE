@@ -3,8 +3,10 @@ import { formatFecha } from '../../shared/utils/dateUtils'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { apiClient } from '../../shared/services/api'
+import EstudianteNavbar from './components/EstudianteNavbar.vue'
+import { isSidebarCollapsed } from './composables/useStudentLayout'
 import {
-  GraduationCap, ChevronLeft, Loader2, AlertCircle, BarChart3,
+  Loader2, AlertCircle, BarChart3,
   BookOpen, Calculator, Target, TrendingUp, Calendar, Award
 } from 'lucide-vue-next'
 
@@ -48,28 +50,13 @@ const nivelLabels: Record<string, string> = {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500 font-sans selection:bg-teal-500/20">
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-all duration-300 font-sans selection:bg-teal-500/20"
+       :class="isSidebarCollapsed ? 'lg:pl-[84px]' : 'lg:pl-[280px]'">
 
-    <!-- Header -->
-    <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-300 dark:border-slate-800 sticky top-0 z-50 px-6">
-      <div class="max-w-4xl mx-auto h-20 flex items-center gap-4">
-        <button @click="router.push('/estudiante')"
-          class="w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-90">
-          <ChevronLeft class="w-6 h-6" />
-        </button>
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-            <GraduationCap class="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <h1 class="text-xl font-bold text-slate-900 dark:text-white leading-none">Mi Progreso</h1>
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Análisis de aprendizaje</p>
-          </div>
-        </div>
-      </div>
-    </header>
+    <!-- Unified Student Navbar -->
+    <EstudianteNavbar />
 
-    <main class="max-w-4xl mx-auto px-6 py-10 relative">
+    <main class="max-w-4xl mx-auto px-6 pt-8 pb-12 sm:pb-10 relative">
 
       <!-- Background Orbs -->
       <div class="fixed inset-0 pointer-events-none overflow-hidden opacity-40">

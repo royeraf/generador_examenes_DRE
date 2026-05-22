@@ -65,6 +65,7 @@ interface Revision {
   preguntas_total: number
   nivel_logro: string
   preguntas: PreguntaRevision[]
+  lecturas?: TextoLectura[]
 }
 
 const examen = ref<ExamenData | null>(null)
@@ -80,6 +81,8 @@ const intentoIdFinalizado = ref<number | null>(null)
 
 const mostrarModalRevision = ref(false)
 const preguntaRevisionActual = ref(0)
+const mostrarBottomSheet = ref(false)
+const tabLecturaSheet = ref(0)
 
 interface ConfettiParticle {
   id: number
@@ -212,13 +215,61 @@ function handleBeforeUnload(e: BeforeUnloadEvent) {
   e.returnValue = ''
 }
 
+// Bloquear copia, selección y menú contextual durante el examen
+function preventCopy(e: ClipboardEvent) {
+  if (examen.value && !resultado.value) {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+}
+
+function preventContextMenu(e: MouseEvent) {
+  if (examen.value && !resultado.value) {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+}
+
+function preventSelect(e: Event) {
+  if (examen.value && !resultado.value) {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+}
+
+function preventKeyDown(e: KeyboardEvent) {
+  if (examen.value && !resultado.value) {
+    const isCtrlOrCmd = e.ctrlKey || e.metaKey
+    const key = e.key.toLowerCase()
+    // Bloquear combinaciones: Ctrl/Cmd + C (Copiar), A (Seleccionar todo), U (Ver fuente), S (Guardar), P (Imprimir)
+    // También bloquear F12 (Herramientas de desarrollador) y PrintScreen (Captura de pantalla)
+    if (
+      (isCtrlOrCmd && ['c', 'a', 'u', 's', 'p'].includes(key)) ||
+      e.key === 'F12' ||
+      e.key === 'PrintScreen' ||
+      e.key === 'Snapshot'
+    ) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+  }
+}
+
 onMounted(() => {
   window.addEventListener('beforeunload', handleBeforeUnload)
+  document.addEventListener('copy', preventCopy)
+  document.addEventListener('contextmenu', preventContextMenu)
+  document.addEventListener('selectstart', preventSelect)
+  document.addEventListener('keydown', preventKeyDown)
 })
 
 onUnmounted(() => {
   if (timerInterval) clearInterval(timerInterval)
   window.removeEventListener('beforeunload', handleBeforeUnload)
+  document.removeEventListener('copy', preventCopy)
+  document.removeEventListener('contextmenu', preventContextMenu)
+  document.removeEventListener('selectstart', preventSelect)
+  document.removeEventListener('keydown', preventKeyDown)
 })
 
 function seleccionar(preguntaNum: number, letra: string) {
@@ -347,7 +398,7 @@ const nivelMensaje: Record<string, string> = {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500 font-sans selection:bg-teal-500/20">
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500 font-sans selection:bg-teal-500/20" :class="{ 'select-none': examen && !resultado, 'examen-activo': examen && !resultado }">
 
     <!-- Confetti -->
     <div v-if="resultado && confettis.length > 0" class="fixed inset-0 pointer-events-none overflow-hidden z-[100]">
@@ -491,22 +542,30 @@ const nivelMensaje: Record<string, string> = {
             </div>
 
             <!-- Header -->
-            <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/80 h-16 flex items-center shrink-0 px-6 justify-between relative z-10 shadow-sm">
-              <div class="flex items-center gap-4 min-w-0">
+            <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/80 h-16 flex items-center shrink-0 px-4 sm:px-6 justify-between relative z-10 shadow-sm">
+              <div class="flex items-center gap-2 sm:gap-4 min-w-0">
                 <button @click="mostrarModalRevision = false" 
-                  class="w-10 h-10 rounded-xl flex items-center justify-center text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer">
+                  class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer">
                   <X class="w-5 h-5" />
                 </button>
                 <div class="min-w-0">
-                  <h1 class="font-bold text-slate-900 dark:text-white text-base truncate leading-none mb-1">Revisión de Evaluación</h1>
-                  <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none">
+                  <h1 class="font-bold text-slate-900 dark:text-white text-sm sm:text-base truncate">Revisión de Evaluación</h1>
+                  <p class="hidden sm:block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mt-1">
                     Práctica y retroalimentación inteligente
                   </p>
                 </div>
               </div>
 
               <!-- Stats/Score Badge in Header -->
-              <div class="flex items-center gap-3">
+              <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+                <button v-if="revision.lecturas && revision.lecturas.length" @click="mostrarBottomSheet = true; tabLecturaSheet = 0"
+                  class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-teal-200 dark:border-teal-900 text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/40 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-xs font-bold shrink-0 cursor-pointer"
+                  title="Ver lecturas asociadas">
+                  <BookOpen class="w-4 h-4" />
+                  <span>Ver Texto</span>
+                </button>
+                <div v-if="revision.lecturas && revision.lecturas.length" class="hidden md:block w-px h-8 bg-slate-200 dark:bg-slate-800"></div>
+
                 <div class="hidden sm:flex flex-col items-end">
                   <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Logro obtenido</span>
                   <span class="text-sm font-black text-teal-600 dark:text-teal-400 leading-none mt-1">
@@ -515,7 +574,7 @@ const nivelMensaje: Record<string, string> = {
                 </div>
                 <div class="w-px h-8 bg-slate-200 dark:bg-slate-800 hidden sm:block"></div>
                 <span :class="nivelColors[resultado?.nivel_logro || ''] || 'bg-slate-100 text-slate-600'"
-                  class="px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border border-transparent">
+                  class="px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider border border-transparent">
                   {{ nivelLabels[resultado?.nivel_logro || ''] || '—' }}
                 </span>
               </div>
@@ -537,13 +596,18 @@ const nivelMensaje: Record<string, string> = {
                     
                     <!-- Card Header: Number, Level, Correctness -->
                     <div class="flex flex-wrap items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800/60">
-                      <div class="flex items-center gap-3">
-                        <span class="text-xs font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-3 py-1.5 rounded-xl border border-indigo-100/50 dark:border-indigo-900/30">
+                      <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+                        <span class="text-[10px] sm:text-xs font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-xl border border-indigo-100/50 dark:border-indigo-900/30">
                           Pregunta {{ activeRevisionPregunta.numero }} de {{ revision.preguntas.length }}
                         </span>
-                        <span v-if="activeRevisionPregunta.nivel" class="text-[10px] font-black text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-800 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                        <span v-if="activeRevisionPregunta.nivel" class="text-[9px] sm:text-[10px] font-black text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-800 px-2 py-1 rounded-full uppercase tracking-wider">
                           {{ activeRevisionPregunta.nivel }}
                         </span>
+                        <button v-if="revision.lecturas && revision.lecturas.length" @click="mostrarBottomSheet = true; tabLecturaSheet = 0"
+                          class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-teal-200 dark:border-teal-900 text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/40 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-[10px] font-black uppercase tracking-widest shrink-0 cursor-pointer">
+                          <BookOpen class="w-3.5 h-3.5" />
+                          <span>Ver Texto</span>
+                        </button>
                       </div>
 
                       <div class="flex items-center gap-2">
@@ -623,36 +687,146 @@ const nivelMensaje: Record<string, string> = {
             </div>
 
             <!-- Footer Navigation Bar -->
-            <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-3 px-4 sm:py-5 sm:px-6 shrink-0 relative z-10 shadow-lg">
-              <div class="max-w-3xl mx-auto flex items-center justify-between gap-2 sm:gap-4 w-full">
-
-                <button @click="anteriorRevision" :disabled="preguntaRevisionActual === 0"
-                  class="flex items-center justify-center gap-1.5 h-10 px-4 sm:px-6 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-40 font-bold text-xs sm:text-sm rounded-xl transition-all cursor-pointer select-none">
-                  <ChevronLeft class="w-4 h-4 shrink-0" />
-                  <span class="hidden sm:inline">Anterior</span>
-                </button>
-
-                <!-- Progress Dots (Desktop) / Counter (Mobile) -->
-                <div class="hidden sm:flex items-center gap-1.5">
-                  <button v-for="(p, idx) in revision.preguntas" :key="idx"
-                    @click="preguntaRevisionActual = idx"
-                    class="w-2.5 h-2.5 rounded-full transition-all duration-300 cursor-pointer"
-                    :class="idx === preguntaRevisionActual ? 'bg-gradient-to-r from-teal-500 to-indigo-600 scale-125 w-5' : p.es_correcta ? 'bg-emerald-500/40 hover:bg-emerald-500/60' : 'bg-rose-500/40 hover:bg-rose-500/60'"
-                    :title="'Pregunta ' + p.numero"
-                  />
+            <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-3.5 px-4 sm:py-4 sm:px-6 shrink-0 relative z-10 shadow-lg">
+              <div class="max-w-3xl mx-auto w-full flex flex-col gap-3">
+                
+                <!-- Top Row (Mobile only): Progress counter and Ver Texto -->
+                <div v-if="revision.lecturas && revision.lecturas.length" class="flex sm:hidden items-center justify-between w-full pb-2 border-b border-slate-100 dark:border-slate-800/60 animate-fade-in">
+                  <span class="px-3 py-1 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">
+                    Pregunta {{ preguntaRevisionActual + 1 }} de {{ revision.preguntas.length }}
+                  </span>
+                  
+                  <button @click="mostrarBottomSheet = true; tabLecturaSheet = 0"
+                    class="flex items-center gap-1.5 px-3 py-1 bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-900 text-teal-600 dark:text-teal-400 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all active:scale-95 shadow-sm shadow-teal-500/5 cursor-pointer">
+                    <BookOpen class="w-3.5 h-3.5 text-teal-500" />
+                    <span>Ver Texto</span>
+                  </button>
                 </div>
-                <span class="sm:hidden px-2.5 py-1 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-800 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">
-                  {{ preguntaRevisionActual + 1 }} / {{ revision.preguntas.length }}
-                </span>
 
-                <button @click="siguienteRevision"
-                  class="flex items-center justify-center gap-1.5 h-10 px-4 sm:px-6 bg-slate-900 dark:bg-white text-white dark:text-slate-900 active:scale-[0.98] font-bold text-xs sm:text-sm rounded-xl transition-all cursor-pointer shadow-md select-none">
-                  <span>{{ preguntaRevisionActual === revision.preguntas.length - 1 ? 'Finalizar' : 'Siguiente' }}</span>
-                  <ChevronRight class="w-4 h-4 shrink-0" />
-                </button>
+                <!-- Main Navigation Row -->
+                <div class="flex items-center justify-between gap-3 w-full">
+                  <button @click="anteriorRevision" :disabled="preguntaRevisionActual === 0"
+                    class="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 h-11 sm:h-10 px-4 sm:px-6 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-40 font-bold text-xs sm:text-sm rounded-xl transition-all cursor-pointer select-none">
+                    <ChevronLeft class="w-4 h-4 shrink-0" />
+                    <span>Anterior</span>
+                  </button>
+
+                  <!-- Progress Dots (Desktop) -->
+                  <div class="hidden sm:flex items-center gap-1.5">
+                    <button v-for="(p, idx) in revision.preguntas" :key="idx"
+                      @click="preguntaRevisionActual = idx"
+                      class="w-2.5 h-2.5 rounded-full transition-all duration-300 cursor-pointer"
+                      :class="idx === preguntaRevisionActual ? 'bg-gradient-to-r from-teal-500 to-indigo-600 scale-125 w-5' : p.es_correcta ? 'bg-emerald-500/40 hover:bg-emerald-500/60' : 'bg-rose-500/40 hover:bg-rose-500/60'"
+                      :title="'Pregunta ' + p.numero"
+                    />
+                  </div>
+
+                  <!-- Mobile only progress when there is NO reading (math) -->
+                  <span v-if="!revision.lecturas || !revision.lecturas.length" class="sm:hidden px-3 py-1 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">
+                    {{ preguntaRevisionActual + 1 }} / {{ revision.preguntas.length }}
+                  </span>
+
+                  <button @click="siguienteRevision"
+                    class="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 h-11 sm:h-10 px-4 sm:px-6 bg-slate-900 dark:bg-white text-white dark:text-slate-900 active:scale-[0.98] font-bold text-xs sm:text-sm rounded-xl transition-all cursor-pointer shadow-md select-none">
+                    <span>{{ preguntaRevisionActual === revision.preguntas.length - 1 ? 'Finalizar' : 'Siguiente' }}</span>
+                    <ChevronRight class="w-4 h-4 shrink-0" />
+                  </button>
+                </div>
 
               </div>
             </footer>
+
+          </div>
+        </Transition>
+      </Teleport>
+
+      <!-- Bottom Sheet for viewing texts -->
+      <Teleport to="body">
+        <Transition
+          enter-active-class="transition duration-300 ease-out"
+          enter-from-class="opacity-0"
+          enter-to-class="opacity-100"
+          leave-active-class="transition duration-200 ease-in"
+          leave-from-class="opacity-100"
+          leave-to-class="opacity-0"
+        >
+          <!-- Backdrop -->
+          <div v-if="mostrarBottomSheet && revision" 
+               @click="mostrarBottomSheet = false"
+               class="fixed inset-0 z-[100] bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm transition-opacity">
+          </div>
+        </Transition>
+
+        <Transition
+          enter-active-class="transition duration-300 ease-out transform"
+          enter-from-class="translate-y-full"
+          enter-to-class="translate-y-0"
+          leave-active-class="transition duration-200 ease-in transform"
+          leave-from-class="translate-y-0"
+          leave-to-class="translate-y-full"
+        >
+          <!-- Sheet container -->
+          <div v-if="mostrarBottomSheet && revision"
+               class="fixed bottom-0 inset-x-0 z-[101] bg-white dark:bg-slate-900 rounded-t-[2.5rem] border-t border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col max-h-[85vh] transition-all duration-300 select-none animate-slide-up">
+            
+            <!-- Handle gesture bar -->
+            <div class="py-3 flex justify-center shrink-0 cursor-pointer" @click="mostrarBottomSheet = false">
+              <div class="w-12 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full hover:bg-slate-400 dark:hover:bg-slate-600 transition-colors"></div>
+            </div>
+
+            <!-- Content Header -->
+            <div class="px-6 pb-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center">
+                  <BookOpen class="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">Lectura(s) de la Evaluación</h3>
+                  <p class="text-[10px] text-slate-500">Consulta los textos originales del examen rendido</p>
+                </div>
+              </div>
+              <button @click="mostrarBottomSheet = false"
+                class="w-8 h-8 rounded-full flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors cursor-pointer">
+                <X class="w-4 h-4" />
+              </button>
+            </div>
+
+            <!-- Tab Navigation if multiple texts exist -->
+            <div v-if="revision.lecturas && revision.lecturas.length > 1" 
+                 class="px-6 py-2 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20 shrink-0 overflow-x-auto flex items-center gap-2">
+              <button v-for="(lectura, idx) in revision.lecturas" :key="idx"
+                @click="tabLecturaSheet = idx"
+                class="shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer border border-slate-200 dark:border-slate-700"
+                :class="tabLecturaSheet === idx 
+                  ? 'bg-teal-500 border-teal-500 text-white shadow-sm font-bold' 
+                  : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'">
+                {{ lectura.titulo || `Texto ${idx + 1}` }}
+              </button>
+            </div>
+
+            <!-- Reading Content (Scrollable) -->
+            <div class="flex-1 overflow-y-auto p-6 text-slate-800 dark:text-slate-200 font-sans select-text">
+              <div v-if="revision.lecturas && revision.lecturas.length" class="max-w-3xl mx-auto">
+                <h4 v-if="revision.lecturas[tabLecturaSheet]?.titulo" 
+                    class="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-3 text-center">
+                  {{ revision.lecturas[tabLecturaSheet]?.titulo }}
+                </h4>
+                <div class="text-sm sm:text-base leading-relaxed whitespace-pre-wrap font-medium break-words text-justify">
+                  {{ revision.lecturas[tabLecturaSheet]?.texto }}
+                </div>
+              </div>
+              <div v-else class="text-center py-10 text-slate-500 dark:text-slate-400 text-sm">
+                No hay lecturas asociadas a esta evaluación.
+              </div>
+            </div>
+
+            <!-- Close bar at the very bottom -->
+            <div class="p-4 border-t border-slate-100 dark:border-slate-800 flex justify-end bg-slate-50 dark:bg-slate-950/40 shrink-0">
+              <button @click="mostrarBottomSheet = false"
+                class="px-5 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl text-xs sm:text-sm hover:opacity-90 active:scale-[0.97] transition-all cursor-pointer shadow-sm">
+                Cerrar Lectura
+              </button>
+            </div>
 
           </div>
         </Transition>
@@ -1034,5 +1208,11 @@ const nivelMensaje: Record<string, string> = {
 .card-fade-leave-to {
   opacity: 0;
   transform: translateY(-12px) scale(0.98);
+}
+
+@media print {
+  .examen-activo {
+    display: none !important;
+  }
 }
 </style>

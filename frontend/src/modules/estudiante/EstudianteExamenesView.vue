@@ -4,7 +4,9 @@ import { ref, shallowRef, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { apiClient } from '../../shared/services/api'
 import { useTheme } from '../../shared/composables/useTheme'
-import { BookOpen, GraduationCap, ChevronLeft, Loader2, Clock, CheckCircle2, AlertCircle, X, BookText, Calculator, ArrowRight, Zap, Target } from 'lucide-vue-next'
+import EstudianteNavbar from './components/EstudianteNavbar.vue'
+import { isSidebarCollapsed } from './composables/useStudentLayout'
+import { BookOpen, Loader2, Clock, CheckCircle2, AlertCircle, X, BookText, Calculator, ArrowRight, Zap, Target } from 'lucide-vue-next'
 
 const router = useRouter()
 useTheme()
@@ -119,7 +121,8 @@ const nivelLabels: Record<string, string> = {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500 font-sans">
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-all duration-300 font-sans"
+       :class="isSidebarCollapsed ? 'lg:pl-[84px]' : 'lg:pl-[280px]'">
     
     <!-- Premium Background Elements -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden">
@@ -127,23 +130,8 @@ const nivelLabels: Record<string, string> = {
       <div class="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[100px]"></div>
     </div>
 
-    <!-- Sticky Header -->
-    <header class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-300 dark:border-slate-800 shadow-sm">
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-        <div class="flex items-center gap-4">
-          <button @click="router.push('/estudiante')" 
-            class="w-10 h-10 rounded-xl flex items-center justify-center text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-300 dark:hover:border-slate-700">
-            <ChevronLeft class="w-6 h-6" />
-          </button>
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-teal-500/20">
-              <GraduationCap class="w-4.5 h-4.5 text-white" />
-            </div>
-            <h1 class="font-bold text-slate-900 dark:text-white text-base">Mis Evaluaciones</h1>
-          </div>
-        </div>
-      </div>
-    </header>
+    <!-- Unified Student Navbar -->
+    <EstudianteNavbar />
 
     <!-- Tabs -->
     <div class="sticky top-16 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 transition-all duration-300">
@@ -174,7 +162,7 @@ const nivelLabels: Record<string, string> = {
       </div>
     </div>
 
-    <main class="max-w-4xl mx-auto px-4 sm:px-6 py-8 relative">
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-8 pb-12 sm:pb-8 relative">
       <div v-if="loading" class="flex flex-col items-center justify-center py-20 gap-4">
         <Loader2 class="w-10 h-10 animate-spin text-teal-500" />
         <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Cargando exámenes...</p>

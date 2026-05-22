@@ -273,6 +273,7 @@ class ExamenService:
 
         lectura_texto = ""
         titulo_examen = ""
+        lecturas_out = []
         if asig.tipo_examen == "lectura":
             ex_r = await db.execute(select(ExamenLectura).where(ExamenLectura.id == asig.examen_id))
             examen = ex_r.scalars().first()
@@ -283,12 +284,18 @@ class ExamenService:
                     if examen.lecturas
                     else (examen.lectura or "")
                 )
+                if examen.lecturas:
+                    lecturas_out = [{"titulo": t.get("titulo", ""), "texto": t.get("texto", "")} for t in examen.lecturas]
+                elif examen.lectura:
+                    lecturas_out = [{"titulo": "Texto Principal", "texto": examen.lectura}]
         elif asig.tipo_examen == "matematica":
             ex_r = await db.execute(select(ExamenMatematica).where(ExamenMatematica.id == asig.examen_id))
             examen = ex_r.scalars().first()
             if examen:
                 titulo_examen = examen.titulo or ""
                 lectura_texto = examen.situacion_problematica or ""
+                if examen.situacion_problematica:
+                    lecturas_out = [{"titulo": "Situación Problemática", "texto": examen.situacion_problematica}]
 
         resp_r = await db.execute(select(RespuestaIntento).where(RespuestaIntento.intento_id == intento_id))
         respuestas = resp_r.scalars().all()
@@ -376,6 +383,7 @@ class ExamenService:
             "preguntas_total": intento.preguntas_total,
             "nivel_logro": intento.nivel_logro,
             "preguntas": preguntas_out,
+            "lecturas": lecturas_out,
         }
 
 

@@ -2,18 +2,18 @@
 import { ref, computed, onMounted, type Component } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
-import { useTheme } from '../../shared/composables/useTheme'
 import { apiClient } from '../../shared/services/api'
+import EstudianteNavbar from './components/EstudianteNavbar.vue'
+import { isSidebarCollapsed } from './composables/useStudentLayout'
 import {
   Trophy, Flame, Target, Sparkles,
-  BookOpen, Star, Sun, Moon, LogOut, Zap,
-  Rocket, GraduationCap, Sprout,
+  BookOpen, Star, Zap,
+  GraduationCap, Sprout,
   ChevronRight, BarChart3, Library,
 } from 'lucide-vue-next'
 
 const router = useRouter()
 const auth = useAuthStore()
-const { isDark, toggleTheme } = useTheme()
 
 interface ProgresoArea {
   area: string
@@ -114,7 +114,8 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500 overflow-x-hidden font-sans">
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-all duration-300 overflow-x-hidden font-sans"
+       :class="isSidebarCollapsed ? 'lg:pl-[84px]' : 'lg:pl-[280px]'">
 
     <!-- Premium Background Elements -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden">
@@ -122,33 +123,10 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
       <div class="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[100px]"></div>
     </div>
 
-    <!-- Sticky Header -->
-    <header class="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-300 dark:border-slate-800 shadow-sm">
-      <div class="max-w-3xl mx-auto px-6 h-16 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-indigo-600 flex items-center justify-center shadow-lg shadow-teal-500/20">
-            <Rocket class="w-5 h-5 text-white" />
-          </div>
-          <div class="flex flex-col">
-            <span class="font-bold text-slate-900 dark:text-white text-base tracking-tight leading-none">SIEVA</span>
-            <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-0.5">Estudiante</span>
-          </div>
-        </div>
-        <div class="flex items-center gap-2">
-          <button @click="toggleTheme()"
-            class="w-10 h-10 rounded-xl flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-300 dark:hover:border-slate-700">
-            <Sun v-if="isDark" class="w-5 h-5" />
-            <Moon v-else class="w-5 h-5" />
-          </button>
-          <button @click="auth.logout(); router.push('/login')"
-            class="w-10 h-10 rounded-xl flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all border border-transparent hover:border-red-100 dark:hover:border-red-900/30 ml-1">
-            <LogOut class="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-    </header>
+    <!-- Unified Student Navbar -->
+    <EstudianteNavbar />
 
-    <main class="max-w-3xl mx-auto px-6 py-8 relative">
+    <main class="max-w-3xl mx-auto px-6 pt-8 pb-12 sm:pb-8 relative">
 
       <!-- ── Hero Section ── -->
       <section class="relative mb-8 rounded-2xl overflow-hidden bg-gradient-to-br from-teal-500 via-indigo-500 to-purple-600 p-8 sm:p-10 shadow-2xl shadow-indigo-500/20 group">
