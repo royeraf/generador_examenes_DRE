@@ -17,7 +17,13 @@ elif "render.com" in DATABASE_URL:
     engine_kwargs = {"pool_pre_ping": True, "pool_size": 10, "max_overflow": 20}
 elif DATABASE_URL.startswith("mysql") or DATABASE_URL.startswith("mariadb"):
     connect_args = {"charset": "utf8mb4"}
-    engine_kwargs = {"pool_pre_ping": True, "pool_size": 10, "max_overflow": 20}
+    engine_kwargs = {
+        "pool_pre_ping": True,
+        "pool_size": 5,
+        "max_overflow": 10,
+        "pool_recycle": 1800,  # reciclar conexiones cada 30 min antes de que MySQL las cierre
+        "pool_timeout": 30,
+    }
 else:
     connect_args = {}
     engine_kwargs = {"pool_pre_ping": True, "pool_size": 10, "max_overflow": 20}

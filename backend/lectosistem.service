@@ -11,9 +11,11 @@ ExecStart=/home/__USER__/sieva_repo/backend/venv/bin/gunicorn \
     -w 2 \
     --bind 127.0.0.1:8000 \
     --timeout 120 \
+    --graceful-timeout 30 \
+    --keepalive 5 \
     app.main:app
 Restart=always
-RestartSec=5
+RestartSec=3
 EnvironmentFile=/home/__USER__/sieva_repo/backend/.env
 
 [Install]

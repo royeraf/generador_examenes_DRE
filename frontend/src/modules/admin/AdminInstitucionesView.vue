@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, onUnmounted } from 'vue'
+import { ref, onMounted, computed, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { organizacionService, type IECreatePayload } from '../../shared/services/api'
 import type { InstitucionEducativa, Ugel } from '../../shared/types'
 import Header from '../../shared/components/Header.vue'
 import EduBackground from '../../shared/components/EduBackground.vue'
 import { useTheme } from '../../shared/composables/useTheme'
-import { Plus, Edit2, Trash2, Loader2, AlertCircle, Search, X, Home, Building2, MapPin, ChevronDown } from 'lucide-vue-next'
+import { Plus, Edit2, Trash2, Loader2, AlertCircle, Search, X, Home, Building2, MapPin, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import Swal from 'sweetalert2'
 
 const router = useRouter()
@@ -72,6 +72,18 @@ const filtradas = computed(() =>
       )
     : instituciones.value
 )
+
+const PAGE_SIZE_OPTIONS = [10, 20, 50, 100]
+const currentPage = ref(1)
+const pageSize = ref(20)
+const totalPages = computed(() => Math.ceil(filtradas.value.length / pageSize.value))
+const paginadas = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  return filtradas.value.slice(start, start + pageSize.value)
+})
+
+watch(searchQuery, () => { currentPage.value = 1 })
+watch(pageSize, () => { currentPage.value = 1 })
 
 async function load() {
   loading.value = true
@@ -236,7 +248,7 @@ async function eliminar(ie: InstitucionEducativa) {
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-                <tr v-for="ie in filtradas" :key="ie.id" class="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors group">
+                <tr v-for="ie in paginadas" :key="ie.id" class="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors group">
                   <td class="p-5 font-mono font-black text-indigo-600 dark:text-indigo-400">{{ ie.codigo_modular }}</td>
                   <td class="p-5">
                     <div class="font-black text-slate-800 dark:text-white text-base tracking-tight">{{ ie.nombre }}</div>
@@ -282,11 +294,61 @@ async function eliminar(ie: InstitucionEducativa) {
               </tbody>
             </table>
           </div>
+
+          <!-- Pagination (desktop) -->
+          <div class="px-6 py-4 bg-slate-50 dark:bg-slate-700/30 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <!-- Left: count info + page size selector -->
+            <div class="flex items-center gap-4 flex-wrap">
+              <p class="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                Mostrando
+                <span class="font-bold text-slate-700 dark:text-slate-200">{{ filtradas.length === 0 ? 0 : (currentPage - 1) * pageSize + 1 }}</span>
+                –
+                <span class="font-bold text-slate-700 dark:text-slate-200">{{ Math.min(currentPage * pageSize, filtradas.length) }}</span>
+                de
+                <span class="font-bold text-slate-700 dark:text-slate-200">{{ filtradas.length }}</span>
+              </p>
+              <div class="flex items-center gap-1">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-1">Por página</span>
+                <button v-for="n in PAGE_SIZE_OPTIONS" :key="n" @click="pageSize = n"
+                  :class="['h-7 px-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer',
+                    pageSize === n
+                      ? 'bg-indigo-600 text-white shadow-sm'
+                      : 'bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-indigo-400 hover:text-indigo-600']">
+                  {{ n }}
+                </button>
+              </div>
+            </div>
+            <!-- Right: page navigation -->
+            <div v-if="totalPages > 1" class="flex items-center gap-1">
+              <button @click="currentPage--" :disabled="currentPage === 1"
+                class="p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
+                <ChevronLeft class="w-4 h-4" />
+              </button>
+              <div class="flex items-center gap-1 mx-1">
+                <template v-for="p in totalPages" :key="p">
+                  <button v-if="p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1"
+                    @click="currentPage = p"
+                    :class="['w-8 h-8 rounded-lg text-xs font-bold transition-all cursor-pointer',
+                      currentPage === p
+                        ? 'bg-gradient-to-r from-indigo-500 to-teal-600 text-white shadow-md scale-110'
+                        : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700']">
+                    {{ p }}
+                  </button>
+                  <span v-else-if="p === currentPage - 2 || p === currentPage + 2"
+                    class="w-8 h-8 flex items-center justify-center text-slate-400 text-xs">…</span>
+                </template>
+              </div>
+              <button @click="currentPage++" :disabled="currentPage === totalPages"
+                class="p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
+                <ChevronRight class="w-4 h-4" />
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Mobile Card View -->
         <div v-else class="space-y-4 pb-20">
-          <div v-for="ie in filtradas" :key="ie.id" 
+          <div v-for="ie in paginadas" :key="ie.id"
                class="bg-white dark:bg-slate-800 p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div class="flex justify-between items-start mb-4">
               <div class="space-y-1">
@@ -319,6 +381,49 @@ async function eliminar(ie: InstitucionEducativa) {
           <div v-if="filtradas.length === 0" class="py-20 text-center">
              <Building2 class="w-16 h-16 text-slate-200 dark:text-slate-700 mx-auto mb-4" />
              <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Sin instituciones</p>
+          </div>
+
+          <!-- Pagination (mobile) -->
+          <div class="bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 p-4 flex flex-col items-center gap-3">
+            <!-- Page size selector -->
+            <div class="flex items-center gap-1.5 w-full justify-center">
+              <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Por página</span>
+              <button v-for="n in PAGE_SIZE_OPTIONS" :key="n" @click="pageSize = n"
+                :class="['h-7 px-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer',
+                  pageSize === n
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400']">
+                {{ n }}
+              </button>
+            </div>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">
+              Página <span class="font-bold text-slate-700 dark:text-slate-200">{{ currentPage }}</span> de <span class="font-bold text-slate-700 dark:text-slate-200">{{ totalPages }}</span>
+              · <span class="font-bold text-slate-700 dark:text-slate-200">{{ filtradas.length }}</span> instituciones
+            </p>
+            <div v-if="totalPages > 1" class="flex items-center gap-2">
+              <button @click="currentPage--" :disabled="currentPage === 1"
+                class="p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
+                <ChevronLeft class="w-4 h-4" />
+              </button>
+              <div class="flex items-center gap-1">
+                <template v-for="p in totalPages" :key="p">
+                  <button v-if="p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1"
+                    @click="currentPage = p"
+                    :class="['w-9 h-9 rounded-xl text-xs font-bold transition-all cursor-pointer',
+                      currentPage === p
+                        ? 'bg-gradient-to-r from-indigo-500 to-teal-600 text-white shadow-md'
+                        : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700']">
+                    {{ p }}
+                  </button>
+                  <span v-else-if="p === currentPage - 2 || p === currentPage + 2"
+                    class="w-9 h-9 flex items-center justify-center text-slate-400 text-xs">…</span>
+                </template>
+              </div>
+              <button @click="currentPage++" :disabled="currentPage === totalPages"
+                class="p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
+                <ChevronRight class="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
