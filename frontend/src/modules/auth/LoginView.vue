@@ -38,7 +38,8 @@ const onSubmit = handleSubmit(async (formValues) => {
     loading.value = true;
     error.value = '';
     try {
-        await auth.login(formValues.identifier, formValues.password);
+        const cleanIdentifier = formValues.identifier.toUpperCase().trim();
+        await auth.login(cleanIdentifier, formValues.password);
         router.push(auth.homeRoute);
     } catch (e: any) {
         const detail = e.response?.data?.detail ?? ''
@@ -175,7 +176,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                                     v-model="identifierValue"
                                     type="text" 
                                     placeholder="DNI o Código"
-                                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-4 pl-12 pr-4 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all"
+                                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-4 pl-12 pr-4 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all uppercase placeholder:normal-case"
                                     :class="{'border-red-500/50': identifierError}"
                                 />
                             </div>
