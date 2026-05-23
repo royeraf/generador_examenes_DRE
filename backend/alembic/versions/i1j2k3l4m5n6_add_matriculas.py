@@ -71,13 +71,15 @@ def upgrade() -> None:
     op.execute("ALTER TABLE progreso_estudiante DROP FOREIGN KEY IF EXISTS fk_progreso_matricula")
     op.execute("ALTER TABLE progreso_estudiante DROP INDEX IF EXISTS uq_progreso_estudiante_area_anio")
 
-    # Solo intentar crear si no existe (MariaDB no tiene IF NOT EXISTS para constraints)
-    op.execute("""
-        ALTER TABLE progreso_estudiante
-            ADD CONSTRAINT IF NOT EXISTS uq_progreso_matricula_area UNIQUE (matricula_id, area),
-            ADD CONSTRAINT IF NOT EXISTS fk_progreso_matricula
-                FOREIGN KEY (matricula_id) REFERENCES matriculas(id) ON DELETE CASCADE
-    """)
+    # ADD CONSTRAINT IF NOT EXISTS no es soportado en MySQL/MariaDB — usar try/except
+    try:
+        op.execute("ALTER TABLE progreso_estudiante ADD UNIQUE KEY uq_progreso_matricula_area (matricula_id, area)")
+    except Exception:
+        pass
+    try:
+        op.execute("ALTER TABLE progreso_estudiante ADD CONSTRAINT fk_progreso_matricula FOREIGN KEY (matricula_id) REFERENCES matriculas(id) ON DELETE CASCADE")
+    except Exception:
+        pass
 
     op.execute("ALTER TABLE progreso_estudiante DROP COLUMN IF EXISTS `año_escolar`")
     op.execute("ALTER TABLE progreso_estudiante DROP COLUMN IF EXISTS `estudiante_id`")

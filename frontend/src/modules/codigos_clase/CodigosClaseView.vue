@@ -4,7 +4,7 @@ import { ref, onMounted } from 'vue'
 import { codigosClaseService, organizacionService, type CodigoClase, type CodigoClaseCreatePayload } from '../../shared/services/api'
 import type { Grado } from '../../shared/types'
 import Navbar from '../../shared/components/Navbar.vue'
-import { Plus, Trash2, ToggleLeft, ToggleRight, Copy, AlertCircle, Loader2, QrCode, X, Download, School } from 'lucide-vue-next'
+import { Plus, Copy, AlertCircle, Loader2, QrCode, X, Download, School } from 'lucide-vue-next'
 import Swal from 'sweetalert2'
 import QRCode from 'qrcode'
 const codigos = ref<CodigoClase[]>([])
@@ -63,6 +63,20 @@ async function crear() {
 }
 
 async function toggle(codigo: CodigoClase) {
+  const accion = codigo.is_active ? 'desactivar' : 'activar'
+  const { isConfirmed } = await Swal.fire({
+    title: `¿${accion.charAt(0).toUpperCase() + accion.slice(1)} aula?`,
+    text: codigo.is_active
+      ? 'Los estudiantes no podrán unirse con este código mientras esté inactivo.'
+      : 'El aula volverá a aceptar estudiantes con este código.',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: codigo.is_active ? '#f59e0b' : '#14b8a6',
+    cancelButtonColor: '#94a3b8',
+    confirmButtonText: accion.charAt(0).toUpperCase() + accion.slice(1),
+    cancelButtonText: 'Cancelar',
+  })
+  if (!isConfirmed) return
   try {
     const r = await codigosClaseService.toggle(codigo.id)
     codigo.is_active = r.is_active
@@ -71,25 +85,6 @@ async function toggle(codigo: CodigoClase) {
   }
 }
 
-async function eliminar(codigo: CodigoClase) {
-  const confirm = await Swal.fire({
-    title: '¿Eliminar código?',
-    text: `El código ${codigo.codigo} será eliminado permanentemente.`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#ef4444',
-    cancelButtonColor: '#94a3b8',
-    confirmButtonText: 'Eliminar',
-    cancelButtonText: 'Cancelar',
-  })
-  if (!confirm.isConfirmed) return
-  try {
-    await codigosClaseService.delete(codigo.id)
-    codigos.value = codigos.value.filter(c => c.id !== codigo.id)
-  } catch {
-    Swal.fire('Error', 'No se pudo eliminar', 'error')
-  }
-}
 
 function copiar(codigo: string) {
   navigator.clipboard.writeText(codigo)
@@ -218,8 +213,11 @@ function descargarQR() {
                 <QrCode class="w-4 h-4" />
                 <span>Ver QR</span>
               </button>
-              <button @click="eliminar(c)" class="p-2 text-red-500 bg-red-50 dark:bg-red-500/10 rounded-xl hover:bg-red-500 hover:text-white transition-all cursor-pointer">
-                <Trash2 class="w-4 h-4" />
+              <button @click="toggle(c)"
+                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 cursor-pointer focus:outline-none"
+                :class="c.is_active ? 'bg-teal-500' : 'bg-slate-300 dark:bg-slate-600'">
+                <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200"
+                  :class="c.is_active ? 'translate-x-6' : 'translate-x-1'" />
               </button>
             </div>
           </div>
@@ -263,9 +261,11 @@ function descargarQR() {
                 </div>
               </td>
               <td class="px-6 py-4 text-center">
-                <button @click="toggle(c)" class="hover:scale-110 transition-transform cursor-pointer">
-                  <ToggleRight v-if="c.is_active" class="w-8 h-8 text-teal-500" />
-                  <ToggleLeft v-else class="w-8 h-8 text-slate-300 dark:text-slate-700" />
+                <button @click="toggle(c)"
+                  class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 cursor-pointer focus:outline-none"
+                  :class="c.is_active ? 'bg-teal-500' : 'bg-slate-300 dark:bg-slate-600'">
+                  <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200"
+                    :class="c.is_active ? 'translate-x-6' : 'translate-x-1'" />
                 </button>
               </td>
               <td class="px-6 py-4 text-slate-500 dark:text-slate-400 font-medium">{{ formatFecha(c.fecha_creacion) }}</td>
@@ -273,9 +273,6 @@ function descargarQR() {
                 <div class="flex items-center justify-end gap-2">
                   <button @click="abrirQR(c)" class="p-2.5 bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 rounded-xl hover:bg-teal-500 hover:text-white transition-all shadow-sm cursor-pointer" title="Ver QR">
                     <QrCode class="w-5 h-5" />
-                  </button>
-                  <button @click="eliminar(c)" class="p-2.5 bg-red-50 dark:bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm cursor-pointer">
-                    <Trash2 class="w-5 h-5" />
                   </button>
                 </div>
               </td>

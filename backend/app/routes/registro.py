@@ -128,6 +128,45 @@ def _generar_codigo_clase() -> str:
     return "".join(random.choices(chars, k=8))
 
 
+async def _get_or_create_aula(
+    db: AsyncSession,
+    institucion_educativa_id: int,
+    grado_id: int,
+    seccion: str,
+    año_escolar: int,
+    creado_por_id: int,
+) -> CodigoClase:
+    result = await db.execute(
+        select(CodigoClase).where(
+            CodigoClase.institucion_educativa_id == institucion_educativa_id,
+            CodigoClase.grado_id == grado_id,
+            CodigoClase.seccion == seccion,
+            CodigoClase.año_escolar == año_escolar,
+        )
+    )
+    aula = result.scalars().first()
+    if aula:
+        return aula
+
+    for _ in range(10):
+        codigo = _generar_codigo_clase()
+        existing = await db.execute(select(CodigoClase).where(CodigoClase.codigo == codigo))
+        if not existing.scalars().first():
+            break
+
+    aula = CodigoClase(
+        codigo=codigo,
+        creado_por_id=creado_por_id,
+        institucion_educativa_id=institucion_educativa_id,
+        grado_id=grado_id,
+        seccion=seccion,
+        año_escolar=año_escolar,
+    )
+    db.add(aula)
+    await db.flush()
+    return aula
+
+
 async def _siguiente_codigo_estudiante(db: AsyncSession) -> str:
     result = await db.execute(
         select(func.max(Estudiante.codigo_estudiante)).where(
@@ -172,6 +211,38 @@ async def listar_codigos_clase(
         ie = await db.execute(select(InstitucionEducativa).where(InstitucionEducativa.id.in_(ie_ids)))
         ie_map = {i.id: i.nombre for i in ie.scalars().all()}
 
+    # Contar matriculas activas agrupadas por ie+grado+seccion+año en un solo query
+    estudiantes_map: dict = {}
+    if codigos:
+        from sqlalchemy import tuple_
+        claves = [(c.institucion_educativa_id, c.grado_id, c.seccion, c.año_escolar) for c in codigos]
+        cnt_r = await db.execute(
+            select(
+                Matricula.institucion_educativa_id,
+                Matricula.grado_id,
+                Matricula.seccion,
+                Matricula.año_escolar,
+                func.count(Matricula.id).label("total"),
+            )
+            .where(
+                tuple_(
+                    Matricula.institucion_educativa_id,
+                    Matricula.grado_id,
+                    Matricula.seccion,
+                    Matricula.año_escolar,
+                ).in_(claves),
+                Matricula.is_active == True,
+            )
+            .group_by(
+                Matricula.institucion_educativa_id,
+                Matricula.grado_id,
+                Matricula.seccion,
+                Matricula.año_escolar,
+            )
+        )
+        for row in cnt_r:
+            estudiantes_map[(row.institucion_educativa_id, row.grado_id, row.seccion, row.año_escolar)] = row.total
+
     return [
         CodigoClaseResponse(
             id=c.id, codigo=c.codigo,
@@ -180,7 +251,9 @@ async def listar_codigos_clase(
             is_active=c.is_active, fecha_creacion=c.fecha_creacion,
             fecha_expiracion=c.fecha_expiracion,
             institucion_nombre=ie_map.get(c.institucion_educativa_id),
-            total_estudiantes=0,
+            total_estudiantes=estudiantes_map.get(
+                (c.institucion_educativa_id, c.grado_id, c.seccion, c.año_escolar), 0
+            ),
         )
         for c in codigos
     ]
@@ -258,21 +331,6 @@ async def toggle_codigo_clase(
     return {"id": cc.id, "is_active": cc.is_active}
 
 
-@router.delete("/codigos-clase/{codigo_id}")
-async def eliminar_codigo_clase(
-    codigo_id: int,
-    db: AsyncSession = Depends(get_db),
-    current_user: Usuario = Depends(require_modulo("codigos_clase")),
-):
-    result = await db.execute(select(CodigoClase).where(CodigoClase.id == codigo_id))
-    cc = result.scalars().first()
-    if not cc:
-        raise HTTPException(404, "Código no encontrado")
-    if cc.creado_por_id != current_user.id and current_user.rol_codigo != RolCodigo.DIRECTOR:
-        raise HTTPException(403, "No tienes permiso")
-    await db.delete(cc)
-    await db.flush()
-    return {"ok": True}
 
 
 # ─── Auto-registro de estudiantes (público) ───────────────────────────────────
@@ -392,6 +450,16 @@ async def registrar_estudiante_directo(
             raise HTTPException(400, "DNI ya registrado en el sistema")
 
     codigo_estudiante = await _siguiente_codigo_estudiante(db)
+    año_escolar = data.año_escolar or datetime.now().year
+
+    await _get_or_create_aula(
+        db,
+        institucion_educativa_id=current_user.institucion_educativa_id,
+        grado_id=data.grado_id,
+        seccion=data.seccion,
+        año_escolar=año_escolar,
+        creado_por_id=current_user.id,
+    )
 
     estudiante = await estudiante_service.crear_estudiante(
         db,
@@ -404,7 +472,7 @@ async def registrar_estudiante_directo(
         codigo_estudiante=codigo_estudiante,
         grado_id=data.grado_id,
         seccion=data.seccion,
-        año_escolar=data.año_escolar,
+        año_escolar=año_escolar,
         ugel_id=current_user.ugel_id,
     )
     matricula = await get_matricula_activa(db, estudiante.id)
@@ -453,9 +521,20 @@ async def importar_estudiantes_desde_nomina(
     if existing_dnis:
         raise HTTPException(400, f"Los siguientes DNI ya están registrados: {', '.join(existing_dnis[:10])}")
 
+    año_escolar = data.año_escolar or datetime.now().year
+
+    await _get_or_create_aula(
+        db,
+        institucion_educativa_id=current_user.institucion_educativa_id,
+        grado_id=data.grado_id,
+        seccion=data.seccion.strip(),
+        año_escolar=año_escolar,
+        creado_por_id=current_user.id,
+    )
+
     creados = 0
     for fila in data.estudiantes:
-        estudiante = await estudiante_service.crear_estudiante(
+        await estudiante_service.crear_estudiante(
             db,
             dni=fila.dni.strip(),
             nombres=fila.nombres.strip(),
@@ -466,7 +545,7 @@ async def importar_estudiantes_desde_nomina(
             is_active=False,
             grado_id=data.grado_id,
             seccion=data.seccion.strip(),
-            año_escolar=data.año_escolar,
+            año_escolar=año_escolar,
             ugel_id=current_user.ugel_id,
         )
         creados += 1
