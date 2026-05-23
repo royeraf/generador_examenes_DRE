@@ -4,7 +4,7 @@ Centraliza calificación, mezcla, retroalimentación y construcción de revision
 """
 import json
 import random
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Optional
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -64,7 +64,10 @@ class ExamenService:
             return
         if not fecha_inicio or not fecha_fin:
             raise HTTPException(400, "Debes definir la fecha con hora de inicio y hora de fin")
-        if fecha_inicio.date() != fecha_fin.date():
+        TZ_PERU = timezone(timedelta(hours=-5))
+        inicio_peru = fecha_inicio.astimezone(TZ_PERU)
+        fin_peru = fecha_fin.astimezone(TZ_PERU)
+        if inicio_peru.date() != fin_peru.date():
             raise HTTPException(400, "El rango horario debe estar dentro de un solo día")
         if fecha_fin <= fecha_inicio:
             raise HTTPException(400, "La hora fin debe ser mayor que la hora inicio")

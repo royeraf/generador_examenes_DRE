@@ -12,7 +12,7 @@ from app.core.database import get_db
 from app.models.db_models import (
     AsignacionExamen, IntentoExamen, ProgresoEstudiante,
     ExamenLectura, ExamenMatematica,
-    PreguntaExamen, Rol, CodigoClase, Matricula,
+    PreguntaExamen, Rol, CodigoClase, Matricula, Grado,
 )
 from app.models.usuario import Usuario
 from app.models.estudiante import Estudiante
@@ -532,23 +532,25 @@ async def listar_asignaciones(
         completados = cnt_r.scalar() or 0
 
         titulo = None
-        grado_nombre = None
         if a.tipo_examen == "lectura":
-            r = await db.execute(
-                select(ExamenLectura.titulo, ExamenLectura.grado_nombre)
-                .where(ExamenLectura.id == a.examen_id)
-            )
-            row = r.first()
-            if row:
-                titulo, grado_nombre = row.titulo, row.grado_nombre
+            r = await db.execute(select(ExamenLectura.titulo).where(ExamenLectura.id == a.examen_id))
+            titulo = r.scalar()
         elif a.tipo_examen == "matematica":
-            r = await db.execute(
-                select(ExamenMatematica.titulo, ExamenMatematica.grado_nombre)
-                .where(ExamenMatematica.id == a.examen_id)
+            r = await db.execute(select(ExamenMatematica.titulo).where(ExamenMatematica.id == a.examen_id))
+            titulo = r.scalar()
+
+        # Nombre del grado al que se asignó (no el grado del examen)
+        grado_nombre = None
+        if a.grado_id:
+            gn = await db.execute(select(Grado.nombre).where(Grado.id == a.grado_id))
+            grado_nombre = gn.scalar()
+        elif a.codigo_clase_id:
+            gn = await db.execute(
+                select(Grado.nombre)
+                .join(CodigoClase, CodigoClase.grado_id == Grado.id)
+                .where(CodigoClase.id == a.codigo_clase_id)
             )
-            row = r.first()
-            if row:
-                titulo, grado_nombre = row.titulo, row.grado_nombre
+            grado_nombre = gn.scalar()
 
         # Nombre del creador (solo si no es el propio usuario)
         asignado_por_nombre = None

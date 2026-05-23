@@ -1054,9 +1054,6 @@ const nivelMensaje: Record<string, string> = {
 
                 <div class="relative">
                   <div class="flex items-center gap-3 mb-4 sm:mb-6">
-                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-indigo-500 flex items-center justify-center text-white font-black text-sm sm:text-base shadow-md shadow-indigo-500/20">
-                      {{ preguntaVisible.numero }}
-                    </div>
                     <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Pregunta de Evaluación</span>
                   </div>
 

@@ -524,16 +524,6 @@ const estadoColors: Record<string, string> = {
             <div class="flex-1 min-h-0 overflow-y-auto p-0 custom-scrollbar bg-slate-50/30 dark:bg-slate-900/10">
 
               <div class="p-8 space-y-10">
-                <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="transform -translate-y-2 opacity-0" enter-to-class="transform translate-y-0 opacity-100">
-                  <div v-if="modalError"
-                    class="flex items-start gap-4 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 p-5 rounded-2xl text-sm border border-red-100 dark:border-red-500/20 shadow-sm">
-                    <AlertCircle class="w-6 h-6 shrink-0" /> 
-                    <div class="flex-1">
-                      <p class="font-black mb-1">Hubo un problema</p>
-                      <p class="font-medium opacity-90">{{ modalError }}</p>
-                    </div>
-                  </div>
-                </Transition>
 
                 <!-- SECCIÓN 1: EVALUACIÓN (Solo en creación) -->
                 <section v-if="!isEditing" class="space-y-6">
@@ -844,7 +834,14 @@ const estadoColors: Record<string, string> = {
             </div>
 
             <!-- Footer -->
-            <div class="px-8 py-6 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-300 dark:border-slate-800 flex flex-col sm:flex-row gap-4 shrink-0">
+            <div class="px-8 py-6 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-300 dark:border-slate-800 flex flex-col gap-3 shrink-0">
+              <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="-translate-y-1 opacity-0" enter-to-class="translate-y-0 opacity-100">
+                <div v-if="modalError" class="flex items-center gap-3 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 px-4 py-3 rounded-xl text-xs border border-red-100 dark:border-red-500/20">
+                  <AlertCircle class="w-4 h-4 shrink-0" />
+                  <span class="font-bold">{{ modalError }}</span>
+                </div>
+              </Transition>
+              <div class="flex flex-col sm:flex-row gap-4">
               <button @click="closeModal()"
                 class="flex-1 px-6 py-4 text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-2xl transition-colors">
                 Cancelar
@@ -855,6 +852,7 @@ const estadoColors: Record<string, string> = {
                 <Save v-else class="w-5 h-5" />
                 <span>{{ isEditing ? 'Actualizar Evaluación' : 'Confirmar Asignación' }}</span>
               </button>
+              </div>
             </div>
 
           </div>
