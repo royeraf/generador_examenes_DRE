@@ -42,6 +42,15 @@ export interface InstitucionEducativa {
   fecha_creacion?: string | null
 }
 
+export interface Matricula {
+  id: number
+  año_escolar: number
+  grado_id: number
+  grado_nombre: string | null
+  seccion: string
+  is_active: boolean
+}
+
 export interface Usuario {
   id: number
   dni: string | null
@@ -55,13 +64,10 @@ export interface Usuario {
   distrito_id: number | null
   ugel_id: number | null
   institucion_educativa_id: number | null
-  grado_id: number | null
-  seccion: string | null
   provincia_nombre: string | null
   distrito_nombre: string | null
   ugel_nombre: string | null
   institucion_nombre: string | null
-  grado_nombre: string | null
   is_active: boolean
   rol_codigo: RolCodigo | null
   creado_por_id: number | null
@@ -69,6 +75,7 @@ export interface Usuario {
   ultimo_acceso: string | null
   permisos_modulos: string[] | null
   modulos_efectivos?: string[]
+  matricula_activa?: Matricula | null
 }
 
 // Alias de compatibilidad

@@ -145,10 +145,10 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
             <h1 class="text-3xl sm:text-4xl font-bold text-white mt-1 leading-tight">{{ firstName }}!</h1>
 
             <div class="flex items-center gap-2 mt-4 flex-wrap">
-              <span v-if="auth.user?.grado_nombre"
+              <span v-if="auth.user?.matricula_activa?.grado_nombre"
                 class="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1.5 rounded-full border border-white/20 uppercase tracking-wider">
                 <GraduationCap class="w-3.5 h-3.5" />
-                {{ auth.user.grado_nombre }} <span v-if="auth.user?.seccion" class="opacity-50 mx-1">|</span> {{ auth.user?.seccion }}
+                {{ auth.user.matricula_activa.grado_nombre }} <span v-if="auth.user.matricula_activa.seccion" class="opacity-50 mx-1">|</span> {{ auth.user.matricula_activa.seccion }}
               </span>
               <span class="inline-flex items-center gap-2 bg-slate-900/20 backdrop-blur-md text-white/90 text-[10px] font-mono font-bold px-3 py-1.5 rounded-full border border-white/10 tracking-widest">
                 ID: {{ auth.user?.codigo_estudiante }}

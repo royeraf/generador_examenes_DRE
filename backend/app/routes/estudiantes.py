@@ -12,12 +12,14 @@ from app.core.database import get_db
 from app.models.db_models import (
     AsignacionExamen, IntentoExamen, ProgresoEstudiante,
     ExamenLectura, ExamenMatematica,
-    PreguntaExamen, Rol, CodigoClase,
+    PreguntaExamen, Rol, CodigoClase, Matricula,
 )
 from app.models.usuario import Usuario
+from app.models.estudiante import Estudiante
 from app.models.enums import RolCodigo
 from app.api.dependencies import get_estudiante_user, get_current_active_user, require_role, require_modulo
 from app.services.examen_service import examen_service
+from app.services.matricula_service import get_matricula_activa
 
 router = APIRouter()
 
@@ -44,6 +46,7 @@ class AsignarExamenRequest(BaseModel):
     codigo_clase_id: Optional[int] = None  # FK a codigos_clase; si se provee, grado_id+seccion se auto-pueblan
     grado_id: Optional[int] = None
     seccion: Optional[str] = None
+    año_escolar: Optional[int] = None  # default: año actual
     fecha_inicio: Optional[datetime] = None
     fecha_fin: Optional[datetime] = None
     duracion_minutos: Optional[int] = None
@@ -113,17 +116,22 @@ async def listar_examenes_estudiante(
     current_user: Usuario = Depends(get_estudiante_user),
 ):
     """Lista los exámenes asignados al estudiante."""
+    matricula = await get_matricula_activa(db, current_user.id)
     ahora = datetime.now(timezone.utc)
     q = select(AsignacionExamen).where(
         AsignacionExamen.is_active == True,
         AsignacionExamen.institucion_educativa_id == current_user.institucion_educativa_id,
         or_(
+            AsignacionExamen.año_escolar == None,
+            AsignacionExamen.año_escolar == (matricula.año_escolar if matricula else datetime.now().year),
+        ),
+        or_(
             AsignacionExamen.grado_id == None,
-            AsignacionExamen.grado_id == current_user.grado_id,
+            AsignacionExamen.grado_id == (matricula.grado_id if matricula else None),
         ),
         or_(
             AsignacionExamen.seccion == None,
-            AsignacionExamen.seccion == current_user.seccion,
+            AsignacionExamen.seccion == (matricula.seccion if matricula else None),
         ),
         or_(
             AsignacionExamen.fecha_inicio == None,
@@ -411,8 +419,16 @@ async def progreso_estudiante(
     db: AsyncSession = Depends(get_db),
     current_user: Usuario = Depends(get_estudiante_user),
 ):
+    matricula_activa_r = await db.execute(
+        select(Matricula.id).where(
+            Matricula.estudiante_id == current_user.id,
+            Matricula.is_active == True,
+        ).limit(1)
+    )
+    matricula_id = matricula_activa_r.scalar()
     result = await db.execute(
-        select(ProgresoEstudiante).where(ProgresoEstudiante.estudiante_id == current_user.id)
+        select(ProgresoEstudiante).where(ProgresoEstudiante.matricula_id == matricula_id)
+        if matricula_id else select(ProgresoEstudiante).where(False)
     )
     progresos = result.scalars().all()
     return [
@@ -459,6 +475,7 @@ async def asignar_examen(
         codigo_clase_id=codigo_clase_id,
         grado_id=grado_id,
         seccion=seccion,
+        año_escolar=data.año_escolar or datetime.now().year,
         fecha_inicio=data.fecha_inicio,
         fecha_fin=data.fecha_fin,
         duracion_minutos=data.duracion_minutos,
@@ -608,23 +625,24 @@ async def resultados_asignacion(
         if intento.estudiante_id not in ultimo_intento_por_estudiante:
             ultimo_intento_por_estudiante[intento.estudiante_id] = intento
 
-    rol_estudiante_r = await db.execute(
-        select(Rol.id).where(Rol.codigo == RolCodigo.ESTUDIANTE.value)
+    from sqlalchemy import and_
+    estudiantes_q = (
+        select(Estudiante)
+        .join(Matricula, and_(
+            Matricula.estudiante_id == Estudiante.id,
+            Matricula.is_active == True,
+        ))
+        .where(Estudiante.institucion_educativa_id == asig.institucion_educativa_id)
     )
-    rol_estudiante_id = rol_estudiante_r.scalar()
-
-    estudiantes_q = select(Usuario).where(
-        Usuario.institucion_educativa_id == asig.institucion_educativa_id,
-    )
-    if rol_estudiante_id:
-        estudiantes_q = estudiantes_q.where(Usuario.rol_id == rol_estudiante_id)
     if asig.grado_id is not None:
-        estudiantes_q = estudiantes_q.where(Usuario.grado_id == asig.grado_id)
+        estudiantes_q = estudiantes_q.where(Matricula.grado_id == asig.grado_id)
     if asig.seccion is not None:
-        estudiantes_q = estudiantes_q.where(Usuario.seccion == asig.seccion)
+        estudiantes_q = estudiantes_q.where(Matricula.seccion == asig.seccion)
+    if asig.año_escolar is not None:
+        estudiantes_q = estudiantes_q.where(Matricula.año_escolar == asig.año_escolar)
 
     estudiantes_r = await db.execute(
-        estudiantes_q.order_by(Usuario.apellidos, Usuario.nombres)
+        estudiantes_q.order_by(Estudiante.apellidos, Estudiante.nombres)
     )
     estudiantes = estudiantes_r.scalars().all()
 

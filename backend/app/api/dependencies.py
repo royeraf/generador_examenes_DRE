@@ -7,9 +7,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.security import settings
 from app.repositories.usuario_repository import usuario_repository
+from app.repositories.estudiante_repository import estudiante_repository
 from app.models.usuario import Usuario
+from app.models.estudiante import Estudiante
 from app.models.enums import RolCodigo
 from app.schemas.token import TokenPayload
+from typing import Union
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
@@ -17,8 +20,8 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 async def get_current_user(
     db: AsyncSession = Depends(get_db),
     token: str = Depends(oauth2_scheme),
-) -> Usuario:
-    """Obtiene el usuario autenticado a partir del JWT."""
+) -> Union[Usuario, Estudiante]:
+    """Obtiene el usuario autenticado. Usa el campo 'rol' del JWT para enrutar a la tabla correcta."""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -28,14 +31,18 @@ async def get_current_user(
     try:
         payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
         sub: str = payload.get("sub")
+        rol: str = payload.get("rol", "")
         if sub is None:
             raise credentials_exception
         token_data = TokenPayload(sub=sub)
     except JWTError:
         raise credentials_exception
 
-    # sub puede ser DNI o código de estudiante
-    user = await usuario_repository.get_by_login(db, identifier=token_data.sub)
+    if rol == RolCodigo.ESTUDIANTE:
+        user = await estudiante_repository.get_by_login(db, identifier=token_data.sub)
+    else:
+        user = await usuario_repository.get_by_login(db, identifier=token_data.sub)
+
     if user is None:
         raise credentials_exception
 
@@ -115,7 +122,13 @@ get_docente_user = require_role(
     RolCodigo.RESPONSABLE_UGEL,
 )
 
-get_estudiante_user = require_role(RolCodigo.ESTUDIANTE)
+async def get_estudiante_user(
+    current_user: Union[Usuario, Estudiante] = Depends(get_current_active_user),
+) -> Estudiante:
+    """Dependency que garantiza que el usuario autenticado es un Estudiante."""
+    if not isinstance(current_user, Estudiante):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Permisos insuficientes")
+    return current_user
 
 
 def require_modulo(modulo: str) -> Callable:

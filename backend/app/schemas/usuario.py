@@ -3,6 +3,18 @@ from datetime import datetime
 from pydantic import BaseModel, Field, model_validator
 
 
+class MatriculaSchema(BaseModel):
+    id: int
+    año_escolar: int
+    grado_id: int
+    grado_nombre: Optional[str] = None
+    seccion: str
+    is_active: bool
+
+    class Config:
+        from_attributes = True
+
+
 class UsuarioBase(BaseModel):
     nombres: Optional[str] = None
     apellidos: Optional[str] = None
@@ -13,8 +25,6 @@ class UsuarioBase(BaseModel):
     distrito_id: Optional[int] = None
     ugel_id: Optional[int] = None
     institucion_educativa_id: Optional[int] = None
-    grado_id: Optional[int] = None
-    seccion: Optional[str] = None
     is_active: Optional[bool] = True
     permisos_modulos: Optional[List[str]] = None
 
@@ -24,10 +34,13 @@ class UsuarioAdminCreate(UsuarioBase):
     dni: Optional[str] = Field(None, min_length=8, max_length=8, pattern=r"^\d{8}$")
     rol_codigo: str
     password: str = Field(..., min_length=4, max_length=72)
+    # Solo para estudiantes — se usan para crear la Matricula inicial
+    grado_id: Optional[int] = None
+    seccion: Optional[str] = None
+    año_escolar: Optional[int] = None
 
     @model_validator(mode="after")
     def validar_identificacion(self):
-        # Al menos DNI o será generado código de estudiante automáticamente
         return self
 
 
@@ -42,18 +55,20 @@ class UsuarioUpdate(BaseModel):
     distrito_id: Optional[int] = None
     ugel_id: Optional[int] = None
     institucion_educativa_id: Optional[int] = None
-    grado_id: Optional[int] = None
-    seccion: Optional[str] = None
     is_active: Optional[bool] = None
     rol_codigo: Optional[str] = None
     password: Optional[str] = Field(None, min_length=4, max_length=72)
     permisos_modulos: Optional[List[str]] = None
+    # Solo para estudiantes — actualizan la Matricula activa
+    grado_id: Optional[int] = None
+    seccion: Optional[str] = None
+    año_escolar: Optional[int] = None
 
 
 class UsuarioInDBBase(UsuarioBase):
     id: int
     dni: Optional[str] = None
-    codigo_estudiante: Optional[str] = None
+    codigo_estudiante: Optional[str] = None  # siempre None para staff; None por compatibilidad
     rol_codigo: Optional[str] = None
 
     class Config:
@@ -68,15 +83,15 @@ class Usuario(UsuarioInDBBase):
     distrito_nombre: Optional[str] = None
     ugel_nombre: Optional[str] = None
     institucion_nombre: Optional[str] = None
-    grado_nombre: Optional[str] = None
     modulos_efectivos: Optional[List[str]] = None
+    matricula_activa: Optional[MatriculaSchema] = None
 
 
 class UsuarioInDB(UsuarioInDBBase):
     password_hash: str
 
 
-# Alias de compatibilidad para código que todavía usa el schema "Docente"
+# Aliases de compatibilidad
 Docente = Usuario
 DocenteAdminCreate = UsuarioAdminCreate
 DocenteUpdate = UsuarioUpdate

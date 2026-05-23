@@ -291,6 +291,10 @@ async def create_docente(
     current_user: DocenteModel = Depends(get_gestor)
 ):
     """Crear un nuevo usuario. Valida jerarquía de roles."""
+    rol = RolCodigo(current_user.rol_codigo)
+    if rol == RolCodigo.DIRECTOR:
+        docente_in.institucion_educativa_id = current_user.institucion_educativa_id
+        docente_in.ugel_id = current_user.ugel_id
     try:
         return await docente_service.create_usuario(
             db, docente_in,
@@ -443,7 +447,7 @@ async def get_metricas(
     top_docentes = sorted([
         {
             'id': d.id,
-            'nombre': f"{d.nombres or ''} {d.apellidos or ''}".strip() or d.dni or d.codigo_estudiante,
+            'nombre': f"{d.nombres or ''} {d.apellidos or ''}".strip() or d.dni,
             'dni': d.dni,
             'institucion': d.institucion_nombre or '—',
             'lectura': top_lec.get(d.id, 0),

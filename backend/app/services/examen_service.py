@@ -220,9 +220,20 @@ class ExamenService:
         intento.nivel_logro = nivel_logro
 
         area = "comunicacion" if asig.tipo_examen == "lectura" else "matematica"
+        from app.services.matricula_service import get_matricula_activa
+        matricula = await get_matricula_activa(db, intento.estudiante_id)
+        if not matricula:
+            # Sin matrícula no se puede registrar progreso
+            await db.flush()
+            return {
+                "puntaje_total": puntaje,
+                "preguntas_correctas": correctas,
+                "preguntas_total": total,
+                "nivel_logro": nivel_logro,
+            }
         progreso_r = await db.execute(
             select(ProgresoEstudiante).where(
-                ProgresoEstudiante.estudiante_id == intento.estudiante_id,
+                ProgresoEstudiante.matricula_id == matricula.id,
                 ProgresoEstudiante.area == area,
             )
         )
@@ -236,7 +247,7 @@ class ExamenService:
             progreso.ultima_actividad = datetime.now(timezone.utc)
         else:
             db.add(ProgresoEstudiante(
-                estudiante_id=intento.estudiante_id,
+                matricula_id=matricula.id,
                 area=area,
                 total_examenes_completados=1,
                 puntaje_promedio=puntaje,

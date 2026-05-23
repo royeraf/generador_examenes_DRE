@@ -13,6 +13,9 @@ Estructura de módulos:
 
 from fastapi import APIRouter
 
+# Asegurar que todos los modelos estén registrados en SQLAlchemy
+import app.models.estudiante  # noqa: F401
+
 # Importar routers existentes (manteniendo compatibilidad)
 from app.routes.preguntas import router as preguntas_router
 from app.routes.lectosistem import router as lectosistem_router

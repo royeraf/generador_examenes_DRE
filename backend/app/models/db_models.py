@@ -118,6 +118,31 @@ class InstitucionNivel(Base):
         return f"<InstitucionNivel ie={self.institucion_id} nivel={self.nivel}>"
 
 
+class Matricula(Base):
+    """Inscripción de un estudiante en un grado/sección/año escolar. Una fila por año."""
+    __tablename__ = "matriculas"
+
+    id = Column(Integer, primary_key=True, index=True)
+    estudiante_id = Column(Integer, ForeignKey("estudiantes.id", ondelete="CASCADE"), nullable=False)
+    año_escolar = Column(Integer, nullable=False)
+    grado_id = Column(Integer, ForeignKey("grados.id"), nullable=False)
+    seccion = Column(String(10), nullable=False)
+    institucion_educativa_id = Column(Integer, ForeignKey("instituciones_educativas.id"), nullable=False)
+    ugel_id = Column(Integer, ForeignKey("ugeles.id", ondelete="SET NULL"), nullable=True)
+    is_active = Column(Boolean, default=True)
+    fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
+
+    __table_args__ = (
+        UniqueConstraint("estudiante_id", "año_escolar", name="uq_matricula_estudiante_anio"),
+    )
+
+    grado = relationship("Grado")
+    institucion_educativa = relationship("InstitucionEducativa")
+
+    def __repr__(self):
+        return f"<Matricula estudiante={self.estudiante_id} {self.año_escolar} grado={self.grado_id} {self.seccion}>"
+
+
 class CodigoClase(Base):
     """Códigos generados por docentes/directores para auto-registro de estudiantes."""
     __tablename__ = "codigos_clase"
@@ -128,6 +153,7 @@ class CodigoClase(Base):
     institucion_educativa_id = Column(Integer, ForeignKey("instituciones_educativas.id"), nullable=False)
     grado_id = Column(Integer, ForeignKey("grados.id"), nullable=False)
     seccion = Column(String(10), nullable=False)
+    año_escolar = Column(Integer, nullable=False, default=lambda: __import__('datetime').datetime.now().year)
     max_estudiantes = Column(Integer, default=40)
     is_active = Column(Boolean, default=True)
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
@@ -136,6 +162,10 @@ class CodigoClase(Base):
     creado_por = relationship("Usuario", foreign_keys=[creado_por_id])
     institucion_educativa = relationship("InstitucionEducativa")
     grado = relationship("Grado")
+
+    __table_args__ = (
+        UniqueConstraint("institucion_educativa_id", "grado_id", "seccion", "año_escolar", name="uq_aula_ie_grado_seccion_anio"),
+    )
 
     def __repr__(self):
         return f"<CodigoClase {self.codigo} grado={self.grado_id} seccion={self.seccion}>"
@@ -357,6 +387,7 @@ class AsignacionExamen(Base):
     codigo_clase_id = Column(Integer, ForeignKey("codigos_clase.id", ondelete="SET NULL"), nullable=True)
     grado_id = Column(Integer, ForeignKey("grados.id"), nullable=True)
     seccion = Column(String(10), nullable=True)  # None = todas las secciones
+    año_escolar = Column(Integer, nullable=True, default=lambda: __import__('datetime').datetime.now().year)
 
     fecha_inicio = Column(DateTime(timezone=True), nullable=True)
     fecha_fin = Column(DateTime(timezone=True), nullable=True)
@@ -388,7 +419,7 @@ class IntentoExamen(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     asignacion_id = Column(Integer, ForeignKey("asignaciones_examen.id"), nullable=False)
-    estudiante_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+    estudiante_id = Column(Integer, ForeignKey("estudiantes.id"), nullable=False)
 
     numero_intento = Column(Integer, nullable=False, default=1)
     estado = Column(String(20), nullable=False, default="pendiente")  # EstadoIntento enum values
@@ -408,7 +439,7 @@ class IntentoExamen(Base):
     )
 
     asignacion = relationship("AsignacionExamen", back_populates="intentos")
-    estudiante = relationship("Usuario", foreign_keys=[estudiante_id])
+    estudiante = relationship("Estudiante", foreign_keys=[estudiante_id])
 
     def __repr__(self):
         return f"<IntentoExamen id={self.id} estudiante={self.estudiante_id} estado={self.estado}>"
@@ -419,7 +450,7 @@ class ProgresoEstudiante(Base):
     __tablename__ = "progreso_estudiante"
 
     id = Column(Integer, primary_key=True, index=True)
-    estudiante_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+    matricula_id = Column(Integer, ForeignKey("matriculas.id", ondelete="CASCADE"), nullable=False)
     area = Column(String(20), nullable=False)  # "comunicacion" o "matematica"
 
     total_examenes_completados = Column(Integer, default=0)
@@ -430,13 +461,13 @@ class ProgresoEstudiante(Base):
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
 
     __table_args__ = (
-        UniqueConstraint("estudiante_id", "area", name="uq_progreso_estudiante_area"),
+        UniqueConstraint("matricula_id", "area", name="uq_progreso_matricula_area"),
     )
 
-    estudiante = relationship("Usuario", foreign_keys=[estudiante_id])
+    matricula = relationship("Matricula")
 
     def __repr__(self):
-        return f"<ProgresoEstudiante estudiante={self.estudiante_id} area={self.area}>"
+        return f"<ProgresoEstudiante matricula={self.matricula_id} area={self.area}>"
 
 
 # =============================================================================

@@ -187,11 +187,11 @@ const userInitials = computed(() => {
 
             <!-- Collapsible panel -->
             <div v-show="isProfileExpanded" class="mt-3 space-y-2.5">
-              <div v-if="auth.user?.grado_nombre" class="flex items-start gap-2.5">
+              <div v-if="auth.user?.matricula_activa?.grado_nombre" class="flex items-start gap-2.5">
                 <GraduationCap class="w-4 h-4 text-slate-400 dark:text-slate-500 mt-0.5 shrink-0" />
                 <div class="text-[11px] leading-tight">
                   <p class="font-extrabold text-slate-400 uppercase tracking-wider text-[8px]">Grado y Sección</p>
-                  <p class="font-bold text-slate-700 dark:text-slate-300 mt-0.5">{{ auth.user.grado_nombre }} - "{{ auth.user.seccion || 'A' }}"</p>
+                  <p class="font-bold text-slate-700 dark:text-slate-300 mt-0.5">{{ auth.user.matricula_activa.grado_nombre }} - "{{ auth.user.matricula_activa.seccion || 'A' }}"</p>
                 </div>
               </div>
 

@@ -73,6 +73,7 @@ entity "CodigoClase" as codigos_clase {
   *institucion_educativa_id : Integer <<FK>>
   *grado_id : Integer <<FK>>
   *seccion : String(10)
+  *año_escolar : Integer
   *max_estudiantes : Integer
   *is_active : Boolean
   *fecha_creacion : DateTime
@@ -80,14 +81,13 @@ entity "CodigoClase" as codigos_clase {
 }
 
 ' ==================================================
-' USUARIOS
+' USUARIOS (Staff: DRE, UGEL, Director, Auxiliar, Docente)
 ' ==================================================
 
 entity "Usuario" as usuarios {
   *id : Integer <<generated>>
   --
   dni : String(8) <<unique>>
-  codigo_estudiante : String(10) <<unique>>
   nombres : String(100)
   apellidos : String(100)
   profesion : String(100)
@@ -98,14 +98,45 @@ entity "Usuario" as usuarios {
   *rol_id : Integer <<FK>>
   ugel_id : Integer <<FK>>
   institucion_educativa_id : Integer <<FK>>
-  grado_id : Integer <<FK>>
-  seccion : String(10)
   provincia_id : Integer <<FK>>
   distrito_id : Integer <<FK>>
   permisos_modulos : JSON
   creado_por_id : Integer <<FK self>>
   *fecha_creacion : DateTime
   ultimo_acceso : DateTime
+}
+
+' ==================================================
+' ESTUDIANTES (tabla independiente)
+' ==================================================
+
+entity "Estudiante" as estudiantes {
+  *id : Integer <<generated>>
+  --
+  dni : String(8) <<unique>>
+  *codigo_estudiante : String(10) <<unique>>
+  nombres : String(100)
+  apellidos : String(100)
+  *password_hash : String(200)
+  *is_active : Boolean
+  institucion_educativa_id : Integer <<FK>>
+  distrito_id : Integer <<FK>>
+  creado_por_id : Integer <<FK>>
+  *fecha_creacion : DateTime
+  ultimo_acceso : DateTime
+}
+
+entity "Matricula" as matriculas {
+  *id : Integer <<generated>>
+  --
+  *estudiante_id : Integer <<FK>>
+  *año_escolar : Integer
+  *grado_id : Integer <<FK>>
+  *seccion : String(10)
+  *institucion_educativa_id : Integer <<FK>>
+  ugel_id : Integer <<FK>>
+  *is_active : Boolean
+  *fecha_creacion : DateTime
 }
 
 ' ==================================================
@@ -238,6 +269,8 @@ entity "PreguntaExamen" as preguntas_examen {
   desempeno_codigo : String(50)
   desempeno_descripcion : Text
   justificacion : Text
+  retroalimentacion_correcta : Text
+  retroalimentacion_incorrecta : Text
 }
 
 ' ==================================================
@@ -254,6 +287,7 @@ entity "AsignacionExamen" as asignaciones_examen {
   codigo_clase_id : Integer <<FK>>
   grado_id : Integer <<FK>>
   seccion : String(10)
+  año_escolar : Integer
   fecha_inicio : DateTime
   fecha_fin : DateTime
   duracion_minutos : Integer
@@ -294,7 +328,7 @@ entity "RespuestaIntento" as respuestas_intento {
 entity "ProgresoEstudiante" as progreso_estudiante {
   *id : Integer <<generated>>
   --
-  *estudiante_id : Integer <<FK>>
+  *matricula_id : Integer <<FK>>
   *area : String(20)
   *total_examenes_completados : Integer
   puntaje_promedio : Float
@@ -317,14 +351,24 @@ ugeles ||..o{ instituciones_educativas
 distritos ||..o{ instituciones_educativas
 instituciones_educativas ||..o{ institucion_niveles
 
-' Usuarios
+' Staff (Usuarios)
 roles ||..o{ usuarios
 ugeles ||..o{ usuarios
 instituciones_educativas ||..o{ usuarios
-grados ||..o{ usuarios
 provincias ||..o{ usuarios
 distritos ||..o{ usuarios
 usuarios ||..o{ usuarios : "creado_por"
+
+' Estudiantes
+instituciones_educativas ||..o{ estudiantes
+distritos ||..o{ estudiantes
+usuarios ||..o{ estudiantes : "creado_por"
+
+' Matrículas
+estudiantes ||..o{ matriculas
+grados ||..o{ matriculas
+instituciones_educativas ||..o{ matriculas
+ugeles ||..o{ matriculas
 
 ' Códigos de clase
 usuarios ||..o{ codigos_clase : "creado_por"
@@ -359,11 +403,11 @@ grados ||..o{ asignaciones_examen
 
 ' Intentos y respuestas
 asignaciones_examen ||..o{ intentos_examen
-usuarios ||..o{ intentos_examen : "estudiante"
+estudiantes ||..o{ intentos_examen : "estudiante"
 intentos_examen ||..o{ respuestas_intento
 preguntas_examen ||..o{ respuestas_intento
 
 ' Progreso
-usuarios ||..o{ progreso_estudiante : "estudiante"
+matriculas ||..o{ progreso_estudiante
 
 @enduml

@@ -630,6 +630,7 @@ export interface CodigoClase {
   grado_id: number
   grado_nombre: string | null
   seccion: string
+  año_escolar: number
   max_estudiantes: number
   is_active: boolean
   fecha_creacion: string | null
@@ -641,6 +642,7 @@ export interface CodigoClase {
 export interface CodigoClaseCreatePayload {
   grado_id: number
   seccion: string
+  año_escolar?: number
   max_estudiantes?: number
   fecha_expiracion?: string | null
 }
@@ -693,6 +695,7 @@ export interface AsignacionPayload {
   codigo_clase_id?: number | null
   grado_id?: number | null
   seccion?: string | null
+  año_escolar?: number | null
   fecha_inicio?: string | null
   fecha_fin?: string | null
   duracion_minutos?: number | null
@@ -706,6 +709,7 @@ export interface Asignacion {
   tipo_examen: string
   grado_id: number
   seccion: string | null
+  año_escolar: number | null
   fecha_inicio: string | null
   fecha_fin: string | null
   duracion_minutos: number | null
@@ -757,9 +761,12 @@ export interface EstudianteDocente {
   nombres: string | null
   apellidos: string | null
   dni: string | null
+  // Datos de la matrícula activa
+  matricula_id: number | null
   grado_id: number | null
   grado_nombre: string | null
   seccion: string | null
+  año_escolar: number | null
   is_active: boolean
   fecha_creacion: string | null
 }
@@ -771,6 +778,7 @@ export interface RegistrarEstudianteDirectoPayload {
   password: string
   grado_id: number
   seccion: string
+  año_escolar?: number
 }
 
 export interface ImportarEstudianteFilaPayload {
@@ -782,6 +790,7 @@ export interface ImportarEstudianteFilaPayload {
 export interface ImportarEstudiantesPayload {
   grado_id: number
   seccion: string
+  año_escolar?: number
   estudiantes: ImportarEstudianteFilaPayload[]
 }
 
@@ -801,7 +810,7 @@ export interface ImportarEstudiantesResponse {
 }
 
 export const docenteEstudiantesService = {
-  async getMisEstudiantes(params?: { grado_id?: number; seccion?: string; q?: string }): Promise<EstudianteDocente[]> {
+  async getMisEstudiantes(params?: { grado_id?: number; seccion?: string; año_escolar?: number; q?: string }): Promise<EstudianteDocente[]> {
     const response = await apiClient.get<EstudianteDocente[]>('/docente/mis-estudiantes', { params })
     return response.data
   },
@@ -823,5 +832,10 @@ export const docenteEstudiantesService = {
 
   async eliminar(id: number): Promise<void> {
     await apiClient.delete(`/docente/mis-estudiantes/${id}`)
+  },
+
+  async nuevaMatricula(id: number, data: { grado_id: number; seccion: string; año_escolar: number }): Promise<EstudianteDocente> {
+    const response = await apiClient.post<EstudianteDocente>(`/docente/mis-estudiantes/${id}/nueva-matricula`, data)
+    return response.data
   },
 }

@@ -35,18 +35,10 @@ class UsuarioRepository(BaseRepository[Usuario, None, None]):
         )
         return result.scalars().first()
 
-    async def get_by_codigo_estudiante(self, db: AsyncSession, codigo: str) -> Optional[Usuario]:
-        result = await db.execute(
-            self._base_query().where(Usuario.codigo_estudiante == codigo)
-        )
-        return result.scalars().first()
-
     async def get_by_login(self, db: AsyncSession, identifier: str) -> Optional[Usuario]:
-        """Busca por DNI o código de estudiante (para el login flexible)."""
+        """Busca por DNI (solo staff)."""
         result = await db.execute(
-            self._base_query().where(
-                or_(Usuario.dni == identifier, Usuario.codigo_estudiante == identifier)
-            )
+            self._base_query().where(Usuario.dni == identifier)
         )
         return result.scalars().first()
 
@@ -74,7 +66,6 @@ class UsuarioRepository(BaseRepository[Usuario, None, None]):
                     Usuario.dni.ilike(term),
                     Usuario.nombres.ilike(term),
                     Usuario.apellidos.ilike(term),
-                    Usuario.codigo_estudiante.ilike(term),
                 )
             )
 
@@ -103,18 +94,6 @@ class UsuarioRepository(BaseRepository[Usuario, None, None]):
         items = (await db.execute(items_stmt)).scalars().all()
 
         return items, total
-
-    async def get_ultimo_codigo_estudiante(self, db: AsyncSession) -> Optional[str]:
-        """Obtiene el último código EST generado para auto-incrementar."""
-        from sqlalchemy import desc
-        result = await db.execute(
-            select(Usuario.codigo_estudiante)
-            .where(Usuario.codigo_estudiante.like("EST%"))
-            .order_by(desc(Usuario.codigo_estudiante))
-            .limit(1)
-        )
-        return result.scalar()
-
 
 usuario_repository = UsuarioRepository()
 

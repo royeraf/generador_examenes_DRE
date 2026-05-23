@@ -143,6 +143,7 @@ const institucionesFiltradas = computed(() =>
     : []
 )
 
+
 // Módulos
 const TODOS_MODULOS = [
   { id: 'lectosistem',          label: 'LectoSistem' },
@@ -411,6 +412,10 @@ function openCreate() {
   usandoDefaultModulos.value = true
   ugelFiltroIE.value = null
   resetForm()
+  if (auth.isDirector && auth.user?.institucion_educativa_id) {
+    ugelFiltroIE.value = auth.user.ugel_id ?? null
+    setValues({ institucion_educativa_id: auth.user.institucion_educativa_id, ugel_id: auth.user.ugel_id ?? null })
+  }
   showModal.value = true
 }
 
@@ -1395,30 +1400,48 @@ async function saveResetPassword() {
                 </select>
               </div>
 
-              <!-- IE (para director, auxiliar, docente) — selector cascadeado UGEL → IE -->
+              <!-- IE (para director, auxiliar, docente) -->
               <template v-if="['director','auxiliar','docente'].includes(rol_codigo)">
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">
-                    UGEL
-                    <Loader2 v-if="loadingOrganizacion" class="inline w-3 h-3 animate-spin ml-1" />
-                  </label>
-                  <select v-model="ugelFiltroIE"
-                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all cursor-pointer appearance-none">
-                    <option :value="null">— Seleccionar UGEL primero —</option>
-                    <option v-for="u in ugeles" :key="u.id" :value="u.id">{{ u.nombre }}</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">
-                    Institución Educativa
-                    <span v-if="ugelFiltroIE" class="text-slate-400 font-normal">({{ institucionesFiltradas.length }} disponibles)</span>
-                  </label>
-                  <select v-model="institucion_educativa_id" :disabled="!ugelFiltroIE"
-                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all cursor-pointer appearance-none disabled:opacity-50 disabled:cursor-not-allowed">
-                    <option :value="null">— Sin especificar —</option>
-                    <option v-for="ie in institucionesFiltradas" :key="ie.id" :value="ie.id">{{ ie.nombre }}</option>
-                  </select>
-                </div>
+                <!-- Director: UGEL e IE fijas, no editables -->
+                <template v-if="auth.isDirector">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">UGEL</label>
+                    <div class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-300">
+                      {{ auth.user?.ugel_nombre || '—' }}
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Institución Educativa</label>
+                    <div class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-300">
+                      {{ auth.user?.institucion_nombre || '—' }}
+                    </div>
+                  </div>
+                </template>
+                <!-- DRE / UGEL: selector cascadeado UGEL → IE -->
+                <template v-else>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">
+                      UGEL
+                      <Loader2 v-if="loadingOrganizacion" class="inline w-3 h-3 animate-spin ml-1" />
+                    </label>
+                    <select v-model="ugelFiltroIE"
+                      class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all cursor-pointer appearance-none">
+                      <option :value="null">— Seleccionar UGEL primero —</option>
+                      <option v-for="u in ugeles" :key="u.id" :value="u.id">{{ u.nombre }}</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">
+                      Institución Educativa
+                      <span v-if="ugelFiltroIE" class="text-slate-400 font-normal">({{ institucionesFiltradas.length }} disponibles)</span>
+                    </label>
+                    <select v-model="institucion_educativa_id" :disabled="!ugelFiltroIE"
+                      class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all cursor-pointer appearance-none disabled:opacity-50 disabled:cursor-not-allowed">
+                      <option :value="null">— Sin especificar —</option>
+                      <option v-for="ie in institucionesFiltradas" :key="ie.id" :value="ie.id">{{ ie.nombre }}</option>
+                    </select>
+                  </div>
+                </template>
               </template>
 
               <!-- Módulos -->

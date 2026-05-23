@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { organizacionService, type IECreatePayload } from '../../shared/services/api'
-import type { InstitucionEducativa, Ugel } from '../../shared/types'
+import { organizacionService, ubigeoService, type IECreatePayload } from '../../shared/services/api'
+import type { InstitucionEducativa, Ugel, Provincia } from '../../shared/types'
 import Header from '../../shared/components/Header.vue'
 import EduBackground from '../../shared/components/EduBackground.vue'
 import { useTheme } from '../../shared/composables/useTheme'
@@ -15,12 +15,14 @@ const { isDark, toggleTheme } = useTheme()
 // State
 const instituciones = ref<InstitucionEducativa[]>([])
 const ugeles = ref<Ugel[]>([])
+const provincias = ref<Provincia[]>([])
 const loading = ref(true)
 const showModal = ref(false)
 const saving = ref(false)
 const editingId = ref<number | null>(null)
 const serverError = ref('')
 const searchQuery = ref('')
+const filtroProvinciaId = ref<number | null>(null)
 
 // Responsive State
 const isDesktop = ref(window.innerWidth >= 1024)
@@ -64,14 +66,28 @@ function toggleNivel(nivel: string) {
   }
 }
 
-const filtradas = computed(() =>
-  searchQuery.value
-    ? instituciones.value.filter(ie =>
-        ie.nombre.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        ie.codigo_modular.includes(searchQuery.value)
-      )
-    : instituciones.value
-)
+// Mapa ugel_id → provincia_id para filtrar IE por provincia
+const ugelProvinciaMap = computed<Record<number, number>>(() => {
+  const map: Record<number, number> = {}
+  ugeles.value.forEach(u => { if (u.provincia_id) map[u.id] = u.provincia_id })
+  return map
+})
+
+const filtradas = computed(() => {
+  let result = instituciones.value
+  if (filtroProvinciaId.value) {
+    result = result.filter(ie =>
+      ugelProvinciaMap.value[ie.ugel_id] === filtroProvinciaId.value
+    )
+  }
+  if (searchQuery.value) {
+    const q = searchQuery.value.toLowerCase()
+    result = result.filter(ie =>
+      ie.nombre.toLowerCase().includes(q) || ie.codigo_modular.includes(q)
+    )
+  }
+  return result
+})
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100]
 const currentPage = ref(1)
@@ -82,18 +98,20 @@ const paginadas = computed(() => {
   return filtradas.value.slice(start, start + pageSize.value)
 })
 
-watch(searchQuery, () => { currentPage.value = 1 })
+watch([searchQuery, filtroProvinciaId], () => { currentPage.value = 1 })
 watch(pageSize, () => { currentPage.value = 1 })
 
 async function load() {
   loading.value = true
   try {
-    const [ies, us] = await Promise.all([
+    const [ies, us, provs] = await Promise.all([
       organizacionService.getInstituciones(),
       organizacionService.getUgeles(),
+      ubigeoService.getProvincias(),
     ])
     instituciones.value = ies
     ugeles.value = us
+    provincias.value = provs
   } catch (e) {
     console.error('Error cargando instituciones:', e)
   } finally {
@@ -214,12 +232,30 @@ async function eliminar(ie: InstitucionEducativa) {
 
       <!-- Main Action Bar -->
       <div class="flex flex-col lg:flex-row items-center justify-between gap-4 mb-8 bg-white dark:bg-slate-800 p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-top-2 duration-500">
-        <div class="relative w-full lg:w-96">
-          <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-          <input v-model="searchQuery" type="text" placeholder="Buscar por nombre o código..."
-            class="w-full pl-12 pr-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all" />
+        <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+          <!-- Búsqueda -->
+          <div class="relative w-full sm:w-80">
+            <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <input v-model="searchQuery" type="text" placeholder="Buscar por nombre o código..."
+              class="w-full pl-12 pr-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all" />
+          </div>
+          <!-- Filtro provincia -->
+          <div class="relative w-full sm:w-56">
+            <MapPin class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+            <select v-model="filtroProvinciaId"
+              class="w-full pl-10 pr-8 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all appearance-none cursor-pointer">
+              <option :value="null">Todas las provincias</option>
+              <option v-for="p in provincias" :key="p.id" :value="p.id">{{ p.nombre }}</option>
+            </select>
+            <ChevronDown class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+          </div>
+          <!-- Limpiar filtros -->
+          <button v-if="filtroProvinciaId || searchQuery" @click="filtroProvinciaId = null; searchQuery = ''"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 text-xs font-black text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all uppercase tracking-widest">
+            <X class="w-3.5 h-3.5" /> Limpiar
+          </button>
         </div>
-        
+
         <button @click="openCreate"
           class="w-full lg:w-auto flex items-center justify-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black px-8 py-4 rounded-2xl shadow-xl hover:-translate-y-1 transition-all active:scale-95 text-xs uppercase tracking-widest cursor-pointer">
           <Plus class="w-5 h-5" />

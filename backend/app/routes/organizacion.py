@@ -374,7 +374,10 @@ async def mi_institucion(
         raise HTTPException(400, "No tienes una institución asignada")
     result = await db.execute(
         select(InstitucionEducativa)
-        .options(selectinload(InstitucionEducativa.niveles))
+        .options(
+            selectinload(InstitucionEducativa.ugel),
+            selectinload(InstitucionEducativa.niveles),
+        )
         .where(InstitucionEducativa.id == current_user.institucion_educativa_id)
     )
     ie = result.scalars().first()

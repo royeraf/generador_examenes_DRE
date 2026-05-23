@@ -11,10 +11,7 @@ class Usuario(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    # Identificación — dni puede ser null para estudiantes sin DNI
     dni = Column(String(8), unique=True, index=True, nullable=True)
-    # Código amigable para estudiantes: EST0001, EST0002, etc.
-    codigo_estudiante = Column(String(10), unique=True, index=True, nullable=True)
 
     nombres = Column(String(100), nullable=True)
     apellidos = Column(String(100), nullable=True)
@@ -33,9 +30,7 @@ class Usuario(Base):
         Integer, ForeignKey("instituciones_educativas.id", ondelete="SET NULL"), nullable=True
     )
 
-    # Solo para estudiantes
-    grado_id = Column(Integer, ForeignKey("grados.id", ondelete="SET NULL"), nullable=True)
-    seccion = Column(String(10), nullable=True)
+    # Historial de matrículas (solo estudiantes) — ver tabla matriculas
 
     # Ubicación geográfica
     provincia_id = Column(Integer, ForeignKey("provincias.id", ondelete="SET NULL"), nullable=True)
@@ -54,13 +49,15 @@ class Usuario(Base):
     rol = relationship("Rol", lazy="joined")
     ugel = relationship("Ugel", lazy="joined")
     institucion_educativa = relationship("InstitucionEducativa", lazy="joined")
-    grado = relationship("Grado", foreign_keys=[grado_id], lazy="joined")
     provincia = relationship("Provincia", lazy="joined")
     distrito = relationship("Distrito", lazy="joined")
     creado_por = relationship("Usuario", remote_side=[id], foreign_keys=[creado_por_id])
-
     examenes_lectura = relationship("ExamenLectura", back_populates="usuario", cascade="all, delete-orphan")
     examenes_matematica = relationship("ExamenMatematica", back_populates="usuario", cascade="all, delete-orphan")
+
+    @property
+    def codigo_estudiante(self):
+        return None
 
     @property
     def rol_codigo(self) -> str:
@@ -73,10 +70,6 @@ class Usuario(Base):
     @property
     def distrito_nombre(self):
         return self.distrito.nombre if self.distrito else None
-
-    @property
-    def grado_nombre(self):
-        return self.grado.nombre if self.grado else None
 
     @property
     def ugel_nombre(self):
@@ -109,4 +102,4 @@ class Usuario(Base):
         )
 
     def __repr__(self):
-        return f"<Usuario {self.dni or self.codigo_estudiante}: {self.nombres}>"
+        return f"<Usuario {self.dni}: {self.nombres}>"

@@ -79,6 +79,7 @@ async def limpiar_todo(db):
     from sqlalchemy import text
     await db.execute(text("UPDATE usuarios SET ugel_id = 1 WHERE ugel_id != 1 AND ugel_id IS NOT NULL"))
     await db.execute(text("UPDATE usuarios SET institucion_educativa_id = 1 WHERE institucion_educativa_id != 1 AND institucion_educativa_id IS NOT NULL"))
+    await db.execute(text("UPDATE matriculas SET institucion_educativa_id = 1 WHERE institucion_educativa_id != 1 AND institucion_educativa_id IS NOT NULL"))
     # Eliminar codigos_clase vinculados
     await db.execute(text("DELETE FROM codigos_clase WHERE institucion_educativa_id != 1"))
     # Eliminar niveles
@@ -120,8 +121,12 @@ async def importar_ies(db, data: list, ugel_id_map: dict[str, int]):
     distritos = {norm(d.nombre): d.id for d in result.scalars().all()}
 
     creadas = 0
+    niveles_extra = 0
     sin_distrito = 0
     sin_ugel = 0
+
+    # (nombre_norm, ugel, distrito_norm) → ie.id — una IE física puede tener varios niveles
+    ie_cache: dict[tuple, int] = {}
 
     for row in data:
         ugel_excel = str(row[1]).strip() if row[1] else ""
@@ -130,7 +135,17 @@ async def importar_ies(db, data: list, ugel_id_map: dict[str, int]):
         nombre_ie  = str(row[8]).strip() if row[8] else ""
         nivel_str  = str(row[9]).strip() if row[9] else ""
 
-        if not cod_mod or not nombre_ie:
+        if not nombre_ie:
+            continue
+
+        nivel_codigo = parse_nivel(nivel_str)
+        cache_key = (norm(nombre_ie), ugel_excel, norm(dist_excel))
+
+        if cache_key in ie_cache:
+            # IE ya creada — solo agregar el nivel adicional
+            if nivel_codigo:
+                db.add(InstitucionNivel(institucion_id=ie_cache[cache_key], nivel=nivel_codigo))
+                niveles_extra += 1
             continue
 
         ugel_id = ugel_id_map.get(ugel_excel)
@@ -152,7 +167,8 @@ async def importar_ies(db, data: list, ugel_id_map: dict[str, int]):
         db.add(ie)
         await db.flush()
 
-        nivel_codigo = parse_nivel(nivel_str)
+        ie_cache[cache_key] = ie.id
+
         if nivel_codigo:
             db.add(InstitucionNivel(institucion_id=ie.id, nivel=nivel_codigo))
 
@@ -161,7 +177,7 @@ async def importar_ies(db, data: list, ugel_id_map: dict[str, int]):
             print(f"  ... {creadas} IEs procesadas")
             await db.flush()
 
-    print(f"  Total IEs creadas: {creadas}")
+    print(f"  Total IEs creadas: {creadas} (niveles adicionales: {niveles_extra})")
     if sin_distrito:
         print(f"  Sin distrito en DB: {sin_distrito}")
     if sin_ugel:
