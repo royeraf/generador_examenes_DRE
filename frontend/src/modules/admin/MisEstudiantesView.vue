@@ -17,7 +17,7 @@ import { useTheme } from '../../shared/composables/useTheme'
 const { isDark, toggleTheme } = useTheme()
 import Swal from 'sweetalert2'
 import {
-  Plus, Edit2, Trash2, Search, X, Eye, EyeOff,
+  Plus, Edit2, Search, X, Eye, EyeOff,
   GraduationCap, Loader2, AlertCircle, CheckCircle, Users, Download, FileSpreadsheet,
   Filter, ChevronDown, Home, ChevronLeft, ChevronRight, CalendarPlus
 } from 'lucide-vue-next'
@@ -345,24 +345,24 @@ async function importarNomina() {
   }
 }
 
-async function eliminar(est: EstudianteDocente) {
+async function toggle(est: EstudianteDocente) {
   const nombre = [est.apellidos, est.nombres].filter(Boolean).join(', ') || est.codigo_estudiante || `#${est.id}`
-  const result = await Swal.fire({ 
-      title: '¿Eliminar estudiante?', 
-      html: `¿Seguro de eliminar a <strong>${nombre}</strong>?`,
-      icon: 'warning', 
-      showCancelButton: true, 
-      confirmButtonColor: '#ef4444', 
-      confirmButtonText: 'Eliminar',
-      cancelButtonText: 'Cancelar'
+  const accion = est.is_active ? 'desactivar' : 'activar'
+  const result = await Swal.fire({
+    title: est.is_active ? '¿Desactivar estudiante?' : '¿Activar estudiante?',
+    html: `¿Seguro de <strong>${accion}</strong> a <strong>${nombre}</strong>?`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: est.is_active ? '#64748b' : '#14b8a6',
+    confirmButtonText: est.is_active ? 'Desactivar' : 'Activar',
+    cancelButtonText: 'Cancelar',
   })
   if (result.isConfirmed) {
     try {
-      await docenteEstudiantesService.eliminar(est.id)
-      await cargarEstudiantes()
-      Swal.fire('Eliminado', 'Estudiante eliminado correctamente', 'success')
+      const { is_active } = await docenteEstudiantesService.toggle(est.id)
+      est.is_active = is_active
     } catch {
-      Swal.fire('Error', 'No se pudo eliminar el estudiante', 'error')
+      Swal.fire('Error', `No se pudo ${accion} el estudiante`, 'error')
     }
   }
 }
@@ -482,7 +482,7 @@ function nombreGrado(id: number | null) {
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-                <tr v-for="est in paginados" :key="est.id" class="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
+                <tr v-for="est in paginados" :key="est.id" class="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors" :class="!est.is_active ? 'opacity-50' : ''">
                   <td class="p-4">
                     <div class="flex items-center gap-3">
                       <div class="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center font-black text-teal-600">
@@ -501,10 +501,15 @@ function nombreGrado(id: number | null) {
                     {{ nombreGrado(est.grado_id) }} · <span class="text-indigo-500">{{ est.seccion }}</span>
                   </td>
                   <td class="p-4 text-right">
-                    <div class="flex items-center justify-end gap-1">
+                    <div class="flex items-center justify-end gap-3">
                       <button @click="openNuevaMatricula(est)" title="Nueva matrícula / avance de año" class="p-2.5 rounded-xl text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all"><CalendarPlus class="w-4 h-4" /></button>
                       <button @click="openEdit(est)" class="p-2.5 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all"><Edit2 class="w-4 h-4" /></button>
-                      <button @click="eliminar(est)" class="p-2.5 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all"><Trash2 class="w-4 h-4" /></button>
+                      <button @click="toggle(est)" title="Activar / Desactivar"
+                        class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 cursor-pointer focus:outline-none"
+                        :class="est.is_active ? 'bg-teal-500' : 'bg-slate-300 dark:bg-slate-600'">
+                        <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200"
+                          :class="est.is_active ? 'translate-x-6' : 'translate-x-1'" />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -568,7 +573,7 @@ function nombreGrado(id: number | null) {
 
         <!-- Mobile View: Cards -->
         <div v-else class="flex-1 overflow-y-auto space-y-4 pb-4">
-          <div v-for="est in paginados" :key="est.id" class="bg-white dark:bg-slate-800 p-5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <div v-for="est in paginados" :key="est.id" class="bg-white dark:bg-slate-800 p-5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-500" :class="!est.is_active ? 'opacity-50' : ''">
             <div class="flex justify-between items-start mb-4">
               <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center font-black text-teal-600 text-lg">
@@ -579,10 +584,15 @@ function nombreGrado(id: number | null) {
                   <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mt-1">{{ nombreGrado(est.grado_id) }} · Secc. {{ est.seccion }}</p>
                 </div>
               </div>
-              <div class="flex gap-1">
+              <div class="flex items-center gap-2">
                 <button @click="openNuevaMatricula(est)" title="Nueva matrícula" class="p-2.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl text-emerald-500 transition-all"><CalendarPlus class="w-4 h-4" /></button>
                 <button @click="openEdit(est)" class="p-2.5 bg-slate-50 dark:bg-slate-700 rounded-xl text-slate-400 transition-all"><Edit2 class="w-4 h-4" /></button>
-                <button @click="eliminar(est)" class="p-2.5 bg-red-50 dark:bg-red-900/20 rounded-xl text-red-400 transition-all"><Trash2 class="w-4 h-4" /></button>
+                <button @click="toggle(est)" title="Activar / Desactivar"
+                  class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 cursor-pointer focus:outline-none"
+                  :class="est.is_active ? 'bg-teal-500' : 'bg-slate-300 dark:bg-slate-600'">
+                  <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200"
+                    :class="est.is_active ? 'translate-x-6' : 'translate-x-1'" />
+                </button>
               </div>
             </div>
             <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100 dark:border-slate-700">

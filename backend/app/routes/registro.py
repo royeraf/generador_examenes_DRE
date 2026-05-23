@@ -699,8 +699,8 @@ async def actualizar_estudiante(
     )
 
 
-@router.delete("/docente/mis-estudiantes/{estudiante_id}")
-async def eliminar_estudiante(
+@router.patch("/docente/mis-estudiantes/{estudiante_id}/toggle-active")
+async def toggle_estudiante_activo(
     estudiante_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: Usuario = Depends(get_current_active_user),
@@ -718,9 +718,9 @@ async def eliminar_estudiante(
     if not estudiante:
         raise HTTPException(404, "Estudiante no encontrado o no pertenece a tu registro")
 
-    await db.delete(estudiante)
+    estudiante.is_active = not estudiante.is_active
     await db.flush()
-    return {"ok": True, "mensaje": "Estudiante eliminado correctamente"}
+    return {"id": estudiante.id, "is_active": estudiante.is_active}
 
 
 # ─── Nueva matrícula / avance de año ─────────────────────────────────────────

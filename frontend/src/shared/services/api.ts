@@ -830,8 +830,9 @@ export const docenteEstudiantesService = {
     return response.data
   },
 
-  async eliminar(id: number): Promise<void> {
-    await apiClient.delete(`/docente/mis-estudiantes/${id}`)
+  async toggle(id: number): Promise<{ id: number; is_active: boolean }> {
+    const response = await apiClient.patch<{ id: number; is_active: boolean }>(`/docente/mis-estudiantes/${id}/toggle-active`)
+    return response.data
   },
 
   async nuevaMatricula(id: number, data: { grado_id: number; seccion: string; año_escolar: number }): Promise<EstudianteDocente> {
