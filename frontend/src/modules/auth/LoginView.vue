@@ -70,8 +70,8 @@ const onSubmit = handleSubmit(async (formValues) => {
             <!-- Animated Background -->
             <div class="absolute inset-0 bg-slate-900 dark:bg-black">
                 <div class="absolute inset-0 hero-grid opacity-20"></div>
-                <div class="absolute top-0 right-0 w-[800px] h-[800px] bg-teal-500/10 rounded-full blur-[120px] animate-pulse"></div>
-                <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[120px] animate-pulse" style="animation-delay: 2s"></div>
+                <div class="absolute top-0 right-0 w-[800px] h-[800px] bg-teal-500/10 rounded-full blur-[120px]"></div>
+                <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[120px]"></div>
             </div>
 
             <!-- Header -->
@@ -93,24 +93,11 @@ const onSubmit = handleSubmit(async (formValues) => {
                 </div>
                 <h1 class="text-5xl xl:text-7xl font-bold text-white leading-[1.1] tracking-tight mb-8">
                     <span class="block text-2xl xl:text-3xl text-teal-400 font-black tracking-[0.3em] mb-4 uppercase">SIEVA</span>
-                    Potencia el <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-400">aprendizaje</span> con IA.
                 </h1>
+                <p class="text-lg text-white/50 leading-relaxed max-w-lg mb-10">Sistema Integrado de Evaluación de Aula</p>
                 <p class="text-lg text-white/50 leading-relaxed max-w-lg mb-10">
                     Genera evaluaciones precisas, gestiona el progreso de tus estudiantes y toma decisiones basadas en datos.
                 </p>
-                
-                <!-- Stats Row (Numbers use font-black as per DESIGN.md) -->
-                <div class="flex items-center gap-12">
-                    <div>
-                        <p class="text-3xl font-black text-white">100%</p>
-                        <p class="text-xs text-white/40 uppercase font-bold tracking-wider">Automatizado</p>
-                    </div>
-                    <div class="w-px h-10 bg-white/10"></div>
-                    <div>
-                        <p class="text-3xl font-black text-white">Huánuco</p>
-                        <p class="text-xs text-white/40 uppercase font-bold tracking-wider">Región Educativa</p>
-                    </div>
-                </div>
             </div>
 
             <!-- Footer -->
@@ -141,7 +128,7 @@ const onSubmit = handleSubmit(async (formValues) => {
             </div>
 
             <!-- Form Container -->
-            <div class="flex-1 flex flex-col justify-center px-6 sm:px-12 md:px-20 lg:px-16 xl:px-24 py-12 relative">
+            <div class="flex-1 flex flex-col justify-start pt-16 sm:pt-24 lg:pt-20 xl:pt-32 px-6 sm:px-12 md:px-20 lg:px-16 xl:px-24 pb-12 relative">
                 
                 <!-- Background Accents (Mobile) -->
                 <div class="lg:hidden absolute inset-0 pointer-events-none">
@@ -152,24 +139,28 @@ const onSubmit = handleSubmit(async (formValues) => {
                 <div class="w-full max-w-md mx-auto relative z-10">
                     
                     <!-- Form Header -->
-                    <div class="mb-10 text-center lg:text-left">
+                    <div class="mb-4 text-center lg:text-left">
                         <h2 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Bienvenido a SIEVA</h2>
                         <p class="text-slate-500 dark:text-slate-400 font-medium">Ingresa a tu cuenta para continuar</p>
                     </div>
 
                     <!-- Error Alert -->
-                    <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="transform -translate-y-2 opacity-0" enter-to-class="transform translate-y-0 opacity-100">
-                        <div v-if="error" class="mb-6 flex items-center gap-3 p-4 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-2xl text-red-600 dark:text-red-400 text-sm font-bold animate-shake">
-                            <AlertCircle class="w-5 h-5 shrink-0" />
-                            <span>{{ error }}</span>
-                        </div>
-                    </Transition>
+                    <div class="min-h-14 mb-6">
+                        <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="transform -translate-y-2 opacity-0" enter-to-class="transform translate-y-0 opacity-100">
+                            <div v-if="error" class="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-2xl text-red-600 dark:text-red-400 text-sm font-bold animate-shake">
+                                <AlertCircle class="w-5 h-5 shrink-0" />
+                                <span>{{ error }}</span>
+                            </div>
+                        </Transition>
+                    </div>
+
+
 
                     <!-- Form -->
                     <form @submit="onSubmit" class="space-y-6" autocomplete="off">
                         <!-- Fields -->
                         <div class="space-y-2">
-                            <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Identificador</label>
+                            <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">DNI o Código</label>
                             <div class="relative group">
                                 <User class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-teal-500 transition-colors" />
                                 <input 
@@ -180,7 +171,9 @@ const onSubmit = handleSubmit(async (formValues) => {
                                     :class="{'border-red-500/50': identifierError}"
                                 />
                             </div>
-                            <p v-if="identifierError" class="text-[10px] font-bold text-red-500 ml-1">{{ identifierError }}</p>
+                            <div class="h-4 text-[10px] font-bold text-red-500 ml-1">
+                                {{ identifierError }}
+                            </div>
                         </div>
 
                         <div class="space-y-2">
@@ -199,7 +192,9 @@ const onSubmit = handleSubmit(async (formValues) => {
                                     <EyeOff v-else class="w-5 h-5" />
                                 </button>
                             </div>
-                            <p v-if="passwordError" class="text-[10px] font-bold text-red-500 ml-1">{{ passwordError }}</p>
+                            <div class="h-4 text-[10px] font-bold text-red-500 ml-1">
+                                {{ passwordError }}
+                            </div>
                         </div>
 
                         <!-- Action Button -->
@@ -211,6 +206,8 @@ const onSubmit = handleSubmit(async (formValues) => {
                                 <LogIn class="w-5 h-5" />
                             </template>
                         </button>
+
+
                     </form>
 
                     <!-- Student Registration Link -->
@@ -248,10 +245,5 @@ const onSubmit = handleSubmit(async (formValues) => {
 }
 .animate-shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
 
-@keyframes blob {
-    0% { transform: translate(0px, 0px) scale(1); }
-    33% { transform: translate(30px, -50px) scale(1.1); }
-    66% { transform: translate(-20px, 20px) scale(0.9); }
-    100% { transform: translate(0px, 0px) scale(1); }
-}
+
 </style>
