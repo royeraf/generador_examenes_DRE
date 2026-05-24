@@ -4,9 +4,9 @@ import { ref, shallowRef, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { apiClient, asignacionesService, examenesService, organizacionService, codigosClaseService } from '../../shared/services/api'
 import type { UpdateAsignacionPayload, CodigoClase } from '../../shared/services/api'
-import Navbar from '../../shared/components/Navbar.vue'
+import Header from '../../shared/components/Header.vue'
 import Footer from '../../shared/components/Footer.vue'
-import { useTheme } from '../../shared/composables/useTheme'
+import EduBackground from '../../shared/components/EduBackground.vue'
 import Swal from 'sweetalert2'
 import { Toast } from '../../shared/utils/swal'
 import {
@@ -21,7 +21,6 @@ import { useAuthStore } from '../../stores/auth'
 
 const router = useRouter()
 const auth = useAuthStore()
-useTheme()
 
 const vistaIE = computed(() => auth.isDirector || auth.isAuxiliar)
 const vistaUGEL = computed(() => auth.isResponsableUGEL)
@@ -355,14 +354,10 @@ const estadoColors: Record<string, string> = {
 
 <template>
   <div class="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-violet-50/20 to-indigo-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 transition-colors">
+    <EduBackground />
+    <Header :title="headerTitle" subtitle="Exámenes asignados a estudiantes" :show-home="true" />
 
-    <Navbar
-      :title="headerTitle"
-      subtitle="Exámenes asignados a estudiantes"
-      gradient-class="from-violet-600 via-purple-600 to-indigo-600 shadow-violet-500/20"
-      subtitle-class="text-violet-100 dark:text-slate-400" :show-home="true" />
-
-    <main class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 md:py-10 space-y-6 md:space-y-10">
+    <main class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 md:py-10 space-y-6 md:space-y-10 relative z-10">
 
       <!-- Header & Welcome -->
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -423,7 +418,7 @@ const estadoColors: Record<string, string> = {
 
       <!-- Empty -->
       <div v-else-if="asignaciones.length === 0"
-        class="bg-white dark:bg-slate-900/40 backdrop-blur-xl rounded-2xl border border-slate-300 dark:border-slate-800 p-12 text-center shadow-sm group">
+        class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 p-12 text-center shadow-sm group">
         <div class="w-24 h-24 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
            <ClipboardList class="w-12 h-12 text-slate-300 dark:text-slate-600" />
         </div>
@@ -441,7 +436,7 @@ const estadoColors: Record<string, string> = {
       <!-- Cards -->
       <div v-else-if="viewMode === 'cards'" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
         <div v-for="asig in asignaciones" :key="asig.id"
-          class="bg-white dark:bg-slate-900/60 backdrop-blur-md rounded-2xl border border-slate-300 dark:border-slate-800 p-5 shadow-sm hover:shadow-xl hover:shadow-violet-500/5 transition-all duration-300 relative group overflow-hidden flex flex-col"
+          class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 p-5 shadow-sm hover:shadow-xl hover:shadow-violet-500/5 transition-all duration-300 relative group overflow-hidden flex flex-col"
           :class="!asig.is_active ? 'opacity-50' : ''">
 
           <div class="absolute -right-6 -top-6 w-24 h-24 bg-violet-500/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
@@ -518,7 +513,7 @@ const estadoColors: Record<string, string> = {
       </div>
 
       <!-- Table -->
-      <div v-else-if="viewMode === 'table'" class="bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm overflow-hidden">
+      <div v-else-if="viewMode === 'table'" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm overflow-hidden">
           <table class="w-full border-collapse text-sm table-fixed">
             <colgroup>
               <col class="w-[33%]" />

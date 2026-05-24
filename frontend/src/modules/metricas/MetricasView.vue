@@ -4,6 +4,7 @@ import { ref, onMounted, computed } from 'vue'
 import { apiClient } from '../../shared/services/api'
 import Navbar from '../../shared/components/Navbar.vue'
 import Footer from '../../shared/components/Footer.vue'
+import EduBackground from '../../shared/components/EduBackground.vue'
 import {
   Users, BookOpen, Calculator,
   Clock, BarChart3, RefreshCw,
@@ -84,10 +85,10 @@ const rolLabel = computed(() => {
 
 <template>
   <div class="min-h-screen flex flex-col bg-slate-50 dark:bg-[#0f111a] transition-colors font-sans">
-    
+    <EduBackground />
     <Navbar title="Dashboard de Métricas" subtitle="Analítica y estadísticas en tiempo real" :show-home="true" />
 
-    <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10 space-y-8 md:space-y-12">
+    <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10 space-y-8 md:space-y-12 relative z-10">
       
       <!-- Top Actions & Welcome -->
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -139,7 +140,7 @@ const rolLabel = computed(() => {
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           
           <!-- Exámenes Totales -->
-          <div class="bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-300/60 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
+          <div class="bg-white dark:bg-slate-900 border border-slate-300/60 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="flex justify-between items-start mb-6">
               <div class="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400 transform group-hover:rotate-12 transition-transform">
@@ -157,7 +158,7 @@ const rolLabel = computed(() => {
           </div>
 
           <!-- Total Usuarios -->
-          <div class="bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-300/60 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
+          <div class="bg-white dark:bg-slate-900 border border-slate-300/60 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="flex justify-between items-start mb-6">
               <div class="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400 transform group-hover:-rotate-12 transition-transform">
@@ -169,7 +170,7 @@ const rolLabel = computed(() => {
           </div>
 
           <!-- Asignaciones -->
-          <div class="bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-300/60 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
+          <div class="bg-white dark:bg-slate-900 border border-slate-300/60 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="flex justify-between items-start mb-6">
               <div class="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400 transform group-hover:scale-110 transition-transform">
@@ -181,7 +182,7 @@ const rolLabel = computed(() => {
           </div>
 
           <!-- Instituciones -->
-          <div class="bg-white dark:bg-slate-900/40 backdrop-blur-xl border border-slate-300/60 dark:border-slate-800/60 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
+          <div class="bg-white dark:bg-slate-900 border border-slate-300/60 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="flex justify-between items-start mb-6">
               <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 transform group-hover:rotate-6 transition-transform">

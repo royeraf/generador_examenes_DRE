@@ -1,16 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { organizacionService, ubigeoService, type UgelCreatePayload } from '../../shared/services/api'
 import type { Ugel, Provincia } from '../../shared/types'
 import Header from '../../shared/components/Header.vue'
 import EduBackground from '../../shared/components/EduBackground.vue'
-import { useTheme } from '../../shared/composables/useTheme'
-import { Plus, Edit2, Trash2, Loader2, AlertCircle, X, Home, Building, MapPin, ChevronDown } from 'lucide-vue-next'
+import { Plus, Edit2, Trash2, Loader2, AlertCircle, X, Building, MapPin, ChevronDown } from 'lucide-vue-next'
 import Swal from 'sweetalert2'
-
-const router = useRouter()
-const { isDark, toggleTheme } = useTheme()
 
 const ugeles = ref<Ugel[]>([])
 const provincias = ref<Provincia[]>([])
@@ -120,21 +115,11 @@ async function eliminar(ugel: Ugel) {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 sm:p-8 font-sans relative flex flex-col overflow-x-hidden">
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans relative flex flex-col overflow-x-hidden">
     <EduBackground variant="indigo" />
-    
-    <div class="max-w-6xl mx-auto w-full relative z-10 flex-1 flex flex-col">
-      <Header title="Gestión" subtitle="UGELes Regionales" :is-dark="isDark"
-        gradient-class="from-violet-600 via-indigo-500 to-indigo-600 shadow-indigo-500/20"
-        class="rounded-2xl mb-8 sticky top-0" @toggle-theme="toggleTheme">
-        <template #actions-before>
-          <button @click="router.push('/')"
-            class="p-2.5 rounded-xl bg-slate-100 dark:bg-white/20 text-slate-600 dark:text-white border border-slate-200 dark:border-white/30 hover:bg-slate-200 dark:hover:bg-white/30 transition-all duration-300 cursor-pointer"
-            title="Inicio">
-            <Home class="w-5 h-5" />
-          </button>
-        </template>
-      </Header>
+    <Header title="Gestión" subtitle="UGELes Regionales" :show-home="true" />
+
+    <div class="max-w-6xl mx-auto w-full relative z-10 flex-1 flex flex-col p-4 sm:p-8">
 
       <!-- Action Bar -->
       <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 bg-white dark:bg-slate-800 p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-top-2 duration-500">

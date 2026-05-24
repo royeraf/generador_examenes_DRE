@@ -4,6 +4,7 @@ import { ref, onMounted } from 'vue'
 import { codigosClaseService, organizacionService, type CodigoClase, type CodigoClaseCreatePayload } from '../../shared/services/api'
 import type { Grado } from '../../shared/types'
 import Navbar from '../../shared/components/Navbar.vue'
+import EduBackground from '../../shared/components/EduBackground.vue'
 import { Plus, Copy, AlertCircle, Loader2, QrCode, X, Download, School } from 'lucide-vue-next'
 import Swal from 'sweetalert2'
 import QRCode from 'qrcode'
@@ -128,9 +129,10 @@ function descargarQR() {
 </script>
 
 <template>
+  <EduBackground />
   <Navbar title="Aulas" :show-home="true" />
 
-  <main class="max-w-4xl mx-auto px-4 py-8">
+  <main class="max-w-4xl mx-auto px-4 py-8 relative z-10">
 
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
       <div>
@@ -155,7 +157,7 @@ function descargarQR() {
 
     <!-- Lista vacía -->
     <div v-else-if="codigos.length === 0"
-      class="text-center py-20 bg-white dark:bg-slate-900/40 backdrop-blur-xl rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm group">
+      class="text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm group">
       <div class="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
         <School class="w-10 h-10 text-slate-300 dark:text-slate-600" />
       </div>

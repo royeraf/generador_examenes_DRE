@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, shallowRef, onMounted, onUnmounted, computed, watch } from 'vue';
-import { useRouter } from 'vue-router';
 import { matematicaService } from '../../shared/services/api';
 import type {
     CompetenciaMatematica,
@@ -8,18 +7,14 @@ import type {
     DesempenoMatCompleto,
     GradoMatematica
 } from '../../shared/types/matematica';
-import { 
-    Trash2, Edit, Plus, X, Calculator, Target, Layers, BookOpen, Home, Loader2 
+import {
+    Trash2, Edit, Plus, X, Calculator, Target, Layers, BookOpen, Loader2
 } from 'lucide-vue-next';
 
-const router = useRouter();
 import Swal from 'sweetalert2';
 import Header from '../../shared/components/Header.vue';
 import EduBackground from '../../shared/components/EduBackground.vue';
 import ComboBox from '../../shared/components/ComboBox.vue';
-import { useTheme } from '../../shared/composables/useTheme';
-
-const { isDark, toggleTheme } = useTheme();
 
 // Responsive State
 const isDesktop = ref(window.innerWidth >= 1024);
@@ -235,20 +230,10 @@ const deleteItem = async (id: number) => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 sm:p-8 font-sans relative flex flex-col overflow-x-hidden">
+    <div class="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans relative flex flex-col overflow-x-hidden">
         <EduBackground variant="violet" />
-        <div class="max-w-7xl mx-auto w-full relative z-10 flex-1 flex flex-col">
-            <Header title="Gestión" subtitle="Matemática" :is-dark="isDark"
-                gradient-class="from-violet-600 via-purple-600 to-indigo-600 shadow-violet-500/20"
-                class="rounded-2xl mb-8 sticky top-0" @toggle-theme="toggleTheme">
-                <template #actions-before>
-                    <button @click="router.push('/')"
-                        class="p-2.5 rounded-xl bg-slate-100 dark:bg-white/20 text-slate-600 dark:text-white border border-slate-200 dark:border-white/30 hover:bg-slate-200 dark:hover:bg-white/30 transition-all duration-300 cursor-pointer"
-                        title="Inicio">
-                        <Home class="w-5 h-5" />
-                    </button>
-                </template>
-            </Header>
+        <Header title="Gestión" subtitle="Matemática" :show-home="true" />
+        <div class="max-w-7xl mx-auto w-full relative z-10 flex-1 flex flex-col p-4 sm:p-8">
 
             <!-- Mobile Navigation Tabs (Premium Style) -->
             <div v-if="!isDesktop" class="shrink-0 flex items-center justify-around bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 p-1.5 mb-8 shadow-sm">
@@ -266,7 +251,7 @@ const deleteItem = async (id: number) => {
 
             <!-- Desktop Navigation Tabs -->
             <div v-else class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div class="flex items-center gap-1 bg-white/50 dark:bg-slate-800/50 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 w-fit shadow-sm">
+                <div class="flex items-center gap-1 bg-white dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 w-fit shadow-sm">
                     <button v-for="tab in [
                         { id: 'competencias', label: 'Competencias', icon: Target },
                         { id: 'capacidades', label: 'Capacidades', icon: Layers },
@@ -278,7 +263,7 @@ const deleteItem = async (id: number) => {
                     </button>
                 </div>
 
-                <div class="grid grid-cols-4 gap-3 bg-white/50 dark:bg-slate-800/50 p-2 rounded-2xl backdrop-blur-sm border-2 border-slate-200 dark:border-slate-700">
+                <div class="grid grid-cols-4 gap-3 bg-white dark:bg-slate-800 p-2 rounded-2xl border-2 border-slate-200 dark:border-slate-700">
                     <div v-for="stat in [
                         { label: 'Comp.', value: stats.competencias, color: 'text-violet-600' },
                         { label: 'Cap.', value: stats.capacidades, color: 'text-purple-600' },

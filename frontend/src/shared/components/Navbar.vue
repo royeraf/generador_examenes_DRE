@@ -20,7 +20,7 @@ const router = useRouter();
 
 <template>
   <header class="sticky top-0 z-50 h-14 flex items-center justify-between px-4 sm:px-6 gap-3
-    bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm
+    bg-white dark:bg-slate-900
     border-b border-slate-300/80 dark:border-slate-800
     transition-colors duration-300">
 

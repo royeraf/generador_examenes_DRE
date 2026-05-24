@@ -4,6 +4,7 @@ import { ref, onMounted } from 'vue'
 import { organizacionService } from '../../shared/services/api'
 import type { InstitucionEducativa } from '../../shared/types'
 import Navbar from '../../shared/components/Navbar.vue'
+import EduBackground from '../../shared/components/EduBackground.vue'
 import { Building2, Loader2, MapPin, GraduationCap, BookOpen, Calculator, ClipboardList, CheckCircle2, Users } from 'lucide-vue-next'
 const institucion = ref<InstitucionEducativa | null>(null)
 const analytics = ref<{
@@ -48,9 +49,10 @@ const completadosPct = () => {
 </script>
 
 <template>
+  <EduBackground />
   <Navbar title="Mi Institución" :show-home="true" />
 
-  <main class="max-w-3xl mx-auto px-4 py-8">
+  <main class="max-w-3xl mx-auto px-4 py-8 relative z-10">
     <div v-if="loading" class="flex justify-center py-16">
       <Loader2 class="w-8 h-8 animate-spin text-teal-500" />
     </div>

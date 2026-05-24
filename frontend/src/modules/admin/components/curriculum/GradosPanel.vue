@@ -66,7 +66,7 @@ onMounted(load)
     <!-- Tabla -->
     <div class="flex-1 min-h-0 overflow-y-auto bg-white dark:bg-slate-800 rounded-xl border border-slate-300 dark:border-slate-700 overflow-x-auto custom-scrollbar">
       <table class="w-full text-sm min-w-[500px] sm:min-w-0">
-        <thead class="sticky top-0 bg-slate-50 dark:bg-slate-900/80 backdrop-blur-sm">
+        <thead class="sticky top-0 bg-slate-50 dark:bg-slate-900">
           <tr class="border-b border-slate-300 dark:border-slate-700">
             <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wide">Orden</th>
             <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wide">Nombre</th>

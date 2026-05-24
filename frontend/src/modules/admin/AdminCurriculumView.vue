@@ -1,20 +1,16 @@
 <script setup lang="ts">
 import { shallowRef, computed, type Component } from 'vue'
-import { useRouter } from 'vue-router'
 import {
-  BookOpenText, Calculator, FlaskConical, Cpu, GraduationCap, Home, ChevronRight,
+  BookOpenText, Calculator, FlaskConical, Cpu, GraduationCap, ChevronRight,
   Menu, PanelLeftClose, X,
 } from 'lucide-vue-next'
 import Header from '../../shared/components/Header.vue'
 import EduBackground from '../../shared/components/EduBackground.vue'
-import { useTheme } from '../../shared/composables/useTheme'
 import { useAuthStore } from '../../stores/auth'
 import GradosPanel from './components/curriculum/GradosPanel.vue'
 import ComunicacionPanel from './components/curriculum/ComunicacionPanel.vue'
 import MatematicaPanel from './components/curriculum/MatematicaPanel.vue'
 
-const router = useRouter()
-const { isDark, toggleTheme } = useTheme()
 const auth = useAuthStore()
 
 // ── Registro de áreas ─────────────────────────────────────────────────────────
@@ -136,30 +132,15 @@ const sidebarOpen = shallowRef(false) // Para móvil (drawer)
       <Header
         title="Gestión Curricular"
         subtitle="Desempeños por área"
-        :is-dark="isDark"
-        gradient-class="from-slate-700 via-slate-600 to-slate-700 shadow-slate-500/20"
-        class="rounded-none shrink-0"
-        @toggle-theme="toggleTheme"
+        :show-home="true"
       >
         <template #actions-before>
-          <div class="flex items-center gap-2">
-            <!-- Mobile menu toggle -->
-            <button
-              @click="sidebarOpen = !sidebarOpen"
-              class="sm:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white border border-slate-300 dark:border-slate-700 cursor-pointer"
-            >
-              <Menu class="w-5 h-5" />
-            </button>
-
-            <button
-              @click="router.push('/')"
-              class="p-2 sm:px-3 sm:py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 transition-colors text-xs font-medium text-slate-600 dark:text-slate-300 flex items-center gap-1.5 cursor-pointer"
-              title="Inicio"
-            >
-              <Home class="w-3.5 h-3.5" />
-              <span class="hidden sm:inline">Inicio</span>
-            </button>
-          </div>
+          <button
+            @click="sidebarOpen = !sidebarOpen"
+            class="sm:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white border border-slate-300 dark:border-slate-700 cursor-pointer"
+          >
+            <Menu class="w-5 h-5" />
+          </button>
         </template>
       </Header>
 

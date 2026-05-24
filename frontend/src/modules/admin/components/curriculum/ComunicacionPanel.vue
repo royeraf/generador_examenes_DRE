@@ -65,7 +65,7 @@ const TIPO_BADGE: Record<string, string> = {
     <!-- Table -->
     <div class="flex-1 min-h-0 overflow-y-auto bg-white dark:bg-slate-800 rounded-xl border border-slate-300 dark:border-slate-700 overflow-x-auto custom-scrollbar">
       <table class="w-full text-sm min-w-[600px] sm:min-w-0">
-        <thead class="sticky top-0 bg-slate-50 dark:bg-slate-900/80 backdrop-blur-sm">
+        <thead class="sticky top-0 bg-slate-50 dark:bg-slate-900">
           <tr class="border-b border-slate-300 dark:border-slate-700">
             <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wide">ID</th>
 
@@ -155,7 +155,7 @@ const TIPO_BADGE: Record<string, string> = {
             <div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800"></div>
           </div>
 
-          <div class="flex items-center justify-between px-8 py-6 border-b border-slate-300 dark:border-slate-800 shrink-0 bg-slate-50/50 dark:bg-slate-800/30">
+          <div class="flex items-center justify-between px-8 py-6 border-b border-slate-300 dark:border-slate-800 shrink-0 bg-slate-50 dark:bg-slate-800">
             <div class="flex items-center gap-4">
               <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white shadow-lg shadow-teal-500/20">
                 <component :is="TABS.find(t => t.id === activeTab)?.icon || BookOpen" class="w-6 h-6" />
@@ -220,7 +220,7 @@ const TIPO_BADGE: Record<string, string> = {
             </template>
           </div>
 
-          <div class="px-8 py-6 border-t border-slate-300 dark:border-slate-800 flex justify-end gap-3 bg-slate-50/50 dark:bg-slate-800/50">
+          <div class="px-8 py-6 border-t border-slate-300 dark:border-slate-800 flex justify-end gap-3 bg-slate-50 dark:bg-slate-800">
             <button @click="showModal = false" class="px-6 py-3 text-sm font-bold rounded-2xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700 transition-all">
               Cancelar
             </button>

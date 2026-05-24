@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
-const router = useRouter()
 import * as XLSX from 'xlsx'
 import { ref, computed, onMounted, onUnmounted, useTemplateRef, watch } from 'vue'
 import {
@@ -13,13 +11,12 @@ import {
 import type { Grado } from '../../shared/types'
 import Header from '../../shared/components/Header.vue'
 import EduBackground from '../../shared/components/EduBackground.vue'
-import { useTheme } from '../../shared/composables/useTheme'
-const { isDark, toggleTheme } = useTheme()
+import ComboBox from '../../shared/components/ComboBox.vue'
 import Swal from 'sweetalert2'
 import {
   Plus, Edit2, Search, X, Eye, EyeOff,
   GraduationCap, Loader2, AlertCircle, CheckCircle, Users, Download, FileSpreadsheet,
-  Filter, ChevronDown, Home, ChevronLeft, ChevronRight, CalendarPlus
+  Filter, ChevronDown, ChevronLeft, ChevronRight, CalendarPlus
 } from 'lucide-vue-next'
 
 // ── State ────────────────────────────────────────────────────────────────────
@@ -60,6 +57,17 @@ const mobileTab = ref<'filtros' | 'estudiantes'>('estudiantes')
 const filtroQ = ref('')
 const filtroGrado = ref<number | null>(null)
 const filtroSeccion = ref('')
+
+const gradosOpciones = computed(() => [
+  { id: null, label: 'Todos los grados' },
+  ...grados.value.map(g => ({ id: g.id, label: g.nombre })),
+])
+
+const gradosOpcionesForm = computed(() =>
+  grados.value.map(g => ({ id: g.id, label: g.nombre }))
+)
+
+const seccionesOpciones = ['A','B','C','D','E','F','G','H','I','J','Única'].map(s => ({ id: s, label: s }))
 
 // Formulario
 const form = ref<RegistrarEstudianteDirectoPayload>({
@@ -375,18 +383,8 @@ function nombreGrado(id: number | null) {
 <template>
   <div class="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950">
     <EduBackground variant="teal" />
+    <Header title="Gestión" subtitle="Mis Estudiantes" :show-home="true" />
     <div class="flex-1 w-full max-w-7xl mx-auto p-4 md:p-8 relative z-10 overflow-hidden flex flex-col">
-      <Header title="Gestión" subtitle="Mis Estudiantes" :is-dark="isDark"
-        gradient-class="from-teal-600 via-teal-500 to-emerald-600 shadow-teal-500/20"
-        class="rounded-2xl mb-8 sticky top-0" @toggle-theme="toggleTheme">
-        <template #actions-before>
-          <button @click="router.push('/')"
-            class="p-2.5 rounded-xl bg-slate-100 dark:bg-white/20 text-slate-600 dark:text-white border border-slate-200 dark:border-white/30 hover:bg-slate-200 dark:hover:bg-white/30 transition-all duration-300"
-            title="Inicio">
-            <Home class="w-5 h-5" />
-          </button>
-        </template>
-      </Header>
       
       <!-- Mobile Navigation Tabs -->
       <div v-if="!isDesktop" class="shrink-0 flex items-center justify-around bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 p-1.5 mb-6 shadow-sm">
@@ -438,13 +436,7 @@ function nombreGrado(id: number | null) {
       <div v-show="isDesktop || mobileTab === 'filtros'" class="mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-6 bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-top-2 duration-700">
         <div class="space-y-2">
           <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Filtrar Grado</label>
-          <div class="relative">
-            <select v-model="filtroGrado" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none appearance-none cursor-pointer">
-              <option :value="null">Todos los grados</option>
-              <option v-for="g in grados" :key="g.id" :value="g.id">{{ g.nombre }}</option>
-            </select>
-            <ChevronDown class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-          </div>
+          <ComboBox v-model="filtroGrado" :options="gradosOpciones" placeholder="Todos los grados" />
         </div>
         <div class="space-y-2">
           <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Sección</label>
@@ -659,7 +651,7 @@ function nombreGrado(id: number | null) {
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showModal" class="fixed inset-0 z-50 flex items-center sm:items-center justify-center items-end bg-slate-900/60 backdrop-blur-sm cursor-pointer" @click.self="closeModal">
-          <div class="bg-white dark:bg-slate-800 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative">
+          <div class="bg-white dark:bg-slate-800 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden relative">
             <div class="sm:hidden flex justify-center pt-4 pb-1" @click="closeModal"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div></div>
             <div class="flex items-center justify-between p-6 border-b border-slate-300 dark:border-slate-700">
               <div class="flex items-center gap-4">
@@ -691,15 +683,11 @@ function nombreGrado(id: number | null) {
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="space-y-1.5">
                   <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Grado</label>
-                  <select v-model="form.grado_id" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all font-bold">
-                    <option v-for="g in grados" :key="g.id" :value="g.id">{{ g.nombre }}</option>
-                  </select>
+                  <ComboBox v-model="form.grado_id" :options="gradosOpcionesForm" placeholder="Selecciona grado" />
                 </div>
                 <div class="space-y-1.5">
                   <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Sección</label>
-                  <select v-model="form.seccion" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all font-bold">
-                    <option v-for="sec in ['A','B','C','D','E','F','G','H','I','J','Única']" :key="sec" :value="sec">{{ sec }}</option>
-                  </select>
+                  <ComboBox v-model="form.seccion" :options="seccionesOpciones" placeholder="Selecciona sección" />
                 </div>
               </div>
               <div class="space-y-1.5">
@@ -747,15 +735,11 @@ function nombreGrado(id: number | null) {
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="space-y-1.5">
                   <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Grado</label>
-                  <select v-model="importForm.grado_id" class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 px-3.5 py-2.5 text-sm font-bold outline-none transition-all focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 text-slate-700 dark:text-slate-200 appearance-none cursor-pointer">
-                    <option v-for="g in grados" :key="g.id" :value="g.id">{{ g.nombre }}</option>
-                  </select>
+                  <ComboBox v-model="importForm.grado_id" :options="gradosOpcionesForm" placeholder="Selecciona grado" />
                 </div>
                 <div class="space-y-1.5">
                   <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Sección</label>
-                  <select v-model="importForm.seccion" class="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 px-3.5 py-2.5 text-sm font-bold outline-none transition-all focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 text-slate-700 dark:text-slate-200 appearance-none cursor-pointer">
-                    <option v-for="sec in ['A','B','C','D','E','F','G','H','I','J','Única']" :key="sec" :value="sec">{{ sec }}</option>
-                  </select>
+                  <ComboBox v-model="importForm.seccion" :options="seccionesOpciones" placeholder="Selecciona sección" />
                 </div>
               </div>
               <input ref="nominaFileInput" type="file" accept=".xlsx,.xls" class="hidden" @change="onNominaFileChange" />
@@ -766,8 +750,8 @@ function nombreGrado(id: number | null) {
                     <p class="text-xs font-bold text-slate-400 truncate">{{ selectedImportFileName || 'No seleccionado' }}</p>
                   </div>
                   <div class="flex gap-2">
-                    <button @click="descargarPlantillaNomina" class="px-4 py-2.5 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500">Modelo</button>
-                    <button @click="seleccionarArchivoNomina" class="px-4 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg">Subir</button>
+                    <button @click="descargarPlantillaNomina" class="px-4 py-2.5 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 cursor-pointer">Modelo</button>
+                    <button @click="seleccionarArchivoNomina" class="px-4 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg cursor-pointer">Subir</button>
                   </div>
                 </div>
               </div>

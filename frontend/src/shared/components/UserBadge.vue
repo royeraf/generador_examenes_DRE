@@ -125,7 +125,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
     <!-- Trigger Button -->
     <button
       @click="isOpen = !isOpen"
-      class="group flex items-center gap-2 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md text-slate-700 dark:text-slate-200 pl-1.5 pr-3 py-1.5 rounded-full shadow-lg border border-slate-300 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 active:scale-95 cursor-pointer"
+      class="group flex items-center gap-2 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 pl-1.5 pr-3 py-1.5 rounded-full shadow-lg border border-slate-300 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-300 active:scale-95 cursor-pointer"
     >
       <!-- Avatar -->
       <div class="w-8 h-8 rounded-full bg-gradient-to-br from-teal-500 to-indigo-600 flex items-center justify-center text-white text-[10px] font-black shrink-0 shadow-md group-hover:scale-105 transition-transform">

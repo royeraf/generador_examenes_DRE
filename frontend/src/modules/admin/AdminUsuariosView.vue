@@ -13,8 +13,6 @@ import {
 import ComboBox from '../../shared/components/ComboBox.vue'
 import Header from '../../shared/components/Header.vue'
 import EduBackground from '../../shared/components/EduBackground.vue'
-import { useTheme } from '../../shared/composables/useTheme'
-const { isDark, toggleTheme } = useTheme()
 import Swal from 'sweetalert2'
 import { useForm, useField } from 'vee-validate'
 import * as yup from 'yup'
@@ -673,10 +671,7 @@ async function saveResetPassword() {
     class="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 font-sans relative overflow-x-hidden">
     <EduBackground variant="indigo" />
     
-    <Header title="Gestión" subtitle="Usuarios del Sistema" :is-dark="isDark"
-      :show-home="true"
-      gradient-class="from-teal-600 via-indigo-600 to-violet-600 shadow-indigo-500/20"
-      class="rounded-none mb-0 border-b border-slate-200 dark:border-slate-800" @toggle-theme="toggleTheme" />
+    <Header title="Gestión" subtitle="Usuarios del Sistema" :show-home="true" />
 
     <div class="max-w-7xl mx-auto w-full relative z-10 flex-1 flex flex-col p-4 md:p-8">
 
@@ -796,7 +791,7 @@ async function saveResetPassword() {
       </div>
 
       <!-- Desktop Navigation Tabs -->
-      <div v-if="isDesktop" class="flex items-center gap-1 bg-white/50 dark:bg-slate-800/50 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 mb-8 w-fit shadow-sm">
+      <div v-if="isDesktop" class="flex items-center gap-1 bg-white dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 mb-8 w-fit shadow-sm">
         <button @click="activeTab = 'usuarios'"
           :class="['flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer',
             activeTab === 'usuarios'

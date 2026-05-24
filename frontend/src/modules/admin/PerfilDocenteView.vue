@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { formatFechaLarga } from '../../shared/utils/dateUtils'
-import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
-import { Home, User, MapPin, Building2, BadgeCheck, Shield, CalendarDays, Info } from 'lucide-vue-next'
+import { User, MapPin, Building2, BadgeCheck, Shield, CalendarDays, Info } from 'lucide-vue-next'
+import Header from '../../shared/components/Header.vue'
+import EduBackground from '../../shared/components/EduBackground.vue'
 
-const router = useRouter()
 const auth = useAuthStore()
 
 // formatFechaLarga importado de shared/utils/dateUtils
@@ -24,23 +24,12 @@ function rolLabel(codigo?: string | null) {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 dark:from-slate-900 dark:to-slate-950 p-4 md:p-8">
-    <div class="max-w-2xl mx-auto">
+  <div class="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 to-gray-100 dark:from-slate-900 dark:to-slate-950">
+    <EduBackground />
+    <Header title="Mis Datos" subtitle="Información del Docente" :show-home="true" />
 
-      <!-- Header -->
-      <div class="flex items-center justify-between mb-6">
-        <div>
-          <h1 class="text-2xl md:text-3xl font-black text-slate-800 dark:text-white leading-tight">
-            Mis <span class="bg-gradient-to-r from-teal-500 to-indigo-600 bg-clip-text text-transparent">Datos</span>
-          </h1>
-          <p class="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Consulta tu información registrada en el sistema</p>
-        </div>
-        <button @click="router.push('/')"
-          class="flex items-center gap-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium px-4 py-2.5 rounded-xl shadow border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all text-sm">
-          <Home class="w-4 h-4" />
-          <span class="hidden sm:inline">Inicio</span>
-        </button>
-      </div>
+    <div class="flex-1 p-4 md:p-8 relative z-10">
+    <div class="max-w-2xl mx-auto">
 
       <!-- Aviso solo lectura -->
       <div class="flex items-start gap-2.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700/50 text-blue-700 dark:text-blue-400 p-3.5 rounded-xl text-sm mb-6">
@@ -175,6 +164,7 @@ function rolLabel(codigo?: string | null) {
         </div>
       </div>
 
+    </div>
     </div>
   </div>
 </template>
