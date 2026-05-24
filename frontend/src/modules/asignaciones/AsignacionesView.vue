@@ -7,12 +7,14 @@ import type { UpdateAsignacionPayload, CodigoClase } from '../../shared/services
 import Navbar from '../../shared/components/Navbar.vue'
 import Footer from '../../shared/components/Footer.vue'
 import { useTheme } from '../../shared/composables/useTheme'
-import { showDeleteConfirm, Toast } from '../../shared/utils/swal'
+import Swal from 'sweetalert2'
+import { Toast } from '../../shared/utils/swal'
 import {
   ClipboardList, BookOpen, Calculator,
-  Trash2, Loader2, Users, ChevronDown,
+  Loader2, Users, ChevronDown,
   Clock, AlertCircle, Plus, X, BookMarked, Save, User, Pencil,
-  RefreshCw, TrendingUp, GraduationCap, Calendar, ShieldCheck, Hash, Check
+  RefreshCw, TrendingUp, GraduationCap, Calendar, ShieldCheck, Hash, Check,
+  LayoutGrid, LayoutList
 } from 'lucide-vue-next'
 import type { Grado } from '../../shared/types'
 import { useAuthStore } from '../../stores/auth'
@@ -72,7 +74,14 @@ const asignaciones = ref<Asignacion[]>([])
 const loading = ref(true)
 const error = ref('')
 const resultados = ref<Record<number, Resultado[]>>({})
-const loadingDelete = ref<number | null>(null)
+const loadingToggle = ref<number | null>(null)
+const viewMode = ref<'cards' | 'table'>(
+  (localStorage.getItem('asignaciones_view') as 'cards' | 'table') ?? 'cards'
+)
+function setViewMode(mode: 'cards' | 'table') {
+  viewMode.value = mode
+  localStorage.setItem('asignaciones_view', mode)
+}
 
 // Modal resultados
 const showResultados = shallowRef(false)
@@ -290,19 +299,28 @@ async function openResultados(asig: Asignacion) {
   }
 }
 
-async function eliminar(id: number) {
-  const ok = await showDeleteConfirm('¿Eliminar asignación?', 'Se eliminarán todos los intentos relacionados')
-  if (!ok) return
-  loadingDelete.value = id
+async function toggle(asig: Asignacion) {
+  const accion = asig.is_active ? 'desactivar' : 'activar'
+  const result = await Swal.fire({
+    title: asig.is_active ? '¿Desactivar asignación?' : '¿Activar asignación?',
+    html: asig.is_active
+      ? 'Los estudiantes no podrán iniciar ni continuar este examen.'
+      : 'Los estudiantes podrán acceder nuevamente a este examen.',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: asig.is_active ? '#64748b' : '#7c3aed',
+    confirmButtonText: asig.is_active ? 'Desactivar' : 'Activar',
+    cancelButtonText: 'Cancelar',
+  })
+  if (!result.isConfirmed) return
+  loadingToggle.value = asig.id
   try {
-    await asignacionesService.deleteAsignacion(id)
-    asignaciones.value = asignaciones.value.filter(a => a.id !== id)
-    if (resultadosAsig.value?.id === id) showResultados.value = false
-    Toast.fire({ icon: 'success', title: 'Asignación eliminada' })
+    const { is_active } = await asignacionesService.toggleActive(asig.id)
+    asig.is_active = is_active
   } catch (e: any) {
-    Toast.fire({ icon: 'error', title: e.response?.data?.detail ?? 'Error al eliminar' })
+    Toast.fire({ icon: 'error', title: e.response?.data?.detail ?? `Error al ${accion}` })
   } finally {
-    loadingDelete.value = null
+    loadingToggle.value = null
   }
 }
 
@@ -344,7 +362,7 @@ const estadoColors: Record<string, string> = {
       gradient-class="from-violet-600 via-purple-600 to-indigo-600 shadow-violet-500/20"
       subtitle-class="text-violet-100 dark:text-slate-400" :show-home="true" />
 
-    <main class="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-6 md:py-10 space-y-6 md:space-y-10">
+    <main class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 md:py-10 space-y-6 md:space-y-10">
 
       <!-- Header & Welcome -->
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -360,11 +378,25 @@ const estadoColors: Record<string, string> = {
             {{ asignaciones.length }} asignación(es) activas en el sistema.
           </p>
         </div>
-        <button @click="openModal"
-          class="group flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-violet-600 to-indigo-700 hover:from-violet-700 hover:to-indigo-800 text-white font-bold text-sm rounded-2xl shadow-xl shadow-violet-500/20 hover:-translate-y-0.5 transition-all active:scale-95 cursor-pointer">
-          <Plus class="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
-          <span>Nueva Asignación</span>
-        </button>
+        <div class="flex items-center gap-3">
+          <div class="flex items-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-1 shadow-sm">
+            <button @click="setViewMode('cards')" title="Vista cards"
+              class="p-2.5 rounded-xl transition-all"
+              :class="viewMode === 'cards' ? 'bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'">
+              <LayoutGrid class="w-4 h-4" />
+            </button>
+            <button @click="setViewMode('table')" title="Vista tabla"
+              class="p-2.5 rounded-xl transition-all"
+              :class="viewMode === 'table' ? 'bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'">
+              <LayoutList class="w-4 h-4" />
+            </button>
+          </div>
+          <button @click="openModal"
+            class="group flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-violet-600 to-indigo-700 hover:from-violet-700 hover:to-indigo-800 text-white font-bold text-sm rounded-2xl shadow-xl shadow-violet-500/20 hover:-translate-y-0.5 transition-all active:scale-95 cursor-pointer">
+            <Plus class="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
+            <span>Nueva Asignación</span>
+          </button>
+        </div>
       </div>
 
       <!-- Error -->
@@ -406,80 +438,165 @@ const estadoColors: Record<string, string> = {
         </button>
       </div>
 
-      <!-- List -->
-      <div v-else class="grid grid-cols-1 gap-4 md:gap-6">
+      <!-- Cards -->
+      <div v-else-if="viewMode === 'cards'" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
         <div v-for="asig in asignaciones" :key="asig.id"
-          class="bg-white dark:bg-slate-900/60 backdrop-blur-md rounded-2xl border border-slate-300 dark:border-slate-800 p-6 md:p-8 shadow-sm hover:shadow-xl hover:shadow-violet-500/5 transition-all duration-300 relative group overflow-hidden">
-          
-          <div class="absolute -right-8 -top-8 w-32 h-32 bg-violet-500/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+          class="bg-white dark:bg-slate-900/60 backdrop-blur-md rounded-2xl border border-slate-300 dark:border-slate-800 p-5 shadow-sm hover:shadow-xl hover:shadow-violet-500/5 transition-all duration-300 relative group overflow-hidden flex flex-col"
+          :class="!asig.is_active ? 'opacity-50' : ''">
 
-          <div class="flex flex-col md:flex-row md:items-center gap-6 relative z-10">
-            <!-- Icon & Type -->
+          <div class="absolute -right-6 -top-6 w-24 h-24 bg-violet-500/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+
+          <!-- Top: icon + badges -->
+          <div class="flex items-center gap-3 mb-4 relative z-10">
             <div :class="asig.tipo_examen === 'lectura'
               ? 'bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400'
               : 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'"
-              class="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 transform group-hover:rotate-6 transition-transform shadow-inner">
-              <BookOpen v-if="asig.tipo_examen === 'lectura'" class="w-8 h-8" />
-              <Calculator v-else class="w-8 h-8" />
+              class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 group-hover:rotate-6 transition-transform shadow-inner">
+              <BookOpen v-if="asig.tipo_examen === 'lectura'" class="w-6 h-6" />
+              <Calculator v-else class="w-6 h-6" />
             </div>
-
-            <div class="flex-1 min-w-0">
-              <div class="flex flex-wrap items-center gap-2 mb-2">
-                 <span :class="asig.tipo_examen === 'lectura' ? 'text-teal-500 bg-teal-500/10' : 'text-indigo-500 bg-indigo-500/10'" 
-                   class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full">
-                   {{ asig.tipo_examen === 'lectura' ? 'LectoSistem' : 'MatSistem' }}
-                 </span>
-                 <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
-                    {{ asig.completados }} rindiendo
-                 </span>
-              </div>
-              <h3 class="text-xl font-black text-slate-800 dark:text-white truncate tracking-tight mb-1">
-                {{ asig.titulo ?? (asig.tipo_examen === 'lectura' ? 'Examen de Comunicación' : 'Examen de Matemática') }}
-              </h3>
-              <div class="flex items-center gap-2 text-sm font-bold text-slate-500 dark:text-slate-400 mb-3">
-                 <span class="text-violet-600 dark:text-violet-400">{{ asig.grado_nombre ?? `Grado ${asig.grado_id}` }}</span>
-                 <span v-if="asig.seccion" class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
-                 <span v-if="asig.seccion">Sección {{ asig.seccion }}</span>
-              </div>
-              
-              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-2 gap-x-4">
-                <div v-if="asig.duracion_minutos" class="flex items-center gap-2 text-xs font-bold text-slate-400">
-                  <Clock class="w-3.5 h-3.5 text-violet-400" />
-                  <span>{{ asig.duracion_minutos }} min. de duración</span>
-                </div>
-                <div v-if="asig.fecha_fin" class="flex items-center gap-2 text-xs font-bold text-slate-400">
-                  <AlertCircle class="w-3.5 h-3.5 text-amber-400" />
-                  <span class="truncate">{{ formatFechaHora(asig.fecha_inicio) }} – {{ formatFechaHora(asig.fecha_fin) }}</span>
-                </div>
-                <div v-if="asig.asignado_por_nombre" class="flex items-center gap-2 text-xs font-bold text-slate-400">
-                  <User class="w-3.5 h-3.5 text-indigo-400" />
-                  <span class="truncate">{{ asig.asignado_por_nombre }}</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="flex items-center md:flex-col lg:flex-row gap-2 mt-4 md:mt-0 pt-4 md:pt-0 border-t md:border-t-0 border-slate-300 dark:border-slate-800">
-              <button @click="openResultados(asig)"
-                class="flex-1 md:w-full lg:flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs rounded-2xl transition-all active:scale-95 border border-slate-300 dark:border-slate-700 shadow-sm cursor-pointer"
-                title="Ver resultados">
-                <Users class="w-4 h-4" />
-                <span class="md:hidden lg:inline">Reporte</span>
-              </button>
-              <div class="flex gap-2">
-                <button v-if="asig.puede_eliminar" @click="openEditModal(asig)"
-                  class="p-3 bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 rounded-2xl hover:bg-violet-600 hover:text-white transition-all active:scale-95 border border-violet-100 dark:border-violet-900/50 shadow-sm cursor-pointer"
-                  title="Editar condiciones">
-                  <Pencil class="w-5 h-5" />
-                </button>
-                <button v-if="asig.puede_eliminar" @click="eliminar(asig.id)" :disabled="loadingDelete === asig.id"
-                  class="p-3 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 rounded-2xl hover:bg-red-600 hover:text-white transition-all active:scale-95 border border-red-100 dark:border-red-900/50 shadow-sm disabled:opacity-40 cursor-pointer">
-                  <Loader2 v-if="loadingDelete === asig.id" class="w-5 h-5 animate-spin" />
-                  <Trash2 v-else class="w-5 h-5" />
-                </button>
-              </div>
+            <div class="flex flex-wrap gap-1.5">
+              <span :class="asig.tipo_examen === 'lectura' ? 'text-teal-500 bg-teal-500/10' : 'text-indigo-500 bg-indigo-500/10'"
+                class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full">
+                {{ asig.tipo_examen === 'lectura' ? 'LectoSistem' : 'MatSistem' }}
+              </span>
+              <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
+                {{ asig.completados }} rindiendo
+              </span>
             </div>
           </div>
+
+          <!-- Title -->
+          <h3 class="text-base font-black text-slate-800 dark:text-white leading-tight mb-1.5 line-clamp-2 relative z-10">
+            {{ asig.titulo ?? (asig.tipo_examen === 'lectura' ? 'Examen de Comunicación' : 'Examen de Matemática') }}
+          </h3>
+
+          <!-- Grade/Section -->
+          <div class="flex items-center gap-1.5 text-sm font-bold mb-3 relative z-10">
+            <span class="text-violet-600 dark:text-violet-400">{{ asig.grado_nombre ?? `Grado ${asig.grado_id}` }}</span>
+            <span v-if="asig.seccion" class="text-slate-400">· Secc. {{ asig.seccion }}</span>
+          </div>
+
+          <!-- Metadata -->
+          <div class="space-y-1.5 flex-1 relative z-10">
+            <div v-if="asig.duracion_minutos" class="flex items-center gap-2 text-xs font-bold text-slate-400">
+              <Clock class="w-3.5 h-3.5 text-violet-400 shrink-0" />
+              <span>{{ asig.duracion_minutos }} min.</span>
+            </div>
+            <div v-if="asig.fecha_fin" class="flex items-center gap-2 text-xs font-bold text-slate-400">
+              <AlertCircle class="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span class="truncate">{{ formatFechaHora(asig.fecha_inicio) }} – {{ formatFechaHora(asig.fecha_fin) }}</span>
+            </div>
+            <div v-if="asig.asignado_por_nombre" class="flex items-center gap-2 text-xs font-bold text-slate-400">
+              <User class="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+              <span class="truncate">{{ asig.asignado_por_nombre }}</span>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex items-center gap-2 pt-4 mt-4 border-t border-slate-100 dark:border-slate-800 relative z-10">
+            <button @click="openResultados(asig)"
+              class="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs rounded-xl transition-all active:scale-95 border border-slate-200 dark:border-slate-700 cursor-pointer">
+              <Users class="w-4 h-4" />
+              <span>Reporte</span>
+            </button>
+            <button v-if="asig.puede_eliminar" @click="openEditModal(asig)"
+              class="p-2.5 bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 rounded-xl hover:bg-violet-600 hover:text-white transition-all active:scale-95 border border-violet-100 dark:border-violet-900/50 cursor-pointer"
+              title="Editar">
+              <Pencil class="w-4 h-4" />
+            </button>
+            <button v-if="asig.puede_eliminar" @click="toggle(asig)" :disabled="loadingToggle === asig.id"
+              title="Activar / Desactivar"
+              class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none disabled:opacity-40"
+              :class="asig.is_active ? 'bg-violet-500' : 'bg-slate-300 dark:bg-slate-600'">
+              <Loader2 v-if="loadingToggle === asig.id" class="w-3 h-3 text-white absolute left-1/2 -translate-x-1/2 animate-spin" />
+              <span v-else class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200"
+                :class="asig.is_active ? 'translate-x-6' : 'translate-x-1'" />
+            </button>
+          </div>
         </div>
+      </div>
+
+      <!-- Table -->
+      <div v-else-if="viewMode === 'table'" class="bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm overflow-hidden">
+          <table class="w-full border-collapse text-sm table-fixed">
+            <colgroup>
+              <col class="w-[33%]" />
+              <col class="w-[15%]" />
+              <col class="w-[26%]" />
+              <col class="w-[10%]" />
+              <col class="w-[16%]" />
+            </colgroup>
+            <thead>
+              <tr class="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700">
+                <th class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Examen</th>
+                <th class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Destino</th>
+                <th class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Horario</th>
+                <th class="px-4 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Estado</th>
+                <th class="px-4 py-3 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Acciones</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+              <tr v-for="asig in asignaciones" :key="asig.id"
+                class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
+                :class="!asig.is_active ? 'opacity-50' : ''">
+                <td class="px-4 py-3">
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <div :class="asig.tipo_examen === 'lectura' ? 'bg-teal-50 dark:bg-teal-900/30 text-teal-600' : 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600'"
+                      class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0">
+                      <BookOpen v-if="asig.tipo_examen === 'lectura'" class="w-3.5 h-3.5" />
+                      <Calculator v-else class="w-3.5 h-3.5" />
+                    </div>
+                    <div class="min-w-0">
+                      <p class="font-black text-slate-800 dark:text-white truncate text-xs leading-tight">
+                        {{ asig.titulo ?? (asig.tipo_examen === 'lectura' ? 'Examen de Comunicación' : 'Examen de Matemática') }}
+                      </p>
+                      <span :class="asig.tipo_examen === 'lectura' ? 'text-teal-500' : 'text-indigo-500'"
+                        class="text-[9px] font-black uppercase tracking-widest">
+                        {{ asig.tipo_examen === 'lectura' ? 'LectoSistem' : 'MatSistem' }}
+                      </span>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-4 py-3">
+                  <p class="font-bold text-xs text-violet-600 dark:text-violet-400 truncate">{{ asig.grado_nombre ?? `Grado ${asig.grado_id}` }}</p>
+                  <p v-if="asig.seccion" class="text-[10px] font-bold text-slate-400">Secc. {{ asig.seccion }}</p>
+                </td>
+                <td class="px-4 py-3">
+                  <span v-if="asig.fecha_inicio" class="text-[10px] font-bold text-slate-500 dark:text-slate-400 leading-relaxed">
+                    {{ formatFechaHora(asig.fecha_inicio) }}<br/>{{ formatFechaHora(asig.fecha_fin) }}
+                  </span>
+                  <span v-else class="text-xs text-slate-400">—</span>
+                </td>
+                <td class="px-4 py-3 text-center">
+                  <span :class="asig.is_active ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'"
+                    class="text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-full whitespace-nowrap">
+                    {{ asig.is_active ? 'Activa' : 'Inactiva' }}
+                  </span>
+                </td>
+                <td class="px-4 py-3">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <button @click="openResultados(asig)" title="Ver resultados"
+                      class="p-1.5 rounded-lg text-slate-400 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-all">
+                      <Users class="w-4 h-4" />
+                    </button>
+                    <button v-if="asig.puede_eliminar" @click="openEditModal(asig)" title="Editar"
+                      class="p-1.5 rounded-lg text-slate-400 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-all">
+                      <Pencil class="w-4 h-4" />
+                    </button>
+                    <button v-if="asig.puede_eliminar" @click="toggle(asig)" :disabled="loadingToggle === asig.id"
+                      title="Activar / Desactivar"
+                      class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none disabled:opacity-40 shrink-0"
+                      :class="asig.is_active ? 'bg-violet-500' : 'bg-slate-300 dark:bg-slate-600'">
+                      <Loader2 v-if="loadingToggle === asig.id" class="w-3 h-3 text-white absolute left-1/2 -translate-x-1/2 animate-spin" />
+                      <span v-else class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200"
+                        :class="asig.is_active ? 'translate-x-6' : 'translate-x-1'" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
       </div>
 
     </main>

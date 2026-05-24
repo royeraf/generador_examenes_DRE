@@ -690,6 +690,33 @@ async def eliminar_asignacion(
     return {"ok": True}
 
 
+@router.patch("/examenes/asignaciones/{asig_id}/toggle-active")
+async def toggle_asignacion_activa(
+    asig_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(require_modulo("asignaciones")),
+):
+    result = await db.execute(select(AsignacionExamen).where(AsignacionExamen.id == asig_id))
+    asig = result.scalars().first()
+    if not asig:
+        raise HTTPException(404, "Asignación no encontrada")
+
+    rol = RolCodigo(current_user.rol_codigo)
+    DRE_ROLES = {RolCodigo.ESPECIALISTA_DRE_COMUNICACION, RolCodigo.ESPECIALISTA_DRE_MATEMATICA}
+    GESTORES_IE = {RolCodigo.DIRECTOR, RolCodigo.AUXILIAR}
+
+    is_creator = asig.asignado_por_id == current_user.id
+    is_gestor_ie = rol in GESTORES_IE and asig.institucion_educativa_id == current_user.institucion_educativa_id
+    is_dre = rol in DRE_ROLES
+
+    if not (is_creator or is_gestor_ie or is_dre):
+        raise HTTPException(403, "No tienes acceso a esta asignación")
+
+    asig.is_active = not asig.is_active
+    await db.flush()
+    return {"id": asig.id, "is_active": asig.is_active}
+
+
 @router.put("/examenes/asignaciones/{asig_id}")
 async def actualizar_asignacion(
     asig_id: int,

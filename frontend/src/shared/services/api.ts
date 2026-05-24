@@ -746,8 +746,9 @@ export const asignacionesService = {
   async updateAsignacion(id: number, data: UpdateAsignacionPayload): Promise<void> {
     await apiClient.put(`/examenes/asignaciones/${id}`, data)
   },
-  async deleteAsignacion(id: number): Promise<void> {
-    await apiClient.delete(`/examenes/asignaciones/${id}`)
+  async toggleActive(id: number): Promise<{ id: number; is_active: boolean }> {
+    const response = await apiClient.patch<{ id: number; is_active: boolean }>(`/examenes/asignaciones/${id}/toggle-active`)
+    return response.data
   },
 }
 
