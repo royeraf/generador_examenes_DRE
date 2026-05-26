@@ -146,7 +146,7 @@ watch(() => props.stats, () => {
                 <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-2 flex items-center gap-1">
                     <Users class="w-4 h-4" /> Total
                 </p>
-                <p class="text-3xl font-bold text-teal-600 dark:text-teal-400">{{ stats.total }}</p>
+                <p class="text-3xl font-bold text-teal-600 dark:text-emerald-400">{{ stats.total }}</p>
             </div>
 
             <div v-for="(count, key) in { 'Pre Inicio': stats['pre-inicio'], 'Inicio': stats['inicio'], 'Proceso': stats['proceso'], 'Satisfactorio': stats['satisfactorio'], 'Destacado': stats['destacado'] }"

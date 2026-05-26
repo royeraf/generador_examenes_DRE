@@ -40,7 +40,7 @@ const localCompetencia = computed({
     <div class="animate-fadeIn">
         <div class="flex flex-wrap justify-between items-start mb-8 gap-4">
             <div>
-                <h2 class="text-2xl font-bold text-teal-700 dark:text-teal-400 flex items-center gap-3">
+                <h2 class="text-2xl font-bold text-teal-700 dark:text-emerald-400 flex items-center gap-3">
                     <Target class="w-8 h-8" /> Configuración de Desempeños
                 </h2>
                 <p class="text-slate-500 dark:text-slate-400 mt-1">Define la competencia y los desempeños a evaluar por
@@ -95,7 +95,7 @@ const localCompetencia = computed({
 
                     <div class="space-y-3 mb-4">
                         <div v-for="(pregunta, idx) in nivel.preguntas" :key="idx"
-                            class="group relative bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-900 dark:to-slate-950 p-4 rounded-xl border-2 border-slate-300 dark:border-slate-700 hover:border-teal-200 dark:hover:border-teal-700 transition-all duration-300">
+                            class="group relative bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-900 dark:to-slate-950 p-4 rounded-xl border-2 border-slate-300 dark:border-slate-700 hover:border-teal-200 dark:hover:border-emerald-700 transition-all duration-300">
                             <span
                                 class="absolute -left-2 -top-2 flex items-center justify-center w-7 h-7 rounded-full text-white text-xs font-bold shadow-lg ring-2 ring-white dark:ring-slate-800"
                                 :style="{ backgroundColor: nivel.color }">
@@ -138,7 +138,7 @@ const localCompetencia = computed({
                     </div>
 
                     <button @click="emit('addPregunta', String(key))"
-                        class="w-full py-4 border-2 border-dashed rounded-xl text-slate-500 hover:text-teal-600 hover:border-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/10 transition-all duration-300 flex items-center justify-center gap-2 text-sm font-bold"
+                        class="w-full py-4 border-2 border-dashed rounded-xl text-slate-500 hover:text-teal-600 hover:border-teal-400 hover:bg-teal-50 dark:hover:bg-emerald-900/10 transition-all duration-300 flex items-center justify-center gap-2 text-sm font-bold"
                         :style="{ borderColor: nivel.color + '50' }">
                         <Plus class="w-5 h-5" />
                         Agregar Pregunta

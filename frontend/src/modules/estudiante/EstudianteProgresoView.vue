@@ -40,7 +40,7 @@ const nivelColors: Record<string, string> = {
   inicio: 'text-orange-500 bg-orange-50 dark:bg-orange-500/10 border-orange-100 dark:border-orange-500/20',
   proceso: 'text-yellow-600 bg-yellow-50 dark:bg-yellow-500/10 border-yellow-100 dark:border-yellow-500/20',
   satisfactorio: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20',
-  destacado: 'text-teal-500 bg-teal-50 dark:bg-teal-500/10 border-teal-100 dark:border-teal-100/20',
+  destacado: 'text-teal-500 bg-teal-50 dark:bg-emerald-500/10 border-teal-100 dark:border-emerald-100/20',
 }
 
 const nivelLabels: Record<string, string> = {
@@ -60,7 +60,7 @@ const nivelLabels: Record<string, string> = {
 
       <!-- Background Orbs -->
       <div class="fixed inset-0 pointer-events-none overflow-hidden opacity-40">
-        <div class="absolute top-[20%] right-[-10%] w-[500px] h-[500px] bg-teal-500/5 dark:bg-teal-500/10 rounded-full blur-[120px]"></div>
+        <div class="absolute top-[20%] right-[-10%] w-[500px] h-[500px] bg-teal-500/5 dark:bg-emerald-500/10 rounded-full blur-[120px]"></div>
         <div class="absolute bottom-[10%] left-[-10%] w-[400px] h-[400px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[100px]"></div>
       </div>
 

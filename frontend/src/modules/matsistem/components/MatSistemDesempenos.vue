@@ -74,15 +74,15 @@ const getCapInfo = (orden: number) => {
 // Colors per capacidad
 const CAP_COLORS: Record<number, { bg: string; bgActive: string; bgHover: string; text: string; textActive: string; border: string; ring: string; bgSelected: string; checkboxClass: string; dot: string }> = {
     1: {
-        bg: 'bg-teal-50 dark:bg-teal-900/15',
-        bgActive: 'bg-teal-500 dark:bg-teal-600',
-        bgHover: 'hover:bg-teal-100/70 dark:hover:bg-teal-900/30 hover:text-teal-700 dark:hover:text-teal-300 hover:shadow-sm',
-        text: 'text-teal-600 dark:text-teal-400',
+        bg: 'bg-teal-50 dark:bg-emerald-900/15',
+        bgActive: 'bg-teal-500 dark:bg-emerald-600',
+        bgHover: 'hover:bg-teal-100/70 dark:hover:bg-emerald-900/30 hover:text-teal-700 dark:hover:text-emerald-300 hover:shadow-sm',
+        text: 'text-teal-600 dark:text-emerald-400',
         textActive: 'text-white',
-        border: 'border-teal-200 dark:border-teal-800',
-        ring: 'ring-teal-300 dark:ring-teal-700',
-        bgSelected: 'bg-teal-50 dark:bg-teal-900/20',
-        checkboxClass: 'checked:bg-teal-600 checked:border-teal-600 dark:checked:bg-teal-500 dark:checked:border-teal-500 focus:ring-teal-500/50',
+        border: 'border-teal-200 dark:border-emerald-800',
+        ring: 'ring-teal-300 dark:ring-emerald-700',
+        bgSelected: 'bg-teal-50 dark:bg-emerald-900/20',
+        checkboxClass: 'checked:bg-teal-600 checked:border-teal-600 dark:checked:bg-emerald-500 dark:checked:border-emerald-500 focus:ring-teal-500/50',
         dot: 'text-teal-500'
     },
     2: {

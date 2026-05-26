@@ -136,7 +136,7 @@ onMounted(load)
                 <td class="px-4 py-2">
                   <div class="flex justify-end gap-1">
                     <button @click="saveEdit"
-                      class="p-1.5 rounded-lg bg-teal-50 dark:bg-teal-900/20 text-teal-600 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors">
+                      class="p-1.5 rounded-lg bg-teal-50 dark:bg-emerald-900/20 text-teal-600 hover:bg-teal-100 dark:hover:bg-emerald-900/40 transition-colors">
                       <Save class="w-3.5 h-3.5" />
                     </button>
                     <button @click="cancelEdit"

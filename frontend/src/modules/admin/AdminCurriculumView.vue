@@ -47,9 +47,9 @@ const AREAS: AreaConfig[] = [
     icon: BookOpenText,
     panel: ComunicacionPanel,
     accentBg: 'bg-teal-500',
-    accentText: 'text-teal-600 dark:text-teal-400',
+    accentText: 'text-teal-600 dark:text-emerald-400',
     accentRing: 'ring-teal-500',
-    activeBg: 'bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800',
+    activeBg: 'bg-teal-50 dark:bg-emerald-900/20 border-teal-200 dark:border-emerald-800',
   },
   {
     id: 'matematica',

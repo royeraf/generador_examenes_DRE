@@ -152,8 +152,8 @@ const completadosPct = () => {
           <h4 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Exámenes generados</h4>
           <div class="flex items-center gap-4">
             <div class="flex items-center gap-2 flex-1">
-              <div class="w-7 h-7 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center shrink-0">
-                <BookOpen class="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+              <div class="w-7 h-7 rounded-lg bg-teal-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
+                <BookOpen class="w-3.5 h-3.5 text-teal-600 dark:text-emerald-400" />
               </div>
               <div>
                 <p class="text-lg font-black text-slate-800 dark:text-white">{{ analytics.total_examenes_lectura }}</p>
@@ -187,7 +187,7 @@ const completadosPct = () => {
             <div v-for="ex in analytics.recientes" :key="`${ex.area}-${ex.id}`"
               class="flex items-center gap-3 px-5 py-3">
               <div :class="ex.area === 'lectura'
-                ? 'bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400'
+                ? 'bg-teal-100 dark:bg-emerald-900/30 text-teal-600 dark:text-emerald-400'
                 : 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'"
                 class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0">
                 <BookOpen v-if="ex.area === 'lectura'" class="w-4 h-4" />

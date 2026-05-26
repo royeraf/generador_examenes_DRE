@@ -390,13 +390,13 @@ function nombreGrado(id: number | null) {
       <div v-if="!isDesktop" class="shrink-0 flex items-center justify-around bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 p-1.5 mb-6 shadow-sm">
         <button @click="mobileTab = 'filtros'" 
           class="flex-1 py-2.5 flex flex-col items-center justify-center gap-1 rounded-xl transition-all" 
-          :class="mobileTab === 'filtros' ? 'text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30' : 'text-slate-500'">
+          :class="mobileTab === 'filtros' ? 'text-teal-600 dark:text-emerald-400 bg-teal-50 dark:bg-emerald-900/30' : 'text-slate-500'">
           <Filter class="w-5 h-5" />
           <span class="text-[10px] font-black uppercase tracking-widest">Filtros</span>
         </button>
         <button @click="mobileTab = 'estudiantes'" 
           class="flex-1 py-2.5 flex flex-col items-center justify-center gap-1 rounded-xl transition-all" 
-          :class="mobileTab === 'estudiantes' ? 'text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30' : 'text-slate-500'">
+          :class="mobileTab === 'estudiantes' ? 'text-teal-600 dark:text-emerald-400 bg-teal-50 dark:bg-emerald-900/30' : 'text-slate-500'">
           <Users class="w-5 h-5" />
           <span class="text-[10px] font-black uppercase tracking-widest">Estudiantes</span>
         </button>
@@ -477,14 +477,14 @@ function nombreGrado(id: number | null) {
                 <tr v-for="est in paginados" :key="est.id" class="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors" :class="!est.is_active ? 'opacity-50' : ''">
                   <td class="p-4">
                     <div class="flex items-center gap-3">
-                      <div class="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center font-black text-teal-600">
+                      <div class="w-10 h-10 rounded-xl bg-teal-50 dark:bg-emerald-900/30 flex items-center justify-center font-black text-teal-600">
                   {{ (est.nombres || '?').charAt(0) }}{{ (est.apellidos || '?').charAt(0) }}
                       </div>
                       <span class="font-bold text-slate-800 dark:text-white">{{ est.apellidos }}, {{ est.nombres }}</span>
                     </div>
                   </td>
                   <td class="p-4">
-                    <span class="font-mono font-black text-teal-600 bg-teal-50 dark:bg-teal-900/20 px-3 py-1 rounded-full text-xs">
+                    <span class="font-mono font-black text-teal-600 bg-teal-50 dark:bg-emerald-900/20 px-3 py-1 rounded-full text-xs">
                       {{ est.codigo_estudiante || 'Pendiente' }}
                     </span>
                   </td>
@@ -590,7 +590,7 @@ function nombreGrado(id: number | null) {
             <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100 dark:border-slate-700">
               <div>
                 <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Código Acceso</p>
-                <p class="font-mono font-bold text-teal-600 dark:text-teal-400">{{ est.codigo_estudiante || 'Pendiente' }}</p>
+                <p class="font-mono font-bold text-teal-600 dark:text-emerald-400">{{ est.codigo_estudiante || 'Pendiente' }}</p>
               </div>
               <div>
                 <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">DNI</p>
@@ -783,7 +783,7 @@ function nombreGrado(id: number | null) {
             <div class="space-y-2">
                 <p class="text-xs font-bold text-slate-500">El código de acceso es:</p>
                 <div class="bg-slate-50 dark:bg-slate-700/50 rounded-2xl py-5 px-6 border-2 border-dashed border-teal-500/30">
-                  <span class="text-4xl font-mono font-black text-teal-600 dark:text-teal-400 tracking-[0.2em]">{{ successCodigo }}</span>
+                  <span class="text-4xl font-mono font-black text-teal-600 dark:text-emerald-400 tracking-[0.2em]">{{ successCodigo }}</span>
                 </div>
             </div>
             <div class="bg-amber-50 dark:bg-amber-900/20 rounded-2xl p-4 border border-amber-100 dark:border-amber-900/30">

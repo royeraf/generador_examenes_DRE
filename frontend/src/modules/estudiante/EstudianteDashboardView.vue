@@ -102,7 +102,7 @@ const nivelConfig: Record<string, { label: string; icon: Component; color: strin
   },
   destacado: {
     label: 'Destacado', icon: Trophy, msg: '¡Eres un lector de élite, increíble!',
-    color: 'text-teal-600 dark:text-teal-400',
+    color: 'text-teal-600 dark:text-emerald-400',
     bg: 'from-teal-400 to-indigo-500',
     bar: 'bg-teal-500',
   },
@@ -119,7 +119,7 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
 
     <!-- Premium Background Elements -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden">
-      <div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-teal-500/5 dark:bg-teal-500/10 rounded-full blur-[120px]"></div>
+      <div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-teal-500/5 dark:bg-emerald-500/10 rounded-full blur-[120px]"></div>
       <div class="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[100px]"></div>
     </div>
 
@@ -175,7 +175,7 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
       <section class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         <!-- Stat Card Template -->
         <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-300 dark:border-slate-800 shadow-sm flex items-center gap-4 group hover:shadow-md transition-all">
-          <div class="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-500/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+          <div class="w-12 h-12 rounded-xl bg-teal-50 dark:bg-emerald-500/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
             <Trophy class="w-6 h-6 text-teal-500" />
           </div>
           <div>

@@ -300,7 +300,7 @@ export function useLectoSistem() {
 
   const getNivelBadgeClass = (nivel: string): string => {
     const classes: Record<string, string> = {
-      'LITERAL': 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
+      'LITERAL': 'bg-teal-100 text-teal-700 dark:bg-emerald-900/30 dark:text-emerald-400',
       'INFERENCIAL': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
       'CRITICO': 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400',
       'CRÍTICO': 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400'

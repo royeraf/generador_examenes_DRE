@@ -90,7 +90,7 @@ async function registrar() {
     
     <!-- Background Orbs -->
     <div class="absolute inset-0 pointer-events-none overflow-hidden">
-        <div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-teal-500/5 dark:bg-teal-500/10 rounded-full blur-[120px]"></div>
+        <div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-teal-500/5 dark:bg-emerald-500/10 rounded-full blur-[120px]"></div>
         <div class="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[100px]"></div>
     </div>
 
@@ -121,7 +121,7 @@ async function registrar() {
           </div>
           <div class="bg-slate-50 dark:bg-slate-950 border-2 border-dashed border-teal-500/30 rounded-2xl py-5 px-8 relative overflow-hidden group">
             <div class="absolute inset-0 bg-teal-500/5 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
-            <span class="text-4xl font-mono font-black text-teal-600 dark:text-teal-400 tracking-[0.2em] relative z-10">{{ success.codigo }}</span>
+            <span class="text-4xl font-mono font-black text-teal-600 dark:text-emerald-400 tracking-[0.2em] relative z-10">{{ success.codigo }}</span>
           </div>
           <div class="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-500/10 rounded-2xl text-left border border-amber-100 dark:border-amber-500/20">
             <AlertCircle class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
@@ -181,7 +181,7 @@ async function registrar() {
               <div class="pt-6 border-t border-slate-300 dark:border-slate-800 text-center">
                 <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">
                   ¿Ya tienes una cuenta?
-                  <button @click="router.push('/login')" class="text-teal-600 dark:text-teal-400 font-bold hover:underline ml-1">Inicia sesión</button>
+                  <button @click="router.push('/login')" class="text-teal-600 dark:text-emerald-400 font-bold hover:underline ml-1">Inicia sesión</button>
                 </p>
               </div>
             </div>
@@ -190,7 +190,7 @@ async function registrar() {
             <div v-else key="step-datos" class="p-8 sm:p-10 space-y-6">
               <!-- Class Info Header -->
               <div v-if="codigoInfo" class="bg-gradient-to-br from-teal-500/10 to-indigo-500/10 border border-teal-500/20 rounded-2xl p-5 space-y-1">
-                <p class="text-[10px] font-bold text-teal-600 dark:text-teal-400 uppercase tracking-widest">Aula Identificada</p>
+                <p class="text-[10px] font-bold text-teal-600 dark:text-emerald-400 uppercase tracking-widest">Aula Identificada</p>
                 <p class="text-sm font-bold text-slate-800 dark:text-white leading-tight">{{ codigoInfo.institucion }}</p>
                 <p class="text-xs font-medium text-slate-500 dark:text-slate-400">{{ codigoInfo.grado }} — Sección {{ codigoInfo.seccion }}</p>
               </div>

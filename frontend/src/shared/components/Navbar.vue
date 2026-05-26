@@ -30,7 +30,7 @@ const router = useRouter();
         <div class="absolute -inset-0.5 bg-gradient-to-r from-teal-500 to-indigo-600 rounded-lg blur opacity-20"></div>
         <div class="absolute inset-0 flex items-center justify-center p-1.5 bg-white dark:bg-slate-800
           rounded-lg border border-slate-300 dark:border-slate-700 overflow-hidden">
-          <GraduationCap class="absolute w-4 h-4 text-teal-600 dark:text-teal-400 nav-logo-1" />
+          <GraduationCap class="absolute w-4 h-4 text-teal-600 dark:text-emerald-400 nav-logo-1" />
           <div class="absolute nav-logo-img w-4 h-4 nav-logo-2"
             :style="{ 'mask-image': `url(${logoDre})`, '-webkit-mask-image': `url(${logoDre})` }"></div>
         </div>

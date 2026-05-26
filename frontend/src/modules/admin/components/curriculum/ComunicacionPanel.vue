@@ -16,7 +16,7 @@ const TABS = [
   { id: 'desempenos' as const, label: 'Desempeños', icon: BookOpen },
 ]
 const TIPO_BADGE: Record<string, string> = {
-  literal: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
+  literal: 'bg-teal-100 text-teal-700 dark:bg-emerald-900/30 dark:text-emerald-400',
   inferencial: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
   critico: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400',
 }
@@ -32,7 +32,7 @@ const TIPO_BADGE: Record<string, string> = {
         @click="activeTab = tab.id"
         class="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all flex-1 sm:flex-initial justify-center whitespace-nowrap"
         :class="activeTab === tab.id
-          ? 'bg-white dark:bg-slate-700 text-teal-600 dark:text-teal-400 shadow-sm'
+          ? 'bg-white dark:bg-slate-700 text-teal-600 dark:text-emerald-400 shadow-sm'
           : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"
       >
         <component :is="tab.icon" class="w-3.5 h-3.5" />
@@ -113,7 +113,7 @@ const TIPO_BADGE: Record<string, string> = {
               </template>
 
               <template v-else>
-                <td class="px-4 py-3 font-mono font-bold text-teal-600 dark:text-teal-400">{{ (item as DesempenoItem).codigo }}</td>
+                <td class="px-4 py-3 font-mono font-bold text-teal-600 dark:text-emerald-400">{{ (item as DesempenoItem).codigo }}</td>
                 <td class="px-4 py-3 text-slate-600 dark:text-slate-300 max-w-sm">
                   <span class="line-clamp-2">{{ (item as DesempenoItem).descripcion }}</span>
                 </td>

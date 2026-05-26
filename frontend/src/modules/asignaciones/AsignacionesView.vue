@@ -332,7 +332,7 @@ const nivelColors: Record<string, string> = {
   inicio: 'text-orange-600 bg-orange-50 dark:bg-orange-900/20 dark:text-orange-400',
   proceso: 'text-yellow-700 bg-yellow-50 dark:bg-yellow-900/20 dark:text-yellow-400',
   satisfactorio: 'text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-400',
-  destacado: 'text-teal-600 bg-teal-50 dark:bg-teal-900/20 dark:text-teal-400',
+  destacado: 'text-teal-600 bg-teal-50 dark:bg-emerald-900/20 dark:text-emerald-400',
 }
 const nivelLabels: Record<string, string> = {
   pre_inicio: 'Pre Inicio', inicio: 'Inicio', proceso: 'En Proceso',
@@ -444,7 +444,7 @@ const estadoColors: Record<string, string> = {
           <!-- Top: icon + badges -->
           <div class="flex items-center gap-3 mb-4 relative z-10">
             <div :class="asig.tipo_examen === 'lectura'
-              ? 'bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400'
+              ? 'bg-teal-50 dark:bg-emerald-500/10 text-teal-600 dark:text-emerald-400'
               : 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'"
               class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 group-hover:rotate-6 transition-transform shadow-inner">
               <BookOpen v-if="asig.tipo_examen === 'lectura'" class="w-6 h-6" />
@@ -537,7 +537,7 @@ const estadoColors: Record<string, string> = {
                 :class="!asig.is_active ? 'opacity-50' : ''">
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-2.5 min-w-0">
-                    <div :class="asig.tipo_examen === 'lectura' ? 'bg-teal-50 dark:bg-teal-900/30 text-teal-600' : 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600'"
+                    <div :class="asig.tipo_examen === 'lectura' ? 'bg-teal-50 dark:bg-emerald-900/30 text-teal-600' : 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600'"
                       class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0">
                       <BookOpen v-if="asig.tipo_examen === 'lectura'" class="w-3.5 h-3.5" />
                       <Calculator v-else class="w-3.5 h-3.5" />
@@ -654,7 +654,7 @@ const estadoColors: Record<string, string> = {
                         <button type="button" @click="tipoExamen = 'lectura'; examenSeleccionadoId = null; examenDropdownOpen = false"
                           :class="['flex-1 flex items-center gap-2 p-2.5 rounded-xl border transition-all group cursor-pointer',
                             tipoExamen === 'lectura'
-                              ? 'bg-white dark:bg-teal-500/10 border-teal-500 text-teal-700 dark:text-teal-400 shadow-md'
+                              ? 'bg-white dark:bg-emerald-500/10 border-teal-500 text-teal-700 dark:text-emerald-400 shadow-md'
                               : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-400 hover:border-slate-400']">
                           <BookOpen class="w-3.5 h-3.5 transition-transform" /> 
                           <span class="text-[10px] font-black uppercase">Comunicación</span>
@@ -993,7 +993,7 @@ const estadoColors: Record<string, string> = {
                   <div class="flex items-center gap-4 min-w-0">
                     <div class="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-inner"
                       :class="resultadosAsig?.tipo_examen === 'lectura'
-                        ? 'bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400'
+                        ? 'bg-teal-50 dark:bg-emerald-500/10 text-teal-600 dark:text-emerald-400'
                         : 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'">
                       <BookOpen v-if="resultadosAsig?.tipo_examen === 'lectura'" class="w-7 h-7" />
                       <Calculator v-else class="w-7 h-7" />

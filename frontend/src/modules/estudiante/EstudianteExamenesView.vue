@@ -106,7 +106,7 @@ const nivelColors: Record<string, string> = {
   inicio: 'text-orange-500 bg-orange-50 dark:bg-orange-500/10 border-orange-100 dark:border-orange-500/20',
   proceso: 'text-yellow-600 bg-yellow-50 dark:bg-yellow-500/10 border-yellow-100 dark:border-yellow-500/20',
   satisfactorio: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20',
-  destacado: 'text-teal-500 bg-teal-50 dark:bg-teal-500/10 border-teal-100 dark:border-teal-500/20',
+  destacado: 'text-teal-500 bg-teal-50 dark:bg-emerald-500/10 border-teal-100 dark:border-emerald-500/20',
 }
 
 const nivelLabels: Record<string, string> = {
@@ -121,7 +121,7 @@ const nivelLabels: Record<string, string> = {
     
     <!-- Premium Background Elements -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden">
-      <div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-teal-500/5 dark:bg-teal-500/10 rounded-full blur-[120px]"></div>
+      <div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-teal-500/5 dark:bg-emerald-500/10 rounded-full blur-[120px]"></div>
       <div class="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[100px]"></div>
     </div>
 
@@ -168,7 +168,7 @@ const nivelLabels: Record<string, string> = {
           <AlertCircle class="w-8 h-8 text-red-500" />
         </div>
         <p class="text-slate-800 dark:text-white font-bold">{{ error }}</p>
-        <button @click="router.go(0)" class="text-teal-600 dark:text-teal-400 font-bold text-sm hover:underline">Reintentar</button>
+        <button @click="router.go(0)" class="text-teal-600 dark:text-emerald-400 font-bold text-sm hover:underline">Reintentar</button>
       </div>
 
       <!-- Empty state global (sin ningún examen) -->
@@ -256,14 +256,14 @@ const nivelLabels: Record<string, string> = {
               </div>
               <div v-if="examen.completado && examen.puntaje != null" class="flex justify-between text-[11px] font-medium text-slate-500 dark:text-slate-400 border-t border-slate-300/50 dark:border-slate-700/50 pt-2">
                 <span>Puntaje:</span>
-                <span class="font-black text-teal-600 dark:text-teal-400 text-sm">{{ examen.puntaje.toFixed(1) }}%</span>
+                <span class="font-black text-teal-600 dark:text-emerald-400 text-sm">{{ examen.puntaje.toFixed(1) }}%</span>
               </div>
             </div>
           </div>
 
           <div class="flex items-center gap-2 sm:gap-3">
             <button @click="abrirPreview(examen)"
-              class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-400 hover:text-teal-500 hover:border-teal-500 dark:hover:border-teal-500 transition-all flex items-center justify-center shrink-0"
+              class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-400 hover:text-teal-500 hover:border-teal-500 dark:hover:border-emerald-500 transition-all flex items-center justify-center shrink-0"
               title="Previsualizar">
               <BookText class="w-5 h-5" />
             </button>
@@ -346,7 +346,7 @@ const nivelLabels: Record<string, string> = {
                     @click="previewTabActiva = i"
                     class="w-full text-left px-4 py-3 flex items-start gap-3 transition-all group"
                     :class="previewTabActiva === i
-                      ? 'bg-teal-500/10 dark:bg-teal-500/10'
+                      ? 'bg-teal-500/10 dark:bg-emerald-500/10'
                       : 'hover:bg-slate-100 dark:hover:bg-slate-800/50'"
                   >
                     <span class="w-6 h-6 rounded-lg flex items-center justify-center text-[11px] font-black shrink-0 mt-0.5 transition-all"
@@ -357,7 +357,7 @@ const nivelLabels: Record<string, string> = {
                     </span>
                     <span class="text-sm font-semibold leading-snug"
                       :class="previewTabActiva === i
-                        ? 'text-teal-700 dark:text-teal-400'
+                        ? 'text-teal-700 dark:text-emerald-400'
                         : 'text-slate-600 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200'">
                       {{ lectura.titulo || `Texto ${i + 1}` }}
                     </span>
@@ -375,7 +375,7 @@ const nivelLabels: Record<string, string> = {
                     @click="previewTabActiva = i"
                     class="flex-shrink-0 px-5 py-3.5 text-[10px] font-bold uppercase tracking-widest transition-all border-b-2"
                     :class="previewTabActiva === i
-                      ? 'border-teal-500 text-teal-600 dark:text-teal-400 bg-teal-500/5'
+                      ? 'border-teal-500 text-teal-600 dark:text-emerald-400 bg-teal-500/5'
                       : 'border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'">
                     {{ lectura.titulo || `Texto ${i + 1}` }}
                   </button>

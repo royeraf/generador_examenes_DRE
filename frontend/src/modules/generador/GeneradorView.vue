@@ -281,7 +281,7 @@ const getCapacidadLabel = (tipo: string): string => {
 
 const getNivelBadgeClass = (nivel: string): string => {
   const classes: Record<string, string> = {
-    'LITERAL': 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
+    'LITERAL': 'bg-teal-100 text-teal-700 dark:bg-emerald-900/30 dark:text-emerald-400',
     'INFERENCIAL': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
     'CRITICO': 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400'
   };
@@ -291,7 +291,7 @@ const getNivelBadgeClass = (nivel: string): string => {
 
 <template>
   <div
-    class="min-h-screen flex flex-col bg-gradient-to-br from-teal-50/50 via-amber-50/30 to-sky-50/50 dark:from-slate-950 dark:via-slate-900 dark:to-teal-950/30 transition-colors edu-pattern-bg">
+    class="min-h-screen flex flex-col bg-gradient-to-br from-teal-50/50 via-amber-50/30 to-sky-50/50 dark:from-slate-950 dark:via-slate-900 dark:to-emerald-950/30 transition-colors edu-pattern-bg">
 
     <EduBackground />
 
@@ -552,7 +552,7 @@ const getNivelBadgeClass = (nivel: string): string => {
               <div v-if="uploadingFile"
                 class="flex items-center justify-center gap-2 py-4 bg-teal-50 dark:bg-slate-900 rounded-xl">
                 <Loader2 class="w-5 h-5 text-teal-600 animate-spin" />
-                <span class="text-teal-600 dark:text-teal-400 text-sm font-medium">Procesando...</span>
+                <span class="text-teal-600 dark:text-emerald-400 text-sm font-medium">Procesando...</span>
               </div>
 
               <div v-if="selectedFiles.length > 0 && !uploadingFile && filesMetadata" class="space-y-2">
@@ -664,12 +664,12 @@ const getNivelBadgeClass = (nivel: string): string => {
                     class="flex-1 min-w-[100px] relative px-2 sm:px-4 py-2 sm:py-2.5 text-[10px] sm:text-xs font-bold uppercase tracking-wide transition-all duration-300 rounded-lg whitespace-nowrap cursor-pointer"
                     :class="activeCapacidadTab === tipo
                       ? {
-                        'bg-teal-500 dark:bg-teal-600 text-white shadow-lg shadow-teal-500/30': tipo === 'literal',
+                        'bg-teal-500 dark:bg-emerald-600 text-white shadow-lg shadow-teal-500/30': tipo === 'literal',
                         'bg-amber-500 dark:bg-amber-600 text-white shadow-lg shadow-amber-500/30': tipo === 'inferencial',
                         'bg-violet-500 dark:bg-violet-600 text-white shadow-lg shadow-violet-500/30': tipo === 'critico'
                       }
                       : {
-                        'text-slate-500 dark:text-slate-400 hover:bg-teal-100/70 dark:hover:bg-teal-900/30 hover:text-teal-700 dark:hover:text-teal-300 hover:shadow-sm': tipo === 'literal',
+                        'text-slate-500 dark:text-slate-400 hover:bg-teal-100/70 dark:hover:bg-emerald-900/30 hover:text-teal-700 dark:hover:text-emerald-300 hover:shadow-sm': tipo === 'literal',
                         'text-slate-500 dark:text-slate-400 hover:bg-amber-100/70 dark:hover:bg-amber-900/30 hover:text-amber-700 dark:hover:text-amber-300 hover:shadow-sm': tipo === 'inferencial',
                         'text-slate-500 dark:text-slate-400 hover:bg-violet-100/70 dark:hover:bg-violet-900/30 hover:text-violet-700 dark:hover:text-violet-300 hover:shadow-sm': tipo === 'critico'
                       }">
@@ -867,9 +867,9 @@ const getNivelBadgeClass = (nivel: string): string => {
 
                 <!-- Instrucciones -->
                 <div
-                  class="bg-gradient-to-r from-teal-50 to-sky-50 dark:from-teal-900/40 dark:to-slate-900 rounded-xl p-3 sm:p-4 border-2 border-teal-100 dark:border-teal-800">
+                  class="bg-gradient-to-r from-teal-50 to-sky-50 dark:from-emerald-900/40 dark:to-slate-900 rounded-xl p-3 sm:p-4 border-2 border-teal-100 dark:border-emerald-800">
                   <p class="text-slate-700 dark:text-slate-300 text-sm">
-                    <strong class="text-teal-700 dark:text-teal-400 flex items-center gap-2 mb-2">
+                    <strong class="text-teal-700 dark:text-emerald-400 flex items-center gap-2 mb-2">
                       <ClipboardCheck class="w-4 h-4" />
                       Instrucciones:
                     </strong>
@@ -904,7 +904,7 @@ const getNivelBadgeClass = (nivel: string): string => {
                   </h4>
 
                   <div v-for="pregunta in resultado.examen.preguntas" :key="pregunta.numero"
-                    class="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-5 border-2 border-slate-300 dark:border-slate-700 hover:border-teal-200 dark:hover:border-teal-700 transition-all duration-300">
+                    class="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-5 border-2 border-slate-300 dark:border-slate-700 hover:border-teal-200 dark:hover:border-emerald-700 transition-all duration-300">
                     <div class="flex items-start gap-3 sm:gap-4">
                       <span
                         class="w-10 h-10 bg-gradient-to-br from-teal-500 to-sky-500 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-lg shadow-teal-500/20">

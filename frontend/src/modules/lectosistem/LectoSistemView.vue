@@ -462,7 +462,7 @@ onMounted(async () => {
               <div class="flex p-1 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-300 dark:border-slate-700">
                 <button v-for="nivel in nivelesDificultad" :key="nivel.id" @click="selectedNivelDificultad = nivel.id"
                   class="flex-1 flex justify-center py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer"
-                  :class="selectedNivelDificultad === nivel.id ? 'bg-teal-500 dark:bg-teal-600 text-white shadow-sm dark:shadow-none' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'">
+                  :class="selectedNivelDificultad === nivel.id ? 'bg-teal-500 dark:bg-emerald-600 text-white shadow-sm dark:shadow-none' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'">
                   {{ nivel.nombre }}
                 </button>
               </div>

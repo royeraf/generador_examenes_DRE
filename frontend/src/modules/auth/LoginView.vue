@@ -215,7 +215,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                         <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">
                             ¿Eres estudiante y no tienes cuenta?
                         </p>
-                        <router-link to="/registro" class="inline-block mt-2 text-teal-600 dark:text-teal-400 font-bold hover:underline underline-offset-4">
+                        <router-link to="/registro" class="inline-block mt-2 text-teal-600 dark:text-emerald-400 font-bold hover:underline underline-offset-4">
                             Regístrate con tu código de aula
                         </router-link>
                     </div>

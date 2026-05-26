@@ -380,7 +380,7 @@ const nivelColors: Record<string, string> = {
   inicio: 'text-orange-500 bg-orange-50 dark:bg-orange-500/10 border-orange-100 dark:border-orange-500/20',
   proceso: 'text-yellow-600 bg-yellow-50 dark:bg-yellow-500/10 border-yellow-100 dark:border-yellow-500/20',
   satisfactorio: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20',
-  destacado: 'text-teal-500 bg-teal-50 dark:bg-teal-500/10 border-teal-100 dark:border-teal-500/20',
+  destacado: 'text-teal-500 bg-teal-50 dark:bg-emerald-500/10 border-teal-100 dark:border-emerald-500/20',
 }
 
 const nivelLabels: Record<string, string> = {
@@ -442,7 +442,7 @@ const nivelMensaje: Record<string, string> = {
       
       <!-- Background orbs -->
       <div class="fixed inset-0 pointer-events-none overflow-hidden">
-        <div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-teal-500/5 dark:bg-teal-500/10 rounded-full blur-[120px]"></div>
+        <div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-teal-500/5 dark:bg-emerald-500/10 rounded-full blur-[120px]"></div>
         <div class="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[100px]"></div>
       </div>
 
@@ -537,7 +537,7 @@ const nivelMensaje: Record<string, string> = {
             
             <!-- Premium Background Blurs -->
             <div class="absolute inset-0 pointer-events-none overflow-hidden -z-10">
-              <div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-teal-500/5 dark:bg-teal-500/10 rounded-full blur-[120px]"></div>
+              <div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-teal-500/5 dark:bg-emerald-500/10 rounded-full blur-[120px]"></div>
               <div class="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[100px]"></div>
             </div>
 
@@ -559,7 +559,7 @@ const nivelMensaje: Record<string, string> = {
               <!-- Stats/Score Badge in Header -->
               <div class="flex items-center gap-2 sm:gap-3 shrink-0">
                 <button v-if="revision.lecturas && revision.lecturas.length" @click="mostrarBottomSheet = true; tabLecturaSheet = 0"
-                  class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-teal-200 dark:border-teal-900 text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/40 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-xs font-bold shrink-0 cursor-pointer"
+                  class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-teal-200 dark:border-emerald-900 text-teal-600 dark:text-emerald-400 bg-teal-50 dark:bg-emerald-950/40 hover:bg-teal-100 dark:hover:bg-emerald-900/40 transition-colors text-xs font-bold shrink-0 cursor-pointer"
                   title="Ver lecturas asociadas">
                   <BookOpen class="w-4 h-4" />
                   <span>Ver Texto</span>
@@ -568,7 +568,7 @@ const nivelMensaje: Record<string, string> = {
 
                 <div class="hidden sm:flex flex-col items-end">
                   <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Logro obtenido</span>
-                  <span class="text-sm font-black text-teal-600 dark:text-teal-400 leading-none mt-1">
+                  <span class="text-sm font-black text-teal-600 dark:text-emerald-400 leading-none mt-1">
                     {{ resultado?.puntaje_total?.toFixed(0) }}% ({{ resultado?.preguntas_correctas }}/{{ resultado?.preguntas_total }})
                   </span>
                 </div>
@@ -604,7 +604,7 @@ const nivelMensaje: Record<string, string> = {
                           {{ activeRevisionPregunta.nivel }}
                         </span>
                         <button v-if="revision.lecturas && revision.lecturas.length" @click="mostrarBottomSheet = true; tabLecturaSheet = 0"
-                          class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-teal-200 dark:border-teal-900 text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/40 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors text-[10px] font-black uppercase tracking-widest shrink-0 cursor-pointer">
+                          class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-teal-200 dark:border-emerald-900 text-teal-600 dark:text-emerald-400 bg-teal-50 dark:bg-emerald-950/40 hover:bg-teal-100 dark:hover:bg-emerald-900/40 transition-colors text-[10px] font-black uppercase tracking-widest shrink-0 cursor-pointer">
                           <BookOpen class="w-3.5 h-3.5" />
                           <span>Ver Texto</span>
                         </button>
@@ -697,7 +697,7 @@ const nivelMensaje: Record<string, string> = {
                   </span>
                   
                   <button @click="mostrarBottomSheet = true; tabLecturaSheet = 0"
-                    class="flex items-center gap-1.5 px-3 py-1 bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-900 text-teal-600 dark:text-teal-400 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all active:scale-95 shadow-sm shadow-teal-500/5 cursor-pointer">
+                    class="flex items-center gap-1.5 px-3 py-1 bg-teal-50 dark:bg-emerald-950/40 border border-teal-200 dark:border-emerald-900 text-teal-600 dark:text-emerald-400 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all active:scale-95 shadow-sm shadow-teal-500/5 cursor-pointer">
                     <BookOpen class="w-3.5 h-3.5 text-teal-500" />
                     <span>Ver Texto</span>
                   </button>
@@ -777,7 +777,7 @@ const nivelMensaje: Record<string, string> = {
             <!-- Content Header -->
             <div class="px-6 pb-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
               <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center">
+                <div class="w-8 h-8 rounded-lg bg-teal-500/10 text-teal-600 dark:text-emerald-400 flex items-center justify-center">
                   <BookOpen class="w-4 h-4" />
                 </div>
                 <div>
@@ -871,7 +871,7 @@ const nivelMensaje: Record<string, string> = {
         
         <!-- Background Orbs (taking) -->
         <div class="absolute inset-0 pointer-events-none overflow-hidden opacity-50">
-          <div class="absolute top-[20%] left-[-5%] w-[400px] h-[400px] bg-teal-500/5 dark:bg-teal-500/10 rounded-full blur-[100px]"></div>
+          <div class="absolute top-[20%] left-[-5%] w-[400px] h-[400px] bg-teal-500/5 dark:bg-emerald-500/10 rounded-full blur-[100px]"></div>
           <div class="absolute bottom-[20%] right-[-5%] w-[400px] h-[400px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[100px]"></div>
         </div>
 
@@ -901,7 +901,7 @@ const nivelMensaje: Record<string, string> = {
                 </div>
                 <div class="min-w-0">
                   <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-0.5">Contexto de Lectura</span>
-                  <h3 :class="['font-bold text-sm truncate leading-snug transition-colors', lecturaAcordeonAbierto === 0 ? 'text-teal-600 dark:text-teal-400' : 'text-slate-700 dark:text-slate-200']">
+                  <h3 :class="['font-bold text-sm truncate leading-snug transition-colors', lecturaAcordeonAbierto === 0 ? 'text-teal-600 dark:text-emerald-400' : 'text-slate-700 dark:text-slate-200']">
                   {{ lecturas[0]?.titulo || 'Texto Principal' }}
                   </h3>
                 </div>
@@ -963,7 +963,7 @@ const nivelMensaje: Record<string, string> = {
                     </div>
                     <div class="min-w-0">
                       <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-0.5">Texto {{ i + 1 }}</span>
-                      <h3 :class="['font-bold text-sm truncate leading-snug transition-colors', lecturaAcordeonAbierto === i ? 'text-teal-600 dark:text-teal-400' : 'text-slate-700 dark:text-slate-200']">
+                      <h3 :class="['font-bold text-sm truncate leading-snug transition-colors', lecturaAcordeonAbierto === i ? 'text-teal-600 dark:text-emerald-400' : 'text-slate-700 dark:text-slate-200']">
                         {{ t.titulo || `Lectura ${i + 1}` }}
                       </h3>
                     </div>

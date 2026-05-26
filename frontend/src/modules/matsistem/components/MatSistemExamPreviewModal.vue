@@ -311,7 +311,7 @@ const cerrarRetro = () => { modalRetro.value = null; };
                         </button>
                         <div class="flex gap-2">
                             <button @click="emit('descargar-word')" :disabled="downloadingWord || isLoading"
-                                class="px-4 py-2.5 text-teal-600 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/20 rounded-xl text-sm font-bold flex items-center gap-2 transition-colors disabled:opacity-50">
+                                class="px-4 py-2.5 text-teal-600 dark:text-emerald-400 hover:bg-teal-50 dark:hover:bg-emerald-900/20 rounded-xl text-sm font-bold flex items-center gap-2 transition-colors disabled:opacity-50">
                                 <Loader2 v-if="downloadingWord" class="w-4 h-4 animate-spin" />
                                 <Download v-else class="w-4 h-4" />
                                 {{ downloadingWord ? 'Descargando...' : 'Word' }}

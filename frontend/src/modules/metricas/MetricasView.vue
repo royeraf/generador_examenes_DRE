@@ -252,8 +252,8 @@ const rolLabel = computed(() => {
               <div class="group cursor-pointer active:scale-95 transition-all">
                 <div class="flex justify-between items-center mb-4">
                   <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-500/10 flex items-center justify-center border border-teal-100 dark:border-teal-500/20 group-hover:scale-110 transition-transform">
-                      <BookOpen class="w-6 h-6 text-teal-600 dark:text-teal-400" />
+                    <div class="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-emerald-500/10 flex items-center justify-center border border-teal-100 dark:border-emerald-500/20 group-hover:scale-110 transition-transform">
+                      <BookOpen class="w-6 h-6 text-teal-600 dark:text-emerald-400" />
                     </div>
                     <div>
                       <p class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tight">LectoSistem</p>
@@ -325,7 +325,7 @@ const rolLabel = computed(() => {
                 class="flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-all duration-300 border border-transparent hover:border-slate-300 dark:hover:border-slate-700/50 cursor-pointer group active:scale-95">
                 
                 <div :class="item.area === 'lectura'
-                  ? 'bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 group-hover:bg-teal-500 group-hover:text-white'
+                  ? 'bg-teal-50 dark:bg-emerald-500/10 text-teal-600 dark:text-emerald-400 group-hover:bg-teal-500 group-hover:text-white'
                   : 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white'"
                   class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all duration-500 shadow-sm">
                   <BookOpen v-if="item.area === 'lectura'" class="w-6 h-6" />

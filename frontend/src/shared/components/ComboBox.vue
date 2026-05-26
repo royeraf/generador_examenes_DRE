@@ -131,7 +131,7 @@ onUnmounted(() => {
                :class="disabled ? 'cursor-not-allowed' : 'cursor-pointer hover:border-teal-400'"
                role="combobox" :aria-expanded="isOpen" />
             <button type="button"
-                class="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-lg bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 flex items-center justify-center transition-all duration-300"
+                class="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-lg bg-teal-100 dark:bg-emerald-900/30 text-teal-600 dark:text-emerald-400 flex items-center justify-center transition-all duration-300"
                 :class="{ 'bg-teal-500 text-white': isOpen }">
                 <ChevronDown class="w-4 h-4 transition-transform duration-300" :class="{ 'rotate-180': isOpen }" />
             </button>
@@ -154,7 +154,7 @@ onUnmounted(() => {
                         <div v-for="(groupOptions, groupName) in groupedOptions" :key="groupName"
                             class="mb-2 last:mb-0">
                             <div
-                                class="px-3 py-2 text-xs font-bold text-teal-600 dark:text-teal-400 uppercase tracking-wider bg-teal-50 dark:bg-teal-900/20 rounded-lg mb-1 flex items-center gap-2">
+                                class="px-3 py-2 text-xs font-bold text-teal-600 dark:text-emerald-400 uppercase tracking-wider bg-teal-50 dark:bg-emerald-900/20 rounded-lg mb-1 flex items-center gap-2">
                                 <School class="w-3.5 h-3.5" />
                                 {{ groupName }}
                             </div>
@@ -162,9 +162,9 @@ onUnmounted(() => {
                                 class="flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-200
                                 text-sm text-slate-700 dark:text-slate-200 font-medium
                                 hover:bg-teal-50 dark:hover:bg-slate-700"
-                                :class="{ 'bg-gradient-to-r from-teal-50 to-sky-50 dark:bg-none dark:bg-teal-500/20 text-teal-700 dark:text-teal-300 border-l-4 border-teal-500': option.id === modelValue }">
+                                :class="{ 'bg-gradient-to-r from-teal-50 to-sky-50 dark:bg-none dark:bg-emerald-500/20 text-teal-700 dark:text-emerald-300 border-l-4 border-teal-500': option.id === modelValue }">
                                 <span>{{ option.label }}</span>
-                                <Check v-if="option.id === modelValue" class="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                                <Check v-if="option.id === modelValue" class="w-5 h-5 text-teal-600 dark:text-emerald-400" />
                             </div>
                         </div>
                     </template>
@@ -175,9 +175,9 @@ onUnmounted(() => {
                             class="flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-200
                             text-sm text-slate-700 dark:text-slate-200 font-medium
                             hover:bg-teal-50 dark:hover:bg-slate-700"
-                            :class="{ 'bg-gradient-to-r from-teal-50 to-sky-50 dark:bg-none dark:bg-teal-500/20 text-teal-700 dark:text-teal-300 border-l-4 border-teal-500': option.id === modelValue }">
+                            :class="{ 'bg-gradient-to-r from-teal-50 to-sky-50 dark:bg-none dark:bg-emerald-500/20 text-teal-700 dark:text-emerald-300 border-l-4 border-teal-500': option.id === modelValue }">
                             <span>{{ option.label }}</span>
-                            <Check v-if="option.id === modelValue" class="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                            <Check v-if="option.id === modelValue" class="w-5 h-5 text-teal-600 dark:text-emerald-400" />
                         </div>
                     </template>
 

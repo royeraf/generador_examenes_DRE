@@ -167,7 +167,7 @@ const userInitials = computed(() => {
             </div>
             <div v-show="!isSidebarCollapsed" class="flex-1 min-w-0">
               <h3 class="text-sm font-bold text-slate-800 dark:text-white truncate leading-tight">{{ auth.displayName }}</h3>
-              <span class="inline-block bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider mt-1 border border-teal-100 dark:border-teal-900/30">
+              <span class="inline-block bg-teal-50 dark:bg-emerald-950/40 text-teal-600 dark:text-emerald-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider mt-1 border border-teal-100 dark:border-emerald-900/30">
                 Estudiante
               </span>
             </div>
@@ -231,7 +231,7 @@ const userInitials = computed(() => {
             class="w-full flex items-center p-3 rounded-xl border transition-all text-xs font-bold cursor-pointer"
             :class="[
               activeTab === item.id
-                ? 'bg-slate-100 dark:bg-slate-800/80 border-slate-300 dark:border-slate-700 text-teal-600 dark:text-teal-400 font-bold'
+                ? 'bg-slate-100 dark:bg-slate-800/80 border-slate-300 dark:border-slate-700 text-teal-600 dark:text-emerald-400 font-bold'
                 : 'bg-transparent border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/40 hover:text-slate-800 dark:hover:text-slate-200',
               isSidebarCollapsed ? 'justify-center px-0' : 'justify-between'
             ]"
@@ -241,7 +241,7 @@ const userInitials = computed(() => {
               <component :is="item.icon" class="w-4 h-4 shrink-0" />
               <span v-show="!isSidebarCollapsed">{{ item.label }}</span>
             </div>
-            <div v-show="!isSidebarCollapsed && activeTab === item.id" class="w-1.5 h-1.5 bg-teal-500 dark:bg-teal-400 rounded-full"></div>
+            <div v-show="!isSidebarCollapsed && activeTab === item.id" class="w-1.5 h-1.5 bg-teal-500 dark:bg-emerald-400 rounded-full"></div>
           </button>
         </div>
 

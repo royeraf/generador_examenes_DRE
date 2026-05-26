@@ -25,7 +25,7 @@ const emit = defineEmits<{
 
 const getNivelBadgeClass = (nivel: string): string => {
     const classes: Record<string, string> = {
-        'LITERAL': 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
+        'LITERAL': 'bg-teal-100 text-teal-700 dark:bg-emerald-900/30 dark:text-emerald-400',
         'INFERENCIAL': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
         'CRITICO': 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400'
     };
@@ -154,9 +154,9 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                         <template v-else-if="entry">
                             <!-- Instrucciones -->
                             <div
-                                class="bg-gradient-to-r from-teal-50 to-sky-50 dark:from-teal-900/40 dark:to-slate-900 rounded-xl p-4 border-2 border-teal-100 dark:border-teal-800">
+                                class="bg-gradient-to-r from-teal-50 to-sky-50 dark:from-emerald-900/40 dark:to-slate-900 rounded-xl p-4 border-2 border-teal-100 dark:border-emerald-800">
                                 <p class="text-slate-700 dark:text-slate-300 text-sm">
-                                    <strong class="text-teal-700 dark:text-teal-400 flex items-center gap-2 mb-2">
+                                    <strong class="text-teal-700 dark:text-emerald-400 flex items-center gap-2 mb-2">
                                         <ClipboardCheck class="w-4 h-4" />
                                         Instrucciones:
                                     </strong>
@@ -192,7 +192,7 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                                 </h4>
 
                                 <div v-for="pregunta in entry.resultado.examen.preguntas" :key="pregunta.numero"
-                                    class="bg-white dark:bg-slate-800 rounded-xl p-5 border-2 border-slate-300 dark:border-slate-700 hover:border-teal-200 dark:hover:border-teal-700 transition-all duration-300">
+                                    class="bg-white dark:bg-slate-800 rounded-xl p-5 border-2 border-slate-300 dark:border-slate-700 hover:border-teal-200 dark:hover:border-emerald-700 transition-all duration-300">
                                     <div class="flex items-start gap-4">
                                         <span
                                             class="w-10 h-10 bg-gradient-to-br from-teal-500 to-sky-500 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-lg shadow-teal-500/20">
@@ -211,7 +211,7 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                                                 </span>
                                                 <button v-if="tieneRetro(pregunta.numero)"
                                                     @click="abrirRetro(pregunta.numero)"
-                                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-semibold rounded-full bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 text-teal-600 dark:text-teal-400 border border-teal-200 dark:border-teal-800 transition-colors">
+                                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-semibold rounded-full bg-teal-50 dark:bg-emerald-900/20 hover:bg-teal-100 dark:hover:bg-emerald-900/40 text-teal-600 dark:text-emerald-400 border border-teal-200 dark:border-emerald-800 transition-colors">
                                                     <MessageSquare class="w-3 h-3" />
                                                     Retroalimentación
                                                 </button>
@@ -324,7 +324,7 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                         </button>
                         <div class="flex gap-2">
                             <button @click="emit('descargar-word')" :disabled="downloadingWord || isLoading"
-                                class="px-4 py-2.5 text-teal-600 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/20 rounded-xl text-sm font-bold flex items-center gap-2 transition-colors disabled:opacity-50">
+                                class="px-4 py-2.5 text-teal-600 dark:text-emerald-400 hover:bg-teal-50 dark:hover:bg-emerald-900/20 rounded-xl text-sm font-bold flex items-center gap-2 transition-colors disabled:opacity-50">
                                 <Loader2 v-if="downloadingWord" class="w-4 h-4 animate-spin" />
                                 <Download v-else class="w-4 h-4" />
                                 {{ downloadingWord ? 'Descargando...' : 'Word' }}

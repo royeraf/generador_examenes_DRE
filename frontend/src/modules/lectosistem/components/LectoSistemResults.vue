@@ -116,7 +116,7 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
                                 <!-- Botón retroalimentación -->
                                 <button v-if="tieneRetroalimentacion(pregunta.numero)"
                                     @click="abrirModal(pregunta.numero)"
-                                    class="p-1.5 rounded-lg bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/40 text-teal-600 dark:text-teal-400 transition-colors"
+                                    class="p-1.5 rounded-lg bg-teal-50 dark:bg-emerald-900/20 hover:bg-teal-100 dark:hover:bg-emerald-900/40 text-teal-600 dark:text-emerald-400 transition-colors"
                                     title="Ver retroalimentación">
                                     <MessageSquare class="w-3.5 h-3.5" />
                                 </button>

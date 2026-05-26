@@ -63,7 +63,7 @@ const nivelLabel: Record<string, string> = { inicial: 'Inicial', primaria: 'Prim
       <!-- Estadísticas -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm text-center">
-          <p class="text-2xl font-bold text-teal-600 dark:text-teal-400">{{ instituciones.length }}</p>
+          <p class="text-2xl font-bold text-teal-600 dark:text-emerald-400">{{ instituciones.length }}</p>
           <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Total Instituciones</p>
         </div>
         <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm text-center">

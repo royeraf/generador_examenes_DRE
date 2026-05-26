@@ -149,7 +149,7 @@ const deleteItem = async (id: number) => {
                 <button v-for="tab in ['grados', 'capacidades', 'desempenos']" :key="tab"
                     @click="activeTab = tab as any"
                     class="flex-1 py-2.5 flex flex-col items-center justify-center gap-1 rounded-xl transition-all cursor-pointer" 
-                    :class="activeTab === tab ? 'text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30' : 'text-slate-500'">
+                    :class="activeTab === tab ? 'text-teal-600 dark:text-emerald-400 bg-teal-50 dark:bg-emerald-900/30' : 'text-slate-500'">
                     <component :is="tab === 'grados' ? GraduationCap : tab === 'capacidades' ? Shield : BookOpen" class="w-5 h-5" />
                     <span class="text-[10px] font-black uppercase tracking-widest">{{ tab }}</span>
                 </button>
@@ -228,7 +228,7 @@ const deleteItem = async (id: number) => {
                                         <td class="p-4 text-sm font-black text-slate-800 dark:text-slate-200">{{ (item as Grado).nombre }}</td>
                                         <td class="p-4 text-sm font-bold text-slate-600 dark:text-slate-400">{{ (item as Grado).numero }}</td>
                                         <td class="p-4 capitalize">
-                                            <span class="px-3 py-1 bg-teal-50 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400 rounded-lg text-[10px] font-black uppercase tracking-widest">
+                                            <span class="px-3 py-1 bg-teal-50 text-teal-700 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-lg text-[10px] font-black uppercase tracking-widest">
                                                 {{ (item as Grado).nivel }}
                                             </span>
                                         </td>
@@ -284,7 +284,7 @@ const deleteItem = async (id: number) => {
                             </div>
                         </div>
                         <div v-if="activeTab === 'grados'" class="flex items-center gap-2">
-                            <span class="px-3 py-1 bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 rounded-lg text-[9px] font-black uppercase tracking-widest">{{ (item as Grado).nivel }}</span>
+                            <span class="px-3 py-1 bg-teal-50 dark:bg-emerald-900/30 text-teal-700 dark:text-emerald-400 rounded-lg text-[9px] font-black uppercase tracking-widest">{{ (item as Grado).nivel }}</span>
                             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Grado {{ (item as Grado).numero }}</span>
                         </div>
                         <div v-else-if="activeTab === 'capacidades'">

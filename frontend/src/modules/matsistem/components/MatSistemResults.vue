@@ -141,9 +141,9 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
 
                 <!-- Instrucciones -->
                 <div
-                    class="bg-gradient-to-r from-teal-50 to-sky-50 dark:from-teal-900/40 dark:to-slate-900 rounded-xl p-4 border-2 border-teal-100 dark:border-teal-800">
+                    class="bg-gradient-to-r from-teal-50 to-sky-50 dark:from-emerald-900/40 dark:to-slate-900 rounded-xl p-4 border-2 border-teal-100 dark:border-emerald-800">
                     <p class="text-slate-700 dark:text-slate-300 text-sm">
-                        <strong class="text-teal-700 dark:text-teal-400 flex items-center gap-2 mb-2">
+                        <strong class="text-teal-700 dark:text-emerald-400 flex items-center gap-2 mb-2">
                             <ClipboardCheck class="w-4 h-4" />
                             Instrucciones:
                         </strong>
@@ -178,7 +178,7 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                     </h4>
 
                     <div v-for="pregunta in resultado.examen.preguntas" :key="pregunta.numero"
-                        class="bg-white dark:bg-slate-800 rounded-xl p-3 sm:p-5 border-2 border-slate-300 dark:border-slate-700 hover:border-teal-200 dark:hover:border-teal-700 transition-all duration-300">
+                        class="bg-white dark:bg-slate-800 rounded-xl p-3 sm:p-5 border-2 border-slate-300 dark:border-slate-700 hover:border-teal-200 dark:hover:border-emerald-700 transition-all duration-300">
                         <div class="flex items-start gap-2.5 sm:gap-4">
                             <span
                                 class="w-10 h-10 bg-gradient-to-br from-teal-500 to-sky-500 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-lg shadow-teal-500/20">

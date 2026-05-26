@@ -165,7 +165,7 @@ function descargarQR() {
       <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-xs mx-auto">
         Crea una aula para que tus estudiantes puedan registrarse y rendir sus evaluaciones.
       </p>
-      <button @click="openCreate" class="mt-8 text-teal-600 dark:text-teal-400 font-bold hover:underline cursor-pointer">
+      <button @click="openCreate" class="mt-8 text-teal-600 dark:text-emerald-400 font-bold hover:underline cursor-pointer">
         Comenzar ahora →
       </button>
     </div>
@@ -194,7 +194,7 @@ function descargarQR() {
             <div class="flex-1">
               <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Código de Acceso</p>
               <div class="flex items-center gap-2">
-                <span class="font-mono font-black text-2xl text-teal-600 dark:text-teal-400 tracking-widest">{{ c.codigo }}</span>
+                <span class="font-mono font-black text-2xl text-teal-600 dark:text-emerald-400 tracking-widest">{{ c.codigo }}</span>
                 <button @click="copiar(c.codigo)" class="p-1.5 text-slate-400 hover:text-teal-500 transition-colors cursor-pointer">
                   <Copy class="w-4 h-4" />
                 </button>
@@ -211,7 +211,7 @@ function descargarQR() {
           <div class="flex items-center justify-between pt-2">
             <span class="text-[10px] font-bold text-slate-400">{{ formatFecha(c.fecha_creacion) }}</span>
             <div class="flex items-center gap-2">
-              <button @click="abrirQR(c)" class="flex items-center gap-2 px-4 py-2 bg-teal-500/10 text-teal-600 dark:text-teal-400 font-bold text-xs rounded-xl hover:bg-teal-500 hover:text-white transition-all cursor-pointer">
+              <button @click="abrirQR(c)" class="flex items-center gap-2 px-4 py-2 bg-teal-500/10 text-teal-600 dark:text-emerald-400 font-bold text-xs rounded-xl hover:bg-teal-500 hover:text-white transition-all cursor-pointer">
                 <QrCode class="w-4 h-4" />
                 <span>Ver QR</span>
               </button>
@@ -243,7 +243,7 @@ function descargarQR() {
             <tr v-for="c in codigos" :key="c.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all duration-200" :class="{ 'opacity-60': !c.is_active }">
               <td class="px-6 py-4">
                 <div class="flex items-center gap-3">
-                  <span class="font-mono font-black text-lg text-teal-600 dark:text-teal-400 tracking-widest">{{ c.codigo }}</span>
+                  <span class="font-mono font-black text-lg text-teal-600 dark:text-emerald-400 tracking-widest">{{ c.codigo }}</span>
                   <button @click="copiar(c.codigo)" class="p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-400 hover:text-teal-500 transition-all group cursor-pointer">
                     <Copy class="w-4 h-4 group-hover:scale-110" />
                   </button>
@@ -273,7 +273,7 @@ function descargarQR() {
               <td class="px-6 py-4 text-slate-500 dark:text-slate-400 font-medium">{{ formatFecha(c.fecha_creacion) }}</td>
               <td class="px-6 py-4">
                 <div class="flex items-center justify-end gap-2">
-                  <button @click="abrirQR(c)" class="p-2.5 bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 rounded-xl hover:bg-teal-500 hover:text-white transition-all shadow-sm cursor-pointer" title="Ver QR">
+                  <button @click="abrirQR(c)" class="p-2.5 bg-teal-50 dark:bg-emerald-500/10 text-teal-600 dark:text-emerald-400 rounded-xl hover:bg-teal-500 hover:text-white transition-all shadow-sm cursor-pointer" title="Ver QR">
                     <QrCode class="w-5 h-5" />
                   </button>
                 </div>
@@ -337,13 +337,13 @@ function descargarQR() {
                 {{ qrModal.grado_nombre }} — Sección {{ qrModal.seccion }}
               </p>
               <div class="flex items-center gap-3 mb-3">
-                <span class="font-mono font-black text-3xl text-teal-600 dark:text-teal-400 tracking-[0.2em]">{{ qrModal.codigo }}</span>
+                <span class="font-mono font-black text-3xl text-teal-600 dark:text-emerald-400 tracking-[0.2em]">{{ qrModal.codigo }}</span>
                 <button @click="copiar(qrModal.codigo)"
                   class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-400 hover:text-teal-500 transition-all cursor-pointer">
                   <Copy class="w-4 h-4" />
                 </button>
               </div>
-              <p class="text-[11px] text-teal-600 dark:text-teal-400 font-mono break-all mb-7 leading-relaxed select-all">
+              <p class="text-[11px] text-teal-600 dark:text-emerald-400 font-mono break-all mb-7 leading-relaxed select-all">
                 {{ registroUrl(qrModal.codigo) }}
               </p>
 

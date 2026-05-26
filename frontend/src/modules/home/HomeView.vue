@@ -72,7 +72,7 @@ const managementItems = computed<NavItem[]>(() => {
       items.push({ label: 'Gestión Curricular', sub: 'Desempeños por área', icon: BookOpen, color: 'from-teal-400 to-emerald-500', route: '/admin' });
     }
     if (auth.canAccessAdminUgeles) items.push({ label: 'UGELes', sub: 'Gestión', icon: MapPin, color: 'from-teal-500 to-cyan-600', route: '/admin/ugeles' });
-    if (auth.canAccessAdminInstituciones) items.push({ label: 'Instituciones', sub: 'IEs del sistema', icon: Building2, color: 'from-indigo-400 to-blue-500', route: '/admin/instituciones' });
+    if (auth.canAccessAdminInstituciones) items.push({ label: 'Instituciones', sub: 'IEs del sistema', icon: Building2, color: 'from-indigo-400 to-violet-500', route: '/admin/instituciones' });
     if (auth.canAccessAdminUsuarios) items.push({ label: 'Usuarios', sub: 'Gestión de accesos', icon: Users, color: 'from-violet-400 to-pink-500', route: '/admin/usuarios' });
     if (auth.canAccessMetricas) items.push({ label: 'Métricas', sub: 'Uso del sistema', icon: BarChart3, color: 'from-indigo-500 to-violet-600', route: '/admin/metricas' });
     if (auth.canAccessCodigosClase) items.push({ label: 'Aulas', sub: 'Registro estudiantil', icon: School, color: 'from-teal-400 to-emerald-500', route: '/codigos-clase' });
@@ -111,8 +111,8 @@ const nombreCompleto = computed(() => {
 
     <!-- Subtle background -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden">
-      <div class="absolute top-0 left-1/4 w-96 h-96 bg-teal-400/6 dark:bg-teal-500/4 rounded-full blur-3xl"></div>
-      <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-400/6 dark:bg-indigo-500/4 rounded-full blur-3xl">
+      <div class="absolute top-0 left-1/4 w-96 h-96 bg-teal-400/6 dark:bg-emerald-500/4 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-400/6 dark:bg-emerald-500/4 rounded-full blur-3xl">
       </div>
     </div>
 
@@ -122,11 +122,11 @@ const nombreCompleto = computed(() => {
       <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
         <div class="flex items-center gap-3">
           <div class="relative w-8 h-8 shrink-0">
-            <div class="absolute -inset-0.5 bg-gradient-to-r from-teal-500 to-indigo-600 rounded-lg blur opacity-25">
+            <div class="absolute -inset-0.5 bg-gradient-to-r from-teal-500 to-emerald-600 rounded-lg blur opacity-25">
             </div>
             <div
               class="absolute inset-0 flex items-center justify-center p-1.5 bg-white dark:bg-slate-800 rounded-lg border border-slate-300 dark:border-slate-700 overflow-hidden">
-              <GraduationCap class="absolute w-4 h-4 text-teal-600 dark:text-teal-400 animate-logo-cycle-1" />
+              <GraduationCap class="absolute w-4 h-4 text-teal-600 dark:text-emerald-400 animate-logo-cycle-1" />
               <div class="absolute logo-gradient-display-static w-4 h-4 animate-logo-cycle-2"
                 :style="{ 'mask-image': `url(${logoDre})`, '-webkit-mask-image': `url(${logoDre})` }"></div>
             </div>
@@ -172,7 +172,7 @@ const nombreCompleto = computed(() => {
 
             <!-- LectoSistem -->
             <button v-if="auth.canAccessLectosistem" @click="router.push('/lectosistem')"
-              class="module-card-teal cursor-pointer group relative bg-white dark:bg-slate-900 rounded-2xl p-5 text-left overflow-hidden flex flex-col gap-4 border border-slate-300 dark:border-slate-800 hover:border-teal-200 dark:hover:border-teal-700/60 shadow-sm hover:shadow-lg hover:shadow-teal-500/10 transition-all duration-200 animate-slide-up"
+              class="module-card-teal cursor-pointer group relative bg-white dark:bg-slate-900 rounded-2xl p-5 text-left overflow-hidden flex flex-col gap-4 border border-slate-300 dark:border-slate-800 hover:border-teal-200 dark:hover:border-emerald-700/60 shadow-sm hover:shadow-lg hover:shadow-teal-500/10 transition-all duration-200 animate-slide-up"
               style="animation-delay:0ms">
               <div class="card-overlay absolute inset-0 rounded-2xl pointer-events-none"></div>
               <div class="card-line absolute bottom-0 left-6 right-6 h-[2px] rounded-full pointer-events-none"></div>
@@ -186,18 +186,18 @@ const nombreCompleto = computed(() => {
                   <BookOpen class="w-5 h-5 text-white" />
                 </div>
                 <span
-                  class="text-[10px] font-bold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-2 py-0.5 rounded-full uppercase tracking-wide border border-teal-100 dark:border-teal-800/50">
+                  class="text-[10px] font-bold text-teal-600 dark:text-emerald-400 bg-teal-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full uppercase tracking-wide border border-teal-100 dark:border-emerald-800/50">
                   Comunicación
                 </span>
               </div>
               <div class="relative z-10 flex-1">
                 <h2
-                  class="text-base font-bold text-slate-800 dark:text-white mb-1 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
+                  class="text-base font-bold text-slate-800 dark:text-white mb-1 group-hover:text-teal-600 dark:group-hover:text-emerald-400 transition-colors">
                   LectoSistem</h2>
                 <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Genera exámenes de comprensión
                   lectora con niveles literal, inferencial y crítico.</p>
               </div>
-              <div class="relative z-10 flex items-center gap-1.5 text-xs font-bold text-teal-600 dark:text-teal-400">
+              <div class="relative z-10 flex items-center gap-1.5 text-xs font-bold text-teal-600 dark:text-emerald-400">
                 Ir al módulo
                 <ArrowRight class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -325,7 +325,7 @@ const nombreCompleto = computed(() => {
 }
 
 .dark .shimmer-text {
-  background: linear-gradient(90deg, #5eead4, #818cf8, #38bdf8, #a78bfa, #5eead4);
+  background: linear-gradient(90deg, #6ee7b7, #fbbf24, #34d399, #a7f3d0, #6ee7b7);
   background-size: 250% auto;
   -webkit-background-clip: text;
   background-clip: text;
@@ -440,7 +440,7 @@ const nombreCompleto = computed(() => {
 }
 
 .dark .logo-gradient-display-static {
-  background: linear-gradient(135deg, #5eead4, #818cf8);
+  background: linear-gradient(135deg, #34d399, #059669);
 }
 
 @keyframes logoCycle1 {

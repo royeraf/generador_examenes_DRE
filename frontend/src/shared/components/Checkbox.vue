@@ -61,7 +61,7 @@ const isChecked = computed({
                 <input type="checkbox" v-model="isChecked" :value="value"
                     class="peer appearance-none w-5 h-5 rounded-md border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-white dark:focus:ring-offset-slate-900"
                     :class="[
-                        color || 'checked:bg-teal-600 checked:border-teal-600 dark:checked:bg-teal-500 dark:checked:border-teal-500 focus:ring-teal-500/50'
+                        color || 'checked:bg-teal-600 checked:border-teal-600 dark:checked:bg-emerald-500 dark:checked:border-emerald-500 focus:ring-teal-500/50'
                     ]" />
                 <svg class="w-3.5 h-3.5 absolute text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-all duration-200 scale-50 peer-checked:scale-100 transform"
                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
@@ -81,7 +81,7 @@ const isChecked = computed({
             <input type="checkbox" v-model="isChecked" :value="value"
                 class="peer appearance-none w-5 h-5 rounded-md border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-white dark:focus:ring-offset-slate-900"
                 :class="[
-                    color || 'checked:bg-teal-600 checked:border-teal-600 dark:checked:bg-teal-500 dark:checked:border-teal-500 focus:ring-teal-500/50'
+                    color || 'checked:bg-teal-600 checked:border-teal-600 dark:checked:bg-emerald-500 dark:checked:border-emerald-500 focus:ring-teal-500/50'
                 ]" />
             <svg class="w-3.5 h-3.5 absolute text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-all duration-200 scale-50 peer-checked:scale-100 transform"
                 fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
