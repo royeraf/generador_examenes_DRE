@@ -398,7 +398,7 @@ const nivelMensaje: Record<string, string> = {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500 font-sans selection:bg-teal-500/20" :class="{ 'select-none': examen && !resultado, 'examen-activo': examen && !resultado }">
+  <div class="min-h-screen bg-slate-50 dark:bg-[#0d0d0d] transition-colors duration-500 font-sans selection:bg-teal-500/20" :class="{ 'select-none': examen && !resultado, 'examen-activo': examen && !resultado }">
 
     <!-- Confetti -->
     <div v-if="resultado && confettis.length > 0" class="fixed inset-0 pointer-events-none overflow-hidden z-[100]">
@@ -438,7 +438,7 @@ const nivelMensaje: Record<string, string> = {
 
     <!-- Resultado final -->
     <div v-else-if="resultado"
-      class="min-h-screen flex flex-col items-center px-6 py-12 bg-slate-50 dark:bg-slate-950 relative overflow-y-auto">
+      class="min-h-screen flex flex-col items-center px-6 py-12 bg-slate-50 dark:bg-[#0d0d0d] relative overflow-y-auto">
       
       <!-- Background orbs -->
       <div class="fixed inset-0 pointer-events-none overflow-hidden">
@@ -448,7 +448,7 @@ const nivelMensaje: Record<string, string> = {
 
       <div class="w-full max-w-lg z-10">
         <!-- Success Card -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-2xl p-8 sm:p-10 mb-8 animate-slide-up-1 relative overflow-hidden">
+        <div class="bg-white dark:bg-[#121212] rounded-2xl border border-slate-300 dark:border-slate-800 shadow-2xl p-8 sm:p-10 mb-8 animate-slide-up-1 relative overflow-hidden">
           
           <div class="flex justify-center mb-8 animate-success-pop">
             <div class="w-24 h-24 rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center shadow-xl shadow-teal-500/20 rotate-12">
@@ -474,7 +474,7 @@ const nivelMensaje: Record<string, string> = {
                   {{ nivelLabels[resultado.nivel_logro] ?? resultado.nivel_logro ?? '—' }}
                 </span>
               </div>
-              <div class="h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mb-2">
+              <div class="h-3 bg-slate-100 dark:bg-[#252525] rounded-full overflow-hidden mb-2">
                 <div class="h-full rounded-full bg-gradient-to-r from-teal-500 to-emerald-600 transition-all duration-1000 ease-out"
                   :style="{ width: (resultado.puntaje_total ?? 0) + '%' }"></div>
               </div>
@@ -483,7 +483,7 @@ const nivelMensaje: Record<string, string> = {
           </div>
 
           <div class="grid grid-cols-2 gap-4">
-            <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 text-center group transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-500/10">
+            <div class="bg-slate-50 dark:bg-[#252525]/50 rounded-2xl p-5 text-center group transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-500/10">
               <div class="flex justify-center mb-2 text-emerald-500">
                 <CheckCircle2 class="w-5 h-5" />
               </div>
@@ -492,7 +492,7 @@ const nivelMensaje: Record<string, string> = {
               </p>
               <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Correctas</p>
             </div>
-            <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 text-center group transition-colors hover:bg-red-50 dark:hover:bg-red-500/10">
+            <div class="bg-slate-50 dark:bg-[#252525]/50 rounded-2xl p-5 text-center group transition-colors hover:bg-red-50 dark:hover:bg-red-500/10">
               <div class="flex justify-center mb-2 text-red-500">
                 <XCircle class="w-5 h-5" />
               </div>
@@ -516,7 +516,7 @@ const nivelMensaje: Record<string, string> = {
           </button>
 
           <button @click="router.push('/estudiante/examenes')"
-            class="w-full h-10 sm:h-12 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold rounded-2xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all active:scale-95 flex items-center justify-center gap-2 text-sm">
+            class="w-full h-10 sm:h-12 bg-white dark:bg-[#252525] text-slate-600 dark:text-slate-300 font-bold rounded-2xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all active:scale-95 flex items-center justify-center gap-2 text-sm">
             <ArrowLeft class="w-4 h-4" />
             <span>Volver a la lista</span>
           </button>
@@ -533,7 +533,7 @@ const nivelMensaje: Record<string, string> = {
           leave-from-class="opacity-100 translate-y-0"
           leave-to-class="opacity-0 translate-y-8"
         >
-          <div v-if="mostrarModalRevision && revision" class="fixed inset-0 z-50 bg-slate-50 dark:bg-slate-950 flex flex-col font-sans overflow-hidden">
+          <div v-if="mostrarModalRevision && revision" class="fixed inset-0 z-50 bg-slate-50 dark:bg-[#0d0d0d] flex flex-col font-sans overflow-hidden">
             
             <!-- Premium Background Blurs -->
             <div class="absolute inset-0 pointer-events-none overflow-hidden -z-10">
@@ -542,7 +542,7 @@ const nivelMensaje: Record<string, string> = {
             </div>
 
             <!-- Header -->
-            <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/80 h-16 flex items-center shrink-0 px-4 sm:px-6 justify-between relative z-10 shadow-sm">
+            <header class="bg-white/80 dark:bg-[#121212]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/80 h-16 flex items-center shrink-0 px-4 sm:px-6 justify-between relative z-10 shadow-sm">
               <div class="flex items-center gap-2 sm:gap-4 min-w-0">
                 <button @click="mostrarModalRevision = false" 
                   class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer">
@@ -564,7 +564,7 @@ const nivelMensaje: Record<string, string> = {
                   <BookOpen class="w-4 h-4" />
                   <span>Ver Texto</span>
                 </button>
-                <div v-if="revision.lecturas && revision.lecturas.length" class="hidden md:block w-px h-8 bg-slate-200 dark:bg-slate-800"></div>
+                <div v-if="revision.lecturas && revision.lecturas.length" class="hidden md:block w-px h-8 bg-slate-200 dark:bg-[#252525]"></div>
 
                 <div class="hidden sm:flex flex-col items-end">
                   <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Logro obtenido</span>
@@ -572,7 +572,7 @@ const nivelMensaje: Record<string, string> = {
                     {{ resultado?.puntaje_total?.toFixed(0) }}% ({{ resultado?.preguntas_correctas }}/{{ resultado?.preguntas_total }})
                   </span>
                 </div>
-                <div class="w-px h-8 bg-slate-200 dark:bg-slate-800 hidden sm:block"></div>
+                <div class="w-px h-8 bg-slate-200 dark:bg-[#252525] hidden sm:block"></div>
                 <span :class="nivelColors[resultado?.nivel_logro || ''] || 'bg-slate-100 text-slate-600'"
                   class="px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider border border-transparent">
                   {{ nivelLabels[resultado?.nivel_logro || ''] || '—' }}
@@ -581,7 +581,7 @@ const nivelMensaje: Record<string, string> = {
             </header>
 
             <!-- Progress Bar under header -->
-            <div class="h-1.5 bg-slate-100 dark:bg-slate-900 w-full relative">
+            <div class="h-1.5 bg-slate-100 dark:bg-[#121212] w-full relative">
               <div class="h-full bg-gradient-to-r from-teal-500 to-emerald-600 transition-all duration-300 ease-out"
                 :style="{ width: ((preguntaRevisionActual + 1) / revision.preguntas.length) * 100 + '%' }"></div>
             </div>
@@ -592,7 +592,7 @@ const nivelMensaje: Record<string, string> = {
 
                 <!-- Active Card with Vue transition -->
                 <Transition name="card-fade" mode="out-in">
-                  <div v-if="activeRevisionPregunta" :key="preguntaRevisionActual" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-6 md:p-8 shadow-xl relative flex flex-col w-full">
+                  <div v-if="activeRevisionPregunta" :key="preguntaRevisionActual" class="bg-white dark:bg-[#121212] rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-6 md:p-8 shadow-xl relative flex flex-col w-full">
                     
                     <!-- Card Header: Number, Level, Correctness -->
                     <div class="flex flex-wrap items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800/60">
@@ -638,7 +638,7 @@ const nivelMensaje: Record<string, string> = {
                             ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-500 text-emerald-950 dark:text-emerald-300 font-bold shadow-sm shadow-emerald-500/5'
                             : opcion.letra === activeRevisionPregunta.respuesta_dada && !activeRevisionPregunta.es_correcta
                               ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-500 text-rose-950 dark:text-rose-300 shadow-sm shadow-rose-500/5'
-                              : 'bg-slate-50 dark:bg-slate-800/40 border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-800/70'
+                              : 'bg-slate-50 dark:bg-[#252525]/40 border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-800/70'
                         ">
                         <span class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black shrink-0 shadow-sm transition-colors duration-300"
                           :class="
@@ -646,7 +646,7 @@ const nivelMensaje: Record<string, string> = {
                               ? 'bg-emerald-500 text-white'
                               : opcion.letra === activeRevisionPregunta.respuesta_dada && !activeRevisionPregunta.es_correcta
                                 ? 'bg-rose-500 text-white'
-                                : 'bg-white dark:bg-slate-700 text-slate-400 border border-slate-200 dark:border-slate-600'
+                                : 'bg-white dark:bg-[#393939] text-slate-400 border border-slate-200 dark:border-slate-600'
                           ">{{ opcion.letra }}</span>
                         
                         <div class="flex-1 leading-snug">
@@ -673,7 +673,7 @@ const nivelMensaje: Record<string, string> = {
                           </div>
                           <span class="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Insight de Aprendizaje con IA</span>
                         </div>
-                        <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800/80 px-2 py-0.5 rounded-md">Gemini AI</span>
+                        <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-[#252525]/80 px-2 py-0.5 rounded-md">Gemini AI</span>
                       </div>
                       <p class="text-sm text-emerald-900/90 dark:text-emerald-200/90 leading-relaxed font-medium">
                         {{ activeRevisionPregunta.retroalimentacion_ia }}
@@ -687,12 +687,12 @@ const nivelMensaje: Record<string, string> = {
             </div>
 
             <!-- Footer Navigation Bar -->
-            <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-3.5 px-4 sm:py-4 sm:px-6 shrink-0 relative z-10 shadow-lg">
+            <footer class="bg-white dark:bg-[#121212] border-t border-slate-200 dark:border-slate-800 py-3.5 px-4 sm:py-4 sm:px-6 shrink-0 relative z-10 shadow-lg">
               <div class="max-w-3xl mx-auto w-full flex flex-col gap-3">
                 
                 <!-- Top Row (Mobile only): Progress counter and Ver Texto -->
                 <div v-if="revision.lecturas && revision.lecturas.length" class="flex sm:hidden items-center justify-between w-full pb-2 border-b border-slate-100 dark:border-slate-800/60 animate-fade-in">
-                  <span class="px-3 py-1 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">
+                  <span class="px-3 py-1 bg-slate-50 dark:bg-[#252525]/60 border border-slate-200 dark:border-slate-800 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">
                     Pregunta {{ preguntaRevisionActual + 1 }} de {{ revision.preguntas.length }}
                   </span>
                   
@@ -706,7 +706,7 @@ const nivelMensaje: Record<string, string> = {
                 <!-- Main Navigation Row -->
                 <div class="flex items-center justify-between gap-3 w-full">
                   <button @click="anteriorRevision" :disabled="preguntaRevisionActual === 0"
-                    class="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 h-11 sm:h-10 px-4 sm:px-6 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-40 font-bold text-xs sm:text-sm rounded-xl transition-all cursor-pointer select-none">
+                    class="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 h-11 sm:h-10 px-4 sm:px-6 bg-slate-100 dark:bg-[#252525] text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-40 font-bold text-xs sm:text-sm rounded-xl transition-all cursor-pointer select-none">
                     <ChevronLeft class="w-4 h-4 shrink-0" />
                     <span>Anterior</span>
                   </button>
@@ -722,7 +722,7 @@ const nivelMensaje: Record<string, string> = {
                   </div>
 
                   <!-- Mobile only progress when there is NO reading (math) -->
-                  <span v-if="!revision.lecturas || !revision.lecturas.length" class="sm:hidden px-3 py-1 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">
+                  <span v-if="!revision.lecturas || !revision.lecturas.length" class="sm:hidden px-3 py-1 bg-slate-50 dark:bg-[#252525]/60 border border-slate-200 dark:border-slate-800 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">
                     {{ preguntaRevisionActual + 1 }} / {{ revision.preguntas.length }}
                   </span>
 
@@ -753,7 +753,7 @@ const nivelMensaje: Record<string, string> = {
           <!-- Backdrop -->
           <div v-if="mostrarBottomSheet && revision" 
                @click="mostrarBottomSheet = false"
-               class="fixed inset-0 z-[100] bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm transition-opacity">
+               class="fixed inset-0 z-[100] bg-slate-900/60 dark:bg-[#0d0d0d]/80 backdrop-blur-sm transition-opacity">
           </div>
         </Transition>
 
@@ -767,11 +767,11 @@ const nivelMensaje: Record<string, string> = {
         >
           <!-- Sheet container -->
           <div v-if="mostrarBottomSheet && revision"
-               class="fixed bottom-0 inset-x-0 z-[101] bg-white dark:bg-slate-900 rounded-t-[2.5rem] border-t border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col max-h-[85vh] transition-all duration-300 select-none animate-slide-up">
+               class="fixed bottom-0 inset-x-0 z-[101] bg-white dark:bg-[#121212] rounded-t-[2.5rem] border-t border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col max-h-[85vh] transition-all duration-300 select-none animate-slide-up">
             
             <!-- Handle gesture bar -->
             <div class="py-3 flex justify-center shrink-0 cursor-pointer" @click="mostrarBottomSheet = false">
-              <div class="w-12 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full hover:bg-slate-400 dark:hover:bg-slate-600 transition-colors"></div>
+              <div class="w-12 h-1.5 bg-slate-300 dark:bg-[#393939] rounded-full hover:bg-slate-400 dark:hover:bg-slate-600 transition-colors"></div>
             </div>
 
             <!-- Content Header -->
@@ -786,20 +786,20 @@ const nivelMensaje: Record<string, string> = {
                 </div>
               </div>
               <button @click="mostrarBottomSheet = false"
-                class="w-8 h-8 rounded-full flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors cursor-pointer">
+                class="w-8 h-8 rounded-full flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-[#252525] dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors cursor-pointer">
                 <X class="w-4 h-4" />
               </button>
             </div>
 
             <!-- Tab Navigation if multiple texts exist -->
             <div v-if="revision.lecturas && revision.lecturas.length > 1" 
-                 class="px-6 py-2 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20 shrink-0 overflow-x-auto flex items-center gap-2">
+                 class="px-6 py-2 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0d0d0d]/20 shrink-0 overflow-x-auto flex items-center gap-2">
               <button v-for="(lectura, idx) in revision.lecturas" :key="idx"
                 @click="tabLecturaSheet = idx"
                 class="shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer border border-slate-200 dark:border-slate-700"
                 :class="tabLecturaSheet === idx 
                   ? 'bg-teal-500 border-teal-500 text-white shadow-sm font-bold' 
-                  : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'">
+                  : 'bg-white dark:bg-[#252525] border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'">
                 {{ lectura.titulo || `Texto ${idx + 1}` }}
               </button>
             </div>
@@ -821,7 +821,7 @@ const nivelMensaje: Record<string, string> = {
             </div>
 
             <!-- Close bar at the very bottom -->
-            <div class="p-4 border-t border-slate-100 dark:border-slate-800 flex justify-end bg-slate-50 dark:bg-slate-950/40 shrink-0">
+            <div class="p-4 border-t border-slate-100 dark:border-slate-800 flex justify-end bg-slate-50 dark:bg-[#0d0d0d]/40 shrink-0">
               <button @click="mostrarBottomSheet = false"
                 class="px-5 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl text-xs sm:text-sm hover:opacity-90 active:scale-[0.97] transition-all cursor-pointer shadow-sm">
                 Cerrar Lectura
@@ -836,7 +836,7 @@ const nivelMensaje: Record<string, string> = {
     <!-- Examen en curso -->
     <div v-else-if="examen" class="w-full flex flex-col h-screen">
       <!-- Exam Header -->
-      <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-300 dark:border-slate-800 h-16 flex items-center shrink-0 z-40 px-6">
+      <header class="bg-white/80 dark:bg-[#121212]/80 backdrop-blur-md border-b border-slate-300 dark:border-slate-800 h-16 flex items-center shrink-0 z-40 px-6">
         <div class="max-w-7xl mx-auto w-full flex items-center justify-between">
           <div class="flex items-center gap-4 min-w-0">
             <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-teal-500/20 shrink-0">
@@ -852,7 +852,7 @@ const nivelMensaje: Record<string, string> = {
           </div>
 
           <div class="flex items-center gap-4">
-            <div v-if="examen.duracion_minutos" :class="timerColor" class="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-slate-800 rounded-full font-mono font-black text-sm transition-colors border border-slate-300 dark:border-slate-700">
+            <div v-if="examen.duracion_minutos" :class="timerColor" class="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-[#252525] rounded-full font-mono font-black text-sm transition-colors border border-slate-300 dark:border-slate-700">
               <Clock class="w-4 h-4" />
               {{ tiempoFormato }}
             </div>
@@ -861,7 +861,7 @@ const nivelMensaje: Record<string, string> = {
       </header>
 
       <!-- Progress Line -->
-      <div class="h-1 bg-slate-100 dark:bg-slate-800 shrink-0">
+      <div class="h-1 bg-slate-100 dark:bg-[#252525] shrink-0">
         <div class="h-full bg-gradient-to-r from-teal-500 to-emerald-600 transition-all duration-700 ease-out"
           :style="{ width: progreso + '%' }"></div>
       </div>
@@ -879,7 +879,7 @@ const nivelMensaje: Record<string, string> = {
         <aside 
           v-if="lecturas.length" 
           :class="[
-            'w-full lg:w-1/2 flex flex-col bg-white dark:bg-slate-900/50 z-10 relative transition-all duration-300 ease-in-out',
+            'w-full lg:w-1/2 flex flex-col bg-white dark:bg-[#121212]/50 z-10 relative transition-all duration-300 ease-in-out',
             lecturaAcordeonAbierto !== null 
               ? 'h-[40vh] sm:h-[45vh] lg:h-full border-b lg:border-b-0 lg:border-r border-slate-300 dark:border-slate-800' 
               : 'h-auto shrink-0 border-b border-slate-300 dark:border-slate-800'
@@ -890,12 +890,12 @@ const nivelMensaje: Record<string, string> = {
             <!-- Accordion Header Button -->
             <button 
               @click="toggleAcordeon(0)"
-              class="w-full px-6 py-5 sm:px-8 sm:py-6 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/10 hover:bg-slate-50 dark:hover:bg-slate-800/20 border-b border-slate-200 dark:border-slate-800/50 transition-all select-none text-left focus:outline-none"
+              class="w-full px-6 py-5 sm:px-8 sm:py-6 flex items-center justify-between bg-slate-50/50 dark:bg-[#252525]/10 hover:bg-slate-50 dark:hover:bg-slate-800/20 border-b border-slate-200 dark:border-slate-800/50 transition-all select-none text-left focus:outline-none"
             >
               <div class="flex items-center gap-3 min-w-0">
                 <div :class="[
                   'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors',
-                  lecturaAcordeonAbierto === 0 ? 'bg-teal-500/10' : 'bg-slate-100 dark:bg-slate-800'
+                  lecturaAcordeonAbierto === 0 ? 'bg-teal-500/10' : 'bg-slate-100 dark:bg-[#252525]'
                 ]">
                   <BookOpen :class="['w-4 h-4 transition-colors', lecturaAcordeonAbierto === 0 ? 'text-teal-500' : 'text-slate-400']" />
                 </div>
@@ -925,7 +925,7 @@ const nivelMensaje: Record<string, string> = {
             >
               <div 
                 v-show="lecturaAcordeonAbierto === 0"
-                class="flex-1 overflow-y-auto p-6 sm:p-10 font-serif text-base sm:text-lg leading-relaxed text-slate-700 dark:text-slate-200 custom-scrollbar selection:bg-teal-500/20 bg-white dark:bg-slate-900"
+                class="flex-1 overflow-y-auto p-6 sm:p-10 font-serif text-base sm:text-lg leading-relaxed text-slate-700 dark:text-slate-200 custom-scrollbar selection:bg-teal-500/20 bg-white dark:bg-[#121212]"
               >
                 <div class="max-w-2xl mx-auto whitespace-pre-wrap">
                   {{ lecturas[0]?.texto }}
@@ -937,7 +937,7 @@ const nivelMensaje: Record<string, string> = {
           <!-- Multiple Lectures Accordion -->
           <template v-else>
             <!-- Label header (decorational, only on multiple) -->
-            <div class="px-8 py-4 bg-slate-50/50 dark:bg-slate-800/10 border-b border-slate-200 dark:border-slate-800/50 flex items-center justify-between shrink-0">
+            <div class="px-8 py-4 bg-slate-50/50 dark:bg-[#252525]/10 border-b border-slate-200 dark:border-slate-800/50 flex items-center justify-between shrink-0">
               <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center shrink-0">
                   <BookOpen class="w-4 h-4 text-teal-500" />
@@ -952,12 +952,12 @@ const nivelMensaje: Record<string, string> = {
                 <!-- Accordion Header -->
                 <button 
                   @click="toggleAcordeon(i)"
-                  class="w-full px-6 py-4 sm:px-8 sm:py-5 flex items-center justify-between bg-slate-50/20 dark:bg-slate-800/5 hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-all select-none text-left focus:outline-none"
+                  class="w-full px-6 py-4 sm:px-8 sm:py-5 flex items-center justify-between bg-slate-50/20 dark:bg-[#252525]/5 hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-all select-none text-left focus:outline-none"
                 >
                   <div class="flex items-center gap-3 min-w-0">
                     <div :class="[
                       'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors',
-                      lecturaAcordeonAbierto === i ? 'bg-teal-500/10' : 'bg-slate-100 dark:bg-slate-800'
+                      lecturaAcordeonAbierto === i ? 'bg-teal-500/10' : 'bg-slate-100 dark:bg-[#252525]'
                     ]">
                       <BookOpen :class="['w-4 h-4 transition-colors', lecturaAcordeonAbierto === i ? 'text-teal-500' : 'text-slate-400']" />
                     </div>
@@ -987,7 +987,7 @@ const nivelMensaje: Record<string, string> = {
                 >
                   <div 
                     v-show="lecturaAcordeonAbierto === i"
-                    class="overflow-y-auto p-6 sm:p-10 font-serif text-base sm:text-lg leading-relaxed text-slate-700 dark:text-slate-200 custom-scrollbar selection:bg-teal-500/20 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800/80"
+                    class="overflow-y-auto p-6 sm:p-10 font-serif text-base sm:text-lg leading-relaxed text-slate-700 dark:text-slate-200 custom-scrollbar selection:bg-teal-500/20 bg-white dark:bg-[#121212] border-t border-slate-100 dark:border-slate-800/80"
                     :class="lecturas.length > 1 ? 'max-h-[300px] lg:max-h-none lg:flex-1' : 'flex-1'"
                   >
                     <div class="max-w-2xl mx-auto whitespace-pre-wrap">
@@ -1001,7 +1001,7 @@ const nivelMensaje: Record<string, string> = {
         </aside>
 
         <!-- Right: Questions -->
-        <section class="flex-1 min-h-0 lg:h-full flex flex-col z-20 bg-slate-50/30 dark:bg-slate-950/30">
+        <section class="flex-1 min-h-0 lg:h-full flex flex-col z-20 bg-slate-50/30 dark:bg-[#0d0d0d]/30">
           
           <!-- Question Nav -->
           <div class="px-8 py-6 flex flex-wrap gap-2 shrink-0">
@@ -1017,7 +1017,7 @@ const nivelMensaje: Record<string, string> = {
                     ? 'bg-teal-500 text-white shadow-md shadow-teal-500/20'
                     : intentoEnvioIncompleto && sinResponder.includes(examen.preguntas[idx]!.numero)
                       ? 'bg-red-500 text-white animate-pulse'
-                      : 'bg-white dark:bg-slate-800 text-slate-400 border border-slate-300 dark:border-slate-700 hover:border-teal-400'
+                      : 'bg-white dark:bg-[#252525] text-slate-400 border border-slate-300 dark:border-slate-700 hover:border-teal-400'
               ]"
             >
               {{ idx + 1 }}
@@ -1047,7 +1047,7 @@ const nivelMensaje: Record<string, string> = {
               </Transition>
 
               <!-- Question Card -->
-              <div v-if="preguntaVisible" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 p-4 sm:p-8 shadow-xl relative overflow-hidden group">
+              <div v-if="preguntaVisible" class="bg-white dark:bg-[#121212] rounded-2xl border border-slate-300 dark:border-slate-800 p-4 sm:p-8 shadow-xl relative overflow-hidden group">
                 <div class="absolute top-0 right-0 p-6 opacity-5 group-hover:scale-110 transition-transform">
                   <Zap class="w-16 h-16 text-emerald-500" />
                 </div>
@@ -1070,14 +1070,14 @@ const nivelMensaje: Record<string, string> = {
                         'w-full text-left px-3 py-2.5 sm:p-4 rounded-xl border-2 transition-all flex items-center gap-3 sm:gap-4 group/opt',
                         respuestas[preguntaVisible.numero] === (opcion.valor ?? opcion.letra)
                           ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-900 dark:text-emerald-300'
-                          : 'border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:border-emerald-200 dark:hover:border-emerald-500/30 hover:bg-slate-50 dark:hover:bg-slate-800'
+                          : 'border-slate-300 dark:border-slate-800 bg-white dark:bg-[#121212] text-slate-600 dark:text-slate-400 hover:border-emerald-200 dark:hover:border-emerald-500/30 hover:bg-slate-50 dark:hover:bg-slate-800'
                       ]"
                     >
                       <div :class="[
                         'w-7 h-7 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center font-black text-xs sm:text-sm shrink-0 transition-colors',
                         respuestas[preguntaVisible.numero] === (opcion.valor ?? opcion.letra)
                           ? 'bg-emerald-500 text-white'
-                          : 'bg-slate-100 dark:bg-slate-800 text-slate-400 group-hover/opt:bg-emerald-100 dark:group-hover/opt:bg-slate-700'
+                          : 'bg-slate-100 dark:bg-[#252525] text-slate-400 group-hover/opt:bg-emerald-100 dark:group-hover/opt:bg-slate-700'
                       ]">
                         {{ opcion.letra }}
                       </div>
@@ -1093,7 +1093,7 @@ const nivelMensaje: Record<string, string> = {
           </div>
 
           <!-- Bottom Footer -->
-          <footer class="px-4 py-3 sm:px-8 sm:py-4 bg-white dark:bg-slate-900 border-t border-slate-300 dark:border-slate-800 shrink-0">
+          <footer class="px-4 py-3 sm:px-8 sm:py-4 bg-white dark:bg-[#121212] border-t border-slate-300 dark:border-slate-800 shrink-0">
             <div class="max-w-2xl mx-auto flex items-center justify-between w-full gap-2 sm:gap-4">
 
               <button @click="anterior" :disabled="preguntaActual === 0"
@@ -1102,7 +1102,7 @@ const nivelMensaje: Record<string, string> = {
                 <span class="hidden xs:inline">Anterior</span>
               </button>
 
-              <span class="px-3 py-1 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-800 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400 whitespace-nowrap">
+              <span class="px-3 py-1 bg-slate-50 dark:bg-[#252525]/80 border border-slate-200 dark:border-slate-800 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400 whitespace-nowrap">
                 {{ preguntaActual + 1 }} de {{ examen.preguntas.length }}
               </span>
 

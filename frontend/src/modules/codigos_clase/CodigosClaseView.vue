@@ -157,8 +157,8 @@ function descargarQR() {
 
     <!-- Lista vacía -->
     <div v-else-if="codigos.length === 0"
-      class="text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm group">
-      <div class="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
+      class="text-center py-20 bg-white dark:bg-[#121212] rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm group">
+      <div class="w-20 h-20 bg-slate-50 dark:bg-[#252525] rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
         <School class="w-10 h-10 text-slate-300 dark:text-slate-600" />
       </div>
       <p class="text-slate-800 dark:text-white font-black text-xl">No tienes aulas creadas</p>
@@ -176,7 +176,7 @@ function descargarQR() {
       <!-- Mobile View: Cards -->
       <div class="grid grid-cols-1 gap-4 md:hidden">
         <div v-for="c in codigos" :key="c.id" 
-          class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl p-5 shadow-sm relative overflow-hidden"
+          class="bg-white dark:bg-[#121212] border border-slate-300 dark:border-slate-800 rounded-2xl p-5 shadow-sm relative overflow-hidden"
           :class="{ 'opacity-60': !c.is_active }">
           
           <div class="flex justify-between items-start mb-4">
@@ -184,13 +184,13 @@ function descargarQR() {
               <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{{ c.grado_nombre || `Grado ${c.grado_id}` }}</p>
               <h3 class="text-xl font-black text-slate-800 dark:text-white">Sección {{ c.seccion }}</h3>
             </div>
-            <button @click="toggle(c)" class="p-2 bg-slate-50 dark:bg-slate-800 rounded-xl transition-colors cursor-pointer">
+            <button @click="toggle(c)" class="p-2 bg-slate-50 dark:bg-[#252525] rounded-xl transition-colors cursor-pointer">
               <ToggleRight v-if="c.is_active" class="w-7 h-7 text-teal-500" />
               <ToggleLeft v-else class="w-7 h-7 text-slate-400" />
             </button>
           </div>
 
-          <div class="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl mb-4 border border-slate-300 dark:border-slate-700/50">
+          <div class="flex items-center gap-3 bg-slate-50 dark:bg-[#252525]/50 p-4 rounded-2xl mb-4 border border-slate-300 dark:border-slate-700/50">
             <div class="flex-1">
               <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Código de Acceso</p>
               <div class="flex items-center gap-2">
@@ -217,7 +217,7 @@ function descargarQR() {
               </button>
               <button @click="toggle(c)"
                 class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 cursor-pointer focus:outline-none"
-                :class="c.is_active ? 'bg-teal-500' : 'bg-slate-300 dark:bg-slate-600'">
+                :class="c.is_active ? 'bg-teal-500' : 'bg-slate-300 dark:bg-[#4f4f4f]'">
                 <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200"
                   :class="c.is_active ? 'translate-x-6' : 'translate-x-1'" />
               </button>
@@ -227,10 +227,10 @@ function descargarQR() {
       </div>
 
       <!-- Desktop View: Table -->
-      <div class="hidden md:block bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+      <div class="hidden md:block bg-white dark:bg-[#121212] border border-slate-300 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
         <table class="w-full text-sm">
           <thead>
-            <tr class="bg-slate-50 dark:bg-slate-800/50 text-[11px] font-black text-slate-400 uppercase tracking-[0.1em]">
+            <tr class="bg-slate-50 dark:bg-[#252525]/50 text-[11px] font-black text-slate-400 uppercase tracking-[0.1em]">
               <th class="px-6 py-4 text-left">Código Acceso</th>
               <th class="px-6 py-4 text-left">Grado / Sección</th>
               <th class="px-6 py-4 text-center">Estudiantes</th>
@@ -244,7 +244,7 @@ function descargarQR() {
               <td class="px-6 py-4">
                 <div class="flex items-center gap-3">
                   <span class="font-mono font-black text-lg text-teal-600 dark:text-emerald-400 tracking-widest">{{ c.codigo }}</span>
-                  <button @click="copiar(c.codigo)" class="p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-400 hover:text-teal-500 transition-all group cursor-pointer">
+                  <button @click="copiar(c.codigo)" class="p-1.5 bg-slate-100 dark:bg-[#252525] rounded-lg text-slate-400 hover:text-teal-500 transition-all group cursor-pointer">
                     <Copy class="w-4 h-4 group-hover:scale-110" />
                   </button>
                 </div>
@@ -256,7 +256,7 @@ function descargarQR() {
                 </div>
               </td>
               <td class="px-6 py-4 text-center">
-                <div class="inline-flex items-center px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-full">
+                <div class="inline-flex items-center px-3 py-1 bg-slate-100 dark:bg-[#252525] rounded-full">
                   <span class="text-sm font-black text-slate-700 dark:text-slate-200">{{ c.total_estudiantes }}</span>
                   <span class="text-[10px] text-slate-400 mx-1">/</span>
                   <span class="text-xs font-bold text-slate-400">{{ c.max_estudiantes }}</span>
@@ -265,7 +265,7 @@ function descargarQR() {
               <td class="px-6 py-4 text-center">
                 <button @click="toggle(c)"
                   class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 cursor-pointer focus:outline-none"
-                  :class="c.is_active ? 'bg-teal-500' : 'bg-slate-300 dark:bg-slate-600'">
+                  :class="c.is_active ? 'bg-teal-500' : 'bg-slate-300 dark:bg-[#4f4f4f]'">
                   <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200"
                     :class="c.is_active ? 'translate-x-6' : 'translate-x-1'" />
                 </button>
@@ -294,7 +294,7 @@ function descargarQR() {
         @click.self="qrModal = null">
 
         <!-- Card -->
-        <div class="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
+        <div class="w-full max-w-2xl bg-white dark:bg-[#121212] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
 
           <!-- Close bar -->
           <div class="flex justify-end px-5 pt-4 pb-0">
@@ -330,7 +330,7 @@ function descargarQR() {
                 </div>
               </div>
 
-              <div class="h-px bg-slate-200 dark:bg-slate-700 mb-6" />
+              <div class="h-px bg-slate-200 dark:bg-[#393939] mb-6" />
 
               <!-- Info del aula -->
               <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">
@@ -339,7 +339,7 @@ function descargarQR() {
               <div class="flex items-center gap-3 mb-3">
                 <span class="font-mono font-black text-3xl text-teal-600 dark:text-emerald-400 tracking-[0.2em]">{{ qrModal.codigo }}</span>
                 <button @click="copiar(qrModal.codigo)"
-                  class="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-400 hover:text-teal-500 transition-all cursor-pointer">
+                  class="p-2 bg-slate-100 dark:bg-[#252525] rounded-xl text-slate-400 hover:text-teal-500 transition-all cursor-pointer">
                   <Copy class="w-4 h-4" />
                 </button>
               </div>
@@ -356,12 +356,12 @@ function descargarQR() {
             </div>
 
             <!-- Separador vertical -->
-            <div class="hidden sm:block w-px bg-slate-200 dark:bg-slate-700 shrink-0" />
+            <div class="hidden sm:block w-px bg-slate-200 dark:bg-[#393939] shrink-0" />
 
             <!-- Derecha: QR -->
             <div class="flex items-center justify-center shrink-0">
               <div v-if="qrLoading"
-                class="w-52 h-52 flex items-center justify-center bg-slate-50 dark:bg-slate-800 rounded-2xl animate-pulse">
+                class="w-52 h-52 flex items-center justify-center bg-slate-50 dark:bg-[#252525] rounded-2xl animate-pulse">
                 <Loader2 class="w-10 h-10 animate-spin text-teal-500" />
               </div>
               <img v-else-if="qrDataUrl"
@@ -383,11 +383,11 @@ function descargarQR() {
         <!-- Backdrop -->
         <div class="absolute inset-0 bg-black/50 backdrop-blur-sm cursor-pointer" @click="showModal = false"></div>
 
-        <div class="relative bg-white dark:bg-slate-900 w-full sm:max-w-md max-h-[92dvh] sm:max-h-fit flex flex-col sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden z-10 animate-slide-up">
+        <div class="relative bg-white dark:bg-[#121212] w-full sm:max-w-md max-h-[92dvh] sm:max-h-fit flex flex-col sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden z-10 animate-slide-up">
           
           <!-- Drag handle (mobile) -->
           <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0 cursor-pointer" @click="showModal = false">
-              <div class="w-10 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800"></div>
+              <div class="w-10 h-1.5 rounded-full bg-slate-200 dark:bg-[#252525]"></div>
           </div>
 
           <div class="px-8 py-6 border-b border-slate-300 dark:border-slate-800 flex items-center justify-between">
@@ -406,7 +406,7 @@ function descargarQR() {
             <div>
               <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Grado Académico</label>
               <select v-model="form.grado_id"
-                class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-900 dark:text-white outline-none transition-all appearance-none cursor-pointer">
+                class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-900 dark:text-white outline-none transition-all appearance-none cursor-pointer">
                 <option v-for="g in grados" :key="g.id" :value="g.id">{{ g.nombre }}</option>
               </select>
             </div>
@@ -414,7 +414,7 @@ function descargarQR() {
             <div>
               <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Sección</label>
               <select v-model="form.seccion"
-                class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-900 dark:text-white outline-none transition-all appearance-none cursor-pointer">
+                class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-900 dark:text-white outline-none transition-all appearance-none cursor-pointer">
                 <option value="" disabled>Seleccione sección...</option>
                 <option v-for="s in ['A','B','C','D','E','F','G','H','I','J','Única']" :key="s" :value="s">{{ s }}</option>
               </select>
@@ -424,13 +424,13 @@ function descargarQR() {
               <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Límite de Estudiantes</label>
               <div class="relative">
                  <input v-model.number="form.max_estudiantes" type="number" min="1" max="200"
-                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
+                  class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all" />
                  <span class="absolute right-5 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400 uppercase">Capacidad</span>
               </div>
             </div>
           </div>
 
-          <div class="px-8 py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-300 dark:border-slate-800 flex flex-col sm:flex-row gap-3">
+          <div class="px-8 py-6 bg-slate-50 dark:bg-[#252525]/50 border-t border-slate-300 dark:border-slate-800 flex flex-col sm:flex-row gap-3">
             <button @click="showModal = false" class="flex-1 px-6 py-4 text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-2xl transition-colors cursor-pointer">
               Cancelar
             </button>

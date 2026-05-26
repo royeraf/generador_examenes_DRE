@@ -58,7 +58,7 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
 
         <!-- Empty State -->
         <div v-if="!resultado && !loading"
-            class="h-[300px] sm:h-[580px] lg:h-[650px] bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 text-center flex flex-col items-center justify-center shadow-sm p-6">
+            class="h-[300px] sm:h-[580px] lg:h-[650px] bg-white dark:bg-[#252525] rounded-xl border border-gray-200 dark:border-slate-700 text-center flex flex-col items-center justify-center shadow-sm p-6">
             <Zap class="w-10 h-10 sm:w-12 sm:h-12 text-gray-300 dark:text-slate-600 mb-4" />
             <h3 class="text-base sm:text-lg font-semibold text-slate-800 dark:text-white mb-2">Listo para generar</h3>
             <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm max-w-xs mb-4">
@@ -102,7 +102,7 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
 
         <!-- Results -->
         <div v-if="resultado && !loading && showResults"
-            class="h-[500px] sm:h-[580px] lg:h-[650px] bg-white dark:bg-slate-800 rounded-2xl border-2 border-amber-200 dark:border-slate-700 shadow-xl flex flex-col overflow-hidden">
+            class="h-[500px] sm:h-[580px] lg:h-[650px] bg-white dark:bg-[#252525] rounded-2xl border-2 border-amber-200 dark:border-slate-700 shadow-xl flex flex-col overflow-hidden">
 
             <!-- Results Header - Celebratorio -->
             <div
@@ -178,7 +178,7 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                     </h4>
 
                     <div v-for="pregunta in resultado.examen.preguntas" :key="pregunta.numero"
-                        class="bg-white dark:bg-slate-800 rounded-xl p-3 sm:p-5 border-2 border-slate-300 dark:border-slate-700 hover:border-teal-200 dark:hover:border-emerald-700 transition-all duration-300">
+                        class="bg-white dark:bg-[#252525] rounded-xl p-3 sm:p-5 border-2 border-slate-300 dark:border-slate-700 hover:border-teal-200 dark:hover:border-emerald-700 transition-all duration-300">
                         <div class="flex items-start gap-2.5 sm:gap-4">
                             <span
                                 class="w-10 h-10 bg-gradient-to-br from-teal-500 to-sky-500 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-lg shadow-teal-500/20">
@@ -208,10 +208,10 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                                         class="flex items-center gap-2 sm:gap-3 text-sm py-2 sm:py-3 px-3 sm:px-4 rounded-xl border-2 transition-all duration-200"
                                         :class="opcion.es_correcta
                                             ? 'bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-emerald-900/40 dark:to-slate-900 border-teal-300 dark:border-emerald-800 text-teal-700 dark:text-emerald-400'
-                                            : 'bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-gray-300'">
+                                            : 'bg-gray-50 dark:bg-[#121212] border-gray-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-gray-300'">
                                         <span
                                             class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm"
-                                            :class="opcion.es_correcta ? 'bg-teal-500 text-white' : 'bg-gray-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'">
+                                            :class="opcion.es_correcta ? 'bg-teal-500 text-white' : 'bg-gray-200 dark:bg-[#393939] text-slate-600 dark:text-slate-400'">
                                             {{ opcion.letra }}
                                         </span>
                                         <span class="flex-1">{{ opcion.texto }}</span>
@@ -235,7 +235,7 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                 </div>
 
                 <!-- Answer Table -->
-                <div class="bg-white dark:bg-slate-800 rounded-xl p-3 sm:p-5 border-2 border-sky-100 dark:border-slate-700">
+                <div class="bg-white dark:bg-[#252525] rounded-xl p-3 sm:p-5 border-2 border-sky-100 dark:border-slate-700">
                     <h4 class="text-sm font-bold text-slate-800 dark:text-white mb-3 sm:mb-4 flex items-center gap-2">
                         <div
                             class="w-8 h-8 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg flex items-center justify-center">
@@ -319,11 +319,11 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                 class="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:p-4 cursor-pointer"
                 @click.self="cerrarRetro">
                 <div class="absolute inset-0 bg-black/50 backdrop-blur-sm cursor-pointer" @click="cerrarRetro" />
-                <div class="relative z-10 w-full sm:max-w-lg bg-white dark:bg-slate-900 rounded-t-2xl sm:rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[85vh]">
+                <div class="relative z-10 w-full sm:max-w-lg bg-white dark:bg-[#121212] rounded-t-2xl sm:rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[85vh]">
                     
                     <!-- Drag handle (mobile) -->
                     <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0" @click="cerrarRetro">
-                        <div class="w-10 h-1 rounded-full bg-slate-200 dark:bg-slate-600"></div>
+                        <div class="w-10 h-1 rounded-full bg-slate-200 dark:bg-[#4f4f4f]"></div>
                     </div>
                     <div class="flex items-center justify-between px-5 py-4 border-b border-slate-300 dark:border-slate-700">
                         <div class="flex items-center gap-2">
@@ -355,14 +355,14 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                             <p class="text-sm text-rose-800 dark:text-rose-300 leading-relaxed">{{ modalRetro.retroalimentacion_incorrecta }}</p>
                         </div>
                         <div v-if="modalRetro.justificacion"
-                            class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-4 space-y-2">
+                            class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#252525]/50 p-4 space-y-2">
                             <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Justificación</span>
                             <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{{ modalRetro.justificacion }}</p>
                         </div>
                     </div>
                     <div class="px-5 py-3 border-t border-slate-300 dark:border-slate-700 flex justify-end">
                         <button @click="cerrarRetro"
-                            class="px-4 py-2 text-xs font-medium rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">
+                            class="px-4 py-2 text-xs font-medium rounded-lg bg-slate-100 dark:bg-[#252525] hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">
                             Cerrar
                         </button>
                     </div>

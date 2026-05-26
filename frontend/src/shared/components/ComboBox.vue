@@ -120,7 +120,7 @@ onUnmounted(() => {
         <!-- Input -->
         <div class="relative" :class="disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'" @click="toggleDropdown">
             <input type="text" readonly :value="displayValue" :placeholder="placeholder" class="w-full px-4 py-3 pr-10
-               bg-white dark:bg-slate-900
+               bg-white dark:bg-[#121212]
                border-2 border-slate-300 dark:border-slate-600
                rounded-xl
                text-slate-900 dark:text-white
@@ -144,7 +144,7 @@ onUnmounted(() => {
         <Transition :name="dropUp ? 'dropdown-up' : 'dropdown'">
             <div v-if="isOpen" ref="dropdownRef"
                 class="max-h-60 overflow-y-auto
-                   bg-white dark:bg-slate-800
+                   bg-white dark:bg-[#252525]
                    border-2 border-teal-200 dark:border-slate-600
                    rounded-xl shadow-xl shadow-teal-500/10 dark:shadow-black/30"
                 :style="{ ...dropdownStyle, zIndex: 9999 }">

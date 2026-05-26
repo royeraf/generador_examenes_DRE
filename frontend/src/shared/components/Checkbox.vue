@@ -51,7 +51,7 @@ const isChecked = computed({
 
 <template>
     <fieldset v-if="legend" v-bind="$attrs"
-        class="fieldset border border-gray-200 dark:border-slate-700 rounded-xl p-4 bg-white dark:bg-slate-800">
+        class="fieldset border border-gray-200 dark:border-slate-700 rounded-xl p-4 bg-white dark:bg-[#252525]">
         <legend class="px-2 text-sm font-bold text-slate-500 dark:text-slate-400">
             {{ legend }}
         </legend>
@@ -59,7 +59,7 @@ const isChecked = computed({
         <label class="flex gap-3 cursor-pointer group relative" :class="$attrs.class || 'items-center'">
             <div class="relative flex items-center justify-center h-5 w-5 mt-0.5">
                 <input type="checkbox" v-model="isChecked" :value="value"
-                    class="peer appearance-none w-5 h-5 rounded-md border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-white dark:focus:ring-offset-slate-900"
+                    class="peer appearance-none w-5 h-5 rounded-md border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-[#252525] transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-white dark:focus:ring-offset-slate-900"
                     :class="[
                         color || 'checked:bg-teal-600 checked:border-teal-600 dark:checked:bg-emerald-500 dark:checked:border-emerald-500 focus:ring-teal-500/50'
                     ]" />
@@ -79,7 +79,7 @@ const isChecked = computed({
     <label v-else class="flex gap-3 cursor-pointer group relative" :class="$attrs.class || 'items-center'">
         <div class="relative flex items-center justify-center h-5 w-5 mt-0.5">
             <input type="checkbox" v-model="isChecked" :value="value"
-                class="peer appearance-none w-5 h-5 rounded-md border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-white dark:focus:ring-offset-slate-900"
+                class="peer appearance-none w-5 h-5 rounded-md border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-[#252525] transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-white dark:focus:ring-offset-slate-900"
                 :class="[
                     color || 'checked:bg-teal-600 checked:border-teal-600 dark:checked:bg-emerald-500 dark:checked:border-emerald-500 focus:ring-teal-500/50'
                 ]" />

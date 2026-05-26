@@ -26,13 +26,13 @@ const TIPO_BADGE: Record<string, string> = {
   <div class="flex flex-col h-full min-h-0">
 
     <!-- Tabs -->
-    <div class="flex gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl mb-4 shrink-0 overflow-x-auto custom-scrollbar">
+    <div class="flex gap-1 p-1 bg-slate-100 dark:bg-[#252525] rounded-xl mb-4 shrink-0 overflow-x-auto custom-scrollbar">
       <button
         v-for="tab in TABS" :key="tab.id"
         @click="activeTab = tab.id"
         class="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all flex-1 sm:flex-initial justify-center whitespace-nowrap"
         :class="activeTab === tab.id
-          ? 'bg-white dark:bg-slate-700 text-teal-600 dark:text-emerald-400 shadow-sm'
+          ? 'bg-white dark:bg-[#393939] text-teal-600 dark:text-emerald-400 shadow-sm'
           : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"
       >
         <component :is="tab.icon" class="w-3.5 h-3.5" />
@@ -46,7 +46,7 @@ const TIPO_BADGE: Record<string, string> = {
         <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap">Filtrar Grado:</span>
         <select
           v-model="selectedGradoId" @change="loadDesempenos"
-          class="flex-1 sm:flex-initial px-3 py-1.5 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+          class="flex-1 sm:flex-initial px-3 py-1.5 text-sm bg-white dark:bg-[#252525] border border-slate-300 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-teal-500 focus:border-transparent"
         >
           <option v-for="g in grados" :key="g.id" :value="g.id">{{ g.nombre }}</option>
         </select>
@@ -63,9 +63,9 @@ const TIPO_BADGE: Record<string, string> = {
     </div>
 
     <!-- Table -->
-    <div class="flex-1 min-h-0 overflow-y-auto bg-white dark:bg-slate-800 rounded-xl border border-slate-300 dark:border-slate-700 overflow-x-auto custom-scrollbar">
+    <div class="flex-1 min-h-0 overflow-y-auto bg-white dark:bg-[#252525] rounded-xl border border-slate-300 dark:border-slate-700 overflow-x-auto custom-scrollbar">
       <table class="w-full text-sm min-w-[600px] sm:min-w-0">
-        <thead class="sticky top-0 bg-slate-50 dark:bg-slate-900">
+        <thead class="sticky top-0 bg-slate-50 dark:bg-[#121212]">
           <tr class="border-b border-slate-300 dark:border-slate-700">
             <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wide">ID</th>
 
@@ -87,11 +87,11 @@ const TIPO_BADGE: Record<string, string> = {
           <!-- Skeleton -->
           <template v-if="loading">
             <tr v-for="n in 6" :key="n" class="animate-pulse">
-              <td class="px-4 py-3"><div class="h-3 w-8 bg-slate-200 dark:bg-slate-700 rounded" /></td>
-              <td class="px-4 py-3"><div class="h-3 w-40 bg-slate-200 dark:bg-slate-700 rounded" /></td>
-              <td class="px-4 py-3"><div class="h-3 w-16 bg-slate-200 dark:bg-slate-700 rounded" /></td>
-              <td v-if="activeTab === 'desempenos'" class="px-4 py-3"><div class="h-3 w-20 bg-slate-200 dark:bg-slate-700 rounded" /></td>
-              <td class="px-4 py-3"><div class="h-6 w-16 bg-slate-200 dark:bg-slate-700 rounded ml-auto" /></td>
+              <td class="px-4 py-3"><div class="h-3 w-8 bg-slate-200 dark:bg-[#393939] rounded" /></td>
+              <td class="px-4 py-3"><div class="h-3 w-40 bg-slate-200 dark:bg-[#393939] rounded" /></td>
+              <td class="px-4 py-3"><div class="h-3 w-16 bg-slate-200 dark:bg-[#393939] rounded" /></td>
+              <td v-if="activeTab === 'desempenos'" class="px-4 py-3"><div class="h-3 w-20 bg-slate-200 dark:bg-[#393939] rounded" /></td>
+              <td class="px-4 py-3"><div class="h-6 w-16 bg-slate-200 dark:bg-[#393939] rounded ml-auto" /></td>
             </tr>
           </template>
 
@@ -148,14 +148,14 @@ const TIPO_BADGE: Record<string, string> = {
     <Transition name="modal">
       <div v-if="showModal" class="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:p-4 bg-slate-900/60 backdrop-blur-sm cursor-pointer" @click.self="showModal = false">
         <div class="absolute inset-0 cursor-pointer" @click="showModal = false" />
-        <div class="relative z-10 w-full sm:max-w-2xl bg-white dark:bg-slate-900 rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[85vh] transition-transform duration-500 ease-out translate-y-0">
+        <div class="relative z-10 w-full sm:max-w-2xl bg-white dark:bg-[#121212] rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[85vh] transition-transform duration-500 ease-out translate-y-0">
           
           <!-- Drag handle (mobile) -->
           <div class="sm:hidden flex justify-center pt-4 pb-2 shrink-0 cursor-pointer" @click="showModal = false">
-            <div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800"></div>
+            <div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-[#252525]"></div>
           </div>
 
-          <div class="flex items-center justify-between px-8 py-6 border-b border-slate-300 dark:border-slate-800 shrink-0 bg-slate-50 dark:bg-slate-800">
+          <div class="flex items-center justify-between px-8 py-6 border-b border-slate-300 dark:border-slate-800 shrink-0 bg-slate-50 dark:bg-[#252525]">
             <div class="flex items-center gap-4">
               <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white shadow-lg shadow-teal-500/20">
                 <component :is="TABS.find(t => t.id === activeTab)?.icon || BookOpen" class="w-6 h-6" />
@@ -180,11 +180,11 @@ const TIPO_BADGE: Record<string, string> = {
               <div class="space-y-4">
                 <div>
                   <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Nombre</label>
-                  <input v-model="editItem.nombre" type="text" placeholder="Ej: Obtiene información del texto escrito" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all placeholder-slate-400" />
+                  <input v-model="editItem.nombre" type="text" placeholder="Ej: Obtiene información del texto escrito" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all placeholder-slate-400" />
                 </div>
                 <div>
                   <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Tipo</label>
-                  <select v-model="editItem.tipo" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none appearance-none cursor-pointer">
+                  <select v-model="editItem.tipo" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none appearance-none cursor-pointer">
                     <option value="literal">Literal</option>
                     <option value="inferencial">Inferencial</option>
                     <option value="critico">Crítico</option>
@@ -192,7 +192,7 @@ const TIPO_BADGE: Record<string, string> = {
                 </div>
                 <div>
                   <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Descripción</label>
-                  <textarea v-model="editItem.descripcion" rows="4" placeholder="Breve descripción de la capacidad..." class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all placeholder-slate-400 resize-none" />
+                  <textarea v-model="editItem.descripcion" rows="4" placeholder="Breve descripción de la capacidad..." class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all placeholder-slate-400 resize-none" />
                 </div>
               </div>
             </template>
@@ -203,25 +203,25 @@ const TIPO_BADGE: Record<string, string> = {
                 <div class="grid grid-cols-3 gap-4">
                   <div>
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Código</label>
-                    <input v-model="editItem.codigo" type="text" placeholder="01" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-center font-mono font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all placeholder-slate-400" />
+                    <input v-model="editItem.codigo" type="text" placeholder="01" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-center font-mono font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all placeholder-slate-400" />
                   </div>
                   <div class="col-span-2">
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Capacidad</label>
-                    <select v-model="editItem.capacidad_id" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none appearance-none cursor-pointer">
+                    <select v-model="editItem.capacidad_id" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none appearance-none cursor-pointer">
                       <option v-for="c in capacidades" :key="c.id" :value="c.id">{{ c.nombre }} ({{ c.tipo }})</option>
                     </select>
                   </div>
                 </div>
                 <div>
                   <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Descripción del Desempeño</label>
-                  <textarea v-model="editItem.descripcion" rows="6" placeholder="Escribe el desempeño aquí..." class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all placeholder-slate-400 resize-none leading-relaxed" />
+                  <textarea v-model="editItem.descripcion" rows="6" placeholder="Escribe el desempeño aquí..." class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all placeholder-slate-400 resize-none leading-relaxed" />
                 </div>
               </div>
             </template>
           </div>
 
-          <div class="px-8 py-6 border-t border-slate-300 dark:border-slate-800 flex justify-end gap-3 bg-slate-50 dark:bg-slate-800">
-            <button @click="showModal = false" class="px-6 py-3 text-sm font-bold rounded-2xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700 transition-all">
+          <div class="px-8 py-6 border-t border-slate-300 dark:border-slate-800 flex justify-end gap-3 bg-slate-50 dark:bg-[#252525]">
+            <button @click="showModal = false" class="px-6 py-3 text-sm font-bold rounded-2xl bg-white dark:bg-[#252525] hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700 transition-all">
               Cancelar
             </button>
             <button @click="saveItem" :disabled="saving" class="flex items-center gap-2 px-8 py-3 text-sm font-black rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white shadow-xl shadow-teal-500/20 transition-all disabled:opacity-50 active:scale-95">

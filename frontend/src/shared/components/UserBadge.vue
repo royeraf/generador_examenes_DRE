@@ -125,7 +125,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
     <!-- Trigger Button -->
     <button
       @click="isOpen = !isOpen"
-      class="group flex items-center gap-2 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 pl-1.5 pr-3 py-1.5 rounded-full shadow-lg border border-slate-300 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-300 active:scale-95 cursor-pointer"
+      class="group flex items-center gap-2 bg-white dark:bg-[#121212] text-slate-700 dark:text-slate-200 pl-1.5 pr-3 py-1.5 rounded-full shadow-lg border border-slate-300 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-300 active:scale-95 cursor-pointer"
     >
       <!-- Avatar -->
       <div class="w-8 h-8 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white text-[10px] font-black shrink-0 shadow-md group-hover:scale-105 transition-transform">
@@ -149,10 +149,10 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
     >
       <div
         v-if="isOpen"
-        class="absolute right-0 top-full mt-3 w-72 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-800 overflow-hidden z-50 animate-in fade-in zoom-in duration-200"
+        class="absolute right-0 top-full mt-3 w-72 bg-white dark:bg-[#121212] rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-800 overflow-hidden z-50 animate-in fade-in zoom-in duration-200"
       >
         <!-- User info -->
-        <div class="p-6 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+        <div class="p-6 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-[#252525]/30">
           <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white font-black text-sm shrink-0 shadow-xl shadow-teal-500/20">
               {{ initials }}
@@ -176,7 +176,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
             @click="openPerfilModal"
             class="group w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-2xl transition-all font-bold cursor-pointer"
           >
-            <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-teal-500 group-hover:text-white transition-colors">
+            <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#252525] flex items-center justify-center group-hover:bg-teal-500 group-hover:text-white transition-colors">
               <User class="w-4 h-4" />
             </div>
             <span>Mis Datos Personales</span>
@@ -186,7 +186,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
             @click="openPasswordModal"
             class="group w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-2xl transition-all font-bold cursor-pointer"
           >
-            <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+            <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#252525] flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition-colors">
               <KeyRound class="w-4 h-4" />
             </div>
             <span>Cambiar Contraseña</span>
@@ -194,7 +194,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 
           <div class="w-full flex items-center justify-between px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-2xl transition-colors font-bold cursor-pointer">
             <div class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
-              <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+              <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#252525] flex items-center justify-center">
                 <Palette class="w-4 h-4" />
               </div>
               <span>Tema Oscuro</span>
@@ -230,12 +230,12 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
     >
       <div v-if="showPerfilModal" class="fixed inset-0 z-[300] bg-slate-900/60 backdrop-blur-sm cursor-pointer" @click.self="showPerfilModal = false">
         <div class="fixed inset-x-0 bottom-0 sm:inset-0 flex items-end sm:items-center justify-center sm:p-6 pointer-events-none">
-          <div class="bg-white dark:bg-slate-900 w-full sm:max-w-xl max-h-[90vh] sm:max-h-[85vh] flex flex-col rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden pointer-events-auto transform transition-transform duration-500 ease-out translate-y-0"
+          <div class="bg-white dark:bg-[#121212] w-full sm:max-w-xl max-h-[90vh] sm:max-h-[85vh] flex flex-col rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden pointer-events-auto transform transition-transform duration-500 ease-out translate-y-0"
                :class="showPerfilModal ? 'translate-y-0' : 'translate-y-full sm:translate-y-0'">
 
             <!-- Drag handle mobile -->
             <div class="sm:hidden flex justify-center pt-4 pb-2 shrink-0 cursor-pointer" @click="showPerfilModal = false">
-              <div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800"></div>
+              <div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-[#252525]"></div>
             </div>
 
             <!-- Header -->
@@ -271,11 +271,11 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
                     <Fingerprint class="w-3.5 h-3.5" /> Identidad
                   </h3>
                   <div class="space-y-4">
-                    <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-transparent hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+                    <div class="bg-slate-50 dark:bg-[#252525]/50 p-4 rounded-2xl border border-transparent hover:border-slate-300 dark:hover:border-slate-700 transition-all">
                       <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">DNI</p>
                       <p class="text-sm font-black text-slate-800 dark:text-slate-200 font-mono">{{ auth.user?.dni }}</p>
                     </div>
-                    <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-transparent hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+                    <div class="bg-slate-50 dark:bg-[#252525]/50 p-4 rounded-2xl border border-transparent hover:border-slate-300 dark:hover:border-slate-700 transition-all">
                       <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nombre Completo</p>
                       <p class="text-sm font-bold text-slate-800 dark:text-slate-200">{{ [auth.user?.nombres, auth.user?.apellidos].filter(Boolean).join(' ') || '—' }}</p>
                     </div>
@@ -288,11 +288,11 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
                     <Building2 class="w-3.5 h-3.5" /> Organización
                   </h3>
                   <div class="space-y-4">
-                    <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-transparent hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+                    <div class="bg-slate-50 dark:bg-[#252525]/50 p-4 rounded-2xl border border-transparent hover:border-slate-300 dark:hover:border-slate-700 transition-all">
                       <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Institución</p>
                       <p class="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{{ auth.user?.institucion_nombre || 'No asignada' }}</p>
                     </div>
-                    <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-transparent hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+                    <div class="bg-slate-50 dark:bg-[#252525]/50 p-4 rounded-2xl border border-transparent hover:border-slate-300 dark:hover:border-slate-700 transition-all">
                       <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">UGEL</p>
                       <p class="text-sm font-bold text-slate-800 dark:text-slate-200">{{ auth.user?.ugel_nombre || 'No asignada' }}</p>
                     </div>
@@ -305,8 +305,8 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
                     <MapPin class="w-3.5 h-3.5" /> Ubicación Geográfica
                   </h3>
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="flex items-center gap-4 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl">
-                      <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-700 flex items-center justify-center text-teal-500 shadow-sm">
+                    <div class="flex items-center gap-4 bg-slate-50 dark:bg-[#252525]/50 p-4 rounded-2xl">
+                      <div class="w-10 h-10 rounded-xl bg-white dark:bg-[#393939] flex items-center justify-center text-teal-500 shadow-sm">
                         <MapPin class="w-5 h-5" />
                       </div>
                       <div>
@@ -314,8 +314,8 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
                         <p class="text-sm font-bold text-slate-800 dark:text-slate-200">{{ auth.user?.provincia_nombre || '—' }}</p>
                       </div>
                     </div>
-                    <div class="flex items-center gap-4 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl">
-                      <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-700 flex items-center justify-center text-emerald-500 shadow-sm">
+                    <div class="flex items-center gap-4 bg-slate-50 dark:bg-[#252525]/50 p-4 rounded-2xl">
+                      <div class="w-10 h-10 rounded-xl bg-white dark:bg-[#393939] flex items-center justify-center text-emerald-500 shadow-sm">
                         <MapPin class="w-5 h-5" />
                       </div>
                       <div>
@@ -340,7 +340,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
                       <Shield class="w-3.5 h-3.5" />
                       {{ rolLabel(auth.user?.rol_codigo) }}
                     </div>
-                    <div v-if="auth.user?.fecha_creacion" class="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 rounded-full text-xs font-black uppercase tracking-widest border border-slate-300 dark:border-slate-800">
+                    <div v-if="auth.user?.fecha_creacion" class="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-[#252525]/50 text-slate-600 dark:text-slate-400 rounded-full text-xs font-black uppercase tracking-widest border border-slate-300 dark:border-slate-800">
                       <CalendarDays class="w-3.5 h-3.5" />
                       Miembro desde {{ formatFechaLarga(auth.user.fecha_creacion) }}
                     </div>
@@ -350,7 +350,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
             </div>
 
             <!-- Footer -->
-            <div class="px-8 py-6 border-t border-slate-300 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex justify-end">
+            <div class="px-8 py-6 border-t border-slate-300 dark:border-slate-800 bg-slate-50/50 dark:bg-[#252525]/50 flex justify-end">
               <button @click="showPerfilModal = false"
                 class="px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-sm rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer">
                 Entendido
@@ -374,11 +374,11 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
     >
       <div v-if="showPasswordModal" class="fixed inset-0 z-[300] bg-slate-900/60 backdrop-blur-sm cursor-pointer" @click.self="showPasswordModal = false">
         <div class="fixed inset-x-0 bottom-0 sm:inset-0 flex items-end sm:items-center justify-center sm:p-6 pointer-events-none">
-          <div class="bg-white dark:bg-slate-900 w-full sm:max-w-md max-h-[90vh] sm:max-h-[85vh] flex flex-col rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden pointer-events-auto transform transition-transform duration-500 ease-out translate-y-0">
+          <div class="bg-white dark:bg-[#121212] w-full sm:max-w-md max-h-[90vh] sm:max-h-[85vh] flex flex-col rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden pointer-events-auto transform transition-transform duration-500 ease-out translate-y-0">
 
             <!-- Drag handle mobile -->
             <div class="sm:hidden flex justify-center pt-4 pb-2 shrink-0 cursor-pointer" @click="showPasswordModal = false">
-              <div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800"></div>
+              <div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-[#252525]"></div>
             </div>
 
             <!-- Header -->
@@ -425,7 +425,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
                       v-model="passwordForm.current"
                       :type="showCurrent ? 'text' : 'password'"
                       placeholder="••••••••"
-                      class="w-full h-14 bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-800 rounded-2xl pl-12 pr-12 text-sm text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
+                      class="w-full h-14 bg-slate-50 dark:bg-[#252525]/50 border border-slate-300 dark:border-slate-800 rounded-2xl pl-12 pr-12 text-sm text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
                     />
                     <KeyRound class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-teal-500 transition-colors" />
                     <button type="button" @click="showCurrent = !showCurrent" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 cursor-pointer">
@@ -443,7 +443,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
                       v-model="passwordForm.newPass"
                       :type="showNew ? 'text' : 'password'"
                       placeholder="Mínimo 6 caracteres"
-                      class="w-full h-14 bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-800 rounded-2xl pl-12 pr-12 text-sm text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
+                      class="w-full h-14 bg-slate-50 dark:bg-[#252525]/50 border border-slate-300 dark:border-slate-800 rounded-2xl pl-12 pr-12 text-sm text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
                     />
                     <Shield class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                     <button type="button" @click="showNew = !showNew" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 cursor-pointer">
@@ -461,7 +461,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
                       v-model="passwordForm.confirm"
                       :type="showConfirm ? 'text' : 'password'"
                       placeholder="Repite la contraseña"
-                      class="w-full h-14 bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-800 rounded-2xl pl-12 pr-12 text-sm text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
+                      class="w-full h-14 bg-slate-50 dark:bg-[#252525]/50 border border-slate-300 dark:border-slate-800 rounded-2xl pl-12 pr-12 text-sm text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
                     />
                     <BadgeCheck class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                     <button type="button" @click="showConfirm = !showConfirm" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 cursor-pointer">
@@ -474,7 +474,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
             </div>
 
             <!-- Footer -->
-            <div class="p-8 border-t border-slate-300 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex gap-3">
+            <div class="p-8 border-t border-slate-300 dark:border-slate-800 bg-slate-50/50 dark:bg-[#252525]/50 flex gap-3">
               <button @click="showPasswordModal = false"
                 class="flex-1 h-12 rounded-2xl border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold text-sm hover:bg-white dark:hover:bg-slate-700 transition-all cursor-pointer">
                 Cancelar

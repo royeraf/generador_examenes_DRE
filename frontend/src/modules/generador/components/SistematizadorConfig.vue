@@ -58,7 +58,7 @@ const localCompetencia = computed({
 
         <!-- Competencia Card - Educativo -->
         <div
-            class="bg-white dark:bg-slate-800 rounded-2xl border-2 border-teal-100 dark:border-slate-700 shadow-lg mb-8 overflow-hidden">
+            class="bg-white dark:bg-[#252525] rounded-2xl border-2 border-teal-100 dark:border-slate-700 shadow-lg mb-8 overflow-hidden">
             <div class="bg-gradient-to-r from-teal-500 to-sky-500 p-4">
                 <div class="flex items-center gap-4">
                     <div
@@ -75,14 +75,14 @@ const localCompetencia = computed({
             </div>
             <div class="p-5">
                 <input v-model="localCompetencia" type="text"
-                    class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all placeholder-slate-400" placeholder="Ej: Lee diversos tipos de textos..." />
+                    class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all placeholder-slate-400" placeholder="Ej: Lee diversos tipos de textos..." />
             </div>
         </div>
 
         <!-- Niveles Container - Educativo -->
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             <div v-for="(nivel, key) in niveles" :key="key"
-                class="bg-white dark:bg-slate-800 rounded-2xl border-2 transition-all duration-300 hover:shadow-xl overflow-hidden"
+                class="bg-white dark:bg-[#252525] rounded-2xl border-2 transition-all duration-300 hover:shadow-xl overflow-hidden"
                 :style="{ borderColor: nivel.color + '40', borderTopWidth: '4px', borderTopColor: nivel.color }">
                 <div class="p-6">
                     <div class="flex items-center gap-2 mb-4 flex-wrap">
@@ -111,7 +111,7 @@ const localCompetencia = computed({
 
                             <!-- Fallback or Full Text Edit -->
                             <textarea v-model="pregunta.descripcion" placeholder="Descripción del desempeño..." rows="2"
-                                class="w-full text-sm py-2.5 px-3.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 text-slate-700 dark:text-slate-200 outline-none resize-none transition-all placeholder-slate-400 font-bold"></textarea>
+                                class="w-full text-sm py-2.5 px-3.5 bg-white dark:bg-[#252525] border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 text-slate-700 dark:text-slate-200 outline-none resize-none transition-all placeholder-slate-400 font-bold"></textarea>
 
                             <div
                                 class="flex items-center justify-between mt-3 pt-3 border-t-2 border-slate-300 dark:border-slate-700">
@@ -120,7 +120,7 @@ const localCompetencia = computed({
                                         <Key class="w-3 h-3" /> Clave:
                                     </span>
                                     <select v-model="pregunta.clave"
-                                        class="text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-1.5 font-black focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all text-slate-700 dark:text-slate-200 outline-none cursor-pointer appearance-none">
+                                        class="text-sm bg-white dark:bg-[#252525] border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-1.5 font-black focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all text-slate-700 dark:text-slate-200 outline-none cursor-pointer appearance-none">
                                         <option value="">-</option>
                                         <option value="A">A</option>
                                         <option value="B">B</option>

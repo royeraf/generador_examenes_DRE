@@ -20,7 +20,7 @@ const router = useRouter();
 
 <template>
   <header class="sticky top-0 z-50 h-14 flex items-center justify-between px-4 sm:px-6 gap-3
-    bg-white dark:bg-slate-900
+    bg-white dark:bg-[#121212]
     border-b border-slate-300/80 dark:border-slate-800
     transition-colors duration-300">
 
@@ -28,7 +28,7 @@ const router = useRouter();
     <div class="flex items-center gap-3 shrink-0">
       <div class="relative w-8 h-8 shrink-0">
         <div class="absolute -inset-0.5 bg-gradient-to-r from-teal-500 to-emerald-600 rounded-lg blur opacity-20"></div>
-        <div class="absolute inset-0 flex items-center justify-center p-1.5 bg-white dark:bg-slate-800
+        <div class="absolute inset-0 flex items-center justify-center p-1.5 bg-white dark:bg-[#252525]
           rounded-lg border border-slate-300 dark:border-slate-700 overflow-hidden">
           <GraduationCap class="absolute w-4 h-4 text-teal-600 dark:text-emerald-400 nav-logo-1" />
           <div class="absolute nav-logo-img w-4 h-4 nav-logo-2"
@@ -50,7 +50,7 @@ const router = useRouter();
     <div class="flex items-center gap-2 shrink-0">
       <slot name="actions" />
       <button v-if="showHome" @click="router.push('/')"
-        class="p-2 sm:px-3 sm:py-1.5 rounded-full bg-slate-200/60 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700
+        class="p-2 sm:px-3 sm:py-1.5 rounded-full bg-slate-200/60 dark:bg-[#252525] hover:bg-slate-200 dark:hover:bg-slate-700
           border border-slate-300 dark:border-slate-700 transition-colors
           text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 cursor-pointer"
         title="Inicio">

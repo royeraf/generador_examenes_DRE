@@ -346,7 +346,7 @@ const estadoLabels: Record<string, string> = {
 }
 
 const estadoColors: Record<string, string> = {
-  sin_intento: 'text-slate-600 bg-slate-100 dark:bg-slate-700 dark:text-slate-300',
+  sin_intento: 'text-slate-600 bg-slate-100 dark:bg-[#393939] dark:text-slate-300',
   en_progreso: 'text-amber-700 bg-amber-50 dark:bg-amber-900/20 dark:text-amber-300',
   completado: 'text-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-300',
 }
@@ -374,7 +374,7 @@ const estadoColors: Record<string, string> = {
           </p>
         </div>
         <div class="flex items-center gap-3">
-          <div class="flex items-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-1 shadow-sm">
+          <div class="flex items-center bg-white dark:bg-[#252525] border border-slate-200 dark:border-slate-700 rounded-2xl p-1 shadow-sm">
             <button @click="setViewMode('cards')" title="Vista cards"
               class="p-2.5 rounded-xl transition-all"
               :class="viewMode === 'cards' ? 'bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'">
@@ -418,8 +418,8 @@ const estadoColors: Record<string, string> = {
 
       <!-- Empty -->
       <div v-else-if="asignaciones.length === 0"
-        class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 p-12 text-center shadow-sm group">
-        <div class="w-24 h-24 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
+        class="bg-white dark:bg-[#121212] rounded-2xl border border-slate-300 dark:border-slate-800 p-12 text-center shadow-sm group">
+        <div class="w-24 h-24 bg-slate-50 dark:bg-[#252525] rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
            <ClipboardList class="w-12 h-12 text-slate-300 dark:text-slate-600" />
         </div>
         <h3 class="text-2xl font-black text-slate-800 dark:text-white mb-2 tracking-tight">Sin asignaciones aún</h3>
@@ -436,7 +436,7 @@ const estadoColors: Record<string, string> = {
       <!-- Cards -->
       <div v-else-if="viewMode === 'cards'" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
         <div v-for="asig in asignaciones" :key="asig.id"
-          class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 p-5 shadow-sm hover:shadow-xl hover:shadow-violet-500/5 transition-all duration-300 relative group overflow-hidden flex flex-col"
+          class="bg-white dark:bg-[#121212] rounded-2xl border border-slate-300 dark:border-slate-800 p-5 shadow-sm hover:shadow-xl hover:shadow-violet-500/5 transition-all duration-300 relative group overflow-hidden flex flex-col"
           :class="!asig.is_active ? 'opacity-50' : ''">
 
           <div class="absolute -right-6 -top-6 w-24 h-24 bg-violet-500/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
@@ -455,7 +455,7 @@ const estadoColors: Record<string, string> = {
                 class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full">
                 {{ asig.tipo_examen === 'lectura' ? 'LectoSistem' : 'MatSistem' }}
               </span>
-              <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
+              <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 dark:bg-[#252525] px-2 py-0.5 rounded-full">
                 {{ asig.completados }} rindiendo
               </span>
             </div>
@@ -491,7 +491,7 @@ const estadoColors: Record<string, string> = {
           <!-- Actions -->
           <div class="flex items-center gap-2 pt-4 mt-4 border-t border-slate-100 dark:border-slate-800 relative z-10">
             <button @click="openResultados(asig)"
-              class="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs rounded-xl transition-all active:scale-95 border border-slate-200 dark:border-slate-700 cursor-pointer">
+              class="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-slate-50 dark:bg-[#252525] hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs rounded-xl transition-all active:scale-95 border border-slate-200 dark:border-slate-700 cursor-pointer">
               <Users class="w-4 h-4" />
               <span>Reporte</span>
             </button>
@@ -503,7 +503,7 @@ const estadoColors: Record<string, string> = {
             <button v-if="asig.puede_eliminar" @click="toggle(asig)" :disabled="loadingToggle === asig.id"
               title="Activar / Desactivar"
               class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none disabled:opacity-40"
-              :class="asig.is_active ? 'bg-violet-500' : 'bg-slate-300 dark:bg-slate-600'">
+              :class="asig.is_active ? 'bg-violet-500' : 'bg-slate-300 dark:bg-[#4f4f4f]'">
               <Loader2 v-if="loadingToggle === asig.id" class="w-3 h-3 text-white absolute left-1/2 -translate-x-1/2 animate-spin" />
               <span v-else class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200"
                 :class="asig.is_active ? 'translate-x-6' : 'translate-x-1'" />
@@ -513,7 +513,7 @@ const estadoColors: Record<string, string> = {
       </div>
 
       <!-- Table -->
-      <div v-else-if="viewMode === 'table'" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm overflow-hidden">
+      <div v-else-if="viewMode === 'table'" class="bg-white dark:bg-[#121212] rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm overflow-hidden">
           <table class="w-full border-collapse text-sm table-fixed">
             <colgroup>
               <col class="w-[33%]" />
@@ -523,7 +523,7 @@ const estadoColors: Record<string, string> = {
               <col class="w-[16%]" />
             </colgroup>
             <thead>
-              <tr class="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700">
+              <tr class="bg-slate-50 dark:bg-[#252525]/60 border-b border-slate-200 dark:border-slate-700">
                 <th class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Examen</th>
                 <th class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Destino</th>
                 <th class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Horario</th>
@@ -564,7 +564,7 @@ const estadoColors: Record<string, string> = {
                   <span v-else class="text-xs text-slate-400">—</span>
                 </td>
                 <td class="px-4 py-3 text-center">
-                  <span :class="asig.is_active ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'"
+                  <span :class="asig.is_active ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400' : 'bg-slate-100 dark:bg-[#393939] text-slate-500 dark:text-slate-400'"
                     class="text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-full whitespace-nowrap">
                     {{ asig.is_active ? 'Activa' : 'Inactiva' }}
                   </span>
@@ -582,7 +582,7 @@ const estadoColors: Record<string, string> = {
                     <button v-if="asig.puede_eliminar" @click="toggle(asig)" :disabled="loadingToggle === asig.id"
                       title="Activar / Desactivar"
                       class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none disabled:opacity-40 shrink-0"
-                      :class="asig.is_active ? 'bg-violet-500' : 'bg-slate-300 dark:bg-slate-600'">
+                      :class="asig.is_active ? 'bg-violet-500' : 'bg-slate-300 dark:bg-[#4f4f4f]'">
                       <Loader2 v-if="loadingToggle === asig.id" class="w-3 h-3 text-white absolute left-1/2 -translate-x-1/2 animate-spin" />
                       <span v-else class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200"
                         :class="asig.is_active ? 'translate-x-6' : 'translate-x-1'" />
@@ -607,11 +607,11 @@ const estadoColors: Record<string, string> = {
           <!-- Backdrop -->
           <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity cursor-pointer" @click="closeModal()"></div>
 
-          <div class="relative bg-white dark:bg-slate-900 w-full sm:max-w-2xl max-h-[94dvh] sm:max-h-[85vh] flex flex-col sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden z-10 animate-slide-up">
+          <div class="relative bg-white dark:bg-[#121212] w-full sm:max-w-2xl max-h-[94dvh] sm:max-h-[85vh] flex flex-col sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden z-10 animate-slide-up">
             
             <!-- Drag handle mobile -->
             <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0 cursor-pointer" @click="closeModal()">
-                <div class="w-10 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800"></div>
+                <div class="w-10 h-1.5 rounded-full bg-slate-200 dark:bg-[#252525]"></div>
             </div>
 
             <!-- Header -->
@@ -627,13 +627,13 @@ const estadoColors: Record<string, string> = {
                   <p class="text-xs font-bold text-slate-500 dark:text-slate-400">Configuración de acceso y aleatoriedad</p>
                 </div>
               </div>
-              <button @click="closeModal()" class="p-3 bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-2xl transition-all cursor-pointer">
+              <button @click="closeModal()" class="p-3 bg-slate-100 dark:bg-[#252525] text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-2xl transition-all cursor-pointer">
                 <X class="w-6 h-6" />
               </button>
             </div>
 
             <!-- Body -->
-            <div class="flex-1 min-h-0 overflow-y-auto p-0 custom-scrollbar bg-slate-50/30 dark:bg-slate-900/10">
+            <div class="flex-1 min-h-0 overflow-y-auto p-0 custom-scrollbar bg-slate-50/30 dark:bg-[#121212]/10">
 
               <div class="p-8 space-y-10">
 
@@ -655,7 +655,7 @@ const estadoColors: Record<string, string> = {
                           :class="['flex-1 flex items-center gap-2 p-2.5 rounded-xl border transition-all group cursor-pointer',
                             tipoExamen === 'lectura'
                               ? 'bg-white dark:bg-emerald-500/10 border-teal-500 text-teal-700 dark:text-emerald-400 shadow-md'
-                              : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-400 hover:border-slate-400']">
+                              : 'bg-white dark:bg-[#252525] border-slate-300 dark:border-slate-600 text-slate-400 hover:border-slate-400']">
                           <BookOpen class="w-3.5 h-3.5 transition-transform" /> 
                           <span class="text-[10px] font-black uppercase">Comunicación</span>
                         </button>
@@ -663,7 +663,7 @@ const estadoColors: Record<string, string> = {
                           :class="['flex-1 flex items-center gap-2 p-2.5 rounded-xl border transition-all group cursor-pointer',
                             tipoExamen === 'matematica'
                               ? 'bg-white dark:bg-emerald-500/10 border-emerald-500 text-emerald-700 dark:text-emerald-400 shadow-md'
-                              : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-400 hover:border-slate-400']">
+                              : 'bg-white dark:bg-[#252525] border-slate-300 dark:border-slate-600 text-slate-400 hover:border-slate-400']">
                           <Calculator class="w-3.5 h-3.5 transition-transform" /> 
                           <span class="text-[10px] font-black uppercase">Matemática</span>
                         </button>
@@ -673,7 +673,7 @@ const estadoColors: Record<string, string> = {
                     <!-- Instrumento -->
                     <div class="space-y-3">
                       <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Instrumento a aplicar</label>
-                      <div v-if="loadingExamenes" class="flex items-center gap-3 p-2.5 bg-white dark:bg-slate-800 rounded-lg border-2 border-slate-100 dark:border-slate-700">
+                      <div v-if="loadingExamenes" class="flex items-center gap-3 p-2.5 bg-white dark:bg-[#252525] rounded-lg border-2 border-slate-100 dark:border-slate-700">
                         <Loader2 class="w-3.5 h-3.5 animate-spin text-violet-500" />
                         <span class="text-[10px] font-bold text-slate-400">Cargando instrumentos...</span>
                       </div>
@@ -688,7 +688,7 @@ const estadoColors: Record<string, string> = {
                       <div v-else class="relative">
                         <button type="button" @click="examenDropdownOpen = !examenDropdownOpen"
                           :class="[
-                            'w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border transition-all text-left bg-slate-50 dark:bg-slate-700 cursor-pointer',
+                            'w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border transition-all text-left bg-slate-50 dark:bg-[#393939] cursor-pointer',
                             examenDropdownOpen
                               ? 'border-violet-500 ring-4 ring-violet-500/10 shadow-lg'
                               : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500'
@@ -706,12 +706,12 @@ const estadoColors: Record<string, string> = {
                         <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100"
                           leave-active-class="transition duration-150 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
                           <div v-if="examenDropdownOpen"
-                            class="absolute z-[130] left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95">
+                            class="absolute z-[130] left-0 right-0 top-full mt-2 bg-white dark:bg-[#252525] border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95">
                             <div class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 custom-scrollbar">
                               <button v-for="ex in examenesActuales" :key="ex.id" type="button"
                                 @click="examenSeleccionadoId = ex.id; examenDropdownOpen = false"
                                 class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group cursor-pointer">
-                                <div :class="examenSeleccionadoId === ex.id ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0 transition-colors"></div>
+                                <div :class="examenSeleccionadoId === ex.id ? 'bg-violet-500' : 'bg-slate-200 dark:bg-[#393939]'" class="w-2 h-10 rounded-full shrink-0 transition-colors"></div>
                                 <div class="min-w-0">
                                   <p class="text-sm font-black text-slate-800 dark:text-white truncate">{{ ex.titulo ?? 'Sin título' }}</p>
                                   <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase">{{ ex.grado_nombre }} · {{ formatFechaHora(ex.fecha_creacion) }}</p>
@@ -741,13 +741,13 @@ const estadoColors: Record<string, string> = {
                       
                       <!-- Docentes -->
                       <div v-if="usarCodigosClase">
-                        <div v-if="codigosClase.length === 0" class="p-6 bg-white dark:bg-slate-800 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 text-center">
+                        <div v-if="codigosClase.length === 0" class="p-6 bg-white dark:bg-[#252525] rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 text-center">
                            <p class="text-xs font-bold text-slate-500">No tienes aulas activas creadas.</p>
                         </div>
                         <div v-else class="relative">
                           <button type="button" @click="claseDropdownOpen = !claseDropdownOpen"
                             :class="[
-                              'w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border transition-all text-left bg-slate-50 dark:bg-slate-700 cursor-pointer',
+                              'w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border transition-all text-left bg-slate-50 dark:bg-[#393939] cursor-pointer',
                               claseDropdownOpen ? 'border-violet-500 ring-4 ring-violet-500/10 shadow-lg' : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500'
                             ]">
                             <div v-if="codigoClaseSeleccionado" class="min-w-0">
@@ -761,14 +761,14 @@ const estadoColors: Record<string, string> = {
                           </button>
                           <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100"
                             leave-active-class="transition duration-150 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
-                            <div v-if="claseDropdownOpen" class="absolute z-[120] left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
+                            <div v-if="claseDropdownOpen" class="absolute z-[120] left-0 right-0 top-full mt-2 bg-white dark:bg-[#252525] border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
                               <div class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 custom-scrollbar">
                                 <button type="button" @click="codigoClaseId = null; claseDropdownOpen = false" class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group cursor-pointer">
-                                  <div :class="codigoClaseId === null ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0"></div>
+                                  <div :class="codigoClaseId === null ? 'bg-violet-500' : 'bg-slate-200 dark:bg-[#393939]'" class="w-2 h-10 rounded-full shrink-0"></div>
                                   <p class="text-sm font-black text-slate-800 dark:text-white">Todas mis secciones</p>
                                 </button>
                                 <button v-for="c in codigosClase" :key="c.id" type="button" @click="codigoClaseId = c.id; claseDropdownOpen = false" class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group cursor-pointer">
-                                  <div :class="codigoClaseId === c.id ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0"></div>
+                                  <div :class="codigoClaseId === c.id ? 'bg-violet-500' : 'bg-slate-200 dark:bg-[#393939]'" class="w-2 h-10 rounded-full shrink-0"></div>
                                   <div class="min-w-0"><p class="text-sm font-black text-slate-800 dark:text-white truncate">{{ c.grado_nombre }} — Sección {{ c.seccion }}</p></div>
                                 </button>
                               </div>
@@ -780,7 +780,7 @@ const estadoColors: Record<string, string> = {
                       <!-- Roles Superiores -->
                       <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div class="relative">
-                          <button type="button" @click="gradoDropdownOpen = !gradoDropdownOpen" :class="['w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border transition-all text-left bg-slate-50 dark:bg-slate-700 cursor-pointer', gradoDropdownOpen ? 'border-violet-500 ring-4 ring-violet-500/10 shadow-lg' : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500']">
+                          <button type="button" @click="gradoDropdownOpen = !gradoDropdownOpen" :class="['w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border transition-all text-left bg-slate-50 dark:bg-[#393939] cursor-pointer', gradoDropdownOpen ? 'border-violet-500 ring-4 ring-violet-500/10 shadow-lg' : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500']">
                             <div class="min-w-0 flex items-center gap-2">
                               <div v-if="gradoSeleccionado" class="p-1 rounded-lg bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400"><GraduationCap class="w-3 h-3" /></div>
                               <div>
@@ -791,14 +791,14 @@ const estadoColors: Record<string, string> = {
                             <ChevronDown class="w-3.5 h-3.5 text-slate-400 transition-transform duration-300" :class="gradoDropdownOpen ? 'rotate-180' : ''" />
                           </button>
                           <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100" leave-active-class="transition duration-150 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
-                            <div v-if="gradoDropdownOpen" class="absolute z-[120] left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
+                            <div v-if="gradoDropdownOpen" class="absolute z-[120] left-0 right-0 top-full mt-2 bg-white dark:bg-[#252525] border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
                               <div class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 custom-scrollbar">
                                 <button type="button" @click="gradoSeleccionadoId = null; gradoDropdownOpen = false" class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group cursor-pointer">
-                                  <div :class="gradoSeleccionadoId === null ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0"></div>
+                                  <div :class="gradoSeleccionadoId === null ? 'bg-violet-500' : 'bg-slate-200 dark:bg-[#393939]'" class="w-2 h-10 rounded-full shrink-0"></div>
                                   <p class="text-sm font-black text-slate-800 dark:text-white">Todos los grados</p>
                                 </button>
                                 <button v-for="g in grados" :key="g.id" type="button" @click="gradoSeleccionadoId = g.id; gradoDropdownOpen = false" class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group cursor-pointer">
-                                  <div :class="gradoSeleccionadoId === g.id ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0"></div>
+                                  <div :class="gradoSeleccionadoId === g.id ? 'bg-violet-500' : 'bg-slate-200 dark:bg-[#393939]'" class="w-2 h-10 rounded-full shrink-0"></div>
                                   <p class="text-sm font-black text-slate-800 dark:text-white">{{ g.nombre }}</p>
                                 </button>
                               </div>
@@ -806,19 +806,19 @@ const estadoColors: Record<string, string> = {
                           </Transition>
                         </div>
                         <div class="relative">
-                          <button type="button" @click="seccionDropdownOpen = !seccionDropdownOpen" :class="['w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border transition-all text-left bg-slate-50 dark:bg-slate-700 cursor-pointer', seccionDropdownOpen ? 'border-violet-500 ring-4 ring-violet-500/10 shadow-lg' : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500']">
+                          <button type="button" @click="seccionDropdownOpen = !seccionDropdownOpen" :class="['w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border transition-all text-left bg-slate-50 dark:bg-[#393939] cursor-pointer', seccionDropdownOpen ? 'border-violet-500 ring-4 ring-violet-500/10 shadow-lg' : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500']">
                             <div class="min-w-0"><p v-if="seccion" class="text-xs font-black text-slate-800 dark:text-white truncate leading-tight">Sección {{ seccion }}</p><span v-else class="text-slate-400 text-xs font-bold">— Todas —</span></div>
                             <ChevronDown class="w-3.5 h-3.5 text-slate-400 transition-transform duration-300" :class="seccionDropdownOpen ? 'rotate-180' : ''" />
                           </button>
                           <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100" leave-active-class="transition duration-150 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
-                            <div v-if="seccionDropdownOpen" class="absolute z-[120] left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
+                            <div v-if="seccionDropdownOpen" class="absolute z-[120] left-0 right-0 top-full mt-2 bg-white dark:bg-[#252525] border border-slate-300 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
                               <div class="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700 custom-scrollbar">
                                 <button type="button" @click="seccion = ''; seccionDropdownOpen = false" class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group cursor-pointer">
-                                  <div :class="seccion === '' ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0"></div>
+                                  <div :class="seccion === '' ? 'bg-violet-500' : 'bg-slate-200 dark:bg-[#393939]'" class="w-2 h-10 rounded-full shrink-0"></div>
                                   <p class="text-sm font-black text-slate-800 dark:text-white">Todas las secciones</p>
                                 </button>
                                 <button v-for="s in ['A','B','C','D','E','F','G','H','I','J','Única']" :key="s" type="button" @click="seccion = s; seccionDropdownOpen = false" class="w-full text-left p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-4 group cursor-pointer">
-                                  <div :class="seccion === s ? 'bg-violet-500' : 'bg-slate-200 dark:bg-slate-700'" class="w-2 h-10 rounded-full shrink-0"></div>
+                                  <div :class="seccion === s ? 'bg-violet-500' : 'bg-slate-200 dark:bg-[#393939]'" class="w-2 h-10 rounded-full shrink-0"></div>
                                   <p class="text-sm font-black text-slate-800 dark:text-white">Sección {{ s }}</p>
                                 </button>
                               </div>
@@ -836,7 +836,7 @@ const estadoColors: Record<string, string> = {
                           <Hash class="w-4 h-4" />
                         </div>
                         <input v-model.number="intentosPermitidos" type="number" min="1" max="10"
-                          class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 pl-10 pr-4 text-xs font-black text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all shadow-sm" />
+                          class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 pl-10 pr-4 text-xs font-black text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all shadow-sm" />
                       </div>
                     </div>
                   </div>
@@ -851,7 +851,7 @@ const estadoColors: Record<string, string> = {
                     <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wider">Programación de la Fecha</h3>
                   </div>
 
-                  <div class="bg-white dark:bg-slate-800/60 rounded-3xl p-8 border-2 border-slate-100 dark:border-slate-700/50 shadow-xl">
+                  <div class="bg-white dark:bg-[#252525]/60 rounded-3xl p-8 border-2 border-slate-100 dark:border-slate-700/50 shadow-xl">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                       <!-- Fecha -->
                       <div class="space-y-3">
@@ -859,7 +859,7 @@ const estadoColors: Record<string, string> = {
                         <div class="relative">
                           <Calendar class="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-violet-500 dark:text-violet-400" />
                           <input v-model="fechaAplicacion" type="date"
-                            class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 pl-10 pr-3.5 text-xs font-bold text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all" />
+                            class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 pl-10 pr-3.5 text-xs font-bold text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all" />
                         </div>
                       </div>
                       <!-- Hora Inicio -->
@@ -868,7 +868,7 @@ const estadoColors: Record<string, string> = {
                         <div class="relative">
                           <Clock class="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
                           <input v-model="horaInicio" type="time"
-                            class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 pl-10 pr-3.5 text-xs font-bold text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all" />
+                            class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 pl-10 pr-3.5 text-xs font-bold text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all" />
                         </div>
                       </div>
                       <!-- Hora Fin -->
@@ -877,15 +877,15 @@ const estadoColors: Record<string, string> = {
                         <div class="relative">
                           <Clock class="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-rose-500 dark:text-rose-400" />
                           <input v-model="horaFin" type="time"
-                            class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 pl-10 pr-3.5 text-xs font-bold text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-rose-500/50 focus:border-rose-500 transition-all" />
+                            class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 pl-10 pr-3.5 text-xs font-bold text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-rose-500/50 focus:border-rose-500 transition-all" />
                         </div>
                       </div>
                     </div>
 
                     <div class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-700/50 flex flex-col sm:flex-row items-center gap-4">
-                      <div class="flex items-center gap-3 bg-slate-100/50 dark:bg-slate-900/50 p-1.5 pr-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                      <div class="flex items-center gap-3 bg-slate-100/50 dark:bg-[#121212]/50 p-1.5 pr-4 rounded-xl border border-slate-200 dark:border-slate-700">
                         <input v-model.number="duracionMinutos" type="number" placeholder="Libre"
-                          class="w-20 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 focus:border-violet-500 rounded-xl py-2 px-3 text-xs font-black text-violet-600 dark:text-violet-400 outline-none transition-all text-center shadow-sm" />
+                          class="w-20 bg-white dark:bg-[#393939] border border-slate-300 dark:border-slate-600 focus:border-violet-500 rounded-xl py-2 px-3 text-xs font-black text-violet-600 dark:text-violet-400 outline-none transition-all text-center shadow-sm" />
                         <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">Minutos de duración</span>
                       </div>
                       <p class="text-xs font-bold text-slate-400 flex items-center gap-2">
@@ -907,10 +907,10 @@ const estadoColors: Record<string, string> = {
 
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <button @click="mezclarPreguntas = !mezclarPreguntas"
-                      :class="mezclarPreguntas ? 'bg-white dark:bg-slate-800 border-violet-500 shadow-md' : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-400 hover:border-slate-400'"
+                      :class="mezclarPreguntas ? 'bg-white dark:bg-[#252525] border-violet-500 shadow-md' : 'bg-white dark:bg-[#252525] border-slate-300 dark:border-slate-600 text-slate-400 hover:border-slate-400'"
                       class="flex items-center justify-between p-4 rounded-xl border transition-all group text-left">
                        <div class="flex items-center gap-3">
-                          <div :class="mezclarPreguntas ? 'bg-violet-100 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400' : 'bg-slate-50 dark:bg-slate-900/50 text-slate-300'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors">
+                          <div :class="mezclarPreguntas ? 'bg-violet-100 dark:bg-violet-500/20 text-violet-600 dark:text-violet-400' : 'bg-slate-50 dark:bg-[#121212]/50 text-slate-300'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors">
                              <RefreshCw class="w-5 h-5" :class="mezclarPreguntas ? 'animate-spin-slow' : ''" />
                           </div>
                           <div>
@@ -918,16 +918,16 @@ const estadoColors: Record<string, string> = {
                              <p class="text-[9px] font-bold opacity-70 leading-none">Diferente orden para todos</p>
                           </div>
                        </div>
-                       <div :class="mezclarPreguntas ? 'bg-violet-600' : 'bg-slate-200 dark:bg-slate-700'" class="w-5 h-5 rounded-full flex items-center justify-center transition-colors">
+                       <div :class="mezclarPreguntas ? 'bg-violet-600' : 'bg-slate-200 dark:bg-[#393939]'" class="w-5 h-5 rounded-full flex items-center justify-center transition-colors">
                           <Check v-if="mezclarPreguntas" class="w-3 h-3 text-white" />
                        </div>
                     </button>
 
                     <button @click="mezclarAlternativas = !mezclarAlternativas"
-                      :class="mezclarAlternativas ? 'bg-white dark:bg-slate-800 border-emerald-500 shadow-md' : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-400 hover:border-slate-400'"
+                      :class="mezclarAlternativas ? 'bg-white dark:bg-[#252525] border-emerald-500 shadow-md' : 'bg-white dark:bg-[#252525] border-slate-300 dark:border-slate-600 text-slate-400 hover:border-slate-400'"
                       class="flex items-center justify-between p-4 rounded-xl border transition-all group text-left">
                        <div class="flex items-center gap-3">
-                          <div :class="mezclarAlternativas ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'bg-slate-50 dark:bg-slate-900/50 text-slate-300'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors">
+                          <div :class="mezclarAlternativas ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'bg-slate-50 dark:bg-[#121212]/50 text-slate-300'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors">
                              <TrendingUp class="w-5 h-5" />
                           </div>
                           <div>
@@ -935,7 +935,7 @@ const estadoColors: Record<string, string> = {
                              <p class="text-[9px] font-bold opacity-70 leading-none">Cambia el orden de respuestas</p>
                           </div>
                        </div>
-                       <div :class="mezclarAlternativas ? 'bg-emerald-600' : 'bg-slate-200 dark:bg-slate-700'" class="w-5 h-5 rounded-full flex items-center justify-center transition-colors">
+                       <div :class="mezclarAlternativas ? 'bg-emerald-600' : 'bg-slate-200 dark:bg-[#393939]'" class="w-5 h-5 rounded-full flex items-center justify-center transition-colors">
                           <Check v-if="mezclarAlternativas" class="w-3 h-3 text-white" />
                        </div>
                     </button>
@@ -946,7 +946,7 @@ const estadoColors: Record<string, string> = {
             </div>
 
             <!-- Footer -->
-            <div class="px-8 py-6 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-300 dark:border-slate-800 flex flex-col gap-3 shrink-0">
+            <div class="px-8 py-6 bg-slate-50 dark:bg-[#252525]/60 border-t border-slate-300 dark:border-slate-800 flex flex-col gap-3 shrink-0">
               <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="-translate-y-1 opacity-0" enter-to-class="translate-y-0 opacity-100">
                 <div v-if="modalError" class="flex items-center gap-3 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 px-4 py-3 rounded-xl text-xs border border-red-100 dark:border-red-500/20">
                   <AlertCircle class="w-4 h-4 shrink-0" />
@@ -980,11 +980,11 @@ const estadoColors: Record<string, string> = {
           
           <div class="absolute inset-0 bg-black/50 backdrop-blur-sm cursor-pointer" @click="showResultados = false"></div>
 
-          <div class="relative bg-white dark:bg-slate-900 w-full sm:max-w-2xl max-h-[94dvh] sm:max-h-[85vh] flex flex-col sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden z-10 animate-slide-up">
+          <div class="relative bg-white dark:bg-[#121212] w-full sm:max-w-2xl max-h-[94dvh] sm:max-h-[85vh] flex flex-col sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden z-10 animate-slide-up">
 
             <!-- Drag handle mobile -->
             <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0" @click="showResultados = false">
-              <div class="w-10 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800"></div>
+              <div class="w-10 h-1.5 rounded-full bg-slate-200 dark:bg-[#252525]"></div>
             </div>
 
             <!-- Header -->
@@ -1007,12 +1007,12 @@ const estadoColors: Record<string, string> = {
                       </p>
                     </div>
                   </div>
-                  <button @click="showResultados = false" class="p-3 bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-2xl transition-all">
+                  <button @click="showResultados = false" class="p-3 bg-slate-100 dark:bg-[#252525] text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-2xl transition-all">
                     <X class="w-6 h-6" />
                   </button>
                </div>
                
-               <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-800/60 px-6 py-3 rounded-2xl border border-slate-300 dark:border-slate-800">
+               <div class="flex items-center justify-between bg-slate-50 dark:bg-[#252525]/60 px-6 py-3 rounded-2xl border border-slate-300 dark:border-slate-800">
                   <div class="flex items-center gap-2">
                     <Users class="w-4 h-4 text-violet-500" />
                     <span class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
@@ -1036,7 +1036,7 @@ const estadoColors: Record<string, string> = {
 
               <div v-else-if="(resultados[resultadosAsig?.id ?? 0] ?? []).length === 0"
                 class="flex flex-col items-center justify-center py-24 gap-4 text-center px-8">
-                <div class="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mb-2">
+                <div class="w-20 h-20 bg-slate-50 dark:bg-[#252525] rounded-2xl flex items-center justify-center mb-2">
                    <Users class="w-10 h-10 text-slate-300 dark:text-slate-600" />
                 </div>
                 <div>
@@ -1061,7 +1061,7 @@ const estadoColors: Record<string, string> = {
                     <p class="text-base font-black text-slate-800 dark:text-slate-200 truncate leading-tight">{{ r.estudiante || r.codigo }}</p>
                     <div class="flex items-center gap-3 mt-1.5">
                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider font-mono">{{ r.codigo }}</span>
-                       <span v-if="r.fecha" class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+                       <span v-if="r.fecha" class="w-1 h-1 rounded-full bg-slate-300 dark:bg-[#393939]"></span>
                        <span v-if="r.fecha" class="text-[10px] font-bold text-slate-400 flex items-center gap-1">
                           <Clock class="w-3 h-3" />
                           {{ formatFechaHora(r.fecha) }}
@@ -1089,7 +1089,7 @@ const estadoColors: Record<string, string> = {
 
             </div>
 
-            <div class="p-6 bg-slate-50 dark:bg-slate-800/40 text-center border-t border-slate-300 dark:border-slate-800">
+            <div class="p-6 bg-slate-50 dark:bg-[#252525]/40 text-center border-t border-slate-300 dark:border-slate-800">
               <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">LectoSistem Report Engine</p>
             </div>
           </div>

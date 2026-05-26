@@ -210,26 +210,26 @@ async function eliminar(ie: InstitucionEducativa) {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans relative flex flex-col overflow-x-hidden">
+  <div class="min-h-screen bg-slate-50 dark:bg-[#0d0d0d] font-sans relative flex flex-col overflow-x-hidden">
     <EduBackground variant="teal" />
     <Header title="Gestión" subtitle="Instituciones Educativas" :show-home="true" />
 
     <div class="max-w-7xl mx-auto w-full relative z-10 flex-1 flex flex-col p-4 sm:p-8">
 
       <!-- Main Action Bar -->
-      <div class="flex flex-col lg:flex-row items-center justify-between gap-4 mb-8 bg-white dark:bg-slate-800 p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-top-2 duration-500">
+      <div class="flex flex-col lg:flex-row items-center justify-between gap-4 mb-8 bg-white dark:bg-[#252525] p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-top-2 duration-500">
         <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
           <!-- Búsqueda -->
           <div class="relative w-full sm:w-80">
             <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
             <input v-model="searchQuery" type="text" placeholder="Buscar por nombre o código..."
-              class="w-full pl-12 pr-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all" />
+              class="w-full pl-12 pr-4 py-2.5 bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all" />
           </div>
           <!-- Filtro provincia -->
           <div class="relative w-full sm:w-56">
             <MapPin class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
             <select v-model="filtroProvinciaId"
-              class="w-full pl-10 pr-8 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all appearance-none cursor-pointer">
+              class="w-full pl-10 pr-8 py-2.5 bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all appearance-none cursor-pointer">
               <option :value="null">Todas las provincias</option>
               <option v-for="p in provincias" :key="p.id" :value="p.id">{{ p.nombre }}</option>
             </select>
@@ -256,11 +256,11 @@ async function eliminar(ie: InstitucionEducativa) {
 
       <div v-else class="flex-1 flex flex-col">
         <!-- Desktop Table View -->
-        <div v-if="isDesktop" class="bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden flex flex-col">
+        <div v-if="isDesktop" class="bg-white dark:bg-[#252525] rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden flex flex-col">
           <div class="overflow-x-auto custom-scrollbar">
             <table class="w-full text-left border-collapse text-sm">
               <thead>
-                <tr class="bg-slate-50 dark:bg-slate-900 border-b-2 border-slate-100 dark:border-slate-700">
+                <tr class="bg-slate-50 dark:bg-[#121212] border-b-2 border-slate-100 dark:border-slate-700">
                   <th class="p-5 text-xs font-black text-slate-500 uppercase tracking-widest">Cód. Modular</th>
                   <th class="p-5 text-xs font-black text-slate-500 uppercase tracking-widest">Institución</th>
                   <th class="p-5 text-xs font-black text-slate-500 uppercase tracking-widest">Niveles</th>
@@ -287,7 +287,7 @@ async function eliminar(ie: InstitucionEducativa) {
                     </div>
                   </td>
                   <td class="p-5">
-                    <span class="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-300">
+                    <span class="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 dark:bg-[#393939] rounded-full text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-300">
                       <Building2 class="w-3 h-3" />
                       {{ ie.ugel_nombre || 'S/N' }}
                     </span>
@@ -318,7 +318,7 @@ async function eliminar(ie: InstitucionEducativa) {
           </div>
 
           <!-- Pagination (desktop) -->
-          <div class="px-6 py-4 bg-slate-50 dark:bg-slate-700/30 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="px-6 py-4 bg-slate-50 dark:bg-[#393939]/30 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
             <!-- Left: count info + page size selector -->
             <div class="flex items-center gap-4 flex-wrap">
               <p class="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
@@ -335,7 +335,7 @@ async function eliminar(ie: InstitucionEducativa) {
                   :class="['h-7 px-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer',
                     pageSize === n
                       ? 'bg-emerald-600 text-white shadow-sm'
-                      : 'bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-emerald-400 hover:text-emerald-600']">
+                      : 'bg-white dark:bg-[#252525] border border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-emerald-400 hover:text-emerald-600']">
                   {{ n }}
                 </button>
               </div>
@@ -343,7 +343,7 @@ async function eliminar(ie: InstitucionEducativa) {
             <!-- Right: page navigation -->
             <div v-if="totalPages > 1" class="flex items-center gap-1">
               <button @click="currentPage--" :disabled="currentPage === 1"
-                class="p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
+                class="p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-[#252525] text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
                 <ChevronLeft class="w-4 h-4" />
               </button>
               <div class="flex items-center gap-1 mx-1">
@@ -361,7 +361,7 @@ async function eliminar(ie: InstitucionEducativa) {
                 </template>
               </div>
               <button @click="currentPage++" :disabled="currentPage === totalPages"
-                class="p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
+                class="p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-[#252525] text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
                 <ChevronRight class="w-4 h-4" />
               </button>
             </div>
@@ -371,14 +371,14 @@ async function eliminar(ie: InstitucionEducativa) {
         <!-- Mobile Card View -->
         <div v-else class="space-y-4 pb-20">
           <div v-for="ie in paginadas" :key="ie.id"
-               class="bg-white dark:bg-slate-800 p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-500">
+               class="bg-white dark:bg-[#252525] p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div class="flex justify-between items-start mb-4">
               <div class="space-y-1">
                 <div class="text-[9px] font-mono font-black text-emerald-500 uppercase tracking-widest">Modular: {{ ie.codigo_modular }}</div>
                 <h3 class="font-black text-slate-800 dark:text-white tracking-tight text-xl leading-tight">{{ ie.nombre }}</h3>
               </div>
               <div class="flex gap-2">
-                <button @click="openEdit(ie)" class="p-3 bg-slate-50 dark:bg-slate-700 rounded-2xl text-slate-400 transition-all active:scale-95 cursor-pointer"><Edit2 class="w-5 h-5" /></button>
+                <button @click="openEdit(ie)" class="p-3 bg-slate-50 dark:bg-[#393939] rounded-2xl text-slate-400 transition-all active:scale-95 cursor-pointer"><Edit2 class="w-5 h-5" /></button>
                 <button @click="eliminar(ie)" class="p-3 bg-red-50 dark:bg-red-900/20 rounded-2xl text-red-400 transition-all active:scale-95 cursor-pointer"><Trash2 class="w-5 h-5" /></button>
               </div>
             </div>
@@ -406,7 +406,7 @@ async function eliminar(ie: InstitucionEducativa) {
           </div>
 
           <!-- Pagination (mobile) -->
-          <div class="bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 p-4 flex flex-col items-center gap-3">
+          <div class="bg-white dark:bg-[#252525] rounded-2xl border-2 border-slate-200 dark:border-slate-700 p-4 flex flex-col items-center gap-3">
             <!-- Page size selector -->
             <div class="flex items-center gap-1.5 w-full justify-center">
               <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Por página</span>
@@ -414,7 +414,7 @@ async function eliminar(ie: InstitucionEducativa) {
                 :class="['h-7 px-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer',
                   pageSize === n
                     ? 'bg-emerald-600 text-white shadow-sm'
-                    : 'bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400']">
+                    : 'bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400']">
                 {{ n }}
               </button>
             </div>
@@ -424,7 +424,7 @@ async function eliminar(ie: InstitucionEducativa) {
             </p>
             <div v-if="totalPages > 1" class="flex items-center gap-2">
               <button @click="currentPage--" :disabled="currentPage === 1"
-                class="p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
+                class="p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-[#252525] text-slate-600 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
                 <ChevronLeft class="w-4 h-4" />
               </button>
               <div class="flex items-center gap-1">
@@ -442,7 +442,7 @@ async function eliminar(ie: InstitucionEducativa) {
                 </template>
               </div>
               <button @click="currentPage++" :disabled="currentPage === totalPages"
-                class="p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
+                class="p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-[#252525] text-slate-600 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
                 <ChevronRight class="w-4 h-4" />
               </button>
             </div>
@@ -455,9 +455,9 @@ async function eliminar(ie: InstitucionEducativa) {
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showModal" class="fixed inset-0 z-50 flex items-center sm:items-center justify-center items-end bg-slate-900/60 backdrop-blur-sm cursor-pointer" @click.self="showModal = false">
-          <div class="bg-white dark:bg-slate-800 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden relative">
+          <div class="bg-white dark:bg-[#252525] rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden relative">
             <!-- Mobile handle -->
-            <div class="sm:hidden flex justify-center pt-4 pb-1 cursor-pointer" @click="showModal = false"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div></div>
+            <div class="sm:hidden flex justify-center pt-4 pb-1 cursor-pointer" @click="showModal = false"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-[#393939]"></div></div>
             
             <div class="flex items-center justify-between p-8 border-b border-slate-100 dark:border-slate-700">
               <div class="flex items-center gap-5">
@@ -482,11 +482,11 @@ async function eliminar(ie: InstitucionEducativa) {
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div class="space-y-2">
                   <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Código Modular</label>
-                  <input v-model="form.codigo_modular" type="text" placeholder="7 dígitos" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all" />
+                  <input v-model="form.codigo_modular" type="text" placeholder="7 dígitos" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all" />
                 </div>
                 <div class="space-y-2">
                   <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nombre IE</label>
-                  <input v-model="form.nombre" type="text" placeholder="Nombre completo" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all" />
+                  <input v-model="form.nombre" type="text" placeholder="Nombre completo" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all" />
                 </div>
               </div>
 
@@ -494,7 +494,7 @@ async function eliminar(ie: InstitucionEducativa) {
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Niveles Educativos</label>
                 <div class="flex gap-2 flex-wrap">
                   <button v-for="n in nivelOptions" :key="n.value" @click="toggleNivel(n.value)"
-                    :class="[form.nivel_educativo.includes(n.value) ? 'bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-500/20' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500']"
+                    :class="[form.nivel_educativo.includes(n.value) ? 'bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-500/20' : 'bg-white dark:bg-[#252525] border-slate-200 dark:border-slate-700 text-slate-500']"
                     class="px-5 py-3 rounded-2xl border-2 text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 cursor-pointer">
                     {{ n.label }}
                   </button>
@@ -504,7 +504,7 @@ async function eliminar(ie: InstitucionEducativa) {
               <div class="space-y-2">
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">UGEL</label>
                 <div class="relative">
-                  <select v-model="form.ugel_id" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all appearance-none cursor-pointer">
+                  <select v-model="form.ugel_id" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all appearance-none cursor-pointer">
                     <option :value="null" class="text-slate-400">— Seleccionar UGEL —</option>
                     <option v-for="u in ugeles" :key="u.id" :value="u.id">{{ u.nombre }}</option>
                   </select>
@@ -514,11 +514,11 @@ async function eliminar(ie: InstitucionEducativa) {
 
               <div class="space-y-2">
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Dirección</label>
-                <input v-model="form.direccion" type="text" placeholder="Dirección física" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all" />
+                <input v-model="form.direccion" type="text" placeholder="Dirección física" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all" />
               </div>
 
               <button @click="form.is_active = !form.is_active" class="flex items-center gap-4 p-2 w-fit cursor-pointer">
-                <div :class="form.is_active ? 'bg-emerald-500 border-emerald-500' : 'bg-slate-200 border-slate-200 dark:bg-slate-700 dark:border-slate-700'"
+                <div :class="form.is_active ? 'bg-emerald-500 border-emerald-500' : 'bg-slate-200 border-slate-200 dark:bg-[#393939] dark:border-slate-700'"
                      class="w-12 h-6 rounded-full border-2 transition-all relative">
                   <div :class="form.is_active ? 'translate-x-6' : 'translate-x-0'"
                        class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-all shadow-sm"></div>
@@ -527,8 +527,8 @@ async function eliminar(ie: InstitucionEducativa) {
               </button>
             </div>
 
-            <div class="p-8 bg-slate-50 dark:bg-slate-900/50 flex flex-col sm:flex-row gap-4">
-              <button @click="showModal = false" class="flex-1 px-8 py-4 text-xs font-black uppercase tracking-widest text-slate-500 bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 transition-all hover:bg-slate-50 cursor-pointer">Cancelar</button>
+            <div class="p-8 bg-slate-50 dark:bg-[#121212]/50 flex flex-col sm:flex-row gap-4">
+              <button @click="showModal = false" class="flex-1 px-8 py-4 text-xs font-black uppercase tracking-widest text-slate-500 bg-white dark:bg-[#252525] rounded-2xl border-2 border-slate-200 dark:border-slate-700 transition-all hover:bg-slate-50 cursor-pointer">Cancelar</button>
               <button @click="guardar" :disabled="saving" class="flex-1 flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-violet-600 to-teal-600 text-white font-black text-xs rounded-2xl shadow-xl shadow-emerald-500/20 transition-all transform active:scale-95 disabled:opacity-70 cursor-pointer">
                 <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
                 <span class="uppercase tracking-widest">{{ saving ? 'Guardando...' : 'Guardar Cambios' }}</span>

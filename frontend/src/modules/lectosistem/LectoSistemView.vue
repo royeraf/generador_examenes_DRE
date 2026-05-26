@@ -374,13 +374,13 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="h-screen flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-200 font-sans">
+  <div class="h-screen flex flex-col overflow-hidden bg-slate-50 dark:bg-[#0d0d0d] text-slate-700 dark:text-slate-200 font-sans">
     
     <Navbar title="LectoSistem" subtitle="Comprensión lectora con IA" :show-home="true">
       <template #center>
-        <div class="flex items-center bg-white dark:bg-slate-800 rounded-full p-1 border border-slate-300 dark:border-slate-700 shadow-sm overflow-x-auto flex-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div class="flex items-center bg-white dark:bg-[#252525] rounded-full p-1 border border-slate-300 dark:border-slate-700 shadow-sm overflow-x-auto flex-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <button @click="activeTab = 'generador'" class="shrink-0 px-3 sm:px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer" :class="activeTab === 'generador' ? 'bg-teal-500 text-white shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'">Generador</button>
-          <button @click="activeTab = 'historial'" class="shrink-0 px-3 sm:px-4 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer" :class="activeTab === 'historial' ? 'bg-teal-500 text-white shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'">Historial <span v-if="history.length" class="text-[10px] bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white px-1.5 rounded-full">{{ history.length }}</span></button>
+          <button @click="activeTab = 'historial'" class="shrink-0 px-3 sm:px-4 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer" :class="activeTab === 'historial' ? 'bg-teal-500 text-white shadow' : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'">Historial <span v-if="history.length" class="text-[10px] bg-slate-200 dark:bg-[#393939] text-slate-800 dark:text-white px-1.5 rounded-full">{{ history.length }}</span></button>
         </div>
       </template>
     </Navbar>
@@ -393,23 +393,23 @@ onMounted(async () => {
       ══════════════════════════════════════════ -->
       <div v-show="activeTab === 'generador'" class="flex-1 min-h-0 flex flex-col lg:flex-row gap-2">
         <!-- Mobile Navigation (Top) -->
-        <div v-show="!isDesktop" class="shrink-0 flex items-center justify-around bg-white dark:bg-slate-800 rounded-xl border border-slate-300 dark:border-slate-700 p-1 mb-1">
-          <button @click="mobileTab = 'config'" class="flex-1 py-2 flex flex-col items-center justify-center gap-1 rounded-lg transition-colors cursor-pointer" :class="mobileTab === 'config' ? 'text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800/50' : 'text-slate-500'">
+        <div v-show="!isDesktop" class="shrink-0 flex items-center justify-around bg-white dark:bg-[#252525] rounded-xl border border-slate-300 dark:border-slate-700 p-1 mb-1">
+          <button @click="mobileTab = 'config'" class="flex-1 py-2 flex flex-col items-center justify-center gap-1 rounded-lg transition-colors cursor-pointer" :class="mobileTab === 'config' ? 'text-slate-800 dark:text-white bg-slate-100 dark:bg-[#252525]/50' : 'text-slate-500'">
             <LayoutGrid class="w-5 h-5" />
             <span class="text-[10px] font-medium">Configuración</span>
           </button>
-          <button @click="mobileTab = 'desempenos'" class="flex-1 py-2 flex flex-col items-center justify-center gap-1 rounded-lg transition-colors cursor-pointer" :class="mobileTab === 'desempenos' ? 'text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800/50' : 'text-slate-500'">
+          <button @click="mobileTab = 'desempenos'" class="flex-1 py-2 flex flex-col items-center justify-center gap-1 rounded-lg transition-colors cursor-pointer" :class="mobileTab === 'desempenos' ? 'text-slate-800 dark:text-white bg-slate-100 dark:bg-[#252525]/50' : 'text-slate-500'">
             <Target class="w-5 h-5" />
             <span class="text-[10px] font-medium">Desempeños</span>
           </button>
-          <button @click="mobileTab = 'results'" class="flex-1 py-2 flex flex-col items-center justify-center gap-1 rounded-lg transition-colors cursor-pointer" :class="mobileTab === 'results' ? 'text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800/50' : 'text-slate-500'">
+          <button @click="mobileTab = 'results'" class="flex-1 py-2 flex flex-col items-center justify-center gap-1 rounded-lg transition-colors cursor-pointer" :class="mobileTab === 'results' ? 'text-slate-800 dark:text-white bg-slate-100 dark:bg-[#252525]/50' : 'text-slate-500'">
             <Sparkles class="w-5 h-5" />
             <span class="text-[10px] font-medium">Examen</span>
           </button>
         </div>
         
         <!-- COLUMN 1: Configuración -->
-        <aside v-show="isDesktop || mobileTab === 'config'" class="flex-1 lg:flex-none shrink-0 bg-white dark:bg-slate-800 rounded-xl flex flex-col overflow-hidden border border-slate-300 dark:border-slate-700 relative transition-all duration-200" :style="isDesktop ? { width: configCollapsed ? '88px' : col1Width + 'px' } : {}">
+        <aside v-show="isDesktop || mobileTab === 'config'" class="flex-1 lg:flex-none shrink-0 bg-white dark:bg-[#252525] rounded-xl flex flex-col overflow-hidden border border-slate-300 dark:border-slate-700 relative transition-all duration-200" :style="isDesktop ? { width: configCollapsed ? '88px' : col1Width + 'px' } : {}">
           <div class="h-14 px-3 border-b border-slate-300 dark:border-slate-700 flex items-center shrink-0" :class="configCollapsed ? 'justify-center' : 'justify-between'">
             <h2 v-show="!configCollapsed" class="text-sm font-medium text-slate-800 dark:text-white flex items-center gap-2 pl-1">Configuración</h2>
             <button v-if="isDesktop" @click="configCollapsed = !configCollapsed" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors shrink-0 cursor-pointer" :title="configCollapsed ? 'Expandir' : 'Colapsar'">
@@ -425,7 +425,7 @@ onMounted(async () => {
                   {{ gradoOptions.find((g: any) => g.id === selectedGradoId)?.label ?? '—' }}
                 </span>
               </div>
-              <div class="w-8 h-px bg-slate-200 dark:bg-slate-700 shrink-0" />
+              <div class="w-8 h-px bg-slate-200 dark:bg-[#393939] shrink-0" />
             </template>
             <div class="flex flex-col items-center gap-1 shrink-0">
               <Target class="w-3.5 h-3.5 text-slate-400" />
@@ -435,7 +435,7 @@ onMounted(async () => {
               </span>
             </div>
             <template v-if="selectedTipoTextual">
-              <div class="w-8 h-px bg-slate-200 dark:bg-slate-700 shrink-0" />
+              <div class="w-8 h-px bg-slate-200 dark:bg-[#393939] shrink-0" />
               <div class="flex flex-col items-center gap-1 w-full px-2">
                 <FileText class="w-3.5 h-3.5 text-slate-400 shrink-0" />
                 <span class="text-[9px] text-slate-600 dark:text-slate-300 text-center leading-tight w-full truncate">
@@ -444,7 +444,7 @@ onMounted(async () => {
               </div>
             </template>
             <template v-if="selectedDesempenosCount > 0">
-              <div class="w-8 h-px bg-slate-200 dark:bg-slate-700 shrink-0" />
+              <div class="w-8 h-px bg-slate-200 dark:bg-[#393939] shrink-0" />
               <div class="flex flex-col items-center gap-1 shrink-0">
                 <Hash class="w-3.5 h-3.5 text-slate-400" />
                 <span class="text-[11px] font-bold text-teal-500">{{ selectedDesempenosCount }}</span>
@@ -456,10 +456,10 @@ onMounted(async () => {
             
             <div class="space-y-3">
               <label class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2"><GraduationCap class="w-3.5 h-3.5"/> Público Objetivo</label>
-              <div v-if="loadingGrados" class="h-10 bg-slate-50 dark:bg-slate-950 rounded-xl animate-pulse"></div>
+              <div v-if="loadingGrados" class="h-10 bg-slate-50 dark:bg-[#0d0d0d] rounded-xl animate-pulse"></div>
               <ComboBox v-else v-model="selectedGradoId" :options="gradoOptions" placeholder="Seleccionar grado..." />
               
-              <div class="flex p-1 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-300 dark:border-slate-700">
+              <div class="flex p-1 bg-slate-50 dark:bg-[#0d0d0d] rounded-xl border border-slate-300 dark:border-slate-700">
                 <button v-for="nivel in nivelesDificultad" :key="nivel.id" @click="selectedNivelDificultad = nivel.id"
                   class="flex-1 flex justify-center py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer"
                   :class="selectedNivelDificultad === nivel.id ? 'bg-teal-500 dark:bg-emerald-600 text-white shadow-sm dark:shadow-none' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'">
@@ -470,11 +470,11 @@ onMounted(async () => {
 
             <div class="space-y-3">
               <label class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2"><FileText class="w-3.5 h-3.5"/> Contenido</label>
-              <select v-model="selectedTipoTextual" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all appearance-none cursor-pointer">
+              <select v-model="selectedTipoTextual" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all appearance-none cursor-pointer">
                 <option :value="null">Tipo textual...</option>
                 <option v-for="opt in tipoTextualOptions" :key="opt.id" :value="opt.id">{{ opt.label }}</option>
               </select>
-              <select v-model="selectedFormatoTextual" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all appearance-none cursor-pointer">
+              <select v-model="selectedFormatoTextual" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all appearance-none cursor-pointer">
                 <option :value="null">Formato textual...</option>
                 <option v-for="opt in formatoTextualOptions" :key="opt.id" :value="opt.id">{{ opt.label }}</option>
               </select>
@@ -483,7 +483,7 @@ onMounted(async () => {
                 <Checkbox v-model="useTextoBase" class="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                   <span class="text-xs font-medium">Usar Textos Base</span>
                 </Checkbox>
-                <button v-if="useTextoBase" @click="showTextosModal = true" class="px-2 py-1 bg-slate-100 dark:bg-slate-800/50 hover:bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 rounded border border-slate-300 dark:border-slate-700 text-[10px] font-medium text-slate-800 dark:text-white transition-colors cursor-pointer">
+                <button v-if="useTextoBase" @click="showTextosModal = true" class="px-2 py-1 bg-slate-100 dark:bg-[#252525]/50 hover:bg-slate-200 dark:bg-slate-200 dark:bg-[#393939]/50 rounded border border-slate-300 dark:border-slate-700 text-[10px] font-medium text-slate-800 dark:text-white transition-colors cursor-pointer">
                   {{ textosBase.filter(t => t.texto).length }}/{{ textosBase.length }} Textos
                 </button>
               </div>
@@ -495,9 +495,9 @@ onMounted(async () => {
                 <span class="text-xs font-bold" :class="isBreakdownValid ? 'text-emerald-400' : 'text-red-400'">{{ totalBreakdown }}/{{ cantidadPreguntas }}</span>
               </div>
               
-              <div class="flex items-center gap-3 bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-300 dark:border-slate-700">
+              <div class="flex items-center gap-3 bg-slate-50 dark:bg-[#0d0d0d] p-3 rounded-xl border border-slate-300 dark:border-slate-700">
                 <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Total</span>
-                <input type="range" v-model.number="cantidadPreguntas" min="3" max="20" class="flex-1 h-1 bg-slate-200 dark:bg-slate-700 rounded-full appearance-none accent-teal-500" />
+                <input type="range" v-model.number="cantidadPreguntas" min="3" max="20" class="flex-1 h-1 bg-slate-200 dark:bg-[#393939] rounded-full appearance-none accent-teal-500" />
                 <span class="w-6 text-center text-sm font-bold text-slate-800 dark:text-white">{{ cantidadPreguntas }}</span>
               </div>
 
@@ -506,12 +506,12 @@ onMounted(async () => {
                   { label: 'Literal', val: cantidadLiteral, dec: () => cantidadLiteral = Math.max(0, cantidadLiteral - 1), inc: () => cantidadLiteral = Math.min(cantidadPreguntas, cantidadLiteral + 1) },
                   { label: 'Inferencial', val: cantidadInferencial, dec: () => cantidadInferencial = Math.max(0, cantidadInferencial - 1), inc: () => cantidadInferencial = Math.min(cantidadPreguntas, cantidadInferencial + 1) },
                   { label: 'Crítico', val: cantidadCritico, dec: () => cantidadCritico = Math.max(0, cantidadCritico - 1), inc: () => cantidadCritico = Math.min(cantidadPreguntas, cantidadCritico + 1) },
-                ]" :key="label" class="bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-300 dark:border-slate-700 flex flex-col items-center overflow-hidden p-1.5">
+                ]" :key="label" class="bg-slate-50 dark:bg-[#0d0d0d] rounded-xl border border-slate-300 dark:border-slate-700 flex flex-col items-center overflow-hidden p-1.5">
                    <span class="text-[10px] font-medium text-slate-500 dark:text-slate-400 mb-1.5">{{ label }}</span>
                    <div class="flex items-center w-full justify-between">
-                     <button @click="dec()" class="w-5 h-5 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800/50 rounded-md hover:bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 cursor-pointer">-</button>
+                     <button @click="dec()" class="w-5 h-5 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white bg-slate-100 dark:bg-[#252525]/50 rounded-md hover:bg-slate-200 dark:bg-slate-200 dark:bg-[#393939]/50 cursor-pointer">-</button>
                      <span class="text-xs font-bold text-slate-800 dark:text-white">{{ val }}</span>
-                     <button @click="inc()" class="w-5 h-5 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800/50 rounded-md hover:bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 cursor-pointer">+</button>
+                     <button @click="inc()" class="w-5 h-5 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white bg-slate-100 dark:bg-[#252525]/50 rounded-md hover:bg-slate-200 dark:bg-slate-200 dark:bg-[#393939]/50 cursor-pointer">+</button>
                    </div>
                  </div>
               </div>
@@ -521,22 +521,22 @@ onMounted(async () => {
         </aside>
 
         <!-- Splitter 1 -->
-        <div v-if="!configCollapsed" class="hidden lg:flex w-2 cursor-col-resize shrink-0 hover:bg-slate-100 dark:bg-slate-800/50 items-center justify-center rounded transition-colors group" @mousedown.prevent="onMouseDownCol1">
+        <div v-if="!configCollapsed" class="hidden lg:flex w-2 cursor-col-resize shrink-0 hover:bg-slate-100 dark:bg-[#252525]/50 items-center justify-center rounded transition-colors group" @mousedown.prevent="onMouseDownCol1">
           <div class="w-1 h-6 bg-white/20 rounded-full group-hover:bg-sky-500/50 transition-colors"></div>
         </div>
 
         <!-- COLUMN 2: Resultados -->
-        <main v-show="isDesktop || mobileTab === 'results'" class="flex-1 min-w-0 bg-white dark:bg-slate-800 rounded-xl border border-slate-300 dark:border-slate-700 flex flex-col overflow-hidden relative">
+        <main v-show="isDesktop || mobileTab === 'results'" class="flex-1 min-w-0 bg-white dark:bg-[#252525] rounded-xl border border-slate-300 dark:border-slate-700 flex flex-col overflow-hidden relative">
           <LectoSistemResults :resultado="resultado" :loading="loading" :show-results="showResults" :descargando-word="descargandoWord" :fill-height="true" @descargar-word="descargarExamenWord" />
         </main>
 
         <!-- Splitter 2 -->
-        <div v-if="!desempenosCollapsed" class="hidden lg:flex w-2 cursor-col-resize shrink-0 hover:bg-slate-100 dark:bg-slate-800/50 items-center justify-center rounded transition-colors group" @mousedown.prevent="onMouseDownCol3">
+        <div v-if="!desempenosCollapsed" class="hidden lg:flex w-2 cursor-col-resize shrink-0 hover:bg-slate-100 dark:bg-[#252525]/50 items-center justify-center rounded transition-colors group" @mousedown.prevent="onMouseDownCol3">
           <div class="w-1 h-6 bg-white/20 rounded-full group-hover:bg-sky-500/50 transition-colors"></div>
         </div>
 
         <!-- COLUMN 3: Desempeños -->
-        <aside v-show="isDesktop || mobileTab === 'desempenos'" class="flex-1 lg:flex-none shrink-0 bg-white dark:bg-slate-800 rounded-xl flex flex-col overflow-hidden border border-slate-300 dark:border-slate-700 relative transition-all duration-200" :style="isDesktop ? { width: desempenosCollapsed ? '88px' : col3Width + 'px' } : {}">
+        <aside v-show="isDesktop || mobileTab === 'desempenos'" class="flex-1 lg:flex-none shrink-0 bg-white dark:bg-[#252525] rounded-xl flex flex-col overflow-hidden border border-slate-300 dark:border-slate-700 relative transition-all duration-200" :style="isDesktop ? { width: desempenosCollapsed ? '88px' : col3Width + 'px' } : {}">
           <LectoSistemDesempenos
             :desempenos="desempenos" :selected-desempenos-count="selectedDesempenosCount"
             :loading-desempenos="loadingDesempenos" :selected-grado-id="selectedGradoId"
@@ -557,14 +557,14 @@ onMounted(async () => {
       <!-- ══════════════════════════════════════════
            HISTORIAL TAB
       ══════════════════════════════════════════ -->
-      <div v-show="activeTab === 'historial'" class="flex-1 min-h-0 bg-white dark:bg-slate-800 rounded-xl border border-slate-300 dark:border-slate-700 overflow-hidden p-4 sm:p-6 flex flex-col">
+      <div v-show="activeTab === 'historial'" class="flex-1 min-h-0 bg-white dark:bg-[#252525] rounded-xl border border-slate-300 dark:border-slate-700 overflow-hidden p-4 sm:p-6 flex flex-col">
         <div v-if="loadingHistory" class="flex-1 flex flex-col items-center justify-center">
           <Loader2 class="w-8 h-8 text-slate-800 dark:text-white animate-spin mb-4" />
           <p class="text-slate-500 dark:text-slate-400 text-sm">Cargando historial...</p>
         </div>
         <div v-else-if="fetchError" class="flex-1 flex flex-col items-center justify-center gap-3">
           <p class="text-red-400 text-sm text-center">{{ fetchError }}</p>
-          <button @click="fetchHistory()" class="text-xs px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors cursor-pointer">Reintentar</button>
+          <button @click="fetchHistory()" class="text-xs px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-[#393939] text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors cursor-pointer">Reintentar</button>
         </div>
         <div v-else-if="history.length === 0" class="flex-1 flex flex-col items-center justify-center">
           <History class="w-10 h-10 text-slate-800 dark:text-white/20 mx-auto mb-4" />
@@ -577,7 +577,7 @@ onMounted(async () => {
             <button @click="confirmarLimpiarHistorial" class="text-xs text-red-400 hover:text-red-300 font-semibold px-3 py-1.5 rounded-xl bg-red-400/10 hover:bg-red-400/20 transition-all duration-150 cursor-pointer">Limpiar todo</button>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <div v-for="(entry, index) in history" :key="entry.id" class="bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-300 dark:border-slate-700 p-4 flex flex-col gap-3 hover:shadow-md hover:border-slate-400 dark:hover:border-slate-600 transition-all duration-200">
+            <div v-for="(entry, index) in history" :key="entry.id" class="bg-slate-50 dark:bg-[#0d0d0d] rounded-xl border border-slate-300 dark:border-slate-700 p-4 flex flex-col gap-3 hover:shadow-md hover:border-slate-400 dark:hover:border-slate-600 transition-all duration-200">
               <div>
                 <h4 class="text-sm font-semibold text-slate-800 dark:text-white truncate">{{ entry.resultado.examen.titulo }}</h4>
                 <div class="text-[11px] text-slate-500 mt-1">{{ formatFechaHora(entry.fechaCreacion) }}</div>
@@ -587,10 +587,10 @@ onMounted(async () => {
                 <div>Preguntas: {{ entry.resultado.total_preguntas }}</div>
               </div>
               <div class="flex gap-1 mt-auto overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                <button @click="cargarExamen(index)" class="shrink-0 flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer transition-colors duration-150"><Eye class="w-3.5 h-3.5" />Ver</button>
-                <button @click="descargarWordHistorial(index)" class="shrink-0 flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer transition-colors duration-150"><FileDown class="w-3.5 h-3.5" />Word</button>
-                <!-- <button @click="vincularDesdeHistorial(index)" class="shrink-0 flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600"><Link class="w-3.5 h-3.5" />Vincular</button> -->
-                <button @click="abrirAsignar(entry)" class="shrink-0 flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer transition-colors duration-150"><Send class="w-3.5 h-3.5" />Asignar</button>
+                <button @click="cargarExamen(index)" class="shrink-0 flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-slate-800 dark:text-white bg-slate-200 dark:bg-[#393939]/50 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer transition-colors duration-150"><Eye class="w-3.5 h-3.5" />Ver</button>
+                <button @click="descargarWordHistorial(index)" class="shrink-0 flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-slate-800 dark:text-white bg-slate-200 dark:bg-[#393939]/50 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer transition-colors duration-150"><FileDown class="w-3.5 h-3.5" />Word</button>
+                <!-- <button @click="vincularDesdeHistorial(index)" class="shrink-0 flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-slate-800 dark:text-white bg-slate-200 dark:bg-[#393939]/50 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600"><Link class="w-3.5 h-3.5" />Vincular</button> -->
+                <button @click="abrirAsignar(entry)" class="shrink-0 flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-slate-800 dark:text-white bg-slate-200 dark:bg-[#393939]/50 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer transition-colors duration-150"><Send class="w-3.5 h-3.5" />Asignar</button>
                 <button @click="confirmarEliminar(entry.id)" class="shrink-0 px-2 py-1.5 text-[10px] font-bold text-red-400 bg-red-400/10 rounded-lg hover:bg-red-400/20 cursor-pointer transition-colors duration-150"><Trash2 class="w-3.5 h-3.5"/></button>
               </div>
             </div>
@@ -601,7 +601,7 @@ onMounted(async () => {
       <!-- ══════════════════════════════════════════
            SISTEMATIZADOR TAB (comentado)
       ══════════════════════════════════════════ -->
-      <!-- <div v-show="activeTab === 'sistematizador'" class="flex-1 min-h-0 bg-white dark:bg-slate-800 rounded-xl border border-slate-300 dark:border-slate-700 overflow-hidden">
+      <!-- <div v-show="activeTab === 'sistematizador'" class="flex-1 min-h-0 bg-white dark:bg-[#252525] rounded-xl border border-slate-300 dark:border-slate-700 overflow-hidden">
         <Sistematizador />
       </div> -->
 
@@ -612,20 +612,20 @@ onMounted(async () => {
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showTextosModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div class="absolute inset-0 bg-slate-50 dark:bg-slate-950/80 backdrop-blur-sm -z-10" @click="showTextosModal = false"></div>
-          <div class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-4xl shadow-2xl border border-slate-300 dark:border-slate-600 flex flex-col max-h-full">
+          <div class="absolute inset-0 bg-slate-50 dark:bg-[#0d0d0d]/80 backdrop-blur-sm -z-10" @click="showTextosModal = false"></div>
+          <div class="bg-white dark:bg-[#252525] rounded-2xl w-full max-w-4xl shadow-2xl border border-slate-300 dark:border-slate-600 flex flex-col max-h-full">
             <div class="flex items-center justify-between px-5 py-4 border-b border-slate-300 dark:border-slate-600">
               <h3 class="text-slate-800 dark:text-white font-medium flex items-center gap-2"><FileText class="w-5 h-5"/> Textos Base</h3>
-              <button @click="showTextosModal = false" class="p-1.5 rounded-full hover:bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white"><X class="w-5 h-5" /></button>
+              <button @click="showTextosModal = false" class="p-1.5 rounded-full hover:bg-slate-200 dark:bg-slate-200 dark:bg-[#393939]/50 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white"><X class="w-5 h-5" /></button>
             </div>
             <div class="flex-1 overflow-y-auto p-5">
               <div class="space-y-4">
-                <div v-for="(texto, idx) in textosBase" :key="idx" class="bg-slate-50 dark:bg-slate-950 rounded-xl p-4 border border-slate-300 dark:border-slate-700">
+                <div v-for="(texto, idx) in textosBase" :key="idx" class="bg-slate-50 dark:bg-[#0d0d0d] rounded-xl p-4 border border-slate-300 dark:border-slate-700">
                   <div class="flex justify-between items-center mb-3">
                     <h4 class="text-sm font-medium text-slate-800 dark:text-white">Texto {{ idx + 1 }}</h4>
                     <div class="flex items-center gap-2">
                       <input type="file" :id="'file-' + idx" class="hidden" accept=".pdf,.doc,.docx,.txt" @change="(e) => handleFileUploadAt(idx, e)" />
-                      <label :for="'file-' + idx" class="cursor-pointer text-xs flex items-center gap-1.5 px-3 py-1.5 bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-lg transition-colors"><CloudUpload class="w-3.5 h-3.5" /> Archivo</label>
+                      <label :for="'file-' + idx" class="cursor-pointer text-xs flex items-center gap-1.5 px-3 py-1.5 bg-slate-200 dark:bg-slate-200 dark:bg-[#393939]/50 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-lg transition-colors"><CloudUpload class="w-3.5 h-3.5" /> Archivo</label>
                       <button v-if="texto.filesMetadata && texto.filesMetadata.archivos.length > 0" @click="clearFilesAt(idx)" class="text-xs text-red-400 hover:text-red-300 ml-2">Eliminar archivo</button>
                       <button v-if="textosBase.length > 1" @click="removeTexto(idx)" class="text-slate-500 dark:text-slate-400 hover:text-red-400 ml-2"><Trash2 class="w-4 h-4" /></button>
                     </div>
@@ -633,9 +633,9 @@ onMounted(async () => {
                   <div v-if="texto.filesMetadata && texto.filesMetadata.archivos.length > 0" class="mb-3 flex flex-wrap gap-2">
                     <div v-for="(archivo, aIdx) in texto.filesMetadata.archivos" :key="aIdx" class="px-3 py-2 bg-emerald-500/10 text-emerald-400 text-xs rounded-lg border border-emerald-500/20 flex items-center gap-2"><Check class="w-3.5 h-3.5" />{{ archivo.filename }}</div>
                   </div>
-                  <textarea v-model="texto.texto" class="w-full h-32 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl p-3 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all resize-none placeholder-slate-400" placeholder="Escribe o pega el texto base aquí..."></textarea>
+                  <textarea v-model="texto.texto" class="w-full h-32 bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl p-3 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all resize-none placeholder-slate-400" placeholder="Escribe o pega el texto base aquí..."></textarea>
                 </div>
-                <button v-if="textosBase.length < 4" @click="addTexto" class="w-full py-3 flex items-center justify-center gap-2 border border-dashed border-slate-300 dark:border-slate-500 rounded-xl text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white hover:border-teal-400 hover:bg-slate-100 dark:bg-slate-800/50 transition-all"><Plus class="w-4 h-4" /> Agregar otro texto</button>
+                <button v-if="textosBase.length < 4" @click="addTexto" class="w-full py-3 flex items-center justify-center gap-2 border border-dashed border-slate-300 dark:border-slate-500 rounded-xl text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white hover:border-teal-400 hover:bg-slate-100 dark:bg-[#252525]/50 transition-all"><Plus class="w-4 h-4" /> Agregar otro texto</button>
               </div>
             </div>
             <div class="p-5 border-t border-slate-300 dark:border-slate-600 text-right"><button @click="showTextosModal = false" class="px-5 py-2 bg-white text-black font-medium rounded-lg text-sm hover:bg-slate-200">Aceptar</button></div>
@@ -646,8 +646,8 @@ onMounted(async () => {
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="asignarModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div class="absolute inset-0 bg-slate-50 dark:bg-slate-950/80 backdrop-blur-sm -z-10" @click="asignarModal = null"></div>
-          <div class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md shadow-2xl border border-slate-300 dark:border-slate-600 flex flex-col">
+          <div class="absolute inset-0 bg-slate-50 dark:bg-[#0d0d0d]/80 backdrop-blur-sm -z-10" @click="asignarModal = null"></div>
+          <div class="bg-white dark:bg-[#252525] rounded-2xl w-full max-w-md shadow-2xl border border-slate-300 dark:border-slate-600 flex flex-col">
             <div class="px-5 py-4 border-b border-slate-300 dark:border-slate-600 flex items-center justify-between"><h3 class="text-slate-800 dark:text-white font-medium text-lg">Asignar Examen</h3><button @click="asignarModal = null" class="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white"><X class="w-5 h-5"/></button></div>
             <div class="p-5 space-y-4">
               <!-- Selector de Aula -->
@@ -658,11 +658,11 @@ onMounted(async () => {
                 <div v-if="loadingAulas" class="flex justify-center py-4">
                   <Loader2 class="w-5 h-5 animate-spin text-teal-400" />
                 </div>
-                <div v-else-if="codigosClaseLecto.length === 0" class="text-xs text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800 rounded-xl px-4 py-3 border border-slate-300 dark:border-slate-700">
+                <div v-else-if="codigosClaseLecto.length === 0" class="text-xs text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-[#252525] rounded-xl px-4 py-3 border border-slate-300 dark:border-slate-700">
                   No tienes aulas activas. Crea una primero en la sección Aulas.
                 </div>
                 <template v-else>
-                  <select v-model="codigoClaseIdLecto" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all">
+                  <select v-model="codigoClaseIdLecto" class="w-full bg-slate-50 dark:bg-[#0d0d0d] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all">
                     <option :value="null">— Selecciona un aula —</option>
                     <option v-for="c in codigosClaseLecto" :key="c.id" :value="c.id">
                       {{ c.grado_nombre }} — Sección {{ c.seccion }}{{ c.total_estudiantes ? ` (${c.total_estudiantes} est.)` : '' }}
@@ -674,10 +674,10 @@ onMounted(async () => {
                   </p>
                 </template>
               </div>
-              <div><label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5 uppercase tracking-widest">Fecha Programada</label><input v-model="asignarForm.fecha" type="date" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all"></div>
+              <div><label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5 uppercase tracking-widest">Fecha Programada</label><input v-model="asignarForm.fecha" type="date" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all"></div>
               <div class="grid grid-cols-2 gap-3">
-                <div><label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5 uppercase tracking-widest">Hora Inicio</label><input v-model="asignarForm.hora_inicio" type="time" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all"></div>
-                <div><label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5 uppercase tracking-widest">Hora Fin</label><input v-model="asignarForm.hora_fin" type="time" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all"></div>
+                <div><label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5 uppercase tracking-widest">Hora Inicio</label><input v-model="asignarForm.hora_inicio" type="time" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all"></div>
+                <div><label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5 uppercase tracking-widest">Hora Fin</label><input v-model="asignarForm.hora_fin" type="time" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all"></div>
               </div>
               <div class="pt-2 space-y-3">
                 <Checkbox v-model="asignarForm.mezclar_preguntas"><span class="text-sm text-slate-600 dark:text-slate-300">Mezclar orden de preguntas</span></Checkbox>

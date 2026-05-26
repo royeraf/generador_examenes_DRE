@@ -76,7 +76,7 @@ const userInitials = computed(() => {
 <template>
   <div>
     <!-- Desktop/Tablet Header (Sticky Top) -->
-    <header class="sticky top-0 z-40 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-sm transition-all duration-300"
+    <header class="sticky top-0 z-40 w-full bg-white/80 dark:bg-[#121212]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-sm transition-all duration-300"
             :class="isSidebarCollapsed ? 'lg:pl-[84px]' : 'lg:pl-[280px]'">
       <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
         
@@ -120,12 +120,12 @@ const userInitials = computed(() => {
     <!-- Semi-transparent Overlay Backdrop -->
     <div v-if="isSidebarOpen" 
          @click="isSidebarOpen = false" 
-         class="lg:hidden fixed inset-0 z-50 bg-slate-950/50 dark:bg-slate-950/70 backdrop-blur-xs transition-opacity duration-300 ease-out"
+         class="lg:hidden fixed inset-0 z-50 bg-slate-950/50 dark:bg-[#0d0d0d]/70 backdrop-blur-xs transition-opacity duration-300 ease-out"
     ></div>
 
     <!-- Drawer Panel Container -->
     <aside 
-      class="fixed top-0 left-0 h-full z-50 bg-white dark:bg-slate-900 shadow-2xl lg:shadow-none border-r border-slate-200 dark:border-slate-800 transition-all duration-300 ease-out transform flex flex-col justify-between"
+      class="fixed top-0 left-0 h-full z-50 bg-white dark:bg-[#121212] shadow-2xl lg:shadow-none border-r border-slate-200 dark:border-slate-800 transition-all duration-300 ease-out transform flex flex-col justify-between"
       :class="[
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
         isSidebarCollapsed ? 'lg:w-[84px]' : 'lg:w-[280px]',
@@ -136,7 +136,7 @@ const userInitials = computed(() => {
       <!-- Floating Sidebar Toggle Button (Desktop only) -->
       <button 
         @click="toggleSidebar()"
-        class="hidden lg:flex absolute top-6 -right-3 w-6 h-6 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer z-50"
+        class="hidden lg:flex absolute top-6 -right-3 w-6 h-6 rounded-full bg-white dark:bg-[#121212] border border-slate-200 dark:border-slate-800 items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer z-50"
         :title="isSidebarCollapsed ? 'Expandir panel' : 'Colapsar panel'"
       >
         <PanelLeft class="w-3.5 h-3.5" />
@@ -158,7 +158,7 @@ const userInitials = computed(() => {
         </div>
 
         <!-- Student Profile Box -->
-        <div class="mb-6 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs transition-all duration-300"
+        <div class="mb-6 bg-slate-50 dark:bg-[#0d0d0d]/50 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs transition-all duration-300"
              :class="isSidebarCollapsed ? 'p-2 flex justify-center' : 'p-4'">
           <!-- Avatar + General Info -->
           <div class="flex items-center gap-3" :class="isSidebarCollapsed ? 'justify-center' : ''">
@@ -231,7 +231,7 @@ const userInitials = computed(() => {
             class="w-full flex items-center p-3 rounded-xl border transition-all text-xs font-bold cursor-pointer"
             :class="[
               activeTab === item.id
-                ? 'bg-slate-100 dark:bg-slate-800/80 border-slate-300 dark:border-slate-700 text-teal-600 dark:text-emerald-400 font-bold'
+                ? 'bg-slate-100 dark:bg-[#252525]/80 border-slate-300 dark:border-slate-700 text-teal-600 dark:text-emerald-400 font-bold'
                 : 'bg-transparent border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/40 hover:text-slate-800 dark:hover:text-slate-200',
               isSidebarCollapsed ? 'justify-center px-0' : 'justify-between'
             ]"
@@ -249,7 +249,7 @@ const userInitials = computed(() => {
         <div class="mb-6">
           <p v-show="!isSidebarCollapsed" class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1 mb-2">Apariencia</p>
           <button @click="toggleTheme()" 
-                  class="w-full flex items-center p-3 rounded-xl bg-slate-50 dark:bg-slate-950/20 border border-slate-200 dark:border-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800/40 transition-colors text-xs font-bold cursor-pointer text-slate-600 dark:text-slate-400"
+                  class="w-full flex items-center p-3 rounded-xl bg-slate-50 dark:bg-[#0d0d0d]/20 border border-slate-200 dark:border-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800/40 transition-colors text-xs font-bold cursor-pointer text-slate-600 dark:text-slate-400"
                   :class="isSidebarCollapsed ? 'justify-center px-0' : 'justify-between'"
                   :title="isSidebarCollapsed ? 'Cambiar Modo' : ''">
             <div class="flex items-center gap-2.5">
@@ -257,7 +257,7 @@ const userInitials = computed(() => {
               <Moon v-else class="w-4 h-4 text-slate-400 shrink-0" />
               <span v-show="!isSidebarCollapsed">Cambiar a Modo {{ isDark ? 'Claro' : 'Oscuro' }}</span>
             </div>
-            <span v-show="!isSidebarCollapsed" class="text-[10px] font-bold text-slate-400 px-2 py-0.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-850 rounded-lg shadow-2xs uppercase">
+            <span v-show="!isSidebarCollapsed" class="text-[10px] font-bold text-slate-400 px-2 py-0.5 bg-white dark:bg-[#121212] border border-slate-200 dark:border-slate-850 rounded-lg shadow-2xs uppercase">
               {{ isDark ? 'Oscuro' : 'Claro' }}
             </span>
           </button>
@@ -268,7 +268,7 @@ const userInitials = computed(() => {
           <p class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">Información</p>
           
           <!-- Ayuda & Guía -->
-          <div class="bg-slate-50 dark:bg-slate-950/20 border border-slate-200/80 dark:border-slate-850 rounded-xl overflow-hidden">
+          <div class="bg-slate-50 dark:bg-[#0d0d0d]/20 border border-slate-200/80 dark:border-slate-850 rounded-xl overflow-hidden">
             <button @click="isHelpExpanded = !isHelpExpanded" 
                     class="w-full flex items-center justify-between p-3 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer select-none">
               <div class="flex items-center gap-2">
@@ -287,7 +287,7 @@ const userInitials = computed(() => {
           </div>
 
           <!-- Acerca de -->
-          <div class="p-3 bg-slate-50/50 dark:bg-slate-950/10 border border-slate-200/60 dark:border-slate-800/40 rounded-xl flex gap-2.5">
+          <div class="p-3 bg-slate-50/50 dark:bg-[#0d0d0d]/10 border border-slate-200/60 dark:border-slate-800/40 rounded-xl flex gap-2.5">
             <Info class="w-4 h-4 text-slate-400 dark:text-slate-500 mt-0.5 shrink-0" />
             <div class="text-[10px] leading-relaxed text-slate-400 dark:text-slate-550">
               <p class="font-extrabold uppercase text-[8px] tracking-wider text-slate-400">SIEVA DRE Huánuco</p>
@@ -299,11 +299,11 @@ const userInitials = computed(() => {
       </div>
 
       <!-- Bottom / Logout Section -->
-      <div class="px-6 py-6 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-950/20"
+      <div class="px-6 py-6 border-t border-slate-200 dark:border-slate-800/80 bg-slate-50/50 dark:bg-[#0d0d0d]/20"
            :class="isSidebarCollapsed ? 'px-2 py-4 flex justify-center' : 'px-6 py-6'">
         <button 
           @click="handleLogout"
-          class="w-full flex items-center justify-center gap-2 rounded-xl border border-red-200 dark:border-red-950/40 text-xs font-bold text-red-600 dark:text-red-400 bg-white dark:bg-slate-900/60 hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-red-700 dark:hover:text-red-300 shadow-sm hover:shadow transition-all cursor-pointer"
+          class="w-full flex items-center justify-center gap-2 rounded-xl border border-red-200 dark:border-red-950/40 text-xs font-bold text-red-600 dark:text-red-400 bg-white dark:bg-[#121212]/60 hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-red-700 dark:hover:text-red-300 shadow-sm hover:shadow transition-all cursor-pointer"
           :class="isSidebarCollapsed ? 'p-0 w-10 h-10' : 'py-3 px-4'"
           :title="isSidebarCollapsed ? 'Cerrar Sesión' : ''"
         >

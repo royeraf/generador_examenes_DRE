@@ -63,7 +63,7 @@ const onSubmit = handleSubmit(async (formValues) => {
 </script>
 
 <template>
-    <div class="min-h-screen flex items-stretch bg-slate-50 dark:bg-slate-950 transition-colors duration-500 overflow-hidden font-sans">
+    <div class="min-h-screen flex items-stretch bg-slate-50 dark:bg-[#0d0d0d] transition-colors duration-500 overflow-hidden font-sans">
         
         <!-- ═══ Left: Visual Side (Desktop) ═══ -->
         <div class="hidden lg:flex lg:w-[50%] xl:w-[60%] relative flex-col justify-between p-12 overflow-hidden">
@@ -112,7 +112,7 @@ const onSubmit = handleSubmit(async (formValues) => {
         </div>
 
         <!-- ═══ Right: Login Side ═══ -->
-        <div class="flex-1 flex flex-col relative bg-white dark:bg-slate-950">
+        <div class="flex-1 flex flex-col relative bg-white dark:bg-[#0d0d0d]">
             
             <div class="lg:hidden flex items-center justify-between p-6 shrink-0 z-20">
                 <div class="flex items-center gap-2">
@@ -167,7 +167,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                                     v-model="identifierValue"
                                     type="text" 
                                     placeholder="DNI o Código"
-                                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-4 pl-12 pr-4 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all uppercase placeholder:normal-case"
+                                    class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-4 pl-12 pr-4 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all uppercase placeholder:normal-case"
                                     :class="{'border-red-500/50': identifierError}"
                                 />
                             </div>
@@ -184,7 +184,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                                     v-model="passwordValue"
                                     :type="passwordFieldType" 
                                     placeholder="••••••••"
-                                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-4 pl-12 pr-12 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all"
+                                    class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-4 pl-12 pr-12 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all"
                                     :class="{'border-red-500/50': passwordError}"
                                 />
                                 <button type="button" @click="passwordFieldType = passwordFieldType === 'password' ? 'text' : 'password'" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors">

@@ -38,7 +38,7 @@ const AREAS: AreaConfig[] = [
     accentBg: 'bg-slate-500',
     accentText: 'text-slate-600 dark:text-slate-400',
     accentRing: 'ring-slate-500',
-    activeBg: 'bg-slate-50 dark:bg-slate-800/60 border-slate-300 dark:border-slate-600',
+    activeBg: 'bg-slate-50 dark:bg-[#252525]/60 border-slate-300 dark:border-slate-600',
   },
   {
     id: 'comunicacion',
@@ -123,7 +123,7 @@ const sidebarOpen = shallowRef(false) // Para móvil (drawer)
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans relative flex flex-col">
+  <div class="min-h-screen bg-slate-50 dark:bg-[#0d0d0d] font-sans relative flex flex-col">
     <EduBackground variant="emerald" />
 
     <div class="relative z-10 flex flex-col h-screen">
@@ -137,7 +137,7 @@ const sidebarOpen = shallowRef(false) // Para móvil (drawer)
         <template #actions-before>
           <button
             @click="sidebarOpen = !sidebarOpen"
-            class="sm:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white border border-slate-300 dark:border-slate-700 cursor-pointer"
+            class="sm:hidden p-2 rounded-xl bg-slate-100 dark:bg-[#252525] text-slate-600 dark:text-white border border-slate-300 dark:border-slate-700 cursor-pointer"
           >
             <Menu class="w-5 h-5" />
           </button>
@@ -157,7 +157,7 @@ const sidebarOpen = shallowRef(false) // Para móvil (drawer)
 
         <!-- Sidebar / Navigation -->
         <aside
-          class="fixed sm:relative z-[70] h-full sm:h-auto bg-white dark:bg-slate-900 border-r border-slate-300 dark:border-slate-800 transition-all duration-300 flex flex-col"
+          class="fixed sm:relative z-[70] h-full sm:h-auto bg-white dark:bg-[#121212] border-r border-slate-300 dark:border-slate-800 transition-all duration-300 flex flex-col"
           :class="[
             sidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full sm:translate-x-0',
             !sidebarCollapsed ? 'sm:w-64' : 'sm:w-20'
@@ -166,7 +166,7 @@ const sidebarOpen = shallowRef(false) // Para móvil (drawer)
           <!-- Desktop toggle button -->
           <button
             @click="sidebarCollapsed = !sidebarCollapsed"
-            class="hidden sm:flex absolute -right-3 top-4 w-6 h-6 rounded-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 shadow-sm z-10 transition-transform cursor-pointer"
+            class="hidden sm:flex absolute -right-3 top-4 w-6 h-6 rounded-full bg-white dark:bg-[#252525] border border-slate-300 dark:border-slate-700 items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 shadow-sm z-10 transition-transform cursor-pointer"
             :class="sidebarCollapsed ? 'rotate-180' : ''"
           >
             <PanelLeftClose class="w-3.5 h-3.5" />
@@ -203,7 +203,7 @@ const sidebarOpen = shallowRef(false) // Para móvil (drawer)
                   class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-colors"
                   :class="selectedAreaId === area.id && area.panel
                     ? `${area.accentBg} text-white shadow-md`
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-500'"
+                    : 'bg-slate-100 dark:bg-[#252525] text-slate-500'"
                 >
                   <component :is="area.icon" class="w-4.5 h-4.5" />
                 </span>
@@ -227,7 +227,7 @@ const sidebarOpen = shallowRef(false) // Para móvil (drawer)
 
           <!-- Bottom Footer Info -->
           <div v-if="!sidebarCollapsed || sidebarOpen" class="p-4 border-t border-slate-300 dark:border-slate-800">
-            <div class="flex items-center gap-3 p-2 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+            <div class="flex items-center gap-3 p-2 bg-slate-50 dark:bg-[#252525]/50 rounded-xl">
               <div class="w-8 h-8 rounded-full bg-teal-500 flex items-center justify-center text-white font-bold text-xs">
                 {{ auth.user?.nombres?.charAt(0) || 'A' }}
               </div>
@@ -243,7 +243,7 @@ const sidebarOpen = shallowRef(false) // Para móvil (drawer)
         <main class="flex-1 min-w-0 flex flex-col overflow-hidden">
 
           <!-- Area header strip -->
-          <div class="shrink-0 px-6 py-3 border-b border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center gap-3">
+          <div class="shrink-0 px-6 py-3 border-b border-slate-300 dark:border-slate-800 bg-white dark:bg-[#121212] flex items-center gap-3">
             <span class="w-7 h-7 rounded-lg flex items-center justify-center text-white shadow-sm" :class="currentArea.accentBg">
               <component :is="currentArea.icon" class="w-3.5 h-3.5" />
             </span>
@@ -259,7 +259,7 @@ const sidebarOpen = shallowRef(false) // Para móvil (drawer)
 
             <!-- Coming soon placeholder -->
             <div v-else class="h-full flex flex-col items-center justify-center text-center gap-4">
-              <span class="w-16 h-16 rounded-2xl flex items-center justify-center bg-slate-100 dark:bg-slate-800">
+              <span class="w-16 h-16 rounded-2xl flex items-center justify-center bg-slate-100 dark:bg-[#252525]">
                 <component :is="currentArea.icon" class="w-8 h-8 text-slate-400" />
               </span>
               <div>

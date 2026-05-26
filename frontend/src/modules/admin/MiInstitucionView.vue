@@ -61,7 +61,7 @@ const completadosPct = () => {
 
     <div v-else-if="institucion" class="space-y-5">
       <!-- Cabecera -->
-      <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-300 dark:border-slate-700 p-6 shadow-sm">
+      <div class="bg-white dark:bg-[#252525] rounded-2xl border border-slate-300 dark:border-slate-700 p-6 shadow-sm">
         <div class="flex items-start gap-4">
           <div :class="`bg-gradient-to-br ${nivelColor[(Array.isArray(institucion.nivel_educativo) ? (institucion.nivel_educativo[0] ?? '') : institucion.nivel_educativo)] || 'from-teal-500 to-emerald-600'}`"
             class="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0">
@@ -84,7 +84,7 @@ const completadosPct = () => {
       </div>
 
       <!-- Detalles -->
-      <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-300 dark:border-slate-700 p-6 shadow-sm space-y-4">
+      <div class="bg-white dark:bg-[#252525] rounded-2xl border border-slate-300 dark:border-slate-700 p-6 shadow-sm space-y-4">
         <h3 class="text-xs uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">Información</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
@@ -103,7 +103,7 @@ const completadosPct = () => {
           </div>
           <div>
             <p class="text-[10px] font-semibold text-slate-400 mb-0.5">Estado</p>
-            <span :class="institucion.is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400'"
+            <span :class="institucion.is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-slate-100 text-slate-500 dark:bg-[#393939] dark:text-slate-400'"
               class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-bold">
               {{ institucion.is_active ? 'Activa' : 'Inactiva' }}
             </span>
@@ -117,28 +117,28 @@ const completadosPct = () => {
 
         <!-- Stats cards -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm">
+          <div class="bg-white dark:bg-[#252525] rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm">
             <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center mb-2">
               <Users class="w-4 h-4 text-white" />
             </div>
             <p class="text-2xl font-black text-slate-800 dark:text-white">{{ analytics.total_estudiantes }}</p>
             <p class="text-[11px] text-slate-400 mt-0.5">Estudiantes</p>
           </div>
-          <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm">
+          <div class="bg-white dark:bg-[#252525] rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm">
             <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center mb-2">
               <GraduationCap class="w-4 h-4 text-white" />
             </div>
             <p class="text-2xl font-black text-slate-800 dark:text-white">{{ analytics.total_docentes }}</p>
             <p class="text-[11px] text-slate-400 mt-0.5">Docentes</p>
           </div>
-          <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm">
+          <div class="bg-white dark:bg-[#252525] rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm">
             <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-400 to-emerald-500 flex items-center justify-center mb-2">
               <ClipboardList class="w-4 h-4 text-white" />
             </div>
             <p class="text-2xl font-black text-slate-800 dark:text-white">{{ analytics.total_asignaciones }}</p>
             <p class="text-[11px] text-slate-400 mt-0.5">Asignaciones</p>
           </div>
-          <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm">
+          <div class="bg-white dark:bg-[#252525] rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm">
             <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center mb-2">
               <CheckCircle2 class="w-4 h-4 text-white" />
             </div>
@@ -148,7 +148,7 @@ const completadosPct = () => {
         </div>
 
         <!-- Exámenes generados -->
-        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-300 dark:border-slate-700 p-5 shadow-sm">
+        <div class="bg-white dark:bg-[#252525] rounded-2xl border border-slate-300 dark:border-slate-700 p-5 shadow-sm">
           <h4 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Exámenes generados</h4>
           <div class="flex items-center gap-4">
             <div class="flex items-center gap-2 flex-1">
@@ -160,7 +160,7 @@ const completadosPct = () => {
                 <p class="text-[10px] text-slate-400">Comunicación</p>
               </div>
             </div>
-            <div class="w-px h-8 bg-slate-100 dark:bg-slate-700"></div>
+            <div class="w-px h-8 bg-slate-100 dark:bg-[#393939]"></div>
             <div class="flex items-center gap-2 flex-1">
               <div class="w-7 h-7 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
                 <Calculator class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
@@ -170,7 +170,7 @@ const completadosPct = () => {
                 <p class="text-[10px] text-slate-400">Matemática</p>
               </div>
             </div>
-            <div class="w-px h-8 bg-slate-100 dark:bg-slate-700"></div>
+            <div class="w-px h-8 bg-slate-100 dark:bg-[#393939]"></div>
             <div class="flex-1 text-right">
               <p class="text-lg font-black text-slate-800 dark:text-white">{{ analytics.total_examenes }}</p>
               <p class="text-[10px] text-slate-400">Total</p>
@@ -179,7 +179,7 @@ const completadosPct = () => {
         </div>
 
         <!-- Actividad reciente -->
-        <div v-if="analytics.recientes.length > 0" class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-300 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div v-if="analytics.recientes.length > 0" class="bg-white dark:bg-[#252525] rounded-2xl border border-slate-300 dark:border-slate-700 shadow-sm overflow-hidden">
           <div class="px-5 py-4 border-b border-slate-300 dark:border-slate-700">
             <h4 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Exámenes recientes</h4>
           </div>

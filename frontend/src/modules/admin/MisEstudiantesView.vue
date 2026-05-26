@@ -381,13 +381,13 @@ function nombreGrado(id: number | null) {
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950">
+  <div class="min-h-screen flex flex-col bg-slate-50 dark:bg-[#0d0d0d]">
     <EduBackground variant="teal" />
     <Header title="Gestión" subtitle="Mis Estudiantes" :show-home="true" />
     <div class="flex-1 w-full max-w-7xl mx-auto p-4 md:p-8 relative z-10 overflow-hidden flex flex-col">
       
       <!-- Mobile Navigation Tabs -->
-      <div v-if="!isDesktop" class="shrink-0 flex items-center justify-around bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 p-1.5 mb-6 shadow-sm">
+      <div v-if="!isDesktop" class="shrink-0 flex items-center justify-around bg-white dark:bg-[#252525] rounded-2xl border-2 border-slate-200 dark:border-slate-700 p-1.5 mb-6 shadow-sm">
         <button @click="mobileTab = 'filtros'" 
           class="flex-1 py-2.5 flex flex-col items-center justify-center gap-1 rounded-xl transition-all" 
           :class="mobileTab === 'filtros' ? 'text-teal-600 dark:text-emerald-400 bg-teal-50 dark:bg-emerald-900/30' : 'text-slate-500'">
@@ -422,10 +422,10 @@ function nombreGrado(id: number | null) {
             <Plus class="w-5 h-5" /> Nuevo Alumno
           </button>
           <div class="flex items-center gap-2 flex-1 lg:flex-none">
-            <button @click="exportarExcel" class="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold px-5 py-3.5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition-all text-xs uppercase tracking-widest">
+            <button @click="exportarExcel" class="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-white dark:bg-[#252525] text-slate-600 dark:text-slate-300 font-bold px-5 py-3.5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition-all text-xs uppercase tracking-widest">
               <Download class="w-4 h-4 text-teal-500" /> Exportar
             </button>
-            <button @click="openImport" class="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold px-5 py-3.5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition-all text-xs uppercase tracking-widest">
+            <button @click="openImport" class="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-white dark:bg-[#252525] text-slate-600 dark:text-slate-300 font-bold px-5 py-3.5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition-all text-xs uppercase tracking-widest">
               <FileSpreadsheet class="w-4 h-4 text-emerald-500" /> Importar
             </button>
           </div>
@@ -433,7 +433,7 @@ function nombreGrado(id: number | null) {
       </div>
 
       <!-- Filters -->
-      <div v-show="isDesktop || mobileTab === 'filtros'" class="mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-6 bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-top-2 duration-700">
+      <div v-show="isDesktop || mobileTab === 'filtros'" class="mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-6 bg-white dark:bg-[#252525] rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-top-2 duration-700">
         <div class="space-y-2">
           <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Filtrar Grado</label>
           <ComboBox v-model="filtroGrado" :options="gradosOpciones" placeholder="Todos los grados" />
@@ -441,7 +441,7 @@ function nombreGrado(id: number | null) {
         <div class="space-y-2">
           <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Sección</label>
           <div class="relative">
-            <select v-model="filtroSeccion" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none appearance-none cursor-pointer">
+            <select v-model="filtroSeccion" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none appearance-none cursor-pointer">
               <option value="">Todas las secciones</option>
               <option v-for="sec in ['A','B','C','D','E','F','G','H','I','J','Única']" :key="sec" :value="sec">{{ sec }}</option>
             </select>
@@ -452,7 +452,7 @@ function nombreGrado(id: number | null) {
           <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Búsqueda Rápida</label>
           <div class="relative">
             <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <input v-model="filtroQ" type="text" placeholder="Nombre, apellido o DNI..." class="w-full pl-12 pr-4 py-2.5 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all placeholder-slate-400" />
+            <input v-model="filtroQ" type="text" placeholder="Nombre, apellido o DNI..." class="w-full pl-12 pr-4 py-2.5 bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all placeholder-slate-400" />
           </div>
         </div>
       </div>
@@ -461,11 +461,11 @@ function nombreGrado(id: number | null) {
       <div v-show="isDesktop || mobileTab === 'estudiantes'" class="flex-1 flex flex-col min-h-0">
         
         <!-- Desktop View: Table -->
-        <div v-if="isDesktop" class="bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden flex flex-col">
+        <div v-if="isDesktop" class="bg-white dark:bg-[#252525] rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden flex flex-col">
           <div class="overflow-x-auto custom-scrollbar">
             <table class="w-full border-collapse text-sm">
               <thead>
-                <tr class="bg-slate-50 dark:bg-slate-900 border-b-2 border-slate-100 dark:border-slate-700">
+                <tr class="bg-slate-50 dark:bg-[#121212] border-b-2 border-slate-100 dark:border-slate-700">
                   <th class="p-4 text-left font-black text-slate-500 uppercase text-xs">Estudiante</th>
                   <th class="p-4 text-left font-black text-slate-500 uppercase text-xs">Código</th>
                   <th class="p-4 text-left font-black text-slate-500 uppercase text-xs">DNI</th>
@@ -498,7 +498,7 @@ function nombreGrado(id: number | null) {
                       <button @click="openEdit(est)" class="p-2.5 rounded-xl text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all"><Edit2 class="w-4 h-4" /></button>
                       <button @click="toggle(est)" title="Activar / Desactivar"
                         class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 cursor-pointer focus:outline-none"
-                        :class="est.is_active ? 'bg-teal-500' : 'bg-slate-300 dark:bg-slate-600'">
+                        :class="est.is_active ? 'bg-teal-500' : 'bg-slate-300 dark:bg-[#4f4f4f]'">
                         <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200"
                           :class="est.is_active ? 'translate-x-6' : 'translate-x-1'" />
                       </button>
@@ -513,7 +513,7 @@ function nombreGrado(id: number | null) {
           </div>
 
           <!-- Pagination (desktop) -->
-          <div class="px-6 py-4 bg-slate-50 dark:bg-slate-700/30 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="px-6 py-4 bg-slate-50 dark:bg-[#393939]/30 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
             <!-- Left: count info + page size selector -->
             <div class="flex items-center gap-4 flex-wrap">
               <p class="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
@@ -530,7 +530,7 @@ function nombreGrado(id: number | null) {
                   :class="['h-7 px-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer',
                     pageSize === n
                       ? 'bg-teal-600 text-white shadow-sm'
-                      : 'bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-teal-400 hover:text-teal-600']">
+                      : 'bg-white dark:bg-[#252525] border border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-teal-400 hover:text-teal-600']">
                   {{ n }}
                 </button>
               </div>
@@ -538,7 +538,7 @@ function nombreGrado(id: number | null) {
             <!-- Right: page navigation -->
             <div v-if="totalPages > 1" class="flex items-center gap-1">
               <button @click="currentPage--" :disabled="currentPage === 1"
-                class="p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
+                class="p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-[#252525] text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
                 <ChevronLeft class="w-4 h-4" />
               </button>
               <div class="flex items-center gap-1 mx-1">
@@ -556,7 +556,7 @@ function nombreGrado(id: number | null) {
                 </template>
               </div>
               <button @click="currentPage++" :disabled="currentPage === totalPages"
-                class="p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
+                class="p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-[#252525] text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
                 <ChevronRight class="w-4 h-4" />
               </button>
             </div>
@@ -565,10 +565,10 @@ function nombreGrado(id: number | null) {
 
         <!-- Mobile View: Cards -->
         <div v-else class="flex-1 overflow-y-auto space-y-4 pb-4">
-          <div v-for="est in paginados" :key="est.id" class="bg-white dark:bg-slate-800 p-5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-500" :class="!est.is_active ? 'opacity-50' : ''">
+          <div v-for="est in paginados" :key="est.id" class="bg-white dark:bg-[#252525] p-5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-500" :class="!est.is_active ? 'opacity-50' : ''">
             <div class="flex justify-between items-start mb-4">
               <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center font-black text-teal-600 text-lg">
+                <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-[#393939] flex items-center justify-center font-black text-teal-600 text-lg">
                   {{ (est.nombres || '?').charAt(0) }}{{ (est.apellidos || '?').charAt(0) }}
                 </div>
                 <div>
@@ -578,10 +578,10 @@ function nombreGrado(id: number | null) {
               </div>
               <div class="flex items-center gap-2">
                 <button @click="openNuevaMatricula(est)" title="Nueva matrícula" class="p-2.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl text-emerald-500 transition-all"><CalendarPlus class="w-4 h-4" /></button>
-                <button @click="openEdit(est)" class="p-2.5 bg-slate-50 dark:bg-slate-700 rounded-xl text-slate-400 transition-all"><Edit2 class="w-4 h-4" /></button>
+                <button @click="openEdit(est)" class="p-2.5 bg-slate-50 dark:bg-[#393939] rounded-xl text-slate-400 transition-all"><Edit2 class="w-4 h-4" /></button>
                 <button @click="toggle(est)" title="Activar / Desactivar"
                   class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 cursor-pointer focus:outline-none"
-                  :class="est.is_active ? 'bg-teal-500' : 'bg-slate-300 dark:bg-slate-600'">
+                  :class="est.is_active ? 'bg-teal-500' : 'bg-slate-300 dark:bg-[#4f4f4f]'">
                   <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200"
                     :class="est.is_active ? 'translate-x-6' : 'translate-x-1'" />
                 </button>
@@ -601,7 +601,7 @@ function nombreGrado(id: number | null) {
           <div v-if="estudiantesFiltrados.length === 0" class="py-12 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">Sin resultados</div>
 
           <!-- Pagination (mobile) -->
-          <div class="bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 p-4 flex flex-col items-center gap-3">
+          <div class="bg-white dark:bg-[#252525] rounded-2xl border-2 border-slate-200 dark:border-slate-700 p-4 flex flex-col items-center gap-3">
             <!-- Page size selector -->
             <div class="flex items-center gap-1.5 w-full justify-center">
               <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Por página</span>
@@ -609,7 +609,7 @@ function nombreGrado(id: number | null) {
                 :class="['h-7 px-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer',
                   pageSize === n
                     ? 'bg-teal-600 text-white shadow-sm'
-                    : 'bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400']">
+                    : 'bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400']">
                 {{ n }}
               </button>
             </div>
@@ -619,7 +619,7 @@ function nombreGrado(id: number | null) {
             </p>
             <div v-if="totalPages > 1" class="flex items-center gap-2">
               <button @click="currentPage--" :disabled="currentPage === 1"
-                class="p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
+                class="p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-[#252525] text-slate-600 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
                 <ChevronLeft class="w-4 h-4" />
               </button>
               <div class="flex items-center gap-1">
@@ -637,7 +637,7 @@ function nombreGrado(id: number | null) {
                 </template>
               </div>
               <button @click="currentPage++" :disabled="currentPage === totalPages"
-                class="p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
+                class="p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-[#252525] text-slate-600 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
                 <ChevronRight class="w-4 h-4" />
               </button>
             </div>
@@ -651,8 +651,8 @@ function nombreGrado(id: number | null) {
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showModal" class="fixed inset-0 z-50 flex items-center sm:items-center justify-center items-end bg-slate-900/60 backdrop-blur-sm cursor-pointer" @click.self="closeModal">
-          <div class="bg-white dark:bg-slate-800 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden relative">
-            <div class="sm:hidden flex justify-center pt-4 pb-1" @click="closeModal"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div></div>
+          <div class="bg-white dark:bg-[#252525] rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden relative">
+            <div class="sm:hidden flex justify-center pt-4 pb-1" @click="closeModal"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-[#393939]"></div></div>
             <div class="flex items-center justify-between p-6 border-b border-slate-300 dark:border-slate-700">
               <div class="flex items-center gap-4">
                 <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center shadow-lg shadow-teal-500/20"><GraduationCap class="w-5 h-5 text-white" /></div>
@@ -669,16 +669,16 @@ function nombreGrado(id: number | null) {
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="space-y-1.5">
                   <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nombres</label>
-                  <input v-model="form.nombres" type="text" placeholder="Ej: Juan" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all font-bold" />
+                  <input v-model="form.nombres" type="text" placeholder="Ej: Juan" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all font-bold" />
                 </div>
                 <div class="space-y-1.5">
                   <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Apellidos</label>
-                  <input v-model="form.apellidos" type="text" placeholder="Ej: Perez" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all font-bold" />
+                  <input v-model="form.apellidos" type="text" placeholder="Ej: Perez" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all font-bold" />
                 </div>
               </div>
               <div class="space-y-1.5">
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">DNI</label>
-                <input v-model="form.dni" type="text" maxlength="8" placeholder="Ocho dígitos" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all font-bold" />
+                <input v-model="form.dni" type="text" maxlength="8" placeholder="Ocho dígitos" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all font-bold" />
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="space-y-1.5">
@@ -693,14 +693,14 @@ function nombreGrado(id: number | null) {
               <div class="space-y-1.5">
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Contraseña</label>
                 <div class="relative">
-                  <input v-model="form.password" :type="showPass ? 'text' : 'password'" placeholder="••••" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all font-bold" />
+                  <input v-model="form.password" :type="showPass ? 'text' : 'password'" placeholder="••••" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all font-bold" />
                   <button @click="showPass = !showPass" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"><Eye v-if="!showPass" class="w-5 h-5" /><EyeOff v-else class="w-5 h-5" /></button>
                 </div>
               </div>
               <p v-if="formError" class="text-[10px] font-bold text-amber-600 uppercase">{{ formError }}</p>
             </div>
-            <div class="p-6 bg-slate-50 dark:bg-slate-900/50 flex flex-col sm:flex-row gap-3">
-              <button @click="closeModal" class="flex-1 px-6 py-3.5 text-xs font-black uppercase tracking-widest text-slate-500 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 transition-all">Cancelar</button>
+            <div class="p-6 bg-slate-50 dark:bg-[#121212]/50 flex flex-col sm:flex-row gap-3">
+              <button @click="closeModal" class="flex-1 px-6 py-3.5 text-xs font-black uppercase tracking-widest text-slate-500 bg-white dark:bg-[#252525] rounded-2xl border border-slate-200 dark:border-slate-700 transition-all">Cancelar</button>
               <button @click="guardar" :disabled="saving || !!formError" class="flex-1 flex items-center justify-center gap-3 py-3.5 bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-black text-xs rounded-2xl shadow-xl shadow-teal-500/20 transition-all disabled:opacity-50 active:scale-95">
                 <Loader2 v-if="saving" class="w-5 h-5 animate-spin" />
                 <span class="uppercase tracking-widest">{{ editingPendingUser ? 'Activar' : editingId ? 'Actualizar' : 'Registrar' }}</span>
@@ -715,8 +715,8 @@ function nombreGrado(id: number | null) {
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showImportModal" class="fixed inset-0 z-50 flex items-center sm:items-center justify-center items-end bg-slate-900/60 backdrop-blur-sm cursor-pointer" @click.self="closeImportModal">
-          <div class="w-full max-w-lg overflow-hidden rounded-t-2xl sm:rounded-2xl bg-white shadow-2xl dark:bg-slate-800 relative">
-            <div class="sm:hidden flex justify-center pt-4 pb-1" @click="closeImportModal"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div></div>
+          <div class="w-full max-w-lg overflow-hidden rounded-t-2xl sm:rounded-2xl bg-white shadow-2xl dark:bg-[#252525] relative">
+            <div class="sm:hidden flex justify-center pt-4 pb-1" @click="closeImportModal"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-[#393939]"></div></div>
             <div class="flex items-center justify-between border-b border-slate-300 p-6 dark:border-slate-700">
               <div class="flex items-center gap-4">
                 <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-500 shadow-lg shadow-teal-500/20"><FileSpreadsheet class="h-6 w-6 text-white" /></div>
@@ -750,14 +750,14 @@ function nombreGrado(id: number | null) {
                     <p class="text-xs font-bold text-slate-400 truncate">{{ selectedImportFileName || 'No seleccionado' }}</p>
                   </div>
                   <div class="flex gap-2">
-                    <button @click="descargarPlantillaNomina" class="px-4 py-2.5 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 cursor-pointer">Modelo</button>
+                    <button @click="descargarPlantillaNomina" class="px-4 py-2.5 bg-white dark:bg-[#252525] border-2 border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 cursor-pointer">Modelo</button>
                     <button @click="seleccionarArchivoNomina" class="px-4 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg cursor-pointer">Subir</button>
                   </div>
                 </div>
               </div>
               <p v-if="importFormError" class="text-[10px] font-bold text-amber-600 uppercase">{{ importFormError }}</p>
             </div>
-            <div class="flex flex-col sm:flex-row gap-3 p-6 bg-slate-50 dark:bg-slate-900/50">
+            <div class="flex flex-col sm:flex-row gap-3 p-6 bg-slate-50 dark:bg-[#121212]/50">
               <button @click="closeImportModal" class="flex-1 rounded-2xl bg-white px-6 py-3.5 text-xs font-black uppercase tracking-widest text-slate-500 border border-slate-200">Cancelar</button>
               <button @click="importarNomina" :disabled="importing || !!importFormError" class="flex-1 flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-600 py-3.5 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-teal-500/20 transition-all disabled:opacity-50">
                 <Loader2 v-if="importing" class="h-5 w-5 animate-spin" />
@@ -773,8 +773,8 @@ function nombreGrado(id: number | null) {
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showSuccessModal" class="fixed inset-0 z-50 flex items-center sm:items-center justify-center items-end bg-slate-900/60 backdrop-blur-sm cursor-pointer" @click.self="showSuccessModal = false">
-          <div class="bg-white dark:bg-slate-800 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-sm p-8 text-center space-y-6 relative">
-            <div class="sm:hidden flex justify-center pb-2" @click="showSuccessModal = false"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div></div>
+          <div class="bg-white dark:bg-[#252525] rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-sm p-8 text-center space-y-6 relative">
+            <div class="sm:hidden flex justify-center pb-2" @click="showSuccessModal = false"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-[#393939]"></div></div>
             <div class="w-20 h-20 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto shadow-inner"><CheckCircle class="w-10 h-10 text-emerald-500" /></div>
             <div>
               <h2 class="text-2xl font-black text-slate-800 dark:text-white tracking-tight leading-none mb-1">¡Registro Exitoso!</h2>
@@ -782,7 +782,7 @@ function nombreGrado(id: number | null) {
             </div>
             <div class="space-y-2">
                 <p class="text-xs font-bold text-slate-500">El código de acceso es:</p>
-                <div class="bg-slate-50 dark:bg-slate-700/50 rounded-2xl py-5 px-6 border-2 border-dashed border-teal-500/30">
+                <div class="bg-slate-50 dark:bg-[#393939]/50 rounded-2xl py-5 px-6 border-2 border-dashed border-teal-500/30">
                   <span class="text-4xl font-mono font-black text-teal-600 dark:text-emerald-400 tracking-[0.2em]">{{ successCodigo }}</span>
                 </div>
             </div>
@@ -799,8 +799,8 @@ function nombreGrado(id: number | null) {
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showAdvanceModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/60 backdrop-blur-sm" @click.self="closeAdvanceModal">
-          <div class="bg-white dark:bg-slate-800 rounded-t-3xl sm:rounded-3xl shadow-2xl w-full max-w-md relative overflow-hidden">
-            <div class="sm:hidden flex justify-center pt-3 pb-1" @click="closeAdvanceModal"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div></div>
+          <div class="bg-white dark:bg-[#252525] rounded-t-3xl sm:rounded-3xl shadow-2xl w-full max-w-md relative overflow-hidden">
+            <div class="sm:hidden flex justify-center pt-3 pb-1" @click="closeAdvanceModal"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-[#393939]"></div></div>
             <div class="px-6 pt-5 pb-2 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
               <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
@@ -822,14 +822,14 @@ function nombreGrado(id: number | null) {
               <div class="grid grid-cols-2 gap-3">
                 <div>
                   <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Grado</label>
-                  <select v-model="advanceForm.grado_id" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all">
+                  <select v-model="advanceForm.grado_id" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all">
                     <option :value="0" disabled>Selecciona</option>
                     <option v-for="g in grados" :key="g.id" :value="g.id">{{ g.nombre }}</option>
                   </select>
                 </div>
                 <div>
                   <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Sección</label>
-                  <select v-model="advanceForm.seccion" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all">
+                  <select v-model="advanceForm.seccion" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all">
                     <option value="" disabled>Selecciona</option>
                     <option v-for="s in ['A','B','C','D','E','F']" :key="s" :value="s">{{ s }}</option>
                   </select>
@@ -839,7 +839,7 @@ function nombreGrado(id: number | null) {
               <div>
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Año Escolar</label>
                 <input v-model.number="advanceForm.año_escolar" type="number" min="2020" max="2099"
-                  class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all" />
+                  class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all" />
               </div>
 
               <p v-if="advanceFormError" class="text-[10px] font-bold text-amber-600 uppercase">{{ advanceFormError }}</p>
@@ -847,7 +847,7 @@ function nombreGrado(id: number | null) {
             </div>
 
             <div class="flex gap-3 px-6 pb-6">
-              <button @click="closeAdvanceModal" class="flex-1 rounded-2xl bg-white dark:bg-slate-700 px-6 py-3.5 text-xs font-black uppercase tracking-widest text-slate-500 border border-slate-200 dark:border-slate-600">Cancelar</button>
+              <button @click="closeAdvanceModal" class="flex-1 rounded-2xl bg-white dark:bg-[#393939] px-6 py-3.5 text-xs font-black uppercase tracking-widest text-slate-500 border border-slate-200 dark:border-slate-600">Cancelar</button>
               <button @click="avanzarAño" :disabled="advancing || !!advanceFormError"
                 class="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 py-3.5 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-emerald-500/20 transition-all disabled:opacity-50 active:scale-95">
                 <Loader2 v-if="advancing" class="h-4 w-4 animate-spin" />

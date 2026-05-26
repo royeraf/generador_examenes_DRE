@@ -114,7 +114,7 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-all duration-300 overflow-x-hidden font-sans"
+  <div class="min-h-screen bg-slate-50 dark:bg-[#0d0d0d] transition-all duration-300 overflow-x-hidden font-sans"
        :class="isSidebarCollapsed ? 'lg:pl-[84px]' : 'lg:pl-[280px]'">
 
     <!-- Premium Background Elements -->
@@ -174,44 +174,44 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
       <!-- ── Quick Stats Grid ── -->
       <section class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         <!-- Stat Card Template -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-300 dark:border-slate-800 shadow-sm flex items-center gap-4 group hover:shadow-md transition-all">
+        <div class="bg-white dark:bg-[#121212] rounded-2xl p-5 border border-slate-300 dark:border-slate-800 shadow-sm flex items-center gap-4 group hover:shadow-md transition-all">
           <div class="w-12 h-12 rounded-xl bg-teal-50 dark:bg-emerald-500/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
             <Trophy class="w-6 h-6 text-teal-500" />
           </div>
           <div>
             <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Completados</p>
-            <div v-if="loadingStats" class="h-6 w-12 bg-slate-100 dark:bg-slate-800 rounded animate-pulse mt-1" />
+            <div v-if="loadingStats" class="h-6 w-12 bg-slate-100 dark:bg-[#252525] rounded animate-pulse mt-1" />
             <p v-else class="text-2xl font-black text-slate-900 dark:text-white tabular-nums">{{ totalExamenes }}</p>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-300 dark:border-slate-800 shadow-sm flex items-center gap-4 group hover:shadow-md transition-all">
+        <div class="bg-white dark:bg-[#121212] rounded-2xl p-5 border border-slate-300 dark:border-slate-800 shadow-sm flex items-center gap-4 group hover:shadow-md transition-all">
           <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
             <Target class="w-6 h-6 text-emerald-500" />
           </div>
           <div>
             <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Promedio</p>
-            <div v-if="loadingStats" class="h-6 w-16 bg-slate-100 dark:bg-slate-800 rounded animate-pulse mt-1" />
+            <div v-if="loadingStats" class="h-6 w-16 bg-slate-100 dark:bg-[#252525] rounded animate-pulse mt-1" />
             <p v-else class="text-2xl font-black text-slate-900 dark:text-white tabular-nums">
               {{ promedioGeneral !== null ? promedioGeneral + '%' : '—' }}
             </p>
           </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-300 dark:border-slate-800 shadow-sm flex items-center gap-4 group hover:shadow-md transition-all">
+        <div class="bg-white dark:bg-[#121212] rounded-2xl p-5 border border-slate-300 dark:border-slate-800 shadow-sm flex items-center gap-4 group hover:shadow-md transition-all">
           <div class="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
             <Flame class="w-6 h-6 text-amber-500" />
           </div>
           <div>
             <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Pendientes</p>
-            <div v-if="loadingStats" class="h-6 w-10 bg-slate-100 dark:bg-slate-800 rounded animate-pulse mt-1" />
+            <div v-if="loadingStats" class="h-6 w-10 bg-slate-100 dark:bg-[#252525] rounded animate-pulse mt-1" />
             <p v-else class="text-2xl font-black text-slate-900 dark:text-white tabular-nums">{{ examensPendientes }}</p>
           </div>
         </div>
       </section>
 
       <!-- ── Level Progress Bar ── -->
-      <section v-if="!loadingStats && nivelLogro" class="bg-white dark:bg-slate-900 rounded-2xl p-6 mb-8 border border-slate-300 dark:border-slate-800 shadow-sm">
+      <section v-if="!loadingStats && nivelLogro" class="bg-white dark:bg-[#121212] rounded-2xl p-6 mb-8 border border-slate-300 dark:border-slate-800 shadow-sm">
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-widest">Nivel de Logro Actual</h3>
           <span class="inline-flex items-center gap-1.5 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider"
@@ -226,7 +226,7 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
             class="flex-1 h-full rounded-full transition-all duration-1000"
             :class="i <= nivelIdx
               ? (nivelActual?.bar ?? 'bg-teal-500')
-              : 'bg-slate-100 dark:bg-slate-800'" />
+              : 'bg-slate-100 dark:bg-[#252525]'" />
         </div>
         <div class="flex justify-between mt-3 px-1">
           <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Base</span>
@@ -263,7 +263,7 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
 
         <!-- Action Card: Progreso -->
         <button @click="router.push('/estudiante/progreso')"
-          class="relative overflow-hidden rounded-2xl p-6 text-left group transition-all duration-300 hover:-translate-y-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10">
+          class="relative overflow-hidden rounded-2xl p-6 text-left group transition-all duration-300 hover:-translate-y-1.5 bg-white dark:bg-[#121212] border border-slate-300 dark:border-slate-800 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10">
           
           <div class="absolute -top-10 -right-10 w-32 h-32 bg-emerald-50 dark:bg-emerald-500/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
           
@@ -290,7 +290,7 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
         
         <div class="space-y-4">
           <div v-for="p in progreso" :key="p.area"
-            class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 p-5 flex items-center gap-4 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-colors">
+            class="bg-white dark:bg-[#121212] rounded-2xl border border-slate-300 dark:border-slate-800 p-5 flex items-center gap-4 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 transition-colors">
             
             <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-lg"
               :class="p.area === 'comunicacion'
@@ -310,9 +310,9 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
                   {{ Math.round(p.puntaje_promedio) }}%
                 </span>
               </div>
-              <div class="h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div class="h-2.5 bg-slate-100 dark:bg-[#252525] rounded-full overflow-hidden">
                 <div class="h-full rounded-full transition-all duration-1000"
-                  :class="nivelConfig[p.nivel_logro_actual || '']?.bar ?? 'bg-slate-300 dark:bg-slate-700'"
+                  :class="nivelConfig[p.nivel_logro_actual || '']?.bar ?? 'bg-slate-300 dark:bg-[#393939]'"
                   :style="{ width: p.puntaje_promedio + '%' }" />
               </div>
             </div>
@@ -326,8 +326,8 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
 
       <!-- ── Empty State ── -->
       <section v-if="!loadingStats && progreso.length === 0"
-        class="bg-white dark:bg-slate-900 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-800 p-12 text-center mb-10 group">
-        <div class="w-20 h-20 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+        class="bg-white dark:bg-[#121212] rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-800 p-12 text-center mb-10 group">
+        <div class="w-20 h-20 rounded-2xl bg-slate-50 dark:bg-[#252525] flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
           <Library class="w-10 h-10 text-slate-300 dark:text-slate-600" />
         </div>
         <h3 class="text-xl font-bold text-slate-900 dark:text-white">¡Bienvenido a tu nueva etapa!</h3>

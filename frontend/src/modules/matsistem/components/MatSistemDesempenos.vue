@@ -140,7 +140,7 @@ watch(() => props.error, () => { errorDismissed.value = false; });
     <div class="flex-1 min-h-0 flex flex-col gap-3">
 
         <!-- Desempeños Card -->
-        <div class="flex-1 min-h-0 flex flex-col bg-white dark:bg-slate-800 rounded-2xl border-2 border-indigo-100 dark:border-slate-700 overflow-hidden shadow-lg">
+        <div class="flex-1 min-h-0 flex flex-col bg-white dark:bg-[#252525] rounded-2xl border-2 border-indigo-100 dark:border-slate-700 overflow-hidden shadow-lg">
 
             <!-- Card Header -->
             <div class="bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-500 px-4 sm:px-5 py-3 sm:py-4">
@@ -186,9 +186,9 @@ watch(() => props.error, () => { errorDismissed.value = false; });
             <!-- Loading Skeleton -->
             <div v-else-if="loadingDesempenos" class="flex-1 flex flex-col p-4 space-y-4 overflow-hidden">
                 <div class="space-y-3">
-                    <div class="h-14 bg-slate-100 dark:bg-slate-800/80 rounded-xl animate-pulse"></div>
+                    <div class="h-14 bg-slate-100 dark:bg-[#252525]/80 rounded-xl animate-pulse"></div>
                     <div v-for="i in 4" :key="i"
-                        class="h-20 bg-slate-50 dark:bg-slate-800/50 rounded-xl animate-pulse border border-slate-300 dark:border-slate-700/50">
+                        class="h-20 bg-slate-50 dark:bg-[#252525]/50 rounded-xl animate-pulse border border-slate-300 dark:border-slate-700/50">
                     </div>
                 </div>
             </div>
@@ -197,7 +197,7 @@ watch(() => props.error, () => { errorDismissed.value = false; });
             <div v-else-if="desempenos.length > 0" class="flex-1 flex flex-col overflow-hidden">
 
                 <!-- Capacidad Tabs (fixed height to prevent card resize) -->
-                <div class="bg-slate-100 dark:bg-slate-900/80 p-1.5 sm:p-2 border-b border-slate-300/60 dark:border-slate-700/60 flex-shrink-0 h-[56px] sm:h-[68px]">
+                <div class="bg-slate-100 dark:bg-[#121212]/80 p-1.5 sm:p-2 border-b border-slate-300/60 dark:border-slate-700/60 flex-shrink-0 h-[56px] sm:h-[68px]">
                     <div class="flex gap-1 sm:gap-1.5 h-full">
                         <button
                             v-for="orden in [1, 2, 3, 4]"
@@ -319,7 +319,7 @@ watch(() => props.error, () => { errorDismissed.value = false; });
             :disabled="loading || !selectedGradoId || selectedDesempenoIds.length === 0"
             class="flex-shrink-0 w-full px-4 py-4 sm:px-6 sm:py-5 font-bold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 shadow-xl hover:shadow-2xl hover:-translate-y-1 text-base sm:text-lg cursor-pointer"
             :class="loading
-                ? 'bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 shadow-lg cursor-wait'
+                ? 'bg-white dark:bg-[#121212] border-2 border-slate-300 dark:border-slate-700 shadow-lg cursor-wait'
                 : 'bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-500 hover:from-indigo-600 hover:via-indigo-700 hover:to-purple-600 shadow-indigo-500/30 hover:shadow-indigo-500/40 text-white'">
             <ThinkingLoader v-if="loading" text="Generando" variant="indigo" />
             <template v-else>

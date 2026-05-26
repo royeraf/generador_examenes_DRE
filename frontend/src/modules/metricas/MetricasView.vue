@@ -140,7 +140,7 @@ const rolLabel = computed(() => {
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           
           <!-- Exámenes Totales -->
-          <div class="bg-white dark:bg-slate-900 border border-slate-300/60 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
+          <div class="bg-white dark:bg-[#121212] border border-slate-300/60 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="flex justify-between items-start mb-6">
               <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 transform group-hover:rotate-12 transition-transform">
@@ -158,7 +158,7 @@ const rolLabel = computed(() => {
           </div>
 
           <!-- Total Usuarios -->
-          <div class="bg-white dark:bg-slate-900 border border-slate-300/60 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
+          <div class="bg-white dark:bg-[#121212] border border-slate-300/60 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="flex justify-between items-start mb-6">
               <div class="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-emerald-500/10 flex items-center justify-center text-blue-600 dark:text-emerald-400 transform group-hover:-rotate-12 transition-transform">
@@ -170,7 +170,7 @@ const rolLabel = computed(() => {
           </div>
 
           <!-- Asignaciones -->
-          <div class="bg-white dark:bg-slate-900 border border-slate-300/60 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
+          <div class="bg-white dark:bg-[#121212] border border-slate-300/60 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="flex justify-between items-start mb-6">
               <div class="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400 transform group-hover:scale-110 transition-transform">
@@ -182,7 +182,7 @@ const rolLabel = computed(() => {
           </div>
 
           <!-- Instituciones -->
-          <div class="bg-white dark:bg-slate-900 border border-slate-300/60 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
+          <div class="bg-white dark:bg-[#121212] border border-slate-300/60 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="flex justify-between items-start mb-6">
               <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 transform group-hover:rotate-6 transition-transform">
@@ -199,7 +199,7 @@ const rolLabel = computed(() => {
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
           
           <!-- Left Wing: Completion Gauge -->
-          <div class="lg:col-span-4 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl p-8 shadow-sm flex flex-col relative overflow-hidden">
+          <div class="lg:col-span-4 bg-white dark:bg-[#121212] border border-slate-300 dark:border-slate-800 rounded-2xl p-8 shadow-sm flex flex-col relative overflow-hidden">
             <div class="absolute top-0 right-0 p-8 opacity-10">
               <CheckCircle2 class="w-32 h-32 text-emerald-500 rotate-12" />
             </div>
@@ -229,7 +229,7 @@ const rolLabel = computed(() => {
             </div>
             
             <div class="grid grid-cols-2 gap-4 mt-4">
-              <div class="bg-slate-50 dark:bg-slate-800/40 rounded-2xl p-4 border border-slate-300 dark:border-slate-700/50">
+              <div class="bg-slate-50 dark:bg-[#252525]/40 rounded-2xl p-4 border border-slate-300 dark:border-slate-700/50">
                 <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Asignados</p>
                 <p class="text-xl font-black text-slate-800 dark:text-white">{{ resumen.total_asignaciones }}</p>
               </div>
@@ -241,7 +241,7 @@ const rolLabel = computed(() => {
           </div>
 
           <!-- Middle Section: Distribution Bars -->
-          <div class="lg:col-span-4 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl p-8 shadow-sm flex flex-col">
+          <div class="lg:col-span-4 bg-white dark:bg-[#121212] border border-slate-300 dark:border-slate-800 rounded-2xl p-8 shadow-sm flex flex-col">
             <h3 class="text-lg font-black text-slate-800 dark:text-white mb-8 flex items-center gap-3">
               <span class="w-2 h-8 bg-emerald-500 rounded-full"></span>
               Distribución Regional
@@ -265,7 +265,7 @@ const rolLabel = computed(() => {
                     <p class="text-xs font-black text-teal-500 mt-1">{{ lecturaPct }}%</p>
                   </div>
                 </div>
-                <div class="h-4 w-full bg-slate-100 dark:bg-slate-800/50 rounded-full p-1 border border-slate-300 dark:border-slate-700/30">
+                <div class="h-4 w-full bg-slate-100 dark:bg-[#252525]/50 rounded-full p-1 border border-slate-300 dark:border-slate-700/30">
                   <div class="h-full bg-gradient-to-r from-teal-400 to-emerald-500 rounded-full transition-all duration-1000 shadow-sm" :style="`width: ${lecturaPct}%`"></div>
                 </div>
               </div>
@@ -287,13 +287,13 @@ const rolLabel = computed(() => {
                     <p class="text-xs font-black text-emerald-500 mt-1">{{ matematicaPct }}%</p>
                   </div>
                 </div>
-                <div class="h-4 w-full bg-slate-100 dark:bg-slate-800/50 rounded-full p-1 border border-slate-300 dark:border-slate-700/30">
+                <div class="h-4 w-full bg-slate-100 dark:bg-[#252525]/50 rounded-full p-1 border border-slate-300 dark:border-slate-700/30">
                   <div class="h-full bg-gradient-to-r from-violet-400 to-purple-500 rounded-full transition-all duration-1000 shadow-sm" :style="`width: ${matematicaPct}%`"></div>
                 </div>
               </div>
             </div>
 
-            <div class="mt-8 p-4 bg-slate-50 dark:bg-slate-800/20 rounded-2xl border border-slate-300 dark:border-slate-700/30">
+            <div class="mt-8 p-4 bg-slate-50 dark:bg-[#252525]/20 rounded-2xl border border-slate-300 dark:border-slate-700/30">
                <div class="flex items-center gap-3">
                  <Activity class="w-4 h-4 text-emerald-500" />
                  <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 leading-tight">
@@ -304,7 +304,7 @@ const rolLabel = computed(() => {
           </div>
 
           <!-- Right Wing: Recent Activity -->
-          <div class="lg:col-span-4 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl p-0 shadow-sm flex flex-col overflow-hidden">
+          <div class="lg:col-span-4 bg-white dark:bg-[#121212] border border-slate-300 dark:border-slate-800 rounded-2xl p-0 shadow-sm flex flex-col overflow-hidden">
             <div class="p-8 border-b border-slate-300 dark:border-slate-800">
               <h3 class="text-lg font-black text-slate-800 dark:text-white flex items-center gap-3">
                 <span class="w-2 h-8 bg-amber-500 rounded-full"></span>
@@ -314,7 +314,7 @@ const rolLabel = computed(() => {
             
             <div class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 max-h-[600px] custom-scrollbar">
               <div v-if="resumen.recientes.length === 0" class="h-full flex flex-col items-center justify-center text-center px-6 py-12">
-                <div class="w-20 h-20 bg-slate-50 dark:bg-slate-800/50 rounded-full flex items-center justify-center mb-4">
+                <div class="w-20 h-20 bg-slate-50 dark:bg-[#252525]/50 rounded-full flex items-center justify-center mb-4">
                   <Medal class="w-10 h-10 text-slate-200 dark:text-slate-700" />
                 </div>
                 <p class="text-sm font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Sin actividad</p>
@@ -340,7 +340,7 @@ const rolLabel = computed(() => {
                     <span class="text-[10px] font-black uppercase tracking-wider" :class="item.area === 'lectura' ? 'text-teal-500' : 'text-emerald-500'">
                       {{ item.grado }}
                     </span>
-                    <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+                    <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-[#393939]"></span>
                     <span class="text-[10px] font-bold text-slate-400 flex items-center gap-1">
                       <Clock class="w-3 h-3" />
                       {{ formatFecha(item.fecha) }}
@@ -350,7 +350,7 @@ const rolLabel = computed(() => {
               </div>
             </div>
             
-            <div class="p-6 bg-slate-50 dark:bg-slate-800/30 text-center">
+            <div class="p-6 bg-slate-50 dark:bg-[#252525]/30 text-center">
               <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">LectoSistem DRE Engine</p>
             </div>
           </div>

@@ -141,7 +141,7 @@ watch(() => props.stats, () => {
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
             <!-- Stat Cards - Educativo -->
             <div
-                class="bg-white dark:bg-slate-800 p-5 rounded-2xl border-2 border-teal-100 dark:border-slate-700 shadow-lg relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+                class="bg-white dark:bg-[#252525] p-5 rounded-2xl border-2 border-teal-100 dark:border-slate-700 shadow-lg relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 cursor-pointer">
                 <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-teal-500 to-sky-500"></div>
                 <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-2 flex items-center gap-1">
                     <Users class="w-4 h-4" /> Total
@@ -151,7 +151,7 @@ watch(() => props.stats, () => {
 
             <div v-for="(count, key) in { 'Pre Inicio': stats['pre-inicio'], 'Inicio': stats['inicio'], 'Proceso': stats['proceso'], 'Satisfactorio': stats['satisfactorio'], 'Destacado': stats['destacado'] }"
                 :key="key"
-                class="bg-white dark:bg-slate-800 p-5 rounded-2xl border-2 dark:border-slate-700 shadow-lg relative overflow-hidden hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+                class="bg-white dark:bg-[#252525] p-5 rounded-2xl border-2 dark:border-slate-700 shadow-lg relative overflow-hidden hover:-translate-y-1 transition-all duration-300 cursor-pointer"
                 :class="{
                     'border-red-100 dark:border-red-900/40': key === 'Pre Inicio',
                     'border-orange-100 dark:border-orange-900/40': key === 'Inicio',
@@ -191,7 +191,7 @@ watch(() => props.stats, () => {
         <div class="grid lg:grid-cols-2 gap-6">
             <!-- Chart - Educativo -->
             <div
-                class="bg-white dark:bg-slate-800 p-6 rounded-2xl border-2 border-violet-100 dark:border-slate-700 shadow-lg">
+                class="bg-white dark:bg-[#252525] p-6 rounded-2xl border-2 border-violet-100 dark:border-slate-700 shadow-lg">
                 <h3 class="font-bold text-violet-700 dark:text-violet-400 mb-6 flex items-center gap-2 text-lg">
                     <BarChart3 class="w-5 h-5" /> Distribución por Niveles
                 </h3>
@@ -311,7 +311,7 @@ watch(() => props.stats, () => {
                                 </tr>
                             </tbody>
                             <tfoot class="border-t-2 border-slate-300 dark:border-slate-600">
-                                <tr class="bg-slate-50 dark:bg-slate-900">
+                                <tr class="bg-slate-50 dark:bg-[#121212]">
                                     <td class="py-2 px-3 font-bold text-slate-800 dark:text-white">Total</td>
                                     <td class="py-2 px-3 text-center font-bold text-slate-800 dark:text-white">
                                         {{
@@ -327,12 +327,12 @@ watch(() => props.stats, () => {
 
             <!-- Resumen Table -->
             <div
-                class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-300 dark:border-slate-700 shadow-sm flex flex-col">
+                class="bg-white dark:bg-[#252525] p-6 rounded-xl border border-slate-300 dark:border-slate-700 shadow-sm flex flex-col">
                 <h3 class="font-bold text-slate-700 dark:text-slate-200 mb-6">Resumen por Estudiante</h3>
                 <div
                     class="overflow-y-auto flex-1 max-h-[300px] border rounded-lg border-slate-300 dark:border-slate-700">
                     <table class="w-full text-sm">
-                        <thead class="bg-slate-50 dark:bg-slate-900 sticky top-0">
+                        <thead class="bg-slate-50 dark:bg-[#121212] sticky top-0">
                             <tr>
                                 <th class="p-2 text-left font-semibold text-slate-600 dark:text-slate-400">
                                     Estudiante</th>

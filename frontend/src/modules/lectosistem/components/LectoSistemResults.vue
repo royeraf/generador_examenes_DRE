@@ -56,7 +56,7 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
             </h2>
             <div v-if="resultado" class="flex gap-2">
                 <button @click="emit('descargar-word')" :disabled="descargandoWord"
-                    class="p-1.5 rounded-full hover:bg-slate-200 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors"
+                    class="p-1.5 rounded-full hover:bg-slate-200 dark:bg-[#393939]/50 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors"
                     title="Descargar Word">
                     <Loader2 v-if="descargandoWord" class="w-4 h-4 animate-spin" />
                     <Download v-else class="w-4 h-4" />
@@ -66,7 +66,7 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
 
         <!-- Empty State -->
         <div v-if="!resultado && !loading" class="flex-1 flex flex-col items-center justify-center p-6 text-center">
-            <div class="w-12 h-12 bg-slate-50 dark:bg-slate-950 rounded-2xl flex items-center justify-center mb-4 border border-slate-300 dark:border-slate-700">
+            <div class="w-12 h-12 bg-slate-50 dark:bg-[#0d0d0d] rounded-2xl flex items-center justify-center mb-4 border border-slate-300 dark:border-slate-700">
                 <Bot class="w-6 h-6 text-slate-600" />
             </div>
             <h3 class="text-sm font-medium text-slate-800 dark:text-white mb-2">Comienza a generar</h3>
@@ -94,7 +94,7 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
 
                 <div v-if="resultado.lecturas && resultado.lecturas.length" class="space-y-6">
                     <div v-for="(lectura, idx) in resultado.lecturas" :key="idx"
-                        class="bg-slate-50 dark:bg-slate-950 rounded-2xl p-5 border border-slate-300 dark:border-slate-700">
+                        class="bg-slate-50 dark:bg-[#0d0d0d] rounded-2xl p-5 border border-slate-300 dark:border-slate-700">
                         <h3 class="text-sm font-bold text-slate-800 dark:text-white mb-3">{{ lectura.titulo }}</h3>
                         <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-serif">{{ lectura.texto }}</p>
                     </div>
@@ -102,7 +102,7 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
 
                 <div class="space-y-6">
                     <div v-for="(pregunta, pIdx) in resultado.examen.preguntas" :key="pIdx"
-                        class="bg-slate-50 dark:bg-slate-950 rounded-2xl p-5 border border-slate-300 dark:border-slate-700 space-y-4">
+                        class="bg-slate-50 dark:bg-[#0d0d0d] rounded-2xl p-5 border border-slate-300 dark:border-slate-700 space-y-4">
 
                         <!-- Encabezado pregunta -->
                         <div class="flex items-start justify-between gap-3">
@@ -110,7 +110,7 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
                                 <span class="text-slate-500 font-bold">{{ pIdx + 1 }}.</span> {{ pregunta.enunciado }}
                             </h4>
                             <div class="flex items-center gap-2 shrink-0">
-                                <span class="text-[9px] font-bold uppercase px-2 py-1 rounded bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400">
+                                <span class="text-[9px] font-bold uppercase px-2 py-1 rounded bg-slate-100 dark:bg-[#252525]/50 text-slate-500 dark:text-slate-400">
                                     {{ pregunta.nivel }}
                                 </span>
                                 <!-- Botón retroalimentación -->
@@ -137,7 +137,7 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
 
                         <!-- Justificación -->
                         <div v-if="getTablaRow(pregunta.numero)?.justificacion"
-                            class="p-3 bg-slate-100 dark:bg-slate-800/50 rounded-xl text-xs text-slate-500 dark:text-slate-400">
+                            class="p-3 bg-slate-100 dark:bg-[#252525]/50 rounded-xl text-xs text-slate-500 dark:text-slate-400">
                             <strong>Justificación:</strong> {{ getTablaRow(pregunta.numero)?.justificacion }}
                         </div>
                     </div>
@@ -156,11 +156,11 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
                     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm cursor-pointer" @click="cerrarModal" />
 
                     <!-- Dialog -->
-                    <div class="relative z-10 w-full sm:max-w-lg bg-white dark:bg-slate-900 rounded-t-2xl sm:rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[85vh]">
+                    <div class="relative z-10 w-full sm:max-w-lg bg-white dark:bg-[#121212] rounded-t-2xl sm:rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[85vh]">
                         
                         <!-- Drag handle (mobile) -->
                         <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0" @click="cerrarModal">
-                            <div class="w-10 h-1 rounded-full bg-slate-200 dark:bg-slate-600"></div>
+                            <div class="w-10 h-1 rounded-full bg-slate-200 dark:bg-[#4f4f4f]"></div>
                         </div>
 
                         <!-- Header modal -->
@@ -210,7 +210,7 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
 
                             <!-- Justificación (si existe) -->
                             <div v-if="modalPregunta.justificacion"
-                                class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-4 space-y-2">
+                                class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#252525]/50 p-4 space-y-2">
                                 <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                                     Justificación de la respuesta correcta
                                 </span>
@@ -223,7 +223,7 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
                         <!-- Footer modal -->
                         <div class="px-5 py-3 border-t border-slate-300 dark:border-slate-700 flex justify-end">
                             <button @click="cerrarModal"
-                                class="px-4 py-2 text-xs font-medium rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">
+                                class="px-4 py-2 text-xs font-medium rounded-lg bg-slate-100 dark:bg-[#252525] hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">
                                 Cerrar
                             </button>
                         </div>

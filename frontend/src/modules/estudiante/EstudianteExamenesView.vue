@@ -116,7 +116,7 @@ const nivelLabels: Record<string, string> = {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-all duration-300 font-sans"
+  <div class="min-h-screen bg-slate-50 dark:bg-[#0d0d0d] transition-all duration-300 font-sans"
        :class="isSidebarCollapsed ? 'lg:pl-[84px]' : 'lg:pl-[280px]'">
     
     <!-- Premium Background Elements -->
@@ -129,9 +129,9 @@ const nivelLabels: Record<string, string> = {
     <EstudianteNavbar />
 
     <!-- Tabs -->
-    <div class="sticky top-16 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 transition-all duration-300">
+    <div class="sticky top-16 z-30 bg-white/80 dark:bg-[#121212]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 transition-all duration-300">
       <div class="max-w-4xl mx-auto px-4 sm:px-6">
-        <div class="inline-flex p-1 bg-slate-100/80 dark:bg-slate-950/60 backdrop-blur-sm rounded-2xl border border-slate-200 dark:border-slate-800/80 relative w-full sm:w-auto shadow-inner">
+        <div class="inline-flex p-1 bg-slate-100/80 dark:bg-[#0d0d0d]/60 backdrop-blur-sm rounded-2xl border border-slate-200 dark:border-slate-800/80 relative w-full sm:w-auto shadow-inner">
           <button
             v-for="tab in [
               { id: 'pendientes' as Tab, label: 'Pendientes', count: countPendientes, icon: Zap },
@@ -150,7 +150,7 @@ const nivelLabels: Record<string, string> = {
               class="text-[9px] sm:text-[10px] font-black px-1.5 sm:px-2 py-0.5 rounded-full min-w-[18px] sm:min-w-[20px] text-center transition-all duration-300"
               :class="activeTab === tab.id
                 ? 'bg-white/20 text-white backdrop-blur-sm'
-                : 'bg-slate-200 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400'"
+                : 'bg-slate-200 dark:bg-[#252525]/80 text-slate-500 dark:text-slate-400'"
             >{{ tab.count }}</span>
           </button>
         </div>
@@ -163,7 +163,7 @@ const nivelLabels: Record<string, string> = {
         <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Cargando exámenes...</p>
       </div>
 
-      <div v-else-if="error" class="text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-red-100 dark:border-red-900/30 shadow-xl flex flex-col items-center gap-4">
+      <div v-else-if="error" class="text-center py-20 bg-white dark:bg-[#121212] rounded-2xl border border-red-100 dark:border-red-900/30 shadow-xl flex flex-col items-center gap-4">
         <div class="w-16 h-16 rounded-full bg-red-50 dark:bg-red-500/10 flex items-center justify-center">
           <AlertCircle class="w-8 h-8 text-red-500" />
         </div>
@@ -173,8 +173,8 @@ const nivelLabels: Record<string, string> = {
 
       <!-- Empty state global (sin ningún examen) -->
       <div v-else-if="examenes.length === 0"
-        class="text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-xl">
-        <div class="w-20 h-20 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center mx-auto mb-6">
+        class="text-center py-20 bg-white dark:bg-[#121212] rounded-2xl border border-slate-300 dark:border-slate-800 shadow-xl">
+        <div class="w-20 h-20 rounded-xl bg-slate-50 dark:bg-[#252525] flex items-center justify-center mx-auto mb-6">
           <BookOpen class="w-10 h-10 text-slate-300 dark:text-slate-600" />
         </div>
         <h3 class="text-xl font-bold text-slate-900 dark:text-white">Sin exámenes asignados</h3>
@@ -184,8 +184,8 @@ const nivelLabels: Record<string, string> = {
       <template v-else>
         <!-- Empty state por tab -->
         <div v-if="examenesVisibles.length === 0"
-          class="text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-xl">
-          <div class="w-20 h-20 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center mx-auto mb-6">
+          class="text-center py-20 bg-white dark:bg-[#121212] rounded-2xl border border-slate-300 dark:border-slate-800 shadow-xl">
+          <div class="w-20 h-20 rounded-xl bg-slate-50 dark:bg-[#252525] flex items-center justify-center mx-auto mb-6">
             <CheckCircle2 v-if="activeTab === 'pendientes'" class="w-10 h-10 text-emerald-300 dark:text-emerald-700" />
             <BookOpen v-else class="w-10 h-10 text-slate-300 dark:text-slate-600" />
           </div>
@@ -203,7 +203,7 @@ const nivelLabels: Record<string, string> = {
           <div
             v-for="examen in examenesVisibles"
           :key="examen.id"
-          class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 p-5 sm:p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col group"
+          class="bg-white dark:bg-[#121212] rounded-2xl border border-slate-300 dark:border-slate-800 p-5 sm:p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col group"
         >
           <div class="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
             <div :class="examen.tipo_examen === 'lectura'
@@ -245,7 +245,7 @@ const nivelLabels: Record<string, string> = {
               </div>
             </div>
 
-            <div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3.5 sm:p-4 space-y-2">
+            <div class="bg-slate-50 dark:bg-[#252525]/50 rounded-xl p-3.5 sm:p-4 space-y-2">
               <div class="flex justify-between text-[11px] font-medium text-slate-500 dark:text-slate-400">
                 <span>Vence:</span>
                 <span class="font-bold text-slate-700 dark:text-slate-200">{{ examen.fecha_fin ? formatFechaHoraCorta(examen.fecha_fin) : 'Sin límite' }}</span>
@@ -275,7 +275,7 @@ const nivelLabels: Record<string, string> = {
               </button>
             </template>
             <button v-else @click="router.push(`/estudiante/examen/${examen.id}?modo=resultados`)"
-              class="flex-1 h-11 sm:h-12 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold text-sm rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2">
+              class="flex-1 h-11 sm:h-12 bg-slate-100 dark:bg-[#252525] text-slate-600 dark:text-slate-400 font-bold text-sm rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2">
               <Target class="w-4 h-4" />
               Resultados
             </button>
@@ -300,7 +300,7 @@ const nivelLabels: Record<string, string> = {
           <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm -z-10" @click="showPreview = false"></div>
 
           <!-- Contenedor modal: pantalla completa en mobile, modal grande en desktop -->
-          <div class="bg-white dark:bg-slate-900 w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-3xl md:max-w-4xl lg:max-w-5xl flex flex-col sm:rounded-2xl shadow-2xl overflow-hidden">
+          <div class="bg-white dark:bg-[#121212] w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-3xl md:max-w-4xl lg:max-w-5xl flex flex-col sm:rounded-2xl shadow-2xl overflow-hidden">
 
             <!-- Header -->
             <div class="flex items-center justify-between px-5 sm:px-8 pt-5 sm:pt-6 pb-4 sm:pb-5 border-b border-slate-200 dark:border-slate-800 shrink-0">
@@ -335,7 +335,7 @@ const nivelLabels: Record<string, string> = {
 
               <!-- Sidebar de lecturas (desktop, solo cuando hay múltiples) -->
               <div v-if="(previewData?.lecturas?.length ?? 0) > 1"
-                class="hidden md:flex w-52 lg:w-60 border-r border-slate-200 dark:border-slate-800 flex-col shrink-0 bg-slate-50 dark:bg-slate-950">
+                class="hidden md:flex w-52 lg:w-60 border-r border-slate-200 dark:border-slate-800 flex-col shrink-0 bg-slate-50 dark:bg-[#0d0d0d]">
                 <p class="px-4 py-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest border-b border-slate-200 dark:border-slate-800">
                   Textos
                 </p>
@@ -352,7 +352,7 @@ const nivelLabels: Record<string, string> = {
                     <span class="w-6 h-6 rounded-lg flex items-center justify-center text-[11px] font-black shrink-0 mt-0.5 transition-all"
                       :class="previewTabActiva === i
                         ? 'bg-teal-500 text-white'
-                        : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 group-hover:bg-slate-300 dark:group-hover:bg-slate-600'">
+                        : 'bg-slate-200 dark:bg-[#393939] text-slate-500 dark:text-slate-400 group-hover:bg-slate-300 dark:group-hover:bg-slate-600'">
                       {{ i + 1 }}
                     </span>
                     <span class="text-sm font-semibold leading-snug"
@@ -370,7 +370,7 @@ const nivelLabels: Record<string, string> = {
 
                 <!-- Tabs en mobile (solo cuando hay múltiples lecturas) -->
                 <div v-if="(previewData?.lecturas?.length ?? 0) > 1"
-                  class="md:hidden flex border-b border-slate-200 dark:border-slate-800 overflow-x-auto no-scrollbar shrink-0 bg-white dark:bg-slate-900">
+                  class="md:hidden flex border-b border-slate-200 dark:border-slate-800 overflow-x-auto no-scrollbar shrink-0 bg-white dark:bg-[#121212]">
                   <button v-for="(lectura, i) in previewData!.lecturas" :key="i"
                     @click="previewTabActiva = i"
                     class="flex-shrink-0 px-5 py-3.5 text-[10px] font-bold uppercase tracking-widest transition-all border-b-2"
@@ -382,7 +382,7 @@ const nivelLabels: Record<string, string> = {
                 </div>
 
                 <!-- Toolbar -->
-                <div class="px-5 sm:px-6 py-2.5 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 shrink-0 flex items-center gap-4 sm:gap-6 overflow-x-auto no-scrollbar">
+                <div class="px-5 sm:px-6 py-2.5 bg-slate-50 dark:bg-[#252525]/50 border-b border-slate-200 dark:border-slate-800 shrink-0 flex items-center gap-4 sm:gap-6 overflow-x-auto no-scrollbar">
                   <div class="flex items-center gap-2 shrink-0">
                     <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Tema</span>
                     <div class="flex items-center gap-1.5">
@@ -397,21 +397,21 @@ const nivelLabels: Record<string, string> = {
                         class="w-5 h-5 rounded-full bg-slate-900 border border-slate-700 transition-all shadow-sm" />
                     </div>
                   </div>
-                  <div class="w-px h-5 bg-slate-200 dark:bg-slate-700 shrink-0" />
+                  <div class="w-px h-5 bg-slate-200 dark:bg-[#393939] shrink-0" />
                   <div class="flex items-center gap-2 shrink-0">
                     <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Fuente</span>
                     <div class="flex items-center gap-1">
                       <button @click="readingFont = 'sans'"
                         :class="readingFont === 'sans'
                           ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900'
-                          : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-300 dark:border-slate-700'"
+                          : 'bg-white dark:bg-[#252525] text-slate-500 dark:text-slate-400 border border-slate-300 dark:border-slate-700'"
                         class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all">
                         Sans
                       </button>
                       <button @click="readingFont = 'serif'"
                         :class="readingFont === 'serif'
                           ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900'
-                          : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-300 dark:border-slate-700'"
+                          : 'bg-white dark:bg-[#252525] text-slate-500 dark:text-slate-400 border border-slate-300 dark:border-slate-700'"
                         class="px-2.5 py-1 rounded-lg text-xs font-bold font-serif transition-all">
                         Serif
                       </button>
@@ -424,7 +424,7 @@ const nivelLabels: Record<string, string> = {
                       class="transition-all rounded-full"
                       :class="previewTabActiva === i
                         ? 'w-5 h-2 bg-teal-500'
-                        : 'w-2 h-2 bg-slate-300 dark:bg-slate-700 hover:bg-slate-400'" />
+                        : 'w-2 h-2 bg-slate-300 dark:bg-[#393939] hover:bg-slate-400'" />
                   </div>
                 </div>
 
@@ -469,7 +469,7 @@ const nivelLabels: Record<string, string> = {
             </div>
 
             <!-- Footer -->
-            <div class="px-5 sm:px-8 py-4 border-t border-slate-200 dark:border-slate-800 shrink-0 flex items-center justify-between bg-white dark:bg-slate-900">
+            <div class="px-5 sm:px-8 py-4 border-t border-slate-200 dark:border-slate-800 shrink-0 flex items-center justify-between bg-white dark:bg-[#121212]">
               <!-- Navegación anterior/siguiente entre lecturas -->
               <div v-if="(previewData?.lecturas?.length ?? 0) > 1" class="flex items-center gap-2">
                 <button

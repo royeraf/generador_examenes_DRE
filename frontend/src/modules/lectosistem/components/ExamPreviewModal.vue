@@ -61,11 +61,11 @@ const tieneRetro = (numeroPregunta: number): boolean => {
 
                 <!-- Modal -->
                 <div
-                    class="relative w-full max-w-4xl max-h-[90vh] bg-white dark:bg-slate-800 rounded-t-2xl sm:rounded-2xl shadow-2xl border-0 sm:border border-gray-200 dark:border-slate-700 flex flex-col overflow-hidden modal-content cursor-default" @click.stop>
+                    class="relative w-full max-w-4xl max-h-[90vh] bg-white dark:bg-[#252525] rounded-t-2xl sm:rounded-2xl shadow-2xl border-0 sm:border border-gray-200 dark:border-slate-700 flex flex-col overflow-hidden modal-content cursor-default" @click.stop>
 
                     <!-- Drag handle -->
                     <div class="flex justify-center pt-3 pb-1 sm:hidden cursor-pointer flex-shrink-0" @click="emit('close')">
-                        <div class="w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+                        <div class="w-12 h-1.5 bg-slate-200 dark:bg-[#393939] rounded-full"></div>
                     </div>
 
                     <!-- Header -->
@@ -113,20 +113,20 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                             <!-- Skeleton Body -->
                             <div class="space-y-6">
                                 <!-- Instructions Skeleton -->
-                                <div class="bg-gray-100 dark:bg-slate-700/50 rounded-xl p-4 animate-pulse">
-                                    <div class="h-4 w-32 bg-gray-200 dark:bg-slate-600 rounded mb-3"></div>
-                                    <div class="h-3 w-full bg-gray-200 dark:bg-slate-600 rounded"></div>
+                                <div class="bg-gray-100 dark:bg-[#393939]/50 rounded-xl p-4 animate-pulse">
+                                    <div class="h-4 w-32 bg-gray-200 dark:bg-[#4f4f4f] rounded mb-3"></div>
+                                    <div class="h-3 w-full bg-gray-200 dark:bg-[#4f4f4f] rounded"></div>
                                 </div>
                                 <!-- Text Skeleton -->
-                                <div class="bg-gray-100 dark:bg-slate-700/50 rounded-xl p-5 animate-pulse">
+                                <div class="bg-gray-100 dark:bg-[#393939]/50 rounded-xl p-5 animate-pulse">
                                     <div class="flex items-center gap-2 mb-4">
-                                        <div class="w-8 h-8 bg-gray-200 dark:bg-slate-600 rounded"></div>
-                                        <div class="h-4 w-24 bg-gray-200 dark:bg-slate-600 rounded"></div>
+                                        <div class="w-8 h-8 bg-gray-200 dark:bg-[#4f4f4f] rounded"></div>
+                                        <div class="h-4 w-24 bg-gray-200 dark:bg-[#4f4f4f] rounded"></div>
                                     </div>
                                     <div class="space-y-3">
-                                        <div class="h-3 w-full bg-gray-200 dark:bg-slate-600 rounded"></div>
-                                        <div class="h-3 w-full bg-gray-200 dark:bg-slate-600 rounded"></div>
-                                        <div class="h-3 w-3/4 bg-gray-200 dark:bg-slate-600 rounded"></div>
+                                        <div class="h-3 w-full bg-gray-200 dark:bg-[#4f4f4f] rounded"></div>
+                                        <div class="h-3 w-full bg-gray-200 dark:bg-[#4f4f4f] rounded"></div>
+                                        <div class="h-3 w-3/4 bg-gray-200 dark:bg-[#4f4f4f] rounded"></div>
                                     </div>
                                 </div>
                                 <!-- Questions Skeleton -->
@@ -135,14 +135,14 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                                         class="p-5 border-2 border-gray-100 dark:border-slate-700 rounded-xl animate-pulse">
                                         <div class="flex gap-4">
                                             <div
-                                                class="w-10 h-10 bg-gray-200 dark:bg-slate-600 rounded-xl flex-shrink-0">
+                                                class="w-10 h-10 bg-gray-200 dark:bg-[#4f4f4f] rounded-xl flex-shrink-0">
                                             </div>
                                             <div class="flex-1 space-y-3">
-                                                <div class="h-3 w-20 bg-gray-200 dark:bg-slate-600 rounded"></div>
-                                                <div class="h-4 w-full bg-gray-200 dark:bg-slate-600 rounded"></div>
+                                                <div class="h-3 w-20 bg-gray-200 dark:bg-[#4f4f4f] rounded"></div>
+                                                <div class="h-4 w-full bg-gray-200 dark:bg-[#4f4f4f] rounded"></div>
                                                 <div class="grid grid-cols-1 gap-2">
                                                     <div v-for="j in 3" :key="j"
-                                                        class="h-10 bg-gray-100 dark:bg-slate-700 rounded-lg"></div>
+                                                        class="h-10 bg-gray-100 dark:bg-[#393939] rounded-lg"></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -192,7 +192,7 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                                 </h4>
 
                                 <div v-for="pregunta in entry.resultado.examen.preguntas" :key="pregunta.numero"
-                                    class="bg-white dark:bg-slate-800 rounded-xl p-5 border-2 border-slate-300 dark:border-slate-700 hover:border-teal-200 dark:hover:border-emerald-700 transition-all duration-300">
+                                    class="bg-white dark:bg-[#252525] rounded-xl p-5 border-2 border-slate-300 dark:border-slate-700 hover:border-teal-200 dark:hover:border-emerald-700 transition-all duration-300">
                                     <div class="flex items-start gap-4">
                                         <span
                                             class="w-10 h-10 bg-gradient-to-br from-teal-500 to-sky-500 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-lg shadow-teal-500/20">
@@ -226,10 +226,10 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                                                     class="flex items-center gap-3 text-sm py-3 px-4 rounded-xl border-2 transition-all duration-200"
                                                     :class="opcion.es_correcta
                                                         ? 'bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-emerald-900/40 dark:to-slate-900 border-teal-300 dark:border-emerald-800 text-teal-700 dark:text-emerald-400'
-                                                        : 'bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'">
+                                                        : 'bg-gray-50 dark:bg-[#121212] border-gray-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'">
                                                     <span
                                                         class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm"
-                                                        :class="opcion.es_correcta ? 'bg-teal-500 text-white' : 'bg-gray-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'">
+                                                        :class="opcion.es_correcta ? 'bg-teal-500 text-white' : 'bg-gray-200 dark:bg-[#393939] text-slate-600 dark:text-slate-400'">
                                                         {{ opcion.letra }}
                                                     </span>
                                                     <span class="flex-1">{{ opcion.texto }}</span>
@@ -243,7 +243,7 @@ const tieneRetro = (numeroPregunta: number): boolean => {
 
                             <!-- Tabla de Respuestas -->
                             <div
-                                class="bg-white dark:bg-slate-800 rounded-xl p-5 border-2 border-sky-100 dark:border-slate-700">
+                                class="bg-white dark:bg-[#252525] rounded-xl p-5 border-2 border-sky-100 dark:border-slate-700">
                                 <h4
                                     class="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
                                     <div
@@ -315,7 +315,7 @@ const tieneRetro = (numeroPregunta: number): boolean => {
 
                     <!-- Footer -->
                     <div
-                        class="flex-shrink-0 px-5 py-4 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900/50 flex items-center justify-between gap-3">
+                        class="flex-shrink-0 px-5 py-4 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-[#121212]/50 flex items-center justify-between gap-3">
                         <button @click="emit('eliminar')" :disabled="loadingDelete"
                             class="px-4 py-2.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl text-sm font-bold flex items-center gap-2 transition-colors disabled:opacity-50">
                             <Loader2 v-if="loadingDelete" class="w-4 h-4 animate-spin" />
@@ -354,7 +354,7 @@ const tieneRetro = (numeroPregunta: number): boolean => {
 
                 <div class="absolute inset-0 bg-black/40 backdrop-blur-sm cursor-pointer" @click="cerrarRetro" />
 
-                <div class="relative z-10 w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden cursor-default" @click.stop>
+                <div class="relative z-10 w-full max-w-lg bg-white dark:bg-[#121212] rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden cursor-default" @click.stop>
 
                     <!-- Header -->
                     <div class="flex items-center justify-between px-5 py-4 border-b border-slate-300 dark:border-slate-700">
@@ -400,7 +400,7 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                         </div>
 
                         <div v-if="modalRetro.justificacion"
-                            class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-4 space-y-2">
+                            class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#252525]/50 p-4 space-y-2">
                             <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                                 Justificación de la respuesta correcta
                             </span>
@@ -413,7 +413,7 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                     <!-- Footer -->
                     <div class="px-5 py-3 border-t border-slate-300 dark:border-slate-700 flex justify-end">
                         <button @click="cerrarRetro"
-                            class="px-4 py-2 text-xs font-medium rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">
+                            class="px-4 py-2 text-xs font-medium rounded-lg bg-slate-100 dark:bg-[#252525] hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">
                             Cerrar
                         </button>
                     </div>

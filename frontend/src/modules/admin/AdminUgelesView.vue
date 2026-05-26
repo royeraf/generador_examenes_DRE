@@ -115,14 +115,14 @@ async function eliminar(ugel: Ugel) {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans relative flex flex-col overflow-x-hidden">
+  <div class="min-h-screen bg-slate-50 dark:bg-[#0d0d0d] font-sans relative flex flex-col overflow-x-hidden">
     <EduBackground variant="indigo" />
     <Header title="Gestión" subtitle="UGELes Regionales" :show-home="true" />
 
     <div class="max-w-6xl mx-auto w-full relative z-10 flex-1 flex flex-col p-4 sm:p-8">
 
       <!-- Action Bar -->
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 bg-white dark:bg-slate-800 p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-top-2 duration-500">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 bg-white dark:bg-[#252525] p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-top-2 duration-500">
         <h2 class="text-lg font-black text-slate-800 dark:text-white tracking-tight uppercase">Unidades Ejecutoras</h2>
         <button @click="openCreate"
           class="w-full sm:w-auto flex items-center justify-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black px-8 py-4 rounded-2xl shadow-xl hover:-translate-y-1 transition-all active:scale-95 text-xs uppercase tracking-widest cursor-pointer">
@@ -138,10 +138,10 @@ async function eliminar(ugel: Ugel) {
 
       <div v-else class="flex-1 flex flex-col">
         <!-- Desktop Table -->
-        <div v-if="isDesktop" class="bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden">
+        <div v-if="isDesktop" class="bg-white dark:bg-[#252525] rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden">
           <table class="w-full text-left border-collapse text-sm">
             <thead>
-              <tr class="bg-slate-50 dark:bg-slate-900 border-b-2 border-slate-100 dark:border-slate-700">
+              <tr class="bg-slate-50 dark:bg-[#121212] border-b-2 border-slate-100 dark:border-slate-700">
                 <th class="p-5 text-xs font-black text-slate-500 uppercase tracking-widest">Código</th>
                 <th class="p-5 text-xs font-black text-slate-500 uppercase tracking-widest">Nombre</th>
                 <th class="p-5 text-xs font-black text-slate-500 uppercase tracking-widest">Provincia</th>
@@ -154,7 +154,7 @@ async function eliminar(ugel: Ugel) {
                 <td class="p-5 font-mono font-black text-emerald-600 dark:text-emerald-400">{{ ugel.codigo }}</td>
                 <td class="p-5 font-black text-slate-800 dark:text-white text-base">{{ ugel.nombre }}</td>
                 <td class="p-5">
-                  <span class="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-500">
+                  <span class="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 dark:bg-[#393939] rounded-full text-[10px] font-black uppercase tracking-widest text-slate-500">
                     <MapPin class="w-3 h-3" />
                     {{ ugel.provincia_nombre || 'No asignada' }}
                   </span>
@@ -178,14 +178,14 @@ async function eliminar(ugel: Ugel) {
 
         <!-- Mobile Cards -->
         <div v-else class="space-y-4 pb-20">
-          <div v-for="ugel in ugeles" :key="ugel.id" class="bg-white dark:bg-slate-800 p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm">
+          <div v-for="ugel in ugeles" :key="ugel.id" class="bg-white dark:bg-[#252525] p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm">
             <div class="flex justify-between items-start mb-4">
               <div class="space-y-1">
                 <div class="text-[9px] font-mono font-black text-emerald-500 uppercase tracking-widest">{{ ugel.codigo }}</div>
                 <h3 class="font-black text-slate-800 dark:text-white tracking-tight text-xl leading-tight">{{ ugel.nombre }}</h3>
               </div>
               <div class="flex gap-2">
-                <button @click="openEdit(ugel)" class="p-3 bg-slate-50 dark:bg-slate-700 rounded-2xl text-slate-400 active:scale-95 transition-all cursor-pointer"><Edit2 class="w-5 h-5" /></button>
+                <button @click="openEdit(ugel)" class="p-3 bg-slate-50 dark:bg-[#393939] rounded-2xl text-slate-400 active:scale-95 transition-all cursor-pointer"><Edit2 class="w-5 h-5" /></button>
                 <button @click="eliminar(ugel)" class="p-3 bg-red-50 dark:bg-red-900/20 rounded-2xl text-red-400 active:scale-95 transition-all cursor-pointer"><Trash2 class="w-5 h-5" /></button>
               </div>
             </div>
@@ -207,8 +207,8 @@ async function eliminar(ugel: Ugel) {
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showModal" class="fixed inset-0 z-50 flex items-center sm:items-center justify-center items-end bg-slate-900/60 backdrop-blur-sm cursor-pointer" @click.self="showModal = false">
-          <div class="bg-white dark:bg-slate-800 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative">
-            <div class="sm:hidden flex justify-center pt-4 pb-1 cursor-pointer" @click="showModal = false"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div></div>
+          <div class="bg-white dark:bg-[#252525] rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative">
+            <div class="sm:hidden flex justify-center pt-4 pb-1 cursor-pointer" @click="showModal = false"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-[#393939]"></div></div>
             <div class="flex items-center justify-between p-8 border-b border-slate-100 dark:border-slate-700">
               <div class="flex items-center gap-5">
                 <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-emerald-700 flex items-center justify-center shadow-lg shadow-emerald-500/20">
@@ -231,17 +231,17 @@ async function eliminar(ugel: Ugel) {
               <div class="grid grid-cols-2 gap-4">
                 <div class="space-y-1.5">
                   <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Código</label>
-                  <input v-model="form.codigo" type="text" placeholder="Ej: 210001" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all" />
+                  <input v-model="form.codigo" type="text" placeholder="Ej: 210001" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all" />
                 </div>
                 <div class="space-y-1.5">
                   <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nombre</label>
-                  <input v-model="form.nombre" type="text" placeholder="Ej: UGEL Huánuco" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all" />
+                  <input v-model="form.nombre" type="text" placeholder="Ej: UGEL Huánuco" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all" />
                 </div>
               </div>
               <div class="space-y-1.5">
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Provincia</label>
                 <div class="relative">
-                  <select v-model="form.provincia_id" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all appearance-none cursor-pointer">
+                  <select v-model="form.provincia_id" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all appearance-none cursor-pointer">
                     <option :value="null" class="text-slate-400">— Seleccionar Provincia —</option>
                     <option v-for="p in provincias" :key="p.id" :value="p.id">{{ p.nombre }}</option>
                   </select>
@@ -249,7 +249,7 @@ async function eliminar(ugel: Ugel) {
                 </div>
               </div>
               <button @click="form.is_active = !form.is_active" class="flex items-center gap-4 p-1 cursor-pointer">
-                <div :class="form.is_active ? 'bg-emerald-500 border-emerald-500' : 'bg-slate-200 border-slate-200 dark:bg-slate-700 dark:border-slate-700'"
+                <div :class="form.is_active ? 'bg-emerald-500 border-emerald-500' : 'bg-slate-200 border-slate-200 dark:bg-[#393939] dark:border-slate-700'"
                      class="w-12 h-6 rounded-full border-2 transition-all relative">
                   <div :class="form.is_active ? 'translate-x-6' : 'translate-x-0'"
                        class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-all shadow-sm"></div>
@@ -258,8 +258,8 @@ async function eliminar(ugel: Ugel) {
               </button>
             </div>
 
-            <div class="p-8 bg-slate-50 dark:bg-slate-900/50 flex flex-col sm:flex-row gap-4">
-              <button @click="showModal = false" class="flex-1 px-8 py-4 text-xs font-black uppercase tracking-widest text-slate-500 bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 transition-all hover:bg-slate-50 cursor-pointer">Cancelar</button>
+            <div class="p-8 bg-slate-50 dark:bg-[#121212]/50 flex flex-col sm:flex-row gap-4">
+              <button @click="showModal = false" class="flex-1 px-8 py-4 text-xs font-black uppercase tracking-widest text-slate-500 bg-white dark:bg-[#252525] rounded-2xl border-2 border-slate-200 dark:border-slate-700 transition-all hover:bg-slate-50 cursor-pointer">Cancelar</button>
               <button @click="guardar" :disabled="saving" class="flex-1 flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-violet-600 to-emerald-800 text-white font-black text-xs rounded-2xl shadow-xl shadow-emerald-500/20 transition-all transform active:scale-95 disabled:opacity-70 cursor-pointer">
                 <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
                 <span class="uppercase tracking-widest">{{ saving ? 'Guardando...' : 'Guardar Cambios' }}</span>

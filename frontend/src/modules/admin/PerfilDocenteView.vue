@@ -38,7 +38,7 @@ function rolLabel(codigo?: string | null) {
       </div>
 
       <!-- Tarjeta perfil -->
-      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-300 dark:border-slate-700 overflow-hidden">
+      <div class="bg-white dark:bg-[#252525] rounded-2xl shadow-xl border border-slate-300 dark:border-slate-700 overflow-hidden">
 
         <!-- Banner con nombre -->
         <div class="bg-gradient-to-r from-teal-500 to-emerald-600 px-6 py-6 flex items-center gap-4 text-white">
