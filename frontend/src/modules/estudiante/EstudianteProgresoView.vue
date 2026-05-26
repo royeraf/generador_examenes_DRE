@@ -61,7 +61,7 @@ const nivelLabels: Record<string, string> = {
       <!-- Background Orbs -->
       <div class="fixed inset-0 pointer-events-none overflow-hidden opacity-40">
         <div class="absolute top-[20%] right-[-10%] w-[500px] h-[500px] bg-teal-500/5 dark:bg-emerald-500/10 rounded-full blur-[120px]"></div>
-        <div class="absolute bottom-[10%] left-[-10%] w-[400px] h-[400px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[100px]"></div>
+        <div class="absolute bottom-[10%] left-[-10%] w-[400px] h-[400px] bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[100px]"></div>
       </div>
 
       <div v-if="loading" class="flex flex-col items-center justify-center py-24 gap-4 animate-pulse">
@@ -105,7 +105,7 @@ const nivelLabels: Record<string, string> = {
 
           <div class="relative z-10">
             <div class="flex items-center gap-4 mb-10">
-              <div :class="p.area === 'comunicacion' ? 'from-teal-400 to-emerald-500' : 'from-indigo-400 to-purple-500'"
+              <div :class="p.area === 'comunicacion' ? 'from-teal-400 to-emerald-500' : 'from-violet-400 to-purple-500'"
                 class="w-14 h-14 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-lg transition-transform group-hover:rotate-6">
                 <BookOpen v-if="p.area === 'comunicacion'" class="w-7 h-7 text-white" />
                 <Calculator v-else class="w-7 h-7 text-white" />
@@ -154,7 +154,7 @@ const nivelLabels: Record<string, string> = {
               <div class="h-3 bg-slate-50 dark:bg-slate-800/50 rounded-full overflow-hidden p-0.5 border border-slate-300/50 dark:border-slate-800">
                 <div
                   class="h-full rounded-full transition-all duration-1000 ease-out bg-gradient-to-r"
-                  :class="p.area === 'comunicacion' ? 'from-teal-400 to-emerald-500' : 'from-indigo-400 to-purple-500'"
+                  :class="p.area === 'comunicacion' ? 'from-teal-400 to-emerald-500' : 'from-violet-400 to-purple-500'"
                   :style="{ width: p.puntaje_promedio + '%' }"
                 ></div>
               </div>
@@ -163,7 +163,7 @@ const nivelLabels: Record<string, string> = {
             <!-- Quick Stats -->
             <div class="grid grid-cols-2 gap-4">
               <div class="bg-slate-50/50 dark:bg-slate-800/30 rounded-2xl p-5 border border-slate-300/50 dark:border-slate-800/50 transition-colors group-hover:bg-white dark:group-hover:bg-slate-800/50">
-                <div class="flex items-center gap-2 mb-2 text-indigo-500">
+                <div class="flex items-center gap-2 mb-2 text-emerald-500">
                   <BarChart3 class="w-4 h-4" />
                 </div>
                 <p class="text-2xl font-black text-slate-900 dark:text-white leading-none">{{ p.total_examenes_completados }}</p>

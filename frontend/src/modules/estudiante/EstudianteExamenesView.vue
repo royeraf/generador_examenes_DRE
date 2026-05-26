@@ -122,7 +122,7 @@ const nivelLabels: Record<string, string> = {
     <!-- Premium Background Elements -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden">
       <div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-teal-500/5 dark:bg-emerald-500/10 rounded-full blur-[120px]"></div>
-      <div class="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[100px]"></div>
+      <div class="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[100px]"></div>
     </div>
 
     <!-- Unified Student Navbar -->
@@ -141,7 +141,7 @@ const nivelLabels: Record<string, string> = {
             @click="activeTab = tab.id"
             class="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 cursor-pointer relative z-10 select-none"
             :class="activeTab === tab.id
-              ? 'text-white shadow-md shadow-teal-500/20 bg-gradient-to-r from-teal-500 to-indigo-600 scale-[1.02] active:scale-[0.98]'
+              ? 'text-white shadow-md shadow-teal-500/20 bg-gradient-to-r from-teal-500 to-emerald-600 scale-[1.02] active:scale-[0.98]'
               : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/40 active:scale-[0.98]'"
           >
             <component :is="tab.icon" class="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-300" :class="activeTab === tab.id ? 'rotate-12 scale-110' : ''" />
@@ -208,7 +208,7 @@ const nivelLabels: Record<string, string> = {
           <div class="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
             <div :class="examen.tipo_examen === 'lectura'
               ? 'from-teal-400 to-emerald-500 shadow-teal-500/20'
-              : 'from-indigo-400 to-purple-500 shadow-indigo-500/20'"
+              : 'from-violet-400 to-purple-500 shadow-emerald-500/20'"
               class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg shrink-0 group-hover:scale-105 transition-transform">
               <BookOpen v-if="examen.tipo_examen === 'lectura'" class="w-6 h-6 sm:w-7 sm:h-7 text-white" />
               <Calculator v-else class="w-6 h-6 sm:w-7 sm:h-7 text-white" />
@@ -308,7 +308,7 @@ const nivelLabels: Record<string, string> = {
                 <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 shadow-lg"
                   :class="previewData?.tipo_examen === 'matematica'
                     ? 'bg-gradient-to-br from-orange-400 to-amber-500'
-                    : 'bg-gradient-to-br from-teal-500 to-indigo-600'">
+                    : 'bg-gradient-to-br from-teal-500 to-emerald-600'">
                   <Calculator v-if="previewData?.tipo_examen === 'matematica'" class="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   <BookText v-else class="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>

@@ -490,12 +490,12 @@ function nombreGrado(id: number | null) {
                   </td>
                   <td class="p-4 font-medium text-slate-600 dark:text-slate-400">{{ est.dni || '—' }}</td>
                   <td class="p-4 text-xs font-black uppercase text-slate-500">
-                    {{ nombreGrado(est.grado_id) }} · <span class="text-indigo-500">{{ est.seccion }}</span>
+                    {{ nombreGrado(est.grado_id) }} · <span class="text-emerald-500">{{ est.seccion }}</span>
                   </td>
                   <td class="p-4 text-right">
                     <div class="flex items-center justify-end gap-3">
                       <button @click="openNuevaMatricula(est)" title="Nueva matrícula / avance de año" class="p-2.5 rounded-xl text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all"><CalendarPlus class="w-4 h-4" /></button>
-                      <button @click="openEdit(est)" class="p-2.5 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all"><Edit2 class="w-4 h-4" /></button>
+                      <button @click="openEdit(est)" class="p-2.5 rounded-xl text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all"><Edit2 class="w-4 h-4" /></button>
                       <button @click="toggle(est)" title="Activar / Desactivar"
                         class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 cursor-pointer focus:outline-none"
                         :class="est.is_active ? 'bg-teal-500' : 'bg-slate-300 dark:bg-slate-600'">

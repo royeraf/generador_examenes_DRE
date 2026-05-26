@@ -93,7 +93,7 @@ const rolLabel = computed(() => {
       <!-- Top Actions & Welcome -->
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div class="space-y-1">
-          <div class="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-sm tracking-wider uppercase">
+          <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-sm tracking-wider uppercase">
             <TrendingUp class="w-4 h-4" />
             <span>Métricas en tiempo real</span>
           </div>
@@ -101,7 +101,7 @@ const rolLabel = computed(() => {
             Dashboard Global
           </h2>
           <p class="text-slate-500 dark:text-slate-400 text-sm md:text-base max-w-2xl">
-            Estadísticas consolidadas para el rol <span class="text-indigo-600 dark:text-indigo-400 font-bold border-b-2 border-indigo-500/20">{{ rolLabel }}</span>.
+            Estadísticas consolidadas para el rol <span class="text-emerald-600 dark:text-emerald-400 font-bold border-b-2 border-emerald-500/20">{{ rolLabel }}</span>.
           </p>
         </div>
         <button @click="fetchMetricas" :disabled="loading"
@@ -128,7 +128,7 @@ const rolLabel = computed(() => {
       <div v-if="loading && !resumen" class="flex flex-col items-center justify-center py-24 md:py-32">
         <div class="relative w-20 h-20">
           <div class="absolute inset-0 rounded-full border-4 border-slate-300 dark:border-slate-800"></div>
-          <div class="absolute inset-0 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin"></div>
+          <div class="absolute inset-0 rounded-full border-4 border-emerald-500 border-t-transparent animate-spin"></div>
           <div class="absolute inset-4 rounded-full border-4 border-teal-400 border-b-transparent animate-spin-reverse"></div>
         </div>
         <p class="text-slate-500 dark:text-slate-400 font-bold mt-6 tracking-widest uppercase text-xs">Analizando Datos...</p>
@@ -140,10 +140,10 @@ const rolLabel = computed(() => {
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           
           <!-- Exámenes Totales -->
-          <div class="bg-white dark:bg-slate-900 border border-slate-300/60 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
-            <div class="absolute -right-10 -top-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+          <div class="bg-white dark:bg-slate-900 border border-slate-300/60 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
+            <div class="absolute -right-10 -top-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="flex justify-between items-start mb-6">
-              <div class="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400 transform group-hover:rotate-12 transition-transform">
+              <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 transform group-hover:rotate-12 transition-transform">
                 <BarChart3 class="w-7 h-7" />
               </div>
               <div class="flex flex-col items-end">
@@ -161,7 +161,7 @@ const rolLabel = computed(() => {
           <div class="bg-white dark:bg-slate-900 border border-slate-300/60 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="flex justify-between items-start mb-6">
-              <div class="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400 transform group-hover:-rotate-12 transition-transform">
+              <div class="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-emerald-500/10 flex items-center justify-center text-blue-600 dark:text-emerald-400 transform group-hover:-rotate-12 transition-transform">
                 <Users class="w-7 h-7" />
               </div>
             </div>
@@ -243,7 +243,7 @@ const rolLabel = computed(() => {
           <!-- Middle Section: Distribution Bars -->
           <div class="lg:col-span-4 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl p-8 shadow-sm flex flex-col">
             <h3 class="text-lg font-black text-slate-800 dark:text-white mb-8 flex items-center gap-3">
-              <span class="w-2 h-8 bg-indigo-500 rounded-full"></span>
+              <span class="w-2 h-8 bg-emerald-500 rounded-full"></span>
               Distribución Regional
             </h3>
             
@@ -274,8 +274,8 @@ const rolLabel = computed(() => {
               <div class="group cursor-pointer active:scale-95 transition-all">
                 <div class="flex justify-between items-center mb-4">
                   <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center border border-indigo-100 dark:border-indigo-500/20 group-hover:scale-110 transition-transform">
-                      <Calculator class="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center border border-emerald-100 dark:border-emerald-500/20 group-hover:scale-110 transition-transform">
+                      <Calculator class="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
                     </div>
                     <div>
                       <p class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tight">MatSistem</p>
@@ -284,18 +284,18 @@ const rolLabel = computed(() => {
                   </div>
                   <div class="text-right">
                     <p class="text-2xl font-black text-slate-800 dark:text-white leading-none">{{ resumen.total_examenes_matematica }}</p>
-                    <p class="text-xs font-black text-indigo-500 mt-1">{{ matematicaPct }}%</p>
+                    <p class="text-xs font-black text-emerald-500 mt-1">{{ matematicaPct }}%</p>
                   </div>
                 </div>
                 <div class="h-4 w-full bg-slate-100 dark:bg-slate-800/50 rounded-full p-1 border border-slate-300 dark:border-slate-700/30">
-                  <div class="h-full bg-gradient-to-r from-indigo-400 to-purple-500 rounded-full transition-all duration-1000 shadow-sm" :style="`width: ${matematicaPct}%`"></div>
+                  <div class="h-full bg-gradient-to-r from-violet-400 to-purple-500 rounded-full transition-all duration-1000 shadow-sm" :style="`width: ${matematicaPct}%`"></div>
                 </div>
               </div>
             </div>
 
             <div class="mt-8 p-4 bg-slate-50 dark:bg-slate-800/20 rounded-2xl border border-slate-300 dark:border-slate-700/30">
                <div class="flex items-center gap-3">
-                 <Activity class="w-4 h-4 text-indigo-500" />
+                 <Activity class="w-4 h-4 text-emerald-500" />
                  <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 leading-tight">
                    El sistema prioriza la equidad en el despliegue de evaluaciones por área.
                  </p>
@@ -326,7 +326,7 @@ const rolLabel = computed(() => {
                 
                 <div :class="item.area === 'lectura'
                   ? 'bg-teal-50 dark:bg-emerald-500/10 text-teal-600 dark:text-emerald-400 group-hover:bg-teal-500 group-hover:text-white'
-                  : 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white'"
+                  : 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white'"
                   class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all duration-500 shadow-sm">
                   <BookOpen v-if="item.area === 'lectura'" class="w-6 h-6" />
                   <Calculator v-else class="w-6 h-6" />
@@ -337,7 +337,7 @@ const rolLabel = computed(() => {
                     <p class="text-sm font-black text-slate-800 dark:text-slate-200 truncate">{{ item.titulo }}</p>
                   </div>
                   <div class="flex items-center gap-3">
-                    <span class="text-[10px] font-black uppercase tracking-wider" :class="item.area === 'lectura' ? 'text-teal-500' : 'text-indigo-500'">
+                    <span class="text-[10px] font-black uppercase tracking-wider" :class="item.area === 'lectura' ? 'text-teal-500' : 'text-emerald-500'">
                       {{ item.grado }}
                     </span>
                     <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>

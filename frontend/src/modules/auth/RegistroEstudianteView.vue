@@ -91,7 +91,7 @@ async function registrar() {
     <!-- Background Orbs -->
     <div class="absolute inset-0 pointer-events-none overflow-hidden">
         <div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-teal-500/5 dark:bg-emerald-500/10 rounded-full blur-[120px]"></div>
-        <div class="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[100px]"></div>
+        <div class="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[100px]"></div>
     </div>
 
     <!-- Theme Toggle -->
@@ -142,9 +142,9 @@ async function registrar() {
             
             <!-- Step: Código -->
             <div v-if="step === 'codigo'" key="step-codigo" class="p-8 sm:p-10 space-y-6">
-              <div class="flex items-center gap-3 px-4 py-2 bg-indigo-500/5 border border-indigo-500/10 rounded-full w-fit">
-                <Sparkles class="w-3.5 h-3.5 text-indigo-500" />
-                <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Paso 1 de 2</span>
+              <div class="flex items-center gap-3 px-4 py-2 bg-emerald-500/5 border border-emerald-500/10 rounded-full w-fit">
+                <Sparkles class="w-3.5 h-3.5 text-emerald-500" />
+                <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Paso 1 de 2</span>
               </div>
               
               <div class="space-y-4">
@@ -189,7 +189,7 @@ async function registrar() {
             <!-- Step: Datos personales -->
             <div v-else key="step-datos" class="p-8 sm:p-10 space-y-6">
               <!-- Class Info Header -->
-              <div v-if="codigoInfo" class="bg-gradient-to-br from-teal-500/10 to-indigo-500/10 border border-teal-500/20 rounded-2xl p-5 space-y-1">
+              <div v-if="codigoInfo" class="bg-gradient-to-br from-teal-500/10 to-emerald-500/10 border border-teal-500/20 rounded-2xl p-5 space-y-1">
                 <p class="text-[10px] font-bold text-teal-600 dark:text-emerald-400 uppercase tracking-widest">Aula Identificada</p>
                 <p class="text-sm font-bold text-slate-800 dark:text-white leading-tight">{{ codigoInfo.institucion }}</p>
                 <p class="text-xs font-medium text-slate-500 dark:text-slate-400">{{ codigoInfo.grado }} — Sección {{ codigoInfo.seccion }}</p>

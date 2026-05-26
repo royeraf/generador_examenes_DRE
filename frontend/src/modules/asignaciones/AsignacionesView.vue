@@ -353,7 +353,7 @@ const estadoColors: Record<string, string> = {
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-violet-50/20 to-indigo-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 transition-colors">
+  <div class="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-violet-50/20 to-emerald-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 transition-colors">
     <EduBackground />
     <Header :title="headerTitle" subtitle="Exámenes asignados a estudiantes" :show-home="true" />
 
@@ -387,7 +387,7 @@ const estadoColors: Record<string, string> = {
             </button>
           </div>
           <button @click="openModal"
-            class="group flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-violet-600 to-indigo-700 hover:from-violet-700 hover:to-indigo-800 text-white font-bold text-sm rounded-2xl shadow-xl shadow-violet-500/20 hover:-translate-y-0.5 transition-all active:scale-95 cursor-pointer">
+            class="group flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-violet-600 to-emerald-700 hover:from-violet-700 hover:to-emerald-800 text-white font-bold text-sm rounded-2xl shadow-xl shadow-violet-500/20 hover:-translate-y-0.5 transition-all active:scale-95 cursor-pointer">
             <Plus class="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
             <span>Nueva Asignación</span>
           </button>
@@ -427,7 +427,7 @@ const estadoColors: Record<string, string> = {
           Comienza asignando uno de tus exámenes generados a un grado o sección específica.
         </p>
         <button @click="openModal"
-          class="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-violet-500 to-indigo-600 text-white font-black text-sm rounded-2xl shadow-xl shadow-violet-500/20 hover:from-violet-600 hover:to-indigo-700 transition-all active:scale-95 cursor-pointer">
+          class="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-violet-500 to-emerald-600 text-white font-black text-sm rounded-2xl shadow-xl shadow-violet-500/20 hover:from-violet-600 hover:to-emerald-700 transition-all active:scale-95 cursor-pointer">
           <Plus class="w-5 h-5" />
           <span>Crear Primera Asignación</span>
         </button>
@@ -445,13 +445,13 @@ const estadoColors: Record<string, string> = {
           <div class="flex items-center gap-3 mb-4 relative z-10">
             <div :class="asig.tipo_examen === 'lectura'
               ? 'bg-teal-50 dark:bg-emerald-500/10 text-teal-600 dark:text-emerald-400'
-              : 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'"
+              : 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'"
               class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 group-hover:rotate-6 transition-transform shadow-inner">
               <BookOpen v-if="asig.tipo_examen === 'lectura'" class="w-6 h-6" />
               <Calculator v-else class="w-6 h-6" />
             </div>
             <div class="flex flex-wrap gap-1.5">
-              <span :class="asig.tipo_examen === 'lectura' ? 'text-teal-500 bg-teal-500/10' : 'text-indigo-500 bg-indigo-500/10'"
+              <span :class="asig.tipo_examen === 'lectura' ? 'text-teal-500 bg-teal-500/10' : 'text-emerald-500 bg-emerald-500/10'"
                 class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full">
                 {{ asig.tipo_examen === 'lectura' ? 'LectoSistem' : 'MatSistem' }}
               </span>
@@ -483,7 +483,7 @@ const estadoColors: Record<string, string> = {
               <span class="truncate">{{ formatFechaHora(asig.fecha_inicio) }} – {{ formatFechaHora(asig.fecha_fin) }}</span>
             </div>
             <div v-if="asig.asignado_por_nombre" class="flex items-center gap-2 text-xs font-bold text-slate-400">
-              <User class="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+              <User class="w-3.5 h-3.5 text-emerald-400 shrink-0" />
               <span class="truncate">{{ asig.asignado_por_nombre }}</span>
             </div>
           </div>
@@ -537,7 +537,7 @@ const estadoColors: Record<string, string> = {
                 :class="!asig.is_active ? 'opacity-50' : ''">
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-2.5 min-w-0">
-                    <div :class="asig.tipo_examen === 'lectura' ? 'bg-teal-50 dark:bg-emerald-900/30 text-teal-600' : 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600'"
+                    <div :class="asig.tipo_examen === 'lectura' ? 'bg-teal-50 dark:bg-emerald-900/30 text-teal-600' : 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600'"
                       class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0">
                       <BookOpen v-if="asig.tipo_examen === 'lectura'" class="w-3.5 h-3.5" />
                       <Calculator v-else class="w-3.5 h-3.5" />
@@ -546,7 +546,7 @@ const estadoColors: Record<string, string> = {
                       <p class="font-black text-slate-800 dark:text-white truncate text-xs leading-tight">
                         {{ asig.titulo ?? (asig.tipo_examen === 'lectura' ? 'Examen de Comunicación' : 'Examen de Matemática') }}
                       </p>
-                      <span :class="asig.tipo_examen === 'lectura' ? 'text-teal-500' : 'text-indigo-500'"
+                      <span :class="asig.tipo_examen === 'lectura' ? 'text-teal-500' : 'text-emerald-500'"
                         class="text-[9px] font-black uppercase tracking-widest">
                         {{ asig.tipo_examen === 'lectura' ? 'LectoSistem' : 'MatSistem' }}
                       </span>
@@ -617,7 +617,7 @@ const estadoColors: Record<string, string> = {
             <!-- Header -->
             <div class="flex items-center justify-between px-8 py-6 border-b border-slate-300 dark:border-slate-800 shrink-0">
               <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-700 flex items-center justify-center shadow-lg shadow-violet-500/20">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-600 to-emerald-700 flex items-center justify-center shadow-lg shadow-violet-500/20">
                   <BookMarked class="w-6 h-6 text-white" />
                 </div>
                 <div>
@@ -662,7 +662,7 @@ const estadoColors: Record<string, string> = {
                         <button type="button" @click="tipoExamen = 'matematica'; examenSeleccionadoId = null; examenDropdownOpen = false"
                           :class="['flex-1 flex items-center gap-2 p-2.5 rounded-xl border transition-all group cursor-pointer',
                             tipoExamen === 'matematica'
-                              ? 'bg-white dark:bg-indigo-500/10 border-indigo-500 text-indigo-700 dark:text-indigo-400 shadow-md'
+                              ? 'bg-white dark:bg-emerald-500/10 border-emerald-500 text-emerald-700 dark:text-emerald-400 shadow-md'
                               : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-400 hover:border-slate-400']">
                           <Calculator class="w-3.5 h-3.5 transition-transform" /> 
                           <span class="text-[10px] font-black uppercase">Matemática</span>
@@ -728,7 +728,7 @@ const estadoColors: Record<string, string> = {
                 <!-- SECCIÓN 2: DESTINATARIO Y CONDICIONES -->
                 <section class="space-y-6">
                   <div class="flex items-center gap-3 mb-2">
-                    <div class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                       <Users class="w-4 h-4" />
                     </div>
                     <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wider">Grupo Objetivo y Condiciones</h3>
@@ -924,10 +924,10 @@ const estadoColors: Record<string, string> = {
                     </button>
 
                     <button @click="mezclarAlternativas = !mezclarAlternativas"
-                      :class="mezclarAlternativas ? 'bg-white dark:bg-slate-800 border-indigo-500 shadow-md' : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-400 hover:border-slate-400'"
+                      :class="mezclarAlternativas ? 'bg-white dark:bg-slate-800 border-emerald-500 shadow-md' : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-400 hover:border-slate-400'"
                       class="flex items-center justify-between p-4 rounded-xl border transition-all group text-left">
                        <div class="flex items-center gap-3">
-                          <div :class="mezclarAlternativas ? 'bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400' : 'bg-slate-50 dark:bg-slate-900/50 text-slate-300'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors">
+                          <div :class="mezclarAlternativas ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'bg-slate-50 dark:bg-slate-900/50 text-slate-300'" class="w-10 h-10 rounded-xl flex items-center justify-center transition-colors">
                              <TrendingUp class="w-5 h-5" />
                           </div>
                           <div>
@@ -935,7 +935,7 @@ const estadoColors: Record<string, string> = {
                              <p class="text-[9px] font-bold opacity-70 leading-none">Cambia el orden de respuestas</p>
                           </div>
                        </div>
-                       <div :class="mezclarAlternativas ? 'bg-indigo-600' : 'bg-slate-200 dark:bg-slate-700'" class="w-5 h-5 rounded-full flex items-center justify-center transition-colors">
+                       <div :class="mezclarAlternativas ? 'bg-emerald-600' : 'bg-slate-200 dark:bg-slate-700'" class="w-5 h-5 rounded-full flex items-center justify-center transition-colors">
                           <Check v-if="mezclarAlternativas" class="w-3 h-3 text-white" />
                        </div>
                     </button>
@@ -959,7 +959,7 @@ const estadoColors: Record<string, string> = {
                 Cancelar
               </button>
               <button @click="guardar" :disabled="saving || (!isEditing && !examenSeleccionadoId)"
-                class="flex-[1.5] flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-violet-600 to-indigo-700 text-white font-black text-sm rounded-2xl shadow-xl shadow-violet-500/20 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                class="flex-[1.5] flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-violet-600 to-emerald-700 text-white font-black text-sm rounded-2xl shadow-xl shadow-violet-500/20 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                 <Loader2 v-if="saving" class="w-5 h-5 animate-spin" />
                 <Save v-else class="w-5 h-5" />
                 <span>{{ isEditing ? 'Actualizar Evaluación' : 'Confirmar Asignación' }}</span>
@@ -994,7 +994,7 @@ const estadoColors: Record<string, string> = {
                     <div class="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-inner"
                       :class="resultadosAsig?.tipo_examen === 'lectura'
                         ? 'bg-teal-50 dark:bg-emerald-500/10 text-teal-600 dark:text-emerald-400'
-                        : 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'">
+                        : 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'">
                       <BookOpen v-if="resultadosAsig?.tipo_examen === 'lectura'" class="w-7 h-7" />
                       <Calculator v-else class="w-7 h-7" />
                     </div>
@@ -1051,7 +1051,7 @@ const estadoColors: Record<string, string> = {
                 <div v-for="r in resultados[resultadosAsig?.id ?? 0]" :key="r.codigo ?? r.estudiante"
                   class="flex items-center gap-4 px-8 py-5 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all group">
                   
-                  <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-100 to-indigo-100 dark:from-violet-900/30 dark:to-indigo-900/30 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-100 to-emerald-100 dark:from-violet-900/30 dark:to-emerald-900/30 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                     <span class="text-sm font-black text-violet-600 dark:text-violet-400">
                       {{ (r.estudiante || r.codigo || '?').slice(0, 2).toUpperCase() }}
                     </span>

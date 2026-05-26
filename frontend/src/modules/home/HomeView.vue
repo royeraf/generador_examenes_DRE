@@ -51,30 +51,30 @@ const managementItems = computed<NavItem[]>(() => {
   const items: NavItem[] = [];
   if (auth.isDocente || auth.isAuxiliar) {
     items.push({ label: 'Mis Estudiantes', sub: 'Registrar y gestionar', icon: Users, color: 'from-teal-400 to-emerald-500', route: '/mis-estudiantes' });
-    if (auth.canAccessCodigosClase) items.push({ label: 'Aulas', sub: 'Registro de estudiantes', icon: School, color: 'from-indigo-400 to-purple-500', route: '/codigos-clase' });
+    if (auth.canAccessCodigosClase) items.push({ label: 'Aulas', sub: 'Registro de estudiantes', icon: School, color: 'from-violet-400 to-purple-500', route: '/codigos-clase' });
     if (auth.canAccessAsignaciones) items.push({ label: 'Asignaciones', sub: 'Ver resultados', icon: ClipboardList, color: 'from-violet-400 to-purple-500', route: '/asignaciones' });
-    if (auth.canAccessMetricas) items.push({ label: 'Métricas', sub: 'Uso del sistema', icon: BarChart3, color: 'from-indigo-500 to-violet-600', route: '/admin/metricas' });
+    if (auth.canAccessMetricas) items.push({ label: 'Métricas', sub: 'Uso del sistema', icon: BarChart3, color: 'from-violet-500 to-purple-600', route: '/admin/metricas' });
   }
   if (auth.isDirector) {
     items.push({ label: 'Mi Institución', sub: 'Detalle y estadísticas', icon: Building2, color: 'from-teal-400 to-emerald-500', route: '/mi-institucion' });
-    items.push({ label: 'Aulas', sub: 'Registro de estudiantes', icon: School, color: 'from-indigo-400 to-purple-500', route: '/codigos-clase' });
+    items.push({ label: 'Aulas', sub: 'Registro de estudiantes', icon: School, color: 'from-violet-400 to-purple-500', route: '/codigos-clase' });
     items.push({ label: 'Asignaciones', sub: 'Ver resultados', icon: ClipboardList, color: 'from-rose-400 to-pink-500', route: '/asignaciones' });
     items.push({ label: 'Usuarios', sub: 'Docentes y estudiantes', icon: Users, color: 'from-violet-400 to-pink-500', route: '/admin/usuarios' });
-    items.push({ label: 'Métricas', sub: 'Uso del sistema', icon: BarChart3, color: 'from-indigo-500 to-violet-600', route: '/admin/metricas' });
+    items.push({ label: 'Métricas', sub: 'Uso del sistema', icon: BarChart3, color: 'from-violet-500 to-purple-600', route: '/admin/metricas' });
   }
   if (auth.isResponsableUGEL) {
     items.push({ label: 'Mi UGEL', sub: 'Detalle y estadísticas', icon: MapPin, color: 'from-teal-400 to-emerald-500', route: '/mi-ugel' });
-    items.push({ label: 'Instituciones', sub: 'IEs de mi UGEL', icon: Building2, color: 'from-indigo-400 to-purple-500', route: '/admin/instituciones' });
+    items.push({ label: 'Instituciones', sub: 'IEs de mi UGEL', icon: Building2, color: 'from-violet-400 to-purple-500', route: '/admin/instituciones' });
     items.push({ label: 'Métricas', sub: 'Uso del sistema', icon: BarChart3, color: 'from-violet-400 to-pink-500', route: '/admin/metricas' });
   }
   if (auth.isEspecialista) {
     if (auth.canAccessGestionCurricular) {
       items.push({ label: 'Gestión Curricular', sub: 'Desempeños por área', icon: BookOpen, color: 'from-teal-400 to-emerald-500', route: '/admin' });
     }
-    if (auth.canAccessAdminUgeles) items.push({ label: 'UGELes', sub: 'Gestión', icon: MapPin, color: 'from-teal-500 to-cyan-600', route: '/admin/ugeles' });
-    if (auth.canAccessAdminInstituciones) items.push({ label: 'Instituciones', sub: 'IEs del sistema', icon: Building2, color: 'from-indigo-400 to-violet-500', route: '/admin/instituciones' });
+    if (auth.canAccessAdminUgeles) items.push({ label: 'UGELes', sub: 'Gestión', icon: MapPin, color: 'from-teal-500 to-emerald-600', route: '/admin/ugeles' });
+    if (auth.canAccessAdminInstituciones) items.push({ label: 'Instituciones', sub: 'IEs del sistema', icon: Building2, color: 'from-violet-400 to-purple-500', route: '/admin/instituciones' });
     if (auth.canAccessAdminUsuarios) items.push({ label: 'Usuarios', sub: 'Gestión de accesos', icon: Users, color: 'from-violet-400 to-pink-500', route: '/admin/usuarios' });
-    if (auth.canAccessMetricas) items.push({ label: 'Métricas', sub: 'Uso del sistema', icon: BarChart3, color: 'from-indigo-500 to-violet-600', route: '/admin/metricas' });
+    if (auth.canAccessMetricas) items.push({ label: 'Métricas', sub: 'Uso del sistema', icon: BarChart3, color: 'from-violet-500 to-purple-600', route: '/admin/metricas' });
     if (auth.canAccessCodigosClase) items.push({ label: 'Aulas', sub: 'Registro estudiantil', icon: School, color: 'from-teal-400 to-emerald-500', route: '/codigos-clase' });
     if (auth.canAccessAsignaciones) items.push({ label: 'Asignaciones', sub: 'Ver resultados', icon: ClipboardList, color: 'from-violet-400 to-purple-500', route: '/asignaciones' });
   }
@@ -112,7 +112,7 @@ const nombreCompleto = computed(() => {
     <!-- Subtle background -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden">
       <div class="absolute top-0 left-1/4 w-96 h-96 bg-teal-400/6 dark:bg-emerald-500/4 rounded-full blur-3xl"></div>
-      <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-400/6 dark:bg-emerald-500/4 rounded-full blur-3xl">
+      <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-emerald-400/6 dark:bg-emerald-500/4 rounded-full blur-3xl">
       </div>
     </div>
 
@@ -205,33 +205,33 @@ const nombreCompleto = computed(() => {
 
             <!-- MatSistem -->
             <button v-if="auth.canAccessMatsistem" @click="router.push('/matsistem')"
-              class="module-card-indigo cursor-pointer group relative bg-white dark:bg-slate-900 rounded-2xl p-5 text-left overflow-hidden flex flex-col gap-4 border border-slate-300 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700/60 shadow-sm hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-200 animate-slide-up"
+              class="module-card-indigo cursor-pointer group relative bg-white dark:bg-slate-900 rounded-2xl p-5 text-left overflow-hidden flex flex-col gap-4 border border-slate-300 dark:border-slate-800 hover:border-emerald-200 dark:hover:border-emerald-700/60 shadow-sm hover:shadow-lg hover:shadow-emerald-500/10 transition-all duration-200 animate-slide-up"
               style="animation-delay:80ms">
               <div class="card-overlay absolute inset-0 rounded-2xl pointer-events-none"></div>
               <div class="card-line absolute bottom-0 left-6 right-6 h-[2px] rounded-full pointer-events-none"></div>
               <div
                 class="absolute -right-3 -bottom-3 pointer-events-none opacity-[0.05] group-hover:opacity-[0.10] transition-opacity">
-                <Calculator class="w-24 h-24 text-indigo-500" />
+                <Calculator class="w-24 h-24 text-emerald-500" />
               </div>
               <div class="flex items-center justify-between relative z-10">
                 <div
-                  class="card-icon-indigo w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center">
+                  class="card-icon-indigo w-10 h-10 rounded-xl bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
                   <Calculator class="w-5 h-5 text-white" />
                 </div>
                 <span
-                  class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded-full uppercase tracking-wide border border-indigo-100 dark:border-indigo-800/50">
+                  class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full uppercase tracking-wide border border-emerald-100 dark:border-emerald-800/50">
                   Matemática
                 </span>
               </div>
               <div class="relative z-10 flex-1">
                 <h2
-                  class="text-base font-bold text-slate-800 dark:text-white mb-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                  class="text-base font-bold text-slate-800 dark:text-white mb-1 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                   MatSistem</h2>
                 <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Genera prácticas matemáticas por
                   competencia, capacidad y grado escolar.</p>
               </div>
               <div
-                class="relative z-10 flex items-center gap-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400">
+                class="relative z-10 flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
                 Ir al módulo
                 <ArrowRight class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </div>

@@ -91,7 +91,7 @@ const userInitials = computed(() => {
 
 
           <div class="flex items-center gap-3 cursor-pointer hover:opacity-90 transition-opacity" @click="navigate('/estudiante')">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-400 to-indigo-600 flex items-center justify-center shadow-lg shadow-teal-500/20">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-teal-500/20">
               <Rocket class="w-4.5 h-4.5 text-white" />
             </div>
             <div class="flex flex-col">
@@ -162,7 +162,7 @@ const userInitials = computed(() => {
              :class="isSidebarCollapsed ? 'p-2 flex justify-center' : 'p-4'">
           <!-- Avatar + General Info -->
           <div class="flex items-center gap-3" :class="isSidebarCollapsed ? 'justify-center' : ''">
-            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-400 to-indigo-500 flex items-center justify-center shadow-md shadow-teal-500/10 shrink-0">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center shadow-md shadow-teal-500/10 shrink-0">
               <span class="text-md font-black text-white">{{ userInitials }}</span>
             </div>
             <div v-show="!isSidebarCollapsed" class="flex-1 min-w-0">

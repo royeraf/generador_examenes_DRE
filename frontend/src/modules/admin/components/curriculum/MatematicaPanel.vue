@@ -129,7 +129,7 @@ const TABS = [
               </td>
               <td class="px-4 py-3">
                 <div class="flex justify-end gap-1 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button @click="openModal(item)" class="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-slate-400 hover:text-blue-600 transition-colors">
+                  <button @click="openModal(item)" class="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-emerald-900/20 text-slate-400 hover:text-blue-600 transition-colors">
                     <Edit class="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -150,7 +150,7 @@ const TABS = [
               </td>
               <td class="px-4 py-3">
                 <div class="flex justify-end gap-1 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button @click="openModal(item)" class="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-slate-400 hover:text-blue-600 transition-colors">
+                  <button @click="openModal(item)" class="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-emerald-900/20 text-slate-400 hover:text-blue-600 transition-colors">
                     <Edit class="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -163,7 +163,7 @@ const TABS = [
             <tr v-for="item in desempenos" :key="item.id" class="hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors group">
               <td class="px-4 py-3 text-xs text-slate-400 font-mono">#{{ item.id }}</td>
               <td class="px-4 py-3">
-                <span class="px-2 py-0.5 bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 rounded font-mono text-xs font-bold">{{ (item as DesempenoMatCompleto).codigo }}</span>
+                <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 rounded font-mono text-xs font-bold">{{ (item as DesempenoMatCompleto).codigo }}</span>
               </td>
               <td class="px-4 py-3 text-slate-600 dark:text-slate-300 max-w-sm">
                 <span class="line-clamp-2">{{ (item as DesempenoMatCompleto).descripcion }}</span>
@@ -176,7 +176,7 @@ const TABS = [
               </td>
               <td class="px-4 py-3">
                 <div class="flex justify-end gap-1 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button @click="openModal(item)" class="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-slate-400 hover:text-blue-600 transition-colors">
+                  <button @click="openModal(item)" class="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-emerald-900/20 text-slate-400 hover:text-blue-600 transition-colors">
                     <Edit class="w-3.5 h-3.5" />
                   </button>
                   <button @click="deleteItem(item.id)" class="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-600 transition-colors">

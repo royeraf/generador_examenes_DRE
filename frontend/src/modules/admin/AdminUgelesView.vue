@@ -132,7 +132,7 @@ async function eliminar(ugel: Ugel) {
       </div>
 
       <div v-if="loading" class="flex-1 flex flex-col items-center justify-center py-20">
-        <Loader2 class="w-12 h-12 animate-spin text-indigo-500 mb-4" />
+        <Loader2 class="w-12 h-12 animate-spin text-emerald-500 mb-4" />
         <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sincronizando UGELes...</p>
       </div>
 
@@ -151,7 +151,7 @@ async function eliminar(ugel: Ugel) {
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
               <tr v-for="ugel in ugeles" :key="ugel.id" class="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors group">
-                <td class="p-5 font-mono font-black text-indigo-600 dark:text-indigo-400">{{ ugel.codigo }}</td>
+                <td class="p-5 font-mono font-black text-emerald-600 dark:text-emerald-400">{{ ugel.codigo }}</td>
                 <td class="p-5 font-black text-slate-800 dark:text-white text-base">{{ ugel.nombre }}</td>
                 <td class="p-5">
                   <span class="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-500">
@@ -167,7 +167,7 @@ async function eliminar(ugel: Ugel) {
                 </td>
                 <td class="p-5 text-right">
                    <div class="flex items-center justify-end gap-1 sm:opacity-0 group-hover:opacity-100 transition-all">
-                      <button @click="openEdit(ugel)" class="p-3 rounded-2xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all cursor-pointer"><Edit2 class="w-5 h-5" /></button>
+                      <button @click="openEdit(ugel)" class="p-3 rounded-2xl text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all cursor-pointer"><Edit2 class="w-5 h-5" /></button>
                       <button @click="eliminar(ugel)" class="p-3 rounded-2xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer"><Trash2 class="w-5 h-5" /></button>
                     </div>
                 </td>
@@ -181,7 +181,7 @@ async function eliminar(ugel: Ugel) {
           <div v-for="ugel in ugeles" :key="ugel.id" class="bg-white dark:bg-slate-800 p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm">
             <div class="flex justify-between items-start mb-4">
               <div class="space-y-1">
-                <div class="text-[9px] font-mono font-black text-indigo-500 uppercase tracking-widest">{{ ugel.codigo }}</div>
+                <div class="text-[9px] font-mono font-black text-emerald-500 uppercase tracking-widest">{{ ugel.codigo }}</div>
                 <h3 class="font-black text-slate-800 dark:text-white tracking-tight text-xl leading-tight">{{ ugel.nombre }}</h3>
               </div>
               <div class="flex gap-2">
@@ -211,7 +211,7 @@ async function eliminar(ugel: Ugel) {
             <div class="sm:hidden flex justify-center pt-4 pb-1 cursor-pointer" @click="showModal = false"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div></div>
             <div class="flex items-center justify-between p-8 border-b border-slate-100 dark:border-slate-700">
               <div class="flex items-center gap-5">
-                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-emerald-700 flex items-center justify-center shadow-lg shadow-emerald-500/20">
                   <Building class="w-6 h-6 text-white" />
                 </div>
                 <div>
@@ -231,17 +231,17 @@ async function eliminar(ugel: Ugel) {
               <div class="grid grid-cols-2 gap-4">
                 <div class="space-y-1.5">
                   <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Código</label>
-                  <input v-model="form.codigo" type="text" placeholder="Ej: 210001" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all" />
+                  <input v-model="form.codigo" type="text" placeholder="Ej: 210001" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all" />
                 </div>
                 <div class="space-y-1.5">
                   <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nombre</label>
-                  <input v-model="form.nombre" type="text" placeholder="Ej: UGEL Huánuco" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all" />
+                  <input v-model="form.nombre" type="text" placeholder="Ej: UGEL Huánuco" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all" />
                 </div>
               </div>
               <div class="space-y-1.5">
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Provincia</label>
                 <div class="relative">
-                  <select v-model="form.provincia_id" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all appearance-none cursor-pointer">
+                  <select v-model="form.provincia_id" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all appearance-none cursor-pointer">
                     <option :value="null" class="text-slate-400">— Seleccionar Provincia —</option>
                     <option v-for="p in provincias" :key="p.id" :value="p.id">{{ p.nombre }}</option>
                   </select>
@@ -260,7 +260,7 @@ async function eliminar(ugel: Ugel) {
 
             <div class="p-8 bg-slate-50 dark:bg-slate-900/50 flex flex-col sm:flex-row gap-4">
               <button @click="showModal = false" class="flex-1 px-8 py-4 text-xs font-black uppercase tracking-widest text-slate-500 bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 transition-all hover:bg-slate-50 cursor-pointer">Cancelar</button>
-              <button @click="guardar" :disabled="saving" class="flex-1 flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-indigo-600 to-indigo-800 text-white font-black text-xs rounded-2xl shadow-xl shadow-indigo-500/20 transition-all transform active:scale-95 disabled:opacity-70 cursor-pointer">
+              <button @click="guardar" :disabled="saving" class="flex-1 flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-violet-600 to-emerald-800 text-white font-black text-xs rounded-2xl shadow-xl shadow-emerald-500/20 transition-all transform active:scale-95 disabled:opacity-70 cursor-pointer">
                 <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
                 <span class="uppercase tracking-widest">{{ saving ? 'Guardando...' : 'Guardar Cambios' }}</span>
               </button>

@@ -132,7 +132,7 @@ const hasPreguntas = () => {
                                     const respArray = est.respuestas[String(key)];
                                     if (respArray) respArray[idx] = (e.target as HTMLSelectElement).value;
                                 }"
-                                    class="w-full text-center bg-transparent outline-none cursor-pointer focus:bg-indigo-50 dark:focus:bg-indigo-900/20 rounded py-1 text-slate-700 dark:text-slate-300">
+                                    class="w-full text-center bg-transparent outline-none cursor-pointer focus:bg-emerald-50 dark:focus:bg-emerald-900/20 rounded py-1 text-slate-700 dark:text-slate-300">
                                     <option value="" class="dark:bg-slate-800">-</option>
                                     <option value="A" class="dark:bg-slate-800">A</option>
                                     <option value="B" class="dark:bg-slate-800">B</option>

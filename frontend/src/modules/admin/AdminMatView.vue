@@ -267,7 +267,7 @@ const deleteItem = async (id: number) => {
                     <div v-for="stat in [
                         { label: 'Comp.', value: stats.competencias, color: 'text-violet-600' },
                         { label: 'Cap.', value: stats.capacidades, color: 'text-purple-600' },
-                        { label: 'Des.', value: stats.desempenos, color: 'text-indigo-600' },
+                        { label: 'Des.', value: stats.desempenos, color: 'text-emerald-600' },
                         { label: 'Grados', value: stats.grados, color: 'text-teal-600' }
                     ]" :key="stat.label" class="px-4 py-1 flex flex-col items-center">
                         <span :class="['text-base font-black', stat.color]">{{ stat.value }}</span>
@@ -351,7 +351,7 @@ const deleteItem = async (id: number) => {
                                         </template>
 
                                         <template v-else>
-                                            <td class="p-5 font-mono font-black text-indigo-600 dark:text-indigo-400">{{ (item as any).codigo }}</td>
+                                            <td class="p-5 font-mono font-black text-emerald-600 dark:text-emerald-400">{{ (item as any).codigo }}</td>
                                             <td class="p-5 text-sm font-bold text-slate-600 dark:text-slate-300 max-w-lg leading-relaxed">{{ (item as any).descripcion }}</td>
                                             <td class="p-5">
                                                 <div class="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-1">Cap. {{ (item as any).capacidad_orden }}</div>
@@ -361,7 +361,7 @@ const deleteItem = async (id: number) => {
 
                                         <td class="p-5 text-right">
                                             <div class="flex items-center justify-end gap-1 sm:opacity-0 group-hover:opacity-100 transition-all">
-                                                <button @click="openModal(item)" class="p-2.5 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-all cursor-pointer"><Edit class="w-5 h-5" /></button>
+                                                <button @click="openModal(item)" class="p-2.5 rounded-xl text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all cursor-pointer"><Edit class="w-5 h-5" /></button>
                                                 <button @click="deleteItem(item.id)" class="p-2.5 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all cursor-pointer"><Trash2 class="w-5 h-5" /></button>
                                             </div>
                                         </td>

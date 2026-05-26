@@ -12,8 +12,8 @@ const editDraft = ref<Partial<Grado>>({})
 
 const NIVEL_BADGE: Record<string, string> = {
   inicial:    'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-  primaria:   'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400',
-  secundaria: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
+  primaria:   'bg-sky-100 text-sky-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+  secundaria: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
 }
 
 async function load() {
@@ -105,7 +105,7 @@ onMounted(load)
                 <td class="px-4 py-3">
                   <div class="flex justify-end sm:opacity-0 group-hover:opacity-100 transition-opacity">
                     <button @click="startEdit(g)"
-                      class="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-slate-400 hover:text-blue-600 transition-colors">
+                      class="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-emerald-900/20 text-slate-400 hover:text-blue-600 transition-colors">
                       <Edit class="w-3.5 h-3.5" />
                     </button>
                   </div>

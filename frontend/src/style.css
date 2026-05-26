@@ -9,12 +9,58 @@
 /* Fix native browser UI (date/time pickers, scrollbars) in dark mode */
 html.dark {
   color-scheme: dark;
-  --edu-primary: #10b981;       /* Emerald-500 */
-  --edu-primary-light: #34d399; /* Emerald-400 */
-  --edu-primary-dark: #059669;  /* Emerald-600 */
-  --edu-accent: #6ee7b7;        /* Emerald-300 */
-  --edu-accent-light: #a7f3d0;  /* Emerald-200 */
-  --edu-accent-dark: #10b981;   /* Emerald-500 */
+
+  /** Theme primary colors */
+  --clr-primary-a0: #4ada49;
+  --clr-primary-a10: #64de60;
+  --clr-primary-a20: #79e375;
+  --clr-primary-a30: #8ce788;
+  --clr-primary-a40: #9eeb9a;
+  --clr-primary-a50: #b0efab;
+
+  /** Theme surface colors */
+  --clr-surface-a0: #121212;
+  --clr-surface-a10: #252525;
+  --clr-surface-a20: #393939;
+  --clr-surface-a30: #4f4f4f;
+  --clr-surface-a40: #666666;
+  --clr-surface-a50: #7d7d7d;
+
+  /** Theme tonal surface colors */
+  --clr-surface-tonal-a0: #1a2319;
+  --clr-surface-tonal-a10: #2d352c;
+  --clr-surface-tonal-a20: #414940;
+  --clr-surface-tonal-a30: #565d55;
+  --clr-surface-tonal-a40: #6c736b;
+  --clr-surface-tonal-a50: #838982;
+
+  /** Success colors */
+  --clr-success-a0: #7dff95;
+  --clr-success-a10: #9dffac;
+  --clr-success-a20: #b8ffc1;
+
+  /** Warning colors */
+  --clr-warning-a0: #ffbc5e;
+  --clr-warning-a10: #ffca83;
+  --clr-warning-a20: #ffd8a4;
+
+  /** Danger colors */
+  --clr-danger-a0: #ff8080;
+  --clr-danger-a10: #ff9b99;
+  --clr-danger-a20: #ffb5b2;
+
+  /** Info colors */
+  --clr-info-a0: #87d1ff;
+  --clr-info-a10: #a1dbff;
+  --clr-info-a20: #b9e4ff;
+
+  /* Mapeo a variables edu existentes */
+  --edu-primary: var(--clr-primary-a0);
+  --edu-primary-light: var(--clr-primary-a20);
+  --edu-primary-dark: var(--clr-primary-a10);
+  --edu-accent: var(--clr-primary-a30);
+  --edu-accent-light: var(--clr-primary-a50);
+  --edu-accent-dark: var(--clr-primary-a0);
 }
 
 /* Fix placeholder visibility in dark mode */
@@ -113,7 +159,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+  background: linear-gradient(135deg, var(--clr-primary-a0) 0%, var(--clr-primary-a20) 100%);
 }
 
 /* Patrón de fondo educativo decorativo */

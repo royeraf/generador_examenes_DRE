@@ -103,7 +103,7 @@ const nivelConfig: Record<string, { label: string; icon: Component; color: strin
   destacado: {
     label: 'Destacado', icon: Trophy, msg: '¡Eres un lector de élite, increíble!',
     color: 'text-teal-600 dark:text-emerald-400',
-    bg: 'from-teal-400 to-indigo-500',
+    bg: 'from-teal-400 to-emerald-500',
     bar: 'bg-teal-500',
   },
 }
@@ -120,7 +120,7 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
     <!-- Premium Background Elements -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden">
       <div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-teal-500/5 dark:bg-emerald-500/10 rounded-full blur-[120px]"></div>
-      <div class="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[100px]"></div>
+      <div class="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[100px]"></div>
     </div>
 
     <!-- Unified Student Navbar -->
@@ -129,7 +129,7 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
     <main class="max-w-3xl mx-auto px-6 pt-8 pb-12 sm:pb-8 relative">
 
       <!-- ── Hero Section ── -->
-      <section class="relative mb-8 rounded-2xl overflow-hidden bg-gradient-to-br from-teal-500 via-indigo-500 to-purple-600 p-8 sm:p-10 shadow-2xl shadow-indigo-500/20 group">
+      <section class="relative mb-8 rounded-2xl overflow-hidden bg-gradient-to-br from-teal-500 via-emerald-500 to-purple-600 p-8 sm:p-10 shadow-2xl shadow-emerald-500/20 group">
         <!-- Decoration -->
         <div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle,white_1px,transparent_1px)] bg-[length:24px_24px]" />
         <div class="absolute -top-24 -right-24 w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-1000" />
@@ -186,8 +186,8 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
         </div>
 
         <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-300 dark:border-slate-800 shadow-sm flex items-center gap-4 group hover:shadow-md transition-all">
-          <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-            <Target class="w-6 h-6 text-indigo-500" />
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+            <Target class="w-6 h-6 text-emerald-500" />
           </div>
           <div>
             <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Promedio</p>
@@ -263,12 +263,12 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
 
         <!-- Action Card: Progreso -->
         <button @click="router.push('/estudiante/progreso')"
-          class="relative overflow-hidden rounded-2xl p-6 text-left group transition-all duration-300 hover:-translate-y-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10">
+          class="relative overflow-hidden rounded-2xl p-6 text-left group transition-all duration-300 hover:-translate-y-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10">
           
-          <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-50 dark:bg-indigo-500/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
+          <div class="absolute -top-10 -right-10 w-32 h-32 bg-emerald-50 dark:bg-emerald-500/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
           
           <div class="relative flex items-center gap-5">
-            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 shrink-0 group-hover:scale-110 transition-transform">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 shrink-0 group-hover:scale-110 transition-transform">
               <BarChart3 class="w-8 h-8 text-white" />
             </div>
             <div class="flex-1 min-w-0">
@@ -276,7 +276,7 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
               <h3 class="text-xl font-bold text-slate-800 dark:text-white mt-0.5">Mi Progreso</h3>
               <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">Reporte detallado de áreas</p>
             </div>
-            <ChevronRight class="w-6 h-6 text-slate-300 dark:text-slate-700 group-hover:translate-x-1 group-hover:text-indigo-500 transition-all" />
+            <ChevronRight class="w-6 h-6 text-slate-300 dark:text-slate-700 group-hover:translate-x-1 group-hover:text-emerald-500 transition-all" />
           </div>
         </button>
       </section>
@@ -295,7 +295,7 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
             <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-lg"
               :class="p.area === 'comunicacion'
                 ? 'bg-gradient-to-br from-teal-400 to-emerald-500 shadow-teal-500/20'
-                : 'bg-gradient-to-br from-indigo-400 to-purple-500 shadow-indigo-500/20'">
+                : 'bg-gradient-to-br from-violet-400 to-purple-500 shadow-emerald-500/20'">
               <BookOpen v-if="p.area === 'comunicacion'" class="w-6 h-6 text-white" />
               <Zap v-else class="w-6 h-6 text-white" />
             </div>

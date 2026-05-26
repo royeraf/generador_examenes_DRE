@@ -237,7 +237,7 @@ const deleteItem = async (id: number) => {
                                     <template v-else-if="activeTab === 'capacidades'">
                                         <td class="p-4 text-sm font-black text-slate-800 dark:text-slate-200">{{ (item as Capacidad).nombre }}</td>
                                         <td class="p-4 capitalize">
-                                            <span class="px-3 py-1 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 rounded-lg text-[10px] font-black uppercase tracking-widest">
+                                            <span class="px-3 py-1 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-lg text-[10px] font-black uppercase tracking-widest">
                                                 {{ (item as Capacidad).tipo }}
                                             </span>
                                         </td>
@@ -253,7 +253,7 @@ const deleteItem = async (id: number) => {
 
                                     <td class="p-4 text-right">
                                         <div class="flex items-center justify-end gap-1">
-                                            <button @click="openModal(item)" class="p-2.5 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all cursor-pointer"><Edit class="w-4 h-4" /></button>
+                                            <button @click="openModal(item)" class="p-2.5 rounded-xl text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all cursor-pointer"><Edit class="w-4 h-4" /></button>
                                             <button @click="deleteItem(item.id)" class="p-2.5 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer"><Trash2 class="w-4 h-4" /></button>
                                         </div>
                                     </td>
@@ -288,7 +288,7 @@ const deleteItem = async (id: number) => {
                             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Grado {{ (item as Grado).numero }}</span>
                         </div>
                         <div v-else-if="activeTab === 'capacidades'">
-                            <span class="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 rounded-lg text-[9px] font-black uppercase tracking-widest">{{ (item as Capacidad).tipo }}</span>
+                            <span class="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-lg text-[9px] font-black uppercase tracking-widest">{{ (item as Capacidad).tipo }}</span>
                         </div>
                         <div v-else class="space-y-3">
                             <p class="text-xs font-bold text-slate-600 dark:text-slate-400 leading-relaxed">{{ (item as DesempenoItem).descripcion }}</p>

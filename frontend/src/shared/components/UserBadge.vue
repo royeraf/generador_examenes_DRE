@@ -128,7 +128,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
       class="group flex items-center gap-2 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 pl-1.5 pr-3 py-1.5 rounded-full shadow-lg border border-slate-300 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-300 active:scale-95 cursor-pointer"
     >
       <!-- Avatar -->
-      <div class="w-8 h-8 rounded-full bg-gradient-to-br from-teal-500 to-indigo-600 flex items-center justify-center text-white text-[10px] font-black shrink-0 shadow-md group-hover:scale-105 transition-transform">
+      <div class="w-8 h-8 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white text-[10px] font-black shrink-0 shadow-md group-hover:scale-105 transition-transform">
         {{ initials }}
       </div>
       <div class="hidden sm:flex flex-col items-start leading-none gap-0.5">
@@ -154,7 +154,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
         <!-- User info -->
         <div class="p-6 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
           <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-indigo-600 flex items-center justify-center text-white font-black text-sm shrink-0 shadow-xl shadow-teal-500/20">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white font-black text-sm shrink-0 shadow-xl shadow-teal-500/20">
               {{ initials }}
             </div>
             <div class="flex-1 min-w-0">
@@ -164,7 +164,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
           </div>
           
           <div v-if="auth.isAdmin" class="mt-4">
-            <span class="inline-flex items-center gap-1.5 text-[10px] font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1 rounded-full uppercase tracking-widest border border-indigo-100 dark:border-indigo-800/50">
+            <span class="inline-flex items-center gap-1.5 text-[10px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1 rounded-full uppercase tracking-widest border border-emerald-100 dark:border-emerald-800/50">
               <Shield class="w-3 h-3" /> Administrador
             </span>
           </div>
@@ -186,7 +186,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
             @click="openPasswordModal"
             class="group w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-2xl transition-all font-bold cursor-pointer"
           >
-            <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-indigo-500 group-hover:text-white transition-colors">
+            <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition-colors">
               <KeyRound class="w-4 h-4" />
             </div>
             <span>Cambiar Contraseña</span>
@@ -241,7 +241,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
             <!-- Header -->
             <div class="flex items-center justify-between px-8 py-6 border-b border-slate-300 dark:border-slate-800">
               <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-indigo-600 flex items-center justify-center text-white font-black text-lg shrink-0 shadow-lg shadow-teal-500/20">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white font-black text-lg shrink-0 shadow-lg shadow-teal-500/20">
                   <User class="w-6 h-6" />
                 </div>
                 <div>
@@ -258,7 +258,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
             <div class="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
               
               <!-- Aviso solo lectura -->
-              <div class="flex items-start gap-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/50 text-indigo-700 dark:text-indigo-400 p-4 rounded-xl text-xs font-medium leading-relaxed">
+              <div class="flex items-start gap-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-400 p-4 rounded-xl text-xs font-medium leading-relaxed">
                 <Info class="w-4 h-4 shrink-0 mt-0.5" />
                 <span>Esta es una vista informativa. Si necesitas actualizar algún dato, por favor contacta con el equipo de soporte técnico.</span>
               </div>
@@ -315,7 +315,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
                       </div>
                     </div>
                     <div class="flex items-center gap-4 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl">
-                      <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-700 flex items-center justify-center text-indigo-500 shadow-sm">
+                      <div class="w-10 h-10 rounded-xl bg-white dark:bg-slate-700 flex items-center justify-center text-emerald-500 shadow-sm">
                         <MapPin class="w-5 h-5" />
                       </div>
                       <div>
@@ -336,7 +336,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
                       <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
                       {{ auth.user?.is_active ? 'Usuario Activo' : 'Inactivo' }}
                     </div>
-                    <div class="flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-black uppercase tracking-widest border border-indigo-100 dark:border-indigo-800/50">
+                    <div class="flex items-center gap-2 px-4 py-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-full text-xs font-black uppercase tracking-widest border border-emerald-100 dark:border-emerald-800/50">
                       <Shield class="w-3.5 h-3.5" />
                       {{ rolLabel(auth.user?.rol_codigo) }}
                     </div>
@@ -384,7 +384,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
             <!-- Header -->
             <div class="flex items-center justify-between px-8 py-6 border-b border-slate-300 dark:border-slate-800">
               <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black text-lg shrink-0 shadow-lg shadow-indigo-500/20">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-black text-lg shrink-0 shadow-lg shadow-emerald-500/20">
                   <KeyRound class="w-6 h-6" />
                 </div>
                 <div>
@@ -443,9 +443,9 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
                       v-model="passwordForm.newPass"
                       :type="showNew ? 'text' : 'password'"
                       placeholder="Mínimo 6 caracteres"
-                      class="w-full h-14 bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-800 rounded-2xl pl-12 pr-12 text-sm text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
+                      class="w-full h-14 bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-800 rounded-2xl pl-12 pr-12 text-sm text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
                     />
-                    <Shield class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                    <Shield class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                     <button type="button" @click="showNew = !showNew" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 cursor-pointer">
                       <Eye v-if="!showNew" class="w-4 h-4" />
                       <EyeOff v-else class="w-4 h-4" />
@@ -461,9 +461,9 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
                       v-model="passwordForm.confirm"
                       :type="showConfirm ? 'text' : 'password'"
                       placeholder="Repite la contraseña"
-                      class="w-full h-14 bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-800 rounded-2xl pl-12 pr-12 text-sm text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
+                      class="w-full h-14 bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-800 rounded-2xl pl-12 pr-12 text-sm text-slate-900 dark:text-white outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600"
                     />
-                    <BadgeCheck class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                    <BadgeCheck class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                     <button type="button" @click="showConfirm = !showConfirm" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 cursor-pointer">
                       <Eye v-if="!showConfirm" class="w-4 h-4" />
                       <EyeOff v-else class="w-4 h-4" />
@@ -482,7 +482,7 @@ onUnmounted(() => document.removeEventListener('click', handleClickOutside))
               <button
                 @click="savePassword"
                 :disabled="savingPassword"
-                class="flex-[2] h-12 bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-black text-sm rounded-2xl shadow-xl shadow-teal-500/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2 active:scale-95 cursor-pointer">
+                class="flex-[2] h-12 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-black text-sm rounded-2xl shadow-xl shadow-teal-500/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2 active:scale-95 cursor-pointer">
                 <Loader2 v-if="savingPassword" class="w-4 h-4 animate-spin" />
                 <span>Actualizar Contraseña</span>
               </button>

@@ -122,7 +122,7 @@ const TIPO_BADGE: Record<string, string> = {
 
               <td class="px-4 py-3">
                 <div class="flex justify-end gap-1 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button @click="openModal(item)" class="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-slate-400 hover:text-blue-600 transition-colors">
+                  <button @click="openModal(item)" class="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-emerald-900/20 text-slate-400 hover:text-blue-600 transition-colors">
                     <Edit class="w-3.5 h-3.5" />
                   </button>
                   <button @click="deleteItem(item.id)" class="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-600 transition-colors">

@@ -71,7 +71,7 @@ const onSubmit = handleSubmit(async (formValues) => {
             <div class="absolute inset-0 bg-slate-900 dark:bg-black">
                 <div class="absolute inset-0 hero-grid opacity-20"></div>
                 <div class="absolute top-0 right-0 w-[800px] h-[800px] bg-teal-500/10 rounded-full blur-[120px]"></div>
-                <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[120px]"></div>
+                <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[120px]"></div>
             </div>
 
             <!-- Header -->
@@ -133,7 +133,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                 <!-- Background Accents (Mobile) -->
                 <div class="lg:hidden absolute inset-0 pointer-events-none">
                     <div class="absolute top-0 right-0 w-64 h-64 bg-teal-500/5 rounded-full blur-[80px]"></div>
-                    <div class="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-[80px]"></div>
+                    <div class="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-[80px]"></div>
                 </div>
 
                 <div class="w-full max-w-md mx-auto relative z-10">

@@ -27,7 +27,7 @@ const router = useRouter();
     <!-- Izquierda: Logo + Título -->
     <div class="flex items-center gap-3 shrink-0">
       <div class="relative w-8 h-8 shrink-0">
-        <div class="absolute -inset-0.5 bg-gradient-to-r from-teal-500 to-indigo-600 rounded-lg blur opacity-20"></div>
+        <div class="absolute -inset-0.5 bg-gradient-to-r from-teal-500 to-emerald-600 rounded-lg blur opacity-20"></div>
         <div class="absolute inset-0 flex items-center justify-center p-1.5 bg-white dark:bg-slate-800
           rounded-lg border border-slate-300 dark:border-slate-700 overflow-hidden">
           <GraduationCap class="absolute w-4 h-4 text-teal-600 dark:text-emerald-400 nav-logo-1" />

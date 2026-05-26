@@ -140,7 +140,7 @@ function descargarQR() {
         <p class="text-sm text-slate-500 dark:text-slate-400">Gestiona tus aulas y códigos de acceso para estudiantes</p>
       </div>
       <button @click="openCreate"
-        class="flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-bold text-sm rounded-2xl shadow-lg shadow-indigo-500/20 hover:-translate-y-0.5 transition-all active:scale-95 cursor-pointer">
+        class="flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-bold text-sm rounded-2xl shadow-lg shadow-emerald-500/20 hover:-translate-y-0.5 transition-all active:scale-95 cursor-pointer">
         <Plus class="w-5 h-5" /> 
         <span>Nuevo Código</span>
       </button>
@@ -435,7 +435,7 @@ function descargarQR() {
               Cancelar
             </button>
             <button @click="crear" :disabled="saving"
-              class="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-teal-500 to-indigo-600 text-white font-black text-sm rounded-2xl shadow-lg shadow-teal-500/20 active:scale-95 transition-all disabled:opacity-50 cursor-pointer">
+              class="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-black text-sm rounded-2xl shadow-lg shadow-teal-500/20 active:scale-95 transition-all disabled:opacity-50 cursor-pointer">
               <Loader2 v-if="saving" class="w-5 h-5 animate-spin" /> 
               <span>Crear Aula</span>
             </button>

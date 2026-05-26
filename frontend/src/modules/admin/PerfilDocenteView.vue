@@ -32,7 +32,7 @@ function rolLabel(codigo?: string | null) {
     <div class="max-w-2xl mx-auto">
 
       <!-- Aviso solo lectura -->
-      <div class="flex items-start gap-2.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700/50 text-blue-700 dark:text-blue-400 p-3.5 rounded-xl text-sm mb-6">
+      <div class="flex items-start gap-2.5 bg-blue-50 dark:bg-emerald-900/20 border border-blue-200 dark:border-emerald-700/50 text-blue-700 dark:text-emerald-400 p-3.5 rounded-xl text-sm mb-6">
         <Info class="w-4 h-4 shrink-0 mt-0.5" />
         <span>Esta vista es de solo lectura. Para modificar tus datos, comunícate con un administrador del sistema.</span>
       </div>
@@ -41,7 +41,7 @@ function rolLabel(codigo?: string | null) {
       <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-300 dark:border-slate-700 overflow-hidden">
 
         <!-- Banner con nombre -->
-        <div class="bg-gradient-to-r from-teal-500 to-indigo-600 px-6 py-6 flex items-center gap-4 text-white">
+        <div class="bg-gradient-to-r from-teal-500 to-emerald-600 px-6 py-6 flex items-center gap-4 text-white">
           <div class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center font-black text-2xl border border-white/20 shadow-inner shrink-0">
             {{ auth.user?.nombres ? auth.user.nombres.charAt(0).toUpperCase() : (auth.user?.dni?.charAt(0) ?? 'U') }}
           </div>
@@ -49,7 +49,7 @@ function rolLabel(codigo?: string | null) {
             <h2 class="text-xl font-bold leading-tight truncate">
               {{ [auth.user?.nombres, auth.user?.apellidos].filter(Boolean).join(' ') || 'Sin nombre registrado' }}
             </h2>
-            <p class="text-indigo-100 text-sm font-mono mt-0.5">DNI: {{ auth.user?.dni }}</p>
+            <p class="text-emerald-100 text-sm font-mono mt-0.5">DNI: {{ auth.user?.dni }}</p>
             <span class="inline-flex items-center gap-1 text-[11px] font-bold bg-white/20 px-2 py-0.5 rounded-full mt-1">
               <Shield class="w-3 h-3" /> {{ rolLabel(auth.user?.rol_codigo) }}
             </span>
@@ -118,7 +118,7 @@ function rolLabel(codigo?: string | null) {
                 <p class="text-[11px] font-semibold text-slate-400 dark:text-slate-500 mb-0.5">Distrito</p>
                 <p class="text-sm font-medium text-slate-700 dark:text-slate-200">
                   <span v-if="auth.user?.distrito_nombre" class="inline-flex items-center gap-1">
-                    <MapPin class="w-3 h-3 text-indigo-500" /> {{ auth.user.distrito_nombre }}
+                    <MapPin class="w-3 h-3 text-emerald-500" /> {{ auth.user.distrito_nombre }}
                   </span>
                   <span v-else>—</span>
                 </p>

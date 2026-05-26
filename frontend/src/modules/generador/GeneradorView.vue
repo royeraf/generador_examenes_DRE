@@ -420,7 +420,7 @@ const getNivelBadgeClass = (nivel: string): string => {
           <div
             class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-slate-700/50 shadow-xl shadow-black/20 relative overflow-hidden group">
             <!-- Ambient glow effect -->
-            <div class="absolute inset-0 bg-gradient-to-r from-violet-500/5 via-purple-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-violet-500/5 via-purple-500/5 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             
             <label class="flex items-center gap-2 text-sm font-bold text-slate-200 mb-4 relative z-10">
               <div
@@ -751,8 +751,8 @@ const getNivelBadgeClass = (nivel: string): string => {
               <!-- Empty -->
               <div v-else class="flex-1 flex flex-col items-center justify-center px-6 text-center">
                 <div
-                  class="w-14 h-14 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <BookOpen class="w-7 h-7 text-indigo-500 dark:text-indigo-400" />
+                  class="w-14 h-14 bg-gradient-to-br from-violet-100 to-purple-100 dark:from-emerald-900/30 dark:to-purple-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <BookOpen class="w-7 h-7 text-emerald-500 dark:text-emerald-400" />
                 </div>
                 <h3 class="text-slate-700 dark:text-slate-200 font-medium mb-1">Sin desempeños</h3>
                 <p class="text-slate-500 dark:text-slate-400 text-sm">Selecciona un grado para ver los desempeños

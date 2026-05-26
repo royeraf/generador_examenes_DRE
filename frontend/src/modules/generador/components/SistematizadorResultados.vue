@@ -351,7 +351,7 @@ watch(() => props.stats, () => {
                                             'bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400': est.nivelFinal === 'INICIO',
                                             'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/40 dark:text-yellow-400': est.nivelFinal === 'EN PROCESO',
                                             'bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400': est.nivelFinal === 'SATISFACTORIO',
-                                            'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400': est.nivelFinal === 'LOGRO DESTACADO',
+                                            'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400': est.nivelFinal === 'LOGRO DESTACADO',
                                         }">
                                         {{ est.nivelFinal }}
                                     </span>

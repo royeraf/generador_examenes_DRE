@@ -30,7 +30,7 @@ onUnmounted(() => window.removeEventListener('resize', onResize))
 // Datos de roles del sistema
 const ROLES_SISTEMA = [
   { codigo: 'especialista_dre_comunicacion', nombre: 'Especialista DRE Comunicación', descripcion: 'Gestiona desempeños de comunicación, administra UGELes, instituciones y usuarios a nivel regional.', nivel: 1, etiqueta: 'DRE COM', gradiente: 'from-teal-400 to-emerald-500' },
-  { codigo: 'especialista_dre_matematica',   nombre: 'Especialista DRE Matemática',   descripcion: 'Gestiona desempeños de matemática, administra UGELes, instituciones y usuarios a nivel regional.',   nivel: 1, etiqueta: 'DRE MAT', gradiente: 'from-indigo-400 to-purple-500' },
+  { codigo: 'especialista_dre_matematica',   nombre: 'Especialista DRE Matemática',   descripcion: 'Gestiona desempeños de matemática, administra UGELes, instituciones y usuarios a nivel regional.',   nivel: 1, etiqueta: 'DRE MAT', gradiente: 'from-violet-400 to-purple-500' },
   { codigo: 'responsable_ugel',              nombre: 'Responsable UGEL',              descripcion: 'Supervisa las instituciones educativas de su UGEL y accede a métricas del ámbito.',                   nivel: 2, etiqueta: 'UGEL',    gradiente: 'from-blue-400 to-cyan-500'   },
   { codigo: 'director',                      nombre: 'Director IE',                   descripcion: 'Administra su institución educativa, gestiona docentes y accede a módulos de evaluación.',            nivel: 3, etiqueta: 'Director', gradiente: 'from-violet-400 to-purple-500'},
   { codigo: 'auxiliar',                      nombre: 'Auxiliar',                      descripcion: 'Genera y gestiona evaluaciones dentro de la institución educativa.',                                  nivel: 4, etiqueta: 'Auxiliar', gradiente: 'from-amber-400 to-orange-500' },
@@ -206,9 +206,9 @@ const ROL_LABELS: Record<string, string> = {
   estudiante: 'Estudiante',
 }
 const ROL_COLORS: Record<string, string> = {
-  especialista_dre_comunicacion: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300',
+  especialista_dre_comunicacion: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
   especialista_dre_matematica: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300',
-  responsable_ugel: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300',
+  responsable_ugel: 'bg-sky-100 text-sky-700 dark:bg-emerald-900/30 dark:text-emerald-300',
   director: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
   auxiliar: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
   docente: 'bg-teal-100 text-teal-700 dark:bg-emerald-900/30 dark:text-emerald-300',
@@ -692,7 +692,7 @@ async function saveResetPassword() {
           <div
             class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-300 dark:border-slate-700 p-3 md:p-4 flex items-center gap-3 md:gap-4">
             <div
-              class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-gradient-to-br from-teal-400 to-indigo-500 flex items-center justify-center shadow-lg shrink-0">
+              class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center shadow-lg shrink-0">
               <svg class="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round"
                   d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -754,7 +754,7 @@ async function saveResetPassword() {
           <div
             class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-300 dark:border-slate-700 p-3 md:p-4 flex items-center gap-3 md:gap-4">
             <div
-              class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center shadow-lg shrink-0">
+              class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-gradient-to-br from-violet-400 to-violet-500 flex items-center justify-center shadow-lg shrink-0">
               <svg class="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round"
                   d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -816,7 +816,7 @@ async function saveResetPassword() {
         <!-- Action Buttons -->
         <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
           <button @click="openCreate"
-            class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-bold px-4 md:px-5 py-2 md:py-2.5 rounded-xl shadow-lg transition-all duration-200 hover:-translate-y-0.5 text-xs sm:text-sm cursor-pointer">
+            class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-bold px-4 md:px-5 py-2 md:py-2.5 rounded-xl shadow-lg transition-all duration-200 hover:-translate-y-0.5 text-xs sm:text-sm cursor-pointer">
             <Plus class="w-4 h-4" />
             <span>Nuevo Usuario</span>
           </button>
@@ -910,7 +910,7 @@ async function saveResetPassword() {
               <div class="grid grid-cols-2 gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
                 <div class="flex items-center gap-2">
                   <button @click="openDetails(docente)" 
-                    class="flex-1 flex items-center justify-center p-2.5 bg-slate-50 dark:bg-slate-700 rounded-xl text-slate-500 hover:text-indigo-600 transition-all cursor-pointer">
+                    class="flex-1 flex items-center justify-center p-2.5 bg-slate-50 dark:bg-slate-700 rounded-xl text-slate-500 hover:text-emerald-600 transition-all cursor-pointer">
                     <Eye class="w-4 h-4" />
                   </button>
                   <button @click="openEdit(docente)" 
@@ -1021,7 +1021,7 @@ async function saveResetPassword() {
                       <!-- Default Actions -->
                       <div v-if="showDeleteFor !== docente.id" class="flex items-center gap-2">
                         <button @click.stop="openDetails(docente)"
-                          class="has-tooltip relative flex items-center justify-center w-8 h-8 md:w-9 md:h-9 bg-slate-50 text-slate-400 hover:bg-indigo-500 hover:text-white dark:bg-slate-800/80 dark:text-slate-400 dark:hover:bg-indigo-500 dark:hover:text-white rounded-xl transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-indigo-500/20 transform hover:-translate-y-0.5 cursor-pointer">
+                          class="has-tooltip relative flex items-center justify-center w-8 h-8 md:w-9 md:h-9 bg-slate-50 text-slate-400 hover:bg-emerald-500 hover:text-white dark:bg-slate-800/80 dark:text-slate-400 dark:hover:bg-emerald-500 dark:hover:text-white rounded-xl transition-all duration-300 shadow-sm hover:shadow-md hover:shadow-emerald-500/20 transform hover:-translate-y-0.5 cursor-pointer">
                           <Eye class="w-4 h-4 md:w-[18px] md:h-[18px]" />
                           <span class="tooltip-top">Ver detalles del usuario</span>
                         </button>
@@ -1112,7 +1112,7 @@ async function saveResetPassword() {
               <button v-for="p in totalPages" :key="p" @click="setPage(p)" :class="[
                 'w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-xs font-bold transition-all cursor-pointer',
                 currentPage === p
-                  ? 'bg-gradient-to-r from-teal-500 to-indigo-600 text-white shadow-md scale-110'
+                  ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white shadow-md scale-110'
                   : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
               ]">
                 {{ p }}
@@ -1157,7 +1157,7 @@ async function saveResetPassword() {
                     </span>
                     <button v-if="!rolesEditMode[rol.codigo]"
                       @click="startEditRol(rol.codigo)"
-                      class="flex items-center gap-1 text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer">
+                      class="flex items-center gap-1 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer">
                       <Edit2 class="w-2.5 h-2.5" /> Editar
                     </button>
                   </div>
@@ -1293,7 +1293,7 @@ async function saveResetPassword() {
             <!-- Modal Header -->
             <div class="flex items-center justify-between px-8 py-6 border-b border-slate-300 dark:border-slate-800 shrink-0">
               <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-teal-500/20">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white shadow-lg shadow-teal-500/20">
                   <User v-if="editingId" class="w-6 h-6" />
                   <Plus v-else class="w-6 h-6" />
                 </div>
@@ -1444,7 +1444,7 @@ async function saveResetPassword() {
                 <div class="flex items-center justify-between mb-1.5">
                   <label class="text-xs font-bold text-slate-600 dark:text-slate-300">Acceso a módulos</label>
                   <button type="button" @click="usandoDefaultModulos ? activarModulosPersonalizados() : resetModulosADefault()"
-                    class="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer">
+                    class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer">
                     {{ usandoDefaultModulos ? 'Personalizar' : 'Restablecer defaults del rol' }}
                   </button>
                 </div>
@@ -1499,7 +1499,7 @@ async function saveResetPassword() {
                       'w-full bg-slate-50 dark:bg-slate-700 border rounded-xl py-2.5 pl-3.5 pr-10 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 transition-all placeholder-slate-400',
                       passwordError
                         ? 'border-red-400 dark:border-red-500 focus:ring-red-400/40 focus:border-red-400'
-                        : 'border-slate-300 dark:border-slate-600 focus:ring-indigo-500/50 focus:border-indigo-500'
+                        : 'border-slate-300 dark:border-slate-600 focus:ring-emerald-500/50 focus:border-emerald-500'
                     ]" />
                   <button type="button" @click="showPassword = !showPassword"
                     class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">
@@ -1538,7 +1538,7 @@ async function saveResetPassword() {
                 Cancelar
               </button>
               <button @click="saveDocente" :disabled="saving"
-                class="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-bold text-sm rounded-xl shadow-lg transition-all disabled:opacity-70 disabled:cursor-not-allowed">
+                class="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-bold text-sm rounded-xl shadow-lg transition-all disabled:opacity-70 disabled:cursor-not-allowed">
                 <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
                 {{ editingId ? 'Guardar Cambios' : 'Crear Usuario' }}
               </button>
@@ -1662,7 +1662,7 @@ async function saveResetPassword() {
                 <div class="w-10 h-1 rounded-full bg-white/40"></div>
             </div>
 
-            <div class="bg-gradient-to-r from-teal-500 to-indigo-600 pt-7 pb-5 px-5 sm:p-6 flex items-center gap-3 sm:gap-4 text-white relative shrink-0">
+            <div class="bg-gradient-to-r from-teal-500 to-emerald-600 pt-7 pb-5 px-5 sm:p-6 flex items-center gap-3 sm:gap-4 text-white relative shrink-0">
                <button @click="showDetailsModal = false"
                   class="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 bg-white/10 hover:bg-white/20 rounded-xl transition-colors">
                   <X class="w-4 h-4 sm:w-5 sm:h-5" />
@@ -1672,7 +1672,7 @@ async function saveResetPassword() {
                </div>
                <div class="min-w-0 pr-6">
                   <h2 class="text-lg sm:text-xl font-bold leading-tight truncate">{{ [detailsTarget.nombres, detailsTarget.apellidos].filter(Boolean).join(' ') || 'Sin Nombre' }}</h2>
-                  <p class="text-indigo-100 text-xs sm:text-sm opacity-90 font-mono mt-0.5 truncate">{{ detailsTarget.dni }}</p>
+                  <p class="text-emerald-100 text-xs sm:text-sm opacity-90 font-mono mt-0.5 truncate">{{ detailsTarget.dni }}</p>
                </div>
             </div>
 
@@ -1717,7 +1717,7 @@ async function saveResetPassword() {
                         <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-1">Distrito</p>
                         <p class="font-medium text-slate-700 dark:text-slate-200">
                           <span v-if="detailsTarget.distrito_nombre" class="inline-flex items-center gap-1">
-                            <MapPin class="w-3 h-3 text-indigo-500" />
+                            <MapPin class="w-3 h-3 text-emerald-500" />
                             {{ detailsTarget.distrito_nombre }}
                           </span>
                           <span v-else>—</span>
