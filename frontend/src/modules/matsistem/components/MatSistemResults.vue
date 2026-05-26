@@ -47,7 +47,7 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
     const cap = capacidad.toLowerCase();
     if (cap.includes('cantidad'))    return 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400';
     if (cap.includes('regularidad')) return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
-    if (cap.includes('forma'))       return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
+    if (cap.includes('forma'))       return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-primary';
     if (cap.includes('datos'))       return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
     return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400';
 };
@@ -58,10 +58,10 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
 
         <!-- Empty State -->
         <div v-if="!resultado && !loading"
-            class="h-[300px] sm:h-[580px] lg:h-[650px] bg-white dark:bg-[#252525] rounded-xl border border-gray-200 dark:border-slate-700 text-center flex flex-col items-center justify-center shadow-sm p-6">
-            <Zap class="w-10 h-10 sm:w-12 sm:h-12 text-gray-300 dark:text-slate-600 mb-4" />
-            <h3 class="text-base sm:text-lg font-semibold text-slate-800 dark:text-white mb-2">Listo para generar</h3>
-            <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm max-w-xs mb-4">
+            class="h-[300px] sm:h-[580px] lg:h-[650px] bg-surface-card rounded-xl border border-gray-200 dark:border-slate-700 text-center flex flex-col items-center justify-center shadow-sm p-6">
+            <Zap class="w-10 h-10 sm:w-12 sm:h-12 text-gray-300 dark:text-text-subtle mb-4" />
+            <h3 class="text-base sm:text-lg font-semibold text-text mb-2">Listo para generar</h3>
+            <p class="text-slate-500 dark:text-text-muted text-xs sm:text-sm max-w-xs mb-4">
                 Selecciona los desempeños y genera tu examen con IA.
             </p>
             <!-- Advertencia de riesgos de IA -->
@@ -87,7 +87,7 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
             </div>
             <div class="relative z-10 flex flex-col items-center">
                 <ThinkingLoader text="Generando examen" variant="indigo" />
-                <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-4">Esto puede tomar unos segundos...
+                <p class="text-slate-500 dark:text-text-muted text-xs sm:text-sm mt-4">Esto puede tomar unos segundos...
                 </p>
                 <div
                     class="mt-6 max-w-sm mx-auto flex items-start gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20">
@@ -102,7 +102,7 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
 
         <!-- Results -->
         <div v-if="resultado && !loading && showResults"
-            class="h-[500px] sm:h-[580px] lg:h-[650px] bg-white dark:bg-[#252525] rounded-2xl border-2 border-amber-200 dark:border-slate-700 shadow-xl flex flex-col overflow-hidden">
+            class="h-[500px] sm:h-[580px] lg:h-[650px] bg-surface-card rounded-2xl border-2 border-amber-200 dark:border-slate-700 shadow-xl flex flex-col overflow-hidden">
 
             <!-- Results Header - Celebratorio -->
             <div
@@ -142,8 +142,8 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                 <!-- Instrucciones -->
                 <div
                     class="bg-gradient-to-r from-teal-50 to-sky-50 dark:from-emerald-900/40 dark:to-slate-900 rounded-xl p-4 border-2 border-teal-100 dark:border-emerald-800">
-                    <p class="text-slate-700 dark:text-slate-300 text-sm">
-                        <strong class="text-teal-700 dark:text-emerald-400 flex items-center gap-2 mb-2">
+                    <p class="text-slate-700 dark:text-text-muted text-sm">
+                        <strong class="text-teal-700 dark:text-primary flex items-center gap-2 mb-2">
                             <ClipboardCheck class="w-4 h-4" />
                             Instrucciones:
                         </strong>
@@ -154,7 +154,7 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                 <!-- Lectura -->
                 <div
                     class="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-900 dark:to-slate-950 rounded-xl p-3 sm:p-5 border-2 border-amber-100 dark:border-slate-700">
-                    <h4 class="text-sm font-bold text-slate-800 dark:text-white mb-2 sm:mb-3 flex items-center gap-2">
+                    <h4 class="text-sm font-bold text-text mb-2 sm:mb-3 flex items-center gap-2">
                         <div
                             class="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center">
                             <BookOpen class="w-4 h-4 text-white" />
@@ -162,14 +162,14 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                         Lectura / Problema
                     </h4>
                     <p
-                        class="text-slate-700 dark:text-slate-300 text-sm leading-7 whitespace-pre-line bg-white/50 dark:bg-black/20 p-3 sm:p-4 rounded-lg">
+                        class="text-slate-700 dark:text-text-muted text-sm leading-7 whitespace-pre-line bg-white/50 dark:bg-black/20 p-3 sm:p-4 rounded-lg">
                         {{ (resultado.examen as any).situacion_problematica || resultado.examen.lectura }}
                     </p>
                 </div>
 
                 <!-- Preguntas -->
                 <div class="space-y-4">
-                    <h4 class="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                    <h4 class="text-sm font-bold text-text flex items-center gap-2">
                         <div
                             class="w-8 h-8 bg-gradient-to-br from-violet-400 to-purple-500 rounded-lg flex items-center justify-center">
                             <HelpCircle class="w-4 h-4 text-white" />
@@ -178,7 +178,7 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                     </h4>
 
                     <div v-for="pregunta in resultado.examen.preguntas" :key="pregunta.numero"
-                        class="bg-white dark:bg-[#252525] rounded-xl p-3 sm:p-5 border-2 border-slate-300 dark:border-slate-700 hover:border-teal-200 dark:hover:border-emerald-700 transition-all duration-300">
+                        class="bg-surface-card rounded-xl p-3 sm:p-5 border-2 border-slate-300 dark:border-slate-700 hover:border-teal-200 dark:hover:border-emerald-700 transition-all duration-300">
                         <div class="flex items-start gap-2.5 sm:gap-4">
                             <span
                                 class="w-10 h-10 bg-gradient-to-br from-teal-500 to-sky-500 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-lg shadow-teal-500/20">
@@ -201,17 +201,17 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                                     </button>
                                 </div>
 
-                                <p class="text-slate-800 dark:text-slate-200 font-semibold mb-4">{{ pregunta.enunciado }}</p>
+                                <p class="text-slate-800 dark:text-text font-semibold mb-4">{{ pregunta.enunciado }}</p>
 
                                 <div class="space-y-2">
                                     <div v-for="opcion in pregunta.opciones" :key="opcion.letra"
                                         class="flex items-center gap-2 sm:gap-3 text-sm py-2 sm:py-3 px-3 sm:px-4 rounded-xl border-2 transition-all duration-200"
                                         :class="opcion.es_correcta
-                                            ? 'bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-emerald-900/40 dark:to-slate-900 border-teal-300 dark:border-emerald-800 text-teal-700 dark:text-emerald-400'
-                                            : 'bg-gray-50 dark:bg-[#121212] border-gray-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-gray-300'">
+                                            ? 'bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-emerald-900/40 dark:to-slate-900 border-teal-300 dark:border-emerald-800 text-teal-700 dark:text-primary'
+                                            : 'bg-gray-50 dark:bg-surface border-gray-200 dark:border-slate-700 text-slate-600 dark:text-text-muted hover:border-gray-300'">
                                         <span
                                             class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm"
-                                            :class="opcion.es_correcta ? 'bg-teal-500 text-white' : 'bg-gray-200 dark:bg-[#393939] text-slate-600 dark:text-slate-400'">
+                                            :class="opcion.es_correcta ? 'bg-teal-500 text-white' : 'bg-gray-200 dark:bg-surface-input text-slate-600 dark:text-text-muted'">
                                             {{ opcion.letra }}
                                         </span>
                                         <span class="flex-1">{{ opcion.texto }}</span>
@@ -225,7 +225,7 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                                         <Lightbulb class="w-3.5 h-3.5" />
                                         Justificación
                                     </h5>
-                                    <p class="text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                                    <p class="text-[13px] text-slate-600 dark:text-text-muted leading-relaxed">
                                         {{ getJustificacion(pregunta.numero) }}
                                     </p>
                                 </div>
@@ -235,8 +235,8 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                 </div>
 
                 <!-- Answer Table -->
-                <div class="bg-white dark:bg-[#252525] rounded-xl p-3 sm:p-5 border-2 border-sky-100 dark:border-slate-700">
-                    <h4 class="text-sm font-bold text-slate-800 dark:text-white mb-3 sm:mb-4 flex items-center gap-2">
+                <div class="bg-surface-card rounded-xl p-3 sm:p-5 border-2 border-sky-100 dark:border-slate-700">
+                    <h4 class="text-sm font-bold text-text mb-3 sm:mb-4 flex items-center gap-2">
                         <div
                             class="w-8 h-8 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg flex items-center justify-center">
                             <LayoutGrid class="w-4 h-4 text-white" />
@@ -249,22 +249,22 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                                 <tr
                                     class="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-900 dark:to-slate-950 border-b-2 border-gray-200 dark:border-slate-700">
                                     <th
-                                        class="text-left py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
+                                        class="text-left py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-text-muted font-bold text-xs">
                                         #</th>
                                     <th
-                                        class="text-left py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
+                                        class="text-left py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-text-muted font-bold text-xs">
                                         Desempeño
                                     </th>
                                     <th
-                                        class="text-left py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
+                                        class="text-left py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-text-muted font-bold text-xs">
                                         Capacidad
                                     </th>
                                     <th
-                                        class="text-center py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
+                                        class="text-center py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-text-muted font-bold text-xs">
                                         Rpta.
                                     </th>
                                     <th
-                                        class="text-left py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
+                                        class="text-left py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-text-muted font-bold text-xs">
                                         Justificación
                                     </th>
                                 </tr>
@@ -272,10 +272,10 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                             <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
                                 <tr v-for="fila in resultado.examen.tabla_respuestas" :key="fila.pregunta"
                                     class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
-                                    <td class="py-2.5 sm:py-3 px-3 sm:px-4 text-slate-800 dark:text-slate-200 font-bold">{{ fila.pregunta
+                                    <td class="py-2.5 sm:py-3 px-3 sm:px-4 text-slate-800 dark:text-text font-bold">{{ fila.pregunta
                                     }}
                                     </td>
-                                    <td class="py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 text-xs">{{ fila.desempeno
+                                    <td class="py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-text-muted text-xs">{{ fila.desempeno
                                     }}</td>
                                     <td class="py-2.5 sm:py-3 px-3 sm:px-4">
                                         <span
@@ -291,7 +291,7 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                                             {{ fila.respuesta_correcta }}
                                         </span>
                                     </td>
-                                    <td class="py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 text-xs italic">
+                                    <td class="py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-text-muted text-xs italic">
                                         {{ fila.justificacion || 'No disponible' }}
                                     </td>
                                 </tr>
@@ -301,7 +301,7 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                 </div>
 
                 <p
-                    class="text-center text-xs text-slate-500 dark:text-slate-400 bg-gradient-to-r from-teal-50 to-amber-50 dark:from-slate-900 dark:to-slate-800 p-3 rounded-xl flex items-center justify-center gap-2">
+                    class="text-center text-xs text-slate-500 dark:text-text-muted bg-gradient-to-r from-teal-50 to-amber-50 dark:from-slate-900 dark:to-slate-800 p-3 rounded-xl flex items-center justify-center gap-2">
                     <Sparkles class="w-4 h-4 text-amber-500" /> Examen generado con IA - <strong>Revisar antes de usar
                         con
                         los
@@ -319,16 +319,16 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                 class="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:p-4 cursor-pointer"
                 @click.self="cerrarRetro">
                 <div class="absolute inset-0 bg-black/50 backdrop-blur-sm cursor-pointer" @click="cerrarRetro" />
-                <div class="relative z-10 w-full sm:max-w-lg bg-white dark:bg-[#121212] rounded-t-2xl sm:rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[85vh]">
+                <div class="relative z-10 w-full sm:max-w-lg bg-surface rounded-t-2xl sm:rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[85vh]">
                     
                     <!-- Drag handle (mobile) -->
                     <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0" @click="cerrarRetro">
-                        <div class="w-10 h-1 rounded-full bg-slate-200 dark:bg-[#4f4f4f]"></div>
+                        <div class="w-10 h-1 rounded-full bg-slate-200 dark:bg-surface-elevated"></div>
                     </div>
                     <div class="flex items-center justify-between px-5 py-4 border-b border-slate-300 dark:border-slate-700">
                         <div class="flex items-center gap-2">
                             <MessageSquare class="w-4 h-4 text-indigo-500" />
-                            <span class="text-sm font-semibold text-slate-800 dark:text-white">
+                            <span class="text-sm font-semibold text-text">
                                 Retroalimentación — Pregunta {{ modalRetro.pregunta }}
                             </span>
                         </div>
@@ -342,9 +342,9 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                             class="rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/10 p-4 space-y-2">
                             <div class="flex items-center gap-2">
                                 <CheckCircle2 class="w-4 h-4 text-emerald-500 shrink-0" />
-                                <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">Si respondió correctamente</span>
+                                <span class="text-xs font-semibold text-emerald-700 dark:text-primary uppercase tracking-wide">Si respondió correctamente</span>
                             </div>
-                            <p class="text-sm text-emerald-800 dark:text-emerald-300 leading-relaxed">{{ modalRetro.retroalimentacion_correcta }}</p>
+                            <p class="text-sm text-emerald-800 dark:text-primary-light leading-relaxed">{{ modalRetro.retroalimentacion_correcta }}</p>
                         </div>
                         <div v-if="modalRetro.retroalimentacion_incorrecta"
                             class="rounded-xl border border-rose-200 dark:border-rose-800/50 bg-rose-50 dark:bg-rose-900/10 p-4 space-y-2">
@@ -355,14 +355,14 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                             <p class="text-sm text-rose-800 dark:text-rose-300 leading-relaxed">{{ modalRetro.retroalimentacion_incorrecta }}</p>
                         </div>
                         <div v-if="modalRetro.justificacion"
-                            class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#252525]/50 p-4 space-y-2">
-                            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Justificación</span>
-                            <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{{ modalRetro.justificacion }}</p>
+                            class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-surface-card/50 p-4 space-y-2">
+                            <span class="text-xs font-semibold text-slate-500 dark:text-text-muted uppercase tracking-wide">Justificación</span>
+                            <p class="text-sm text-slate-600 dark:text-text-muted leading-relaxed">{{ modalRetro.justificacion }}</p>
                         </div>
                     </div>
                     <div class="px-5 py-3 border-t border-slate-300 dark:border-slate-700 flex justify-end">
                         <button @click="cerrarRetro"
-                            class="px-4 py-2 text-xs font-medium rounded-lg bg-slate-100 dark:bg-[#252525] hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">
+                            class="px-4 py-2 text-xs font-medium rounded-lg bg-slate-100 dark:bg-surface-card hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-text-muted transition-colors">
                             Cerrar
                         </button>
                     </div>

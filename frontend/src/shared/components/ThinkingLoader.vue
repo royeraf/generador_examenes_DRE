@@ -160,7 +160,7 @@ const cellColors = [
             </div>
 
             <!-- Text with cursor -->
-            <span class="label text-slate-600 dark:text-slate-300">{{ text || 'Generando' }}<span
+            <span class="label text-slate-600 dark:text-text-muted">{{ text || 'Generando' }}<span
                     class="cursor" /></span>
         </div>
     </div>

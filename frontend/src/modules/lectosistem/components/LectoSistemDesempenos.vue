@@ -50,8 +50,8 @@ const getCapacidadLabel = (tipo: string): string => {
         <!-- Header -->
         <div class="h-14 px-3 border-b border-slate-300 dark:border-slate-700 flex items-center shrink-0" :class="collapsed ? 'justify-center' : 'justify-between'">
             <div v-show="!collapsed" class="flex items-center gap-2 min-w-0">
-                <h2 class="text-sm font-medium text-slate-800 dark:text-white flex items-center gap-2 pl-1"><Target class="w-4 h-4 text-slate-500 dark:text-slate-400 shrink-0"/> Desempeños</h2>
-                <span v-if="selectedDesempenosCount > 0" class="shrink-0 px-2 py-0.5 rounded text-[10px] bg-slate-200 dark:bg-[#393939]/50 text-slate-800 dark:text-white font-medium">
+                <h2 class="text-sm font-medium text-text flex items-center gap-2 pl-1"><Target class="w-4 h-4 text-slate-500 dark:text-text-muted shrink-0"/> Desempeños</h2>
+                <span v-if="selectedDesempenosCount > 0" class="shrink-0 px-2 py-0.5 rounded text-[10px] bg-slate-200 dark:bg-surface-input/50 text-text font-medium">
                     {{ selectedDesempenosCount }}
                 </span>
             </div>
@@ -71,9 +71,9 @@ const getCapacidadLabel = (tipo: string): string => {
 
         <!-- Loading Skeleton -->
         <div v-else-if="loadingDesempenos" class="flex-1 p-4 space-y-4">
-            <div class="h-10 bg-slate-50 dark:bg-[#0d0d0d] rounded-lg animate-pulse"></div>
+            <div class="h-10 bg-surface rounded-lg animate-pulse"></div>
             <div class="space-y-3">
-                <div v-for="i in 4" :key="i" class="h-20 bg-slate-50 dark:bg-[#0d0d0d] rounded-xl animate-pulse"></div>
+                <div v-for="i in 4" :key="i" class="h-20 bg-surface rounded-xl animate-pulse"></div>
             </div>
         </div>
 
@@ -81,11 +81,11 @@ const getCapacidadLabel = (tipo: string): string => {
         <div v-else-if="desempenos.length > 0" class="flex-1 flex flex-col min-h-0">
             
             <!-- Tabs L/I/C -->
-            <div class="flex p-2 gap-1 border-b border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#0d0d0d]/30 shrink-0">
+            <div class="flex p-2 gap-1 border-b border-slate-300 dark:border-slate-700 bg-surface/30 shrink-0">
                 <div v-for="tipo in ['literal', 'inferencial', 'critico']" :key="tipo" class="flex-1">
                     <button @click="emit('update:activeCapacidadTab', tipo)"
                         class="w-full py-1.5 text-[10px] sm:text-xs font-medium rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                        :class="activeCapacidadTab === tipo ? 'bg-teal-500 dark:bg-emerald-600 text-slate-800 dark:text-white shadow-sm dark:shadow-none' : 'text-slate-500 hover:text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:bg-[#252525]/50'">
+                        :class="activeCapacidadTab === tipo ? 'bg-teal-500 dark:bg-emerald-600 text-text shadow-sm dark:shadow-none' : 'text-slate-500 hover:text-slate-600 dark:text-text-muted hover:bg-slate-100 dark:bg-surface-card/50'">
                         <BookOpen v-if="tipo === 'literal'" class="w-3.5 h-3.5" />
                         <FileSearch v-else-if="tipo === 'inferencial'" class="w-3.5 h-3.5" />
                         <Lightbulb v-else class="w-3.5 h-3.5" />
@@ -101,7 +101,7 @@ const getCapacidadLabel = (tipo: string): string => {
                    <span class="text-[10px] text-slate-500">Seleccionar desempeños</span>
                    <div class="flex gap-2">
                        <button @click="emit('select-all-capacidad', activeCapacidadTab)" class="text-[10px] text-sky-400 hover:text-sky-300 cursor-pointer">Todos</button>
-                       <button @click="emit('deselect-all-capacidad', activeCapacidadTab)" class="text-[10px] text-slate-500 hover:text-slate-500 dark:text-slate-400 cursor-pointer">Ninguno</button>
+                       <button @click="emit('deselect-all-capacidad', activeCapacidadTab)" class="text-[10px] text-slate-500 hover:text-slate-500 dark:text-text-muted cursor-pointer">Ninguno</button>
                    </div>
                 </div>
 
@@ -109,12 +109,12 @@ const getCapacidadLabel = (tipo: string): string => {
                     <Checkbox v-for="des in desempenosPorCapacidad[activeCapacidadTab]" :key="des.id"
                         v-model="localSelectedDesempenoIds" :value="des.id"
                         class="p-3 rounded-xl border transition-colors cursor-pointer"
-                        :class="localSelectedDesempenoIds.includes(des.id) ? 'bg-teal-500 dark:bg-emerald-600 border-slate-300 dark:border-slate-600' : 'bg-slate-50 dark:bg-[#0d0d0d] border-slate-300 dark:border-slate-700 hover:border-slate-300 dark:border-slate-600'"
+                        :class="localSelectedDesempenoIds.includes(des.id) ? 'bg-teal-500 dark:bg-emerald-600 border-slate-300 dark:border-slate-600' : 'bg-surface border-slate-300 dark:border-slate-700 hover:border-slate-300 dark:border-slate-600'"
                         color="checked:bg-sky-500 checked:border-sky-500 focus:ring-sky-500/50">
                         <div class="mb-1">
-                            <span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-[#252525]/50 text-slate-500 dark:text-slate-400 font-mono">{{ des.codigo }}</span>
+                            <span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-surface-card/50 text-slate-500 dark:text-text-muted font-mono">{{ des.codigo }}</span>
                         </div>
-                        <p class="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">{{ des.descripcion }}</p>
+                        <p class="text-[11px] text-slate-600 dark:text-text-muted leading-relaxed">{{ des.descripcion }}</p>
                     </Checkbox>
                 </template>
                 <div v-else class="py-8 text-center text-xs text-slate-500">No hay desempeños disponibles.</div>
@@ -128,11 +128,11 @@ const getCapacidadLabel = (tipo: string): string => {
         </div>
 
         <!-- Generate Button fixed at bottom -->
-        <div v-if="!collapsed" class="p-4 border-t border-slate-300 dark:border-slate-700 shrink-0 bg-white dark:bg-[#252525]">
+        <div v-if="!collapsed" class="p-4 border-t border-slate-300 dark:border-slate-700 shrink-0 bg-surface-card">
             <button @click="emit('generar-preguntas')"
                 :disabled="loading || !selectedGradoId || selectedDesempenoIds.length === 0 || isBreakdownValid === false"
                 class="w-full py-2.5 rounded-full font-medium transition-all flex items-center justify-center gap-2 text-sm cursor-pointer"
-                :class="loading ? 'bg-teal-500 dark:bg-emerald-600 text-slate-500 dark:text-slate-400 cursor-wait' : (isBreakdownValid === false || !selectedGradoId || selectedDesempenoIds.length === 0 ? 'bg-slate-100 dark:bg-[#252525]/50 text-slate-500 cursor-not-allowed' : 'bg-white text-black hover:bg-slate-200 shadow-lg')">
+                :class="loading ? 'bg-teal-500 dark:bg-emerald-600 text-slate-500 dark:text-text-muted cursor-wait' : (isBreakdownValid === false || !selectedGradoId || selectedDesempenoIds.length === 0 ? 'bg-slate-100 dark:bg-surface-card/50 text-slate-500 cursor-not-allowed' : 'bg-white text-black hover:bg-slate-200 shadow-lg')">
                 <ThinkingLoader v-if="loading" text="Generando..." variant="teal" />
                 <template v-else>
                     <Rocket class="w-4 h-4" /> Generar Examen

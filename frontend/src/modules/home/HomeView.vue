@@ -100,13 +100,13 @@ const nombreCompleto = computed(() => {
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col bg-slate-50 dark:bg-[#0d0d0d] transition-colors duration-300">
+  <div class="min-h-screen flex flex-col bg-surface transition-colors duration-300">
 
     <!-- Loading overlay -->
     <div v-if="isLoading"
-      class="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-slate-50/95 dark:bg-[#0d0d0d]/95">
+      class="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-slate-50/95 dark:bg-surface/95">
       <Loader2 class="w-7 h-7 animate-spin text-teal-500 mb-2" />
-      <p class="text-sm text-slate-500 dark:text-slate-400">Cargando...</p>
+      <p class="text-sm text-slate-500 dark:text-text-muted">Cargando...</p>
     </div>
 
     <!-- Subtle background -->
@@ -118,15 +118,15 @@ const nombreCompleto = computed(() => {
 
     <!-- Header -->
     <header
-      class="relative z-30 border-b border-slate-300/80 dark:border-slate-800 bg-white/90 dark:bg-[#121212]/90 backdrop-blur-sm shrink-0">
+      class="relative z-30 border-b border-slate-300/80 dark:border-slate-800 bg-white/90 dark:bg-surface/90 backdrop-blur-sm shrink-0">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
         <div class="flex items-center gap-3">
           <div class="relative w-8 h-8 shrink-0">
             <div class="absolute -inset-0.5 bg-gradient-to-r from-teal-500 to-emerald-600 rounded-lg blur opacity-25">
             </div>
             <div
-              class="absolute inset-0 flex items-center justify-center p-1.5 bg-white dark:bg-[#252525] rounded-lg border border-slate-300 dark:border-slate-700 overflow-hidden">
-              <GraduationCap class="absolute w-4 h-4 text-teal-600 dark:text-emerald-400 animate-logo-cycle-1" />
+              class="absolute inset-0 flex items-center justify-center p-1.5 bg-surface-card rounded-lg border border-slate-300 dark:border-slate-700 overflow-hidden">
+              <GraduationCap class="absolute w-4 h-4 text-primary animate-logo-cycle-1" />
               <div class="absolute logo-gradient-display-static w-4 h-4 animate-logo-cycle-2"
                 :style="{ 'mask-image': `url(${logoDre})`, '-webkit-mask-image': `url(${logoDre})` }"></div>
             </div>
@@ -145,14 +145,14 @@ const nombreCompleto = computed(() => {
       <!-- Greeting row -->
       <div class="flex items-center justify-between mb-6 sm:mb-8 animate-fade-in">
         <div>
-          <p class="text-xs text-slate-400 dark:text-slate-500 mb-0.5">{{ saludo }},</p>
-          <h1 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white tracking-tight leading-tight">
+          <p class="text-xs text-slate-400 dark:text-text-subtle mb-0.5">{{ saludo }},</p>
+          <h1 class="text-base sm:text-lg font-bold text-text tracking-tight leading-tight">
             {{ nombreCompleto }}
           </h1>
         </div>
         <div class="hidden sm:block text-right">
           <p class="shimmer-text text-xl font-black tracking-tight leading-none">SIEVA</p>
-          <p class="text-[11px] text-slate-400 dark:text-slate-500 font-medium mt-0.5 leading-tight">Sistema Integrado
+          <p class="text-[11px] text-slate-400 dark:text-text-subtle font-medium mt-0.5 leading-tight">Sistema Integrado
             de Evaluación de Aula</p>
         </div>
       </div>
@@ -164,7 +164,7 @@ const nombreCompleto = computed(() => {
         <div v-if="hasModules" class="space-y-3">
           <div class="flex items-center gap-2 mb-4">
             <Sparkles class="w-4 h-4 text-slate-400" />
-            <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Módulos con
+            <span class="text-xs font-bold text-slate-400 dark:text-text-subtle uppercase tracking-widest">Módulos con
               IA</span>
           </div>
 
@@ -172,7 +172,7 @@ const nombreCompleto = computed(() => {
 
             <!-- LectoSistem -->
             <button v-if="auth.canAccessLectosistem" @click="router.push('/lectosistem')"
-              class="module-card-teal cursor-pointer group relative bg-white dark:bg-[#121212] rounded-2xl p-5 text-left overflow-hidden flex flex-col gap-4 border border-slate-300 dark:border-slate-800 hover:border-teal-200 dark:hover:border-emerald-700/60 shadow-sm hover:shadow-lg hover:shadow-teal-500/10 transition-all duration-200 animate-slide-up"
+              class="module-card-teal cursor-pointer group relative bg-surface rounded-2xl p-5 text-left overflow-hidden flex flex-col gap-4 border border-slate-300 dark:border-slate-800 hover:border-teal-200 dark:hover:border-emerald-700/60 shadow-sm hover:shadow-lg hover:shadow-teal-500/10 transition-all duration-200 animate-slide-up"
               style="animation-delay:0ms">
               <div class="card-overlay absolute inset-0 rounded-2xl pointer-events-none"></div>
               <div class="card-line absolute bottom-0 left-6 right-6 h-[2px] rounded-full pointer-events-none"></div>
@@ -186,18 +186,18 @@ const nombreCompleto = computed(() => {
                   <BookOpen class="w-5 h-5 text-white" />
                 </div>
                 <span
-                  class="text-[10px] font-bold text-teal-600 dark:text-emerald-400 bg-teal-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full uppercase tracking-wide border border-teal-100 dark:border-emerald-800/50">
+                  class="text-[10px] font-bold text-primary bg-teal-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full uppercase tracking-wide border border-teal-100 dark:border-emerald-800/50">
                   Comunicación
                 </span>
               </div>
               <div class="relative z-10 flex-1">
                 <h2
-                  class="text-base font-bold text-slate-800 dark:text-white mb-1 group-hover:text-teal-600 dark:group-hover:text-emerald-400 transition-colors">
+                  class="text-base font-bold text-text mb-1 group-hover:text-teal-600 dark:group-hover:text-emerald-400 transition-colors">
                   LectoSistem</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Genera exámenes de comprensión
+                <p class="text-xs text-slate-500 dark:text-text-muted leading-relaxed">Genera exámenes de comprensión
                   lectora con niveles literal, inferencial y crítico.</p>
               </div>
-              <div class="relative z-10 flex items-center gap-1.5 text-xs font-bold text-teal-600 dark:text-emerald-400">
+              <div class="relative z-10 flex items-center gap-1.5 text-xs font-bold text-primary">
                 Ir al módulo
                 <ArrowRight class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -205,7 +205,7 @@ const nombreCompleto = computed(() => {
 
             <!-- MatSistem -->
             <button v-if="auth.canAccessMatsistem" @click="router.push('/matsistem')"
-              class="module-card-indigo cursor-pointer group relative bg-white dark:bg-[#121212] rounded-2xl p-5 text-left overflow-hidden flex flex-col gap-4 border border-slate-300 dark:border-slate-800 hover:border-emerald-200 dark:hover:border-emerald-700/60 shadow-sm hover:shadow-lg hover:shadow-emerald-500/10 transition-all duration-200 animate-slide-up"
+              class="module-card-indigo cursor-pointer group relative bg-surface rounded-2xl p-5 text-left overflow-hidden flex flex-col gap-4 border border-slate-300 dark:border-slate-800 hover:border-emerald-200 dark:hover:border-emerald-700/60 shadow-sm hover:shadow-lg hover:shadow-emerald-500/10 transition-all duration-200 animate-slide-up"
               style="animation-delay:80ms">
               <div class="card-overlay absolute inset-0 rounded-2xl pointer-events-none"></div>
               <div class="card-line absolute bottom-0 left-6 right-6 h-[2px] rounded-full pointer-events-none"></div>
@@ -219,19 +219,19 @@ const nombreCompleto = computed(() => {
                   <Calculator class="w-5 h-5 text-white" />
                 </div>
                 <span
-                  class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full uppercase tracking-wide border border-emerald-100 dark:border-emerald-800/50">
+                  class="text-[10px] font-bold text-emerald-600 dark:text-primary bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full uppercase tracking-wide border border-emerald-100 dark:border-emerald-800/50">
                   Matemática
                 </span>
               </div>
               <div class="relative z-10 flex-1">
                 <h2
-                  class="text-base font-bold text-slate-800 dark:text-white mb-1 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                  class="text-base font-bold text-text mb-1 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                   MatSistem</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Genera prácticas matemáticas por
+                <p class="text-xs text-slate-500 dark:text-text-muted leading-relaxed">Genera prácticas matemáticas por
                   competencia, capacidad y grado escolar.</p>
               </div>
               <div
-                class="relative z-10 flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                class="relative z-10 flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-primary">
                 Ir al módulo
                 <ArrowRight class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -243,11 +243,11 @@ const nombreCompleto = computed(() => {
         <!-- RIGHT: Gestión -->
         <div v-if="hasManagement" class="space-y-2">
           <div class="flex items-center gap-2 mb-4">
-            <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Gestión</span>
+            <span class="text-xs font-bold text-slate-400 dark:text-text-subtle uppercase tracking-widest">Gestión</span>
           </div>
 
           <div
-            class="bg-white dark:bg-[#121212] rounded-2xl border border-slate-300 dark:border-slate-800 overflow-hidden shadow-sm">
+            class="bg-surface rounded-2xl border border-slate-300 dark:border-slate-800 overflow-hidden shadow-sm">
             <button v-for="(item, i) in managementItems" :key="item.route" @click="router.push(item.route)"
               class="mgmt-item cursor-pointer w-full flex items-center gap-3 px-4 py-3 text-left transition-all duration-150 hover:bg-slate-50 dark:hover:bg-slate-800/60 group animate-slide-up"
               :style="`animation-delay:${i * 40 + 160}ms`"
@@ -258,12 +258,12 @@ const nombreCompleto = computed(() => {
                 <component :is="item.icon" class="w-4 h-4 text-white" />
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold text-slate-700 dark:text-slate-200 leading-tight truncate">{{ item.label
+                <p class="text-sm font-semibold text-slate-700 dark:text-text leading-tight truncate">{{ item.label
                   }}</p>
-                <p class="text-[11px] text-slate-400 dark:text-slate-500 leading-tight">{{ item.sub }}</p>
+                <p class="text-[11px] text-slate-400 dark:text-text-subtle leading-tight">{{ item.sub }}</p>
               </div>
               <ChevronRight
-                class="w-4 h-4 text-slate-300 dark:text-slate-600 shrink-0 group-hover:text-slate-400 group-hover:translate-x-0.5 transition-all" />
+                class="w-4 h-4 text-slate-300 dark:text-text-subtle shrink-0 group-hover:text-slate-400 group-hover:translate-x-0.5 transition-all" />
             </button>
           </div>
         </div>
@@ -272,7 +272,7 @@ const nombreCompleto = computed(() => {
 
       <!-- Footer -->
       <p
-        class="mt-8 text-center text-[11px] text-slate-400 dark:text-slate-600 flex items-center justify-center gap-1.5">
+        class="mt-8 text-center text-[11px] text-slate-400 dark:text-text-subtle flex items-center justify-center gap-1.5">
         <Sparkles class="w-3 h-3 animate-sparkle" /> Desarrollado para la Dirección Regional de Educación Huánuco
       </p>
 

@@ -40,15 +40,15 @@ const localCompetencia = computed({
     <div class="animate-fadeIn">
         <div class="flex flex-wrap justify-between items-start mb-8 gap-4">
             <div>
-                <h2 class="text-2xl font-bold text-teal-700 dark:text-emerald-400 flex items-center gap-3">
+                <h2 class="text-2xl font-bold text-teal-700 dark:text-primary flex items-center gap-3">
                     <Target class="w-8 h-8" /> Configuración de Desempeños
                 </h2>
-                <p class="text-slate-500 dark:text-slate-400 mt-1">Define la competencia y los desempeños a evaluar por
+                <p class="text-slate-500 dark:text-text-muted mt-1">Define la competencia y los desempeños a evaluar por
                     cada nivel de logro</p>
             </div>
             <!-- Grade Selector -->
             <div class="w-full md:w-72">
-                <label class="text-sm font-bold text-slate-600 dark:text-slate-400 mb-2 block flex items-center gap-2">
+                <label class="text-sm font-bold text-slate-600 dark:text-text-muted mb-2 block flex items-center gap-2">
                     <GraduationCap class="w-4 h-4" /> Grado Escolar
                 </label>
                 <ComboBox v-model="localSelectedGradoId" :options="gradoOptions"
@@ -58,7 +58,7 @@ const localCompetencia = computed({
 
         <!-- Competencia Card - Educativo -->
         <div
-            class="bg-white dark:bg-[#252525] rounded-2xl border-2 border-teal-100 dark:border-slate-700 shadow-lg mb-8 overflow-hidden">
+            class="bg-surface-card rounded-2xl border-2 border-teal-100 dark:border-slate-700 shadow-lg mb-8 overflow-hidden">
             <div class="bg-gradient-to-r from-teal-500 to-sky-500 p-4">
                 <div class="flex items-center gap-4">
                     <div
@@ -75,14 +75,14 @@ const localCompetencia = computed({
             </div>
             <div class="p-5">
                 <input v-model="localCompetencia" type="text"
-                    class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all placeholder-slate-400" placeholder="Ej: Lee diversos tipos de textos..." />
+                    class="w-full py-2.5 px-3.5 bg-surface-input border border-slate-300 dark:border-slate-600 rounded-xl text-sm font-bold text-slate-700 dark:text-text outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all placeholder-slate-400" placeholder="Ej: Lee diversos tipos de textos..." />
             </div>
         </div>
 
         <!-- Niveles Container - Educativo -->
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             <div v-for="(nivel, key) in niveles" :key="key"
-                class="bg-white dark:bg-[#252525] rounded-2xl border-2 transition-all duration-300 hover:shadow-xl overflow-hidden"
+                class="bg-surface-card rounded-2xl border-2 transition-all duration-300 hover:shadow-xl overflow-hidden"
                 :style="{ borderColor: nivel.color + '40', borderTopWidth: '4px', borderTopColor: nivel.color }">
                 <div class="p-6">
                     <div class="flex items-center gap-2 mb-4 flex-wrap">
@@ -90,7 +90,7 @@ const localCompetencia = computed({
                             :style="{ backgroundColor: nivel.bg, color: nivel.color }">
                             {{ nivel.nombre }}
                         </span>
-                        <span class="text-xs text-slate-500 dark:text-slate-400">{{ nivel.descripcion }}</span>
+                        <span class="text-xs text-slate-500 dark:text-text-muted">{{ nivel.descripcion }}</span>
                     </div>
 
                     <div class="space-y-3 mb-4">
@@ -111,7 +111,7 @@ const localCompetencia = computed({
 
                             <!-- Fallback or Full Text Edit -->
                             <textarea v-model="pregunta.descripcion" placeholder="Descripción del desempeño..." rows="2"
-                                class="w-full text-sm py-2.5 px-3.5 bg-white dark:bg-[#252525] border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 text-slate-700 dark:text-slate-200 outline-none resize-none transition-all placeholder-slate-400 font-bold"></textarea>
+                                class="w-full text-sm py-2.5 px-3.5 bg-surface-card border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 text-slate-700 dark:text-text outline-none resize-none transition-all placeholder-slate-400 font-bold"></textarea>
 
                             <div
                                 class="flex items-center justify-between mt-3 pt-3 border-t-2 border-slate-300 dark:border-slate-700">
@@ -120,7 +120,7 @@ const localCompetencia = computed({
                                         <Key class="w-3 h-3" /> Clave:
                                     </span>
                                     <select v-model="pregunta.clave"
-                                        class="text-sm bg-white dark:bg-[#252525] border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-1.5 font-black focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all text-slate-700 dark:text-slate-200 outline-none cursor-pointer appearance-none">
+                                        class="text-sm bg-surface-card border border-slate-300 dark:border-slate-600 rounded-xl px-3 py-1.5 font-black focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all text-slate-700 dark:text-text outline-none cursor-pointer appearance-none">
                                         <option value="">-</option>
                                         <option value="A">A</option>
                                         <option value="B">B</option>

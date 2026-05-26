@@ -141,17 +141,17 @@ watch(() => props.stats, () => {
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
             <!-- Stat Cards - Educativo -->
             <div
-                class="bg-white dark:bg-[#252525] p-5 rounded-2xl border-2 border-teal-100 dark:border-slate-700 shadow-lg relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+                class="bg-surface-card p-5 rounded-2xl border-2 border-teal-100 dark:border-slate-700 shadow-lg relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 cursor-pointer">
                 <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-teal-500 to-sky-500"></div>
                 <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-2 flex items-center gap-1">
                     <Users class="w-4 h-4" /> Total
                 </p>
-                <p class="text-3xl font-bold text-teal-600 dark:text-emerald-400">{{ stats.total }}</p>
+                <p class="text-3xl font-bold text-primary">{{ stats.total }}</p>
             </div>
 
             <div v-for="(count, key) in { 'Pre Inicio': stats['pre-inicio'], 'Inicio': stats['inicio'], 'Proceso': stats['proceso'], 'Satisfactorio': stats['satisfactorio'], 'Destacado': stats['destacado'] }"
                 :key="key"
-                class="bg-white dark:bg-[#252525] p-5 rounded-2xl border-2 dark:border-slate-700 shadow-lg relative overflow-hidden hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+                class="bg-surface-card p-5 rounded-2xl border-2 dark:border-slate-700 shadow-lg relative overflow-hidden hover:-translate-y-1 transition-all duration-300 cursor-pointer"
                 :class="{
                     'border-red-100 dark:border-red-900/40': key === 'Pre Inicio',
                     'border-orange-100 dark:border-orange-900/40': key === 'Inicio',
@@ -191,7 +191,7 @@ watch(() => props.stats, () => {
         <div class="grid lg:grid-cols-2 gap-6">
             <!-- Chart - Educativo -->
             <div
-                class="bg-white dark:bg-[#252525] p-6 rounded-2xl border-2 border-violet-100 dark:border-slate-700 shadow-lg">
+                class="bg-surface-card p-6 rounded-2xl border-2 border-violet-100 dark:border-slate-700 shadow-lg">
                 <h3 class="font-bold text-violet-700 dark:text-violet-400 mb-6 flex items-center gap-2 text-lg">
                     <BarChart3 class="w-5 h-5" /> Distribución por Niveles
                 </h3>
@@ -201,7 +201,7 @@ watch(() => props.stats, () => {
 
                 <!-- Summary Table - Educativo -->
                 <div class="mt-6 border-t-2 border-violet-100 dark:border-slate-700 pt-4">
-                    <h4 class="text-sm font-bold text-slate-600 dark:text-slate-400 mb-4 flex items-center gap-2">
+                    <h4 class="text-sm font-bold text-slate-600 dark:text-text-muted mb-4 flex items-center gap-2">
                         <FileText class="w-4 h-4" /> Resumen de Niveles
                     </h4>
                     <div class="overflow-x-auto rounded-xl border-2 border-slate-300 dark:border-slate-700">
@@ -209,12 +209,12 @@ watch(() => props.stats, () => {
                             <thead>
                                 <tr
                                     class="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-900 dark:to-slate-950 border-b-2 border-slate-300 dark:border-slate-700">
-                                    <th class="py-3 px-4 text-left font-bold text-slate-700 dark:text-slate-400">
+                                    <th class="py-3 px-4 text-left font-bold text-slate-700 dark:text-text-muted">
                                         Nivel
                                     </th>
-                                    <th class="py-3 px-4 text-center font-bold text-slate-700 dark:text-slate-400">
+                                    <th class="py-3 px-4 text-center font-bold text-slate-700 dark:text-text-muted">
                                         Cantidad</th>
-                                    <th class="py-3 px-4 text-center font-bold text-slate-700 dark:text-slate-400">
+                                    <th class="py-3 px-4 text-center font-bold text-slate-700 dark:text-text-muted">
                                         Porcentaje</th>
                                 </tr>
                             </thead>
@@ -223,10 +223,10 @@ watch(() => props.stats, () => {
                                     <td class="py-3 px-4 flex items-center gap-3">
                                         <span
                                             class="w-4 h-4 rounded-full bg-gradient-to-r from-red-500 to-red-400 shadow-sm"></span>
-                                        <span class="text-slate-700 dark:text-slate-300 font-medium">Pre
+                                        <span class="text-slate-700 dark:text-text-muted font-medium">Pre
                                             Inicio</span>
                                     </td>
-                                    <td class="py-3 px-4 text-center font-bold text-slate-800 dark:text-white text-lg">
+                                    <td class="py-3 px-4 text-center font-bold text-text text-lg">
                                         {{
                                             stats['pre-inicio'] }}</td>
                                     <td class="py-3 px-4 text-center">
@@ -241,9 +241,9 @@ watch(() => props.stats, () => {
                                     <td class="py-3 px-4 flex items-center gap-3">
                                         <span
                                             class="w-4 h-4 rounded-full bg-gradient-to-r from-orange-500 to-amber-400 shadow-sm"></span>
-                                        <span class="text-slate-700 dark:text-slate-300 font-medium">Inicio</span>
+                                        <span class="text-slate-700 dark:text-text-muted font-medium">Inicio</span>
                                     </td>
-                                    <td class="py-3 px-4 text-center font-bold text-slate-800 dark:text-white text-lg">
+                                    <td class="py-3 px-4 text-center font-bold text-text text-lg">
                                         {{
                                             stats['inicio'] }}</td>
                                     <td class="py-3 px-4 text-center">
@@ -258,10 +258,10 @@ watch(() => props.stats, () => {
                                     <td class="py-3 px-4 flex items-center gap-3">
                                         <span
                                             class="w-4 h-4 rounded-full bg-gradient-to-r from-yellow-500 to-amber-400 shadow-sm"></span>
-                                        <span class="text-slate-700 dark:text-slate-300 font-medium">En
+                                        <span class="text-slate-700 dark:text-text-muted font-medium">En
                                             Proceso</span>
                                     </td>
-                                    <td class="py-3 px-4 text-center font-bold text-slate-800 dark:text-white text-lg">
+                                    <td class="py-3 px-4 text-center font-bold text-text text-lg">
                                         {{
                                             stats['proceso'] }}</td>
                                     <td class="py-3 px-4 text-center">
@@ -277,9 +277,9 @@ watch(() => props.stats, () => {
                                         <span
                                             class="w-4 h-4 rounded-full bg-gradient-to-r from-green-500 to-emerald-400 shadow-sm"></span>
                                         <span
-                                            class="text-slate-700 dark:text-slate-300 font-medium">Satisfactorio</span>
+                                            class="text-slate-700 dark:text-text-muted font-medium">Satisfactorio</span>
                                     </td>
-                                    <td class="py-3 px-4 text-center font-bold text-slate-800 dark:text-white text-lg">
+                                    <td class="py-3 px-4 text-center font-bold text-text text-lg">
                                         {{
                                             stats['satisfactorio'] }}</td>
                                     <td class="py-3 px-4 text-center">
@@ -295,10 +295,10 @@ watch(() => props.stats, () => {
                                     <td class="py-3 px-4 flex items-center gap-3">
                                         <span
                                             class="w-4 h-4 rounded-full bg-gradient-to-r from-violet-500 to-purple-400 shadow-sm"></span>
-                                        <span class="text-slate-700 dark:text-slate-300 font-medium">Logro
+                                        <span class="text-slate-700 dark:text-text-muted font-medium">Logro
                                             Destacado</span>
                                     </td>
-                                    <td class="py-3 px-4 text-center font-bold text-slate-800 dark:text-white text-lg">
+                                    <td class="py-3 px-4 text-center font-bold text-text text-lg">
                                         {{
                                             stats['destacado'] }}</td>
                                     <td class="py-3 px-4 text-center">
@@ -311,12 +311,12 @@ watch(() => props.stats, () => {
                                 </tr>
                             </tbody>
                             <tfoot class="border-t-2 border-slate-300 dark:border-slate-600">
-                                <tr class="bg-slate-50 dark:bg-[#121212]">
-                                    <td class="py-2 px-3 font-bold text-slate-800 dark:text-white">Total</td>
-                                    <td class="py-2 px-3 text-center font-bold text-slate-800 dark:text-white">
+                                <tr class="bg-surface">
+                                    <td class="py-2 px-3 font-bold text-text">Total</td>
+                                    <td class="py-2 px-3 text-center font-bold text-text">
                                         {{
                                             stats.total }}</td>
-                                    <td class="py-2 px-3 text-center font-bold text-slate-800 dark:text-white">
+                                    <td class="py-2 px-3 text-center font-bold text-text">
                                         100%</td>
                                 </tr>
                             </tfoot>
@@ -327,22 +327,22 @@ watch(() => props.stats, () => {
 
             <!-- Resumen Table -->
             <div
-                class="bg-white dark:bg-[#252525] p-6 rounded-xl border border-slate-300 dark:border-slate-700 shadow-sm flex flex-col">
-                <h3 class="font-bold text-slate-700 dark:text-slate-200 mb-6">Resumen por Estudiante</h3>
+                class="bg-surface-card p-6 rounded-xl border border-slate-300 dark:border-slate-700 shadow-sm flex flex-col">
+                <h3 class="font-bold text-slate-700 dark:text-text mb-6">Resumen por Estudiante</h3>
                 <div
                     class="overflow-y-auto flex-1 max-h-[300px] border rounded-lg border-slate-300 dark:border-slate-700">
                     <table class="w-full text-sm">
-                        <thead class="bg-slate-50 dark:bg-[#121212] sticky top-0">
+                        <thead class="bg-surface sticky top-0">
                             <tr>
-                                <th class="p-2 text-left font-semibold text-slate-600 dark:text-slate-400">
+                                <th class="p-2 text-left font-semibold text-slate-600 dark:text-text-muted">
                                     Estudiante</th>
-                                <th class="p-2 text-center font-semibold text-slate-600 dark:text-slate-400">
+                                <th class="p-2 text-center font-semibold text-slate-600 dark:text-text-muted">
                                     Nivel</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
                             <tr v-for="(est, i) in estudiantes" :key="i">
-                                <td class="p-2 text-slate-700 dark:text-slate-300">{{ est.nombre || 'Sin Nombre'
+                                <td class="p-2 text-slate-700 dark:text-text-muted">{{ est.nombre || 'Sin Nombre'
                                 }}</td>
                                 <td class="p-2 text-center">
                                     <span v-if="est.nivelFinal"
@@ -351,7 +351,7 @@ watch(() => props.stats, () => {
                                             'bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400': est.nivelFinal === 'INICIO',
                                             'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/40 dark:text-yellow-400': est.nivelFinal === 'EN PROCESO',
                                             'bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400': est.nivelFinal === 'SATISFACTORIO',
-                                            'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400': est.nivelFinal === 'LOGRO DESTACADO',
+                                            'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-primary': est.nivelFinal === 'LOGRO DESTACADO',
                                         }">
                                         {{ est.nivelFinal }}
                                     </span>

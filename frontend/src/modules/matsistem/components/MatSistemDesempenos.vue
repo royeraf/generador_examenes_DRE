@@ -77,7 +77,7 @@ const CAP_COLORS: Record<number, { bg: string; bgActive: string; bgHover: string
         bg: 'bg-teal-50 dark:bg-emerald-900/15',
         bgActive: 'bg-teal-500 dark:bg-emerald-600',
         bgHover: 'hover:bg-teal-100/70 dark:hover:bg-emerald-900/30 hover:text-teal-700 dark:hover:text-emerald-300 hover:shadow-sm',
-        text: 'text-teal-600 dark:text-emerald-400',
+        text: 'text-primary',
         textActive: 'text-white',
         border: 'border-teal-200 dark:border-emerald-800',
         ring: 'ring-teal-300 dark:ring-emerald-700',
@@ -140,7 +140,7 @@ watch(() => props.error, () => { errorDismissed.value = false; });
     <div class="flex-1 min-h-0 flex flex-col gap-3">
 
         <!-- Desempeños Card -->
-        <div class="flex-1 min-h-0 flex flex-col bg-white dark:bg-[#252525] rounded-2xl border-2 border-indigo-100 dark:border-slate-700 overflow-hidden shadow-lg">
+        <div class="flex-1 min-h-0 flex flex-col bg-surface-card rounded-2xl border-2 border-indigo-100 dark:border-slate-700 overflow-hidden shadow-lg">
 
             <!-- Card Header -->
             <div class="bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-500 px-4 sm:px-5 py-3 sm:py-4">
@@ -186,9 +186,9 @@ watch(() => props.error, () => { errorDismissed.value = false; });
             <!-- Loading Skeleton -->
             <div v-else-if="loadingDesempenos" class="flex-1 flex flex-col p-4 space-y-4 overflow-hidden">
                 <div class="space-y-3">
-                    <div class="h-14 bg-slate-100 dark:bg-[#252525]/80 rounded-xl animate-pulse"></div>
+                    <div class="h-14 bg-slate-100 dark:bg-surface-card/80 rounded-xl animate-pulse"></div>
                     <div v-for="i in 4" :key="i"
-                        class="h-20 bg-slate-50 dark:bg-[#252525]/50 rounded-xl animate-pulse border border-slate-300 dark:border-slate-700/50">
+                        class="h-20 bg-slate-50 dark:bg-surface-card/50 rounded-xl animate-pulse border border-slate-300 dark:border-slate-700/50">
                     </div>
                 </div>
             </div>
@@ -197,7 +197,7 @@ watch(() => props.error, () => { errorDismissed.value = false; });
             <div v-else-if="desempenos.length > 0" class="flex-1 flex flex-col overflow-hidden">
 
                 <!-- Capacidad Tabs (fixed height to prevent card resize) -->
-                <div class="bg-slate-100 dark:bg-[#121212]/80 p-1.5 sm:p-2 border-b border-slate-300/60 dark:border-slate-700/60 flex-shrink-0 h-[56px] sm:h-[68px]">
+                <div class="bg-slate-100 dark:bg-surface/80 p-1.5 sm:p-2 border-b border-slate-300/60 dark:border-slate-700/60 flex-shrink-0 h-[56px] sm:h-[68px]">
                     <div class="flex gap-1 sm:gap-1.5 h-full">
                         <button
                             v-for="orden in [1, 2, 3, 4]"
@@ -226,7 +226,7 @@ watch(() => props.error, () => { errorDismissed.value = false; });
                                 <span class="text-[9px] sm:text-[11px] font-semibold leading-snug"
                                     :class="activeCapacidadTab === orden
                                         ? 'text-white line-clamp-2'
-                                        : 'text-slate-600 dark:text-slate-300 truncate'">
+                                        : 'text-slate-600 dark:text-text-muted truncate'">
                                     {{ getCapInfo(orden).nombre }}
                                 </span>
                             </div>
@@ -251,7 +251,7 @@ watch(() => props.error, () => { errorDismissed.value = false; });
                             <p class="text-xs font-bold" :class="getCapColor(activeCapacidadTab).text">
                                 Capacidad {{ activeCapacidadTab }}:
                             </p>
-                            <p class="text-[11px] text-slate-600 dark:text-slate-400 leading-snug mt-0.5">
+                            <p class="text-[11px] text-slate-600 dark:text-text-muted leading-snug mt-0.5">
                                 {{ getCapInfo(activeCapacidadTab).nombre }}
                             </p>
                         </div>
@@ -287,7 +287,7 @@ watch(() => props.error, () => { errorDismissed.value = false; });
                                 ? `${getCapColor(activeCapacidadTab).bgSelected} ${getCapColor(activeCapacidadTab).border} ring-1 ${getCapColor(activeCapacidadTab).ring}`
                                 : 'border-slate-300 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800/50'"
                             :color="getCapColor(activeCapacidadTab).checkboxClass">
-                            <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                            <p class="text-sm text-slate-700 dark:text-text-muted leading-relaxed">
                                 {{ des.descripcion }}
                             </p>
                         </Checkbox>
@@ -295,7 +295,7 @@ watch(() => props.error, () => { errorDismissed.value = false; });
 
                     <!-- Empty Tab -->
                     <div v-else class="py-8 text-center">
-                        <p class="text-slate-400 dark:text-slate-500 text-sm">
+                        <p class="text-slate-400 dark:text-text-subtle text-sm">
                             No hay desempeños para esta capacidad en el grado seleccionado
                         </p>
                     </div>
@@ -307,8 +307,8 @@ watch(() => props.error, () => { errorDismissed.value = false; });
                 <div class="w-14 h-14 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <BookOpen class="w-7 h-7 text-indigo-500 dark:text-indigo-400" />
                 </div>
-                <h3 class="text-slate-700 dark:text-slate-200 font-medium mb-1">Sin desempeños</h3>
-                <p class="text-slate-500 dark:text-slate-400 text-sm">
+                <h3 class="text-slate-700 dark:text-text font-medium mb-1">Sin desempeños</h3>
+                <p class="text-slate-500 dark:text-text-muted text-sm">
                     Selecciona un grado y una competencia para ver los desempeños disponibles
                 </p>
             </div>
@@ -319,7 +319,7 @@ watch(() => props.error, () => { errorDismissed.value = false; });
             :disabled="loading || !selectedGradoId || selectedDesempenoIds.length === 0"
             class="flex-shrink-0 w-full px-4 py-4 sm:px-6 sm:py-5 font-bold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 shadow-xl hover:shadow-2xl hover:-translate-y-1 text-base sm:text-lg cursor-pointer"
             :class="loading
-                ? 'bg-white dark:bg-[#121212] border-2 border-slate-300 dark:border-slate-700 shadow-lg cursor-wait'
+                ? 'bg-surface border-2 border-slate-300 dark:border-slate-700 shadow-lg cursor-wait'
                 : 'bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-500 hover:from-indigo-600 hover:via-indigo-700 hover:to-purple-600 shadow-indigo-500/30 hover:shadow-indigo-500/40 text-white'">
             <ThinkingLoader v-if="loading" text="Generando" variant="indigo" />
             <template v-else>

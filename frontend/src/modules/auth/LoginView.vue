@@ -63,7 +63,7 @@ const onSubmit = handleSubmit(async (formValues) => {
 </script>
 
 <template>
-    <div class="min-h-screen flex items-stretch bg-slate-50 dark:bg-[#0d0d0d] transition-colors duration-500 overflow-hidden font-sans">
+    <div class="min-h-screen flex items-stretch bg-surface transition-colors duration-500 overflow-hidden font-sans">
         
         <!-- ═══ Left: Visual Side (Desktop) ═══ -->
         <div class="hidden lg:flex lg:w-[50%] xl:w-[60%] relative flex-col justify-between p-12 overflow-hidden">
@@ -112,12 +112,12 @@ const onSubmit = handleSubmit(async (formValues) => {
         </div>
 
         <!-- ═══ Right: Login Side ═══ -->
-        <div class="flex-1 flex flex-col relative bg-white dark:bg-[#0d0d0d]">
+        <div class="flex-1 flex flex-col relative bg-surface">
             
             <div class="lg:hidden flex items-center justify-between p-6 shrink-0 z-20">
                 <div class="flex items-center gap-2">
                     <img :src="logoDre" alt="Logo" class="w-7 h-7 object-contain dark:brightness-0 dark:invert" />
-                    <span class="text-sm font-bold text-slate-800 dark:text-white tracking-tighter">SIEVA</span>
+                    <span class="text-sm font-bold text-text tracking-tighter">SIEVA</span>
                 </div>
                 <ThemeToggle />
             </div>
@@ -140,8 +140,8 @@ const onSubmit = handleSubmit(async (formValues) => {
                     
                     <!-- Form Header -->
                     <div class="mb-4 text-center lg:text-left">
-                        <h2 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Bienvenido a SIEVA</h2>
-                        <p class="text-slate-500 dark:text-slate-400 font-medium">Ingresa a tu cuenta para continuar</p>
+                        <h2 class="text-3xl font-bold text-text tracking-tight mb-2">Bienvenido a SIEVA</h2>
+                        <p class="text-slate-500 dark:text-text-muted font-medium">Ingresa a tu cuenta para continuar</p>
                     </div>
 
                     <!-- Error Alert -->
@@ -160,14 +160,14 @@ const onSubmit = handleSubmit(async (formValues) => {
                     <form @submit="onSubmit" class="space-y-6" autocomplete="off">
                         <!-- Fields -->
                         <div class="space-y-2">
-                            <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">DNI o Código</label>
+                            <label class="text-[10px] font-bold text-slate-400 dark:text-text-subtle uppercase tracking-widest ml-1">DNI o Código</label>
                             <div class="relative group">
                                 <User class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-teal-500 transition-colors" />
                                 <input 
                                     v-model="identifierValue"
                                     type="text" 
                                     placeholder="DNI o Código"
-                                    class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-4 pl-12 pr-4 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all uppercase placeholder:normal-case"
+                                    class="w-full bg-surface-input border border-slate-300 dark:border-slate-600 rounded-xl py-4 pl-12 pr-4 text-sm font-bold text-slate-700 dark:text-text outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all uppercase placeholder:normal-case"
                                     :class="{'border-red-500/50': identifierError}"
                                 />
                             </div>
@@ -177,14 +177,14 @@ const onSubmit = handleSubmit(async (formValues) => {
                         </div>
 
                         <div class="space-y-2">
-                            <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Contraseña</label>
+                            <label class="text-[10px] font-bold text-slate-400 dark:text-text-subtle uppercase tracking-widest ml-1">Contraseña</label>
                             <div class="relative group">
                                 <Lock class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-teal-500 transition-colors" />
                                 <input 
                                     v-model="passwordValue"
                                     :type="passwordFieldType" 
                                     placeholder="••••••••"
-                                    class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-4 pl-12 pr-12 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all"
+                                    class="w-full bg-surface-input border border-slate-300 dark:border-slate-600 rounded-xl py-4 pl-12 pr-12 text-sm font-bold text-slate-700 dark:text-text outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all"
                                     :class="{'border-red-500/50': passwordError}"
                                 />
                                 <button type="button" @click="passwordFieldType = passwordFieldType === 'password' ? 'text' : 'password'" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors">
@@ -199,7 +199,7 @@ const onSubmit = handleSubmit(async (formValues) => {
 
                         <!-- Action Button -->
                         <button type="submit" :disabled="loading" 
-                            class="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-bold py-4 rounded-xl shadow-xl shadow-slate-950/10 dark:shadow-white/5 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50">
+                            class="w-full bg-slate-900 dark:bg-white text-white dark:text-text-inverse font-bold py-4 rounded-xl shadow-xl shadow-slate-950/10 dark:shadow-white/5 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50">
                             <Loader2 v-if="loading" class="w-5 h-5 animate-spin" />
                             <template v-else>
                                 <span>Acceder al Sistema</span>
@@ -212,10 +212,10 @@ const onSubmit = handleSubmit(async (formValues) => {
 
                     <!-- Student Registration Link -->
                     <div class="mt-10 pt-8 border-t border-slate-300 dark:border-slate-900 text-center">
-                        <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">
+                        <p class="text-sm text-slate-500 dark:text-text-muted font-medium">
                             ¿Eres estudiante y no tienes cuenta?
                         </p>
-                        <router-link to="/registro" class="inline-block mt-2 text-teal-600 dark:text-emerald-400 font-bold hover:underline underline-offset-4">
+                        <router-link to="/registro" class="inline-block mt-2 text-primary font-bold hover:underline underline-offset-4">
                             Regístrate con tu código de aula
                         </router-link>
                     </div>
@@ -224,7 +224,7 @@ const onSubmit = handleSubmit(async (formValues) => {
 
             <!-- Copyright (Mobile) -->
             <div class="lg:hidden p-8 text-center shrink-0">
-                <p class="text-[10px] text-slate-400 dark:text-slate-600 font-bold uppercase tracking-widest">© 2026 DRE HUÁNUCO</p>
+                <p class="text-[10px] text-slate-400 dark:text-text-subtle font-bold uppercase tracking-widest">© 2026 DRE HUÁNUCO</p>
             </div>
         </div>
 

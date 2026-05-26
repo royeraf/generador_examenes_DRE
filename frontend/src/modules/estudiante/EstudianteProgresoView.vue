@@ -50,7 +50,7 @@ const nivelLabels: Record<string, string> = {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-[#0d0d0d] transition-all duration-300 font-sans selection:bg-teal-500/20"
+  <div class="min-h-screen bg-surface transition-all duration-300 font-sans selection:bg-teal-500/20"
        :class="isSidebarCollapsed ? 'lg:pl-[84px]' : 'lg:pl-[280px]'">
 
     <!-- Unified Student Navbar -->
@@ -73,19 +73,19 @@ const nivelLabels: Record<string, string> = {
         <div class="w-20 h-20 rounded-2xl bg-red-50 dark:bg-red-500/10 flex items-center justify-center mb-6">
           <AlertCircle class="w-10 h-10 text-red-500" />
         </div>
-        <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-2">¡Ups! Algo salió mal</h2>
-        <p class="text-slate-500 dark:text-slate-400 max-w-xs">{{ error }}</p>
+        <h2 class="text-xl font-bold text-text mb-2">¡Ups! Algo salió mal</h2>
+        <p class="text-slate-500 dark:text-text-muted max-w-xs">{{ error }}</p>
       </div>
 
       <div v-else-if="progreso.length === 0"
-        class="flex flex-col items-center justify-center py-24 bg-white dark:bg-[#121212] rounded-2xl border border-slate-300 dark:border-slate-800 shadow-xl text-center animate-slide-up">
-        <div class="w-24 h-24 rounded-full bg-slate-50 dark:bg-[#252525] flex items-center justify-center mb-8">
-          <BarChart3 class="w-12 h-12 text-slate-200 dark:text-slate-700" />
+        class="flex flex-col items-center justify-center py-24 bg-surface rounded-2xl border border-slate-300 dark:border-slate-800 shadow-xl text-center animate-slide-up">
+        <div class="w-24 h-24 rounded-full bg-slate-50 dark:bg-surface-card flex items-center justify-center mb-8">
+          <BarChart3 class="w-12 h-12 text-slate-200 dark:text-text-subtle" />
         </div>
-        <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Sin actividad aún</h2>
-        <p class="text-slate-500 dark:text-slate-400 max-w-xs">Completa al menos una evaluación para comenzar a trackear tu progreso.</p>
+        <h2 class="text-xl font-bold text-text mb-2">Sin actividad aún</h2>
+        <p class="text-slate-500 dark:text-text-muted max-w-xs">Completa al menos una evaluación para comenzar a trackear tu progreso.</p>
         <button @click="router.push('/estudiante/examenes')"
-          class="mt-8 px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold transition-all active:scale-95 shadow-lg">
+          class="mt-8 px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-text-inverse rounded-xl font-bold transition-all active:scale-95 shadow-lg">
           Ver exámenes
         </button>
       </div>
@@ -94,7 +94,7 @@ const nivelLabels: Record<string, string> = {
         <div
           v-for="(p, i) in progreso"
           :key="p.area"
-          class="group bg-white dark:bg-[#121212] rounded-2xl border border-slate-300 dark:border-slate-800 p-8 shadow-xl hover:shadow-2xl transition-all duration-500 relative overflow-hidden animate-slide-up"
+          class="group bg-surface rounded-2xl border border-slate-300 dark:border-slate-800 p-8 shadow-xl hover:shadow-2xl transition-all duration-500 relative overflow-hidden animate-slide-up"
           :style="{ animationDelay: `${i * 100}ms` }"
         >
           <!-- Decorative Background Icon -->
@@ -111,7 +111,7 @@ const nivelLabels: Record<string, string> = {
                 <Calculator v-else class="w-7 h-7 text-white" />
               </div>
               <div class="min-w-0">
-                <h3 class="text-xl font-bold text-slate-900 dark:text-white">
+                <h3 class="text-xl font-bold text-text">
                   {{ p.area === 'comunicacion' ? 'Comunicación' : 'Matemática' }}
                 </h3>
                 <div class="flex items-center gap-2 mt-1">
@@ -134,7 +134,7 @@ const nivelLabels: Record<string, string> = {
                 class="inline-flex px-5 py-2 rounded-full text-xs font-black uppercase tracking-[0.15em] border border-transparent shadow-sm">
                 {{ nivelLabels[p.nivel_logro_actual] ?? p.nivel_logro_actual }}
               </div>
-              <div v-else class="text-xs font-bold text-slate-400 bg-slate-50 dark:bg-[#252525]/50 px-4 py-2 rounded-full border border-transparent inline-block">
+              <div v-else class="text-xs font-bold text-slate-400 bg-slate-50 dark:bg-surface-card/50 px-4 py-2 rounded-full border border-transparent inline-block">
                 Pendiente de evaluación
               </div>
             </div>
@@ -147,11 +147,11 @@ const nivelLabels: Record<string, string> = {
                   <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Dominio promedio</span>
                 </div>
                 <div class="text-right">
-                  <span class="text-3xl font-black text-slate-900 dark:text-white tabular-nums">{{ p.puntaje_promedio.toFixed(0) }}</span>
+                  <span class="text-3xl font-black text-text tabular-nums">{{ p.puntaje_promedio.toFixed(0) }}</span>
                   <span class="text-sm font-bold text-slate-400 ml-1">%</span>
                 </div>
               </div>
-              <div class="h-3 bg-slate-50 dark:bg-[#252525]/50 rounded-full overflow-hidden p-0.5 border border-slate-300/50 dark:border-slate-800">
+              <div class="h-3 bg-slate-50 dark:bg-surface-card/50 rounded-full overflow-hidden p-0.5 border border-slate-300/50 dark:border-slate-800">
                 <div
                   class="h-full rounded-full transition-all duration-1000 ease-out bg-gradient-to-r"
                   :class="p.area === 'comunicacion' ? 'from-teal-400 to-emerald-500' : 'from-violet-400 to-purple-500'"
@@ -162,18 +162,18 @@ const nivelLabels: Record<string, string> = {
 
             <!-- Quick Stats -->
             <div class="grid grid-cols-2 gap-4">
-              <div class="bg-slate-50/50 dark:bg-[#252525]/30 rounded-2xl p-5 border border-slate-300/50 dark:border-slate-800/50 transition-colors group-hover:bg-white dark:group-hover:bg-slate-800/50">
+              <div class="bg-slate-50/50 dark:bg-surface-card/30 rounded-2xl p-5 border border-slate-300/50 dark:border-slate-800/50 transition-colors group-hover:bg-white dark:group-hover:bg-slate-800/50">
                 <div class="flex items-center gap-2 mb-2 text-emerald-500">
                   <BarChart3 class="w-4 h-4" />
                 </div>
-                <p class="text-2xl font-black text-slate-900 dark:text-white leading-none">{{ p.total_examenes_completados }}</p>
+                <p class="text-2xl font-black text-text leading-none">{{ p.total_examenes_completados }}</p>
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Evaluaciones</p>
               </div>
-              <div class="bg-slate-50/50 dark:bg-[#252525]/30 rounded-2xl p-5 border border-slate-300/50 dark:border-slate-800/50 transition-colors group-hover:bg-white dark:group-hover:bg-slate-800/50">
+              <div class="bg-slate-50/50 dark:bg-surface-card/30 rounded-2xl p-5 border border-slate-300/50 dark:border-slate-800/50 transition-colors group-hover:bg-white dark:group-hover:bg-slate-800/50">
                 <div class="flex items-center gap-2 mb-2 text-teal-500">
                   <TrendingUp class="w-4 h-4" />
                 </div>
-                <p class="text-2xl font-black text-slate-900 dark:text-white leading-none">{{ p.puntaje_promedio.toFixed(0) }}%</p>
+                <p class="text-2xl font-black text-text leading-none">{{ p.puntaje_promedio.toFixed(0) }}%</p>
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Efectividad</p>
               </div>
             </div>

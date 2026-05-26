@@ -31,10 +31,11 @@
   --color-secondary-muted: #fef3c7;
 
   /* --- Superficies --- */
-  --color-surface:        #fafafa;
-  --color-surface-card:   #ffffff;
-  --color-surface-input:  #f8fafc;
-  --color-surface-raised: #ffffff;
+  --color-surface:          #fafafa;
+  --color-surface-card:     #ffffff;
+  --color-surface-input:    #f8fafc;
+  --color-surface-raised:   #ffffff;
+  --color-surface-elevated: #e2e8f0;
 
   /* --- Bordes --- */
   --color-border:        #e2e8f0;
@@ -76,10 +77,11 @@
   --color-secondary-muted: #1f1506;
 
   /* Superficies */
-  --color-surface:        #121212;
-  --color-surface-card:   #252525;
-  --color-surface-input:  #393939;
-  --color-surface-raised: #2d352c;
+  --color-surface:          #121212;
+  --color-surface-card:     #252525;
+  --color-surface-input:    #393939;
+  --color-surface-raised:   #2d352c;
+  --color-surface-elevated: #4f4f4f;
 
   /* Bordes */
   --color-border:        #393939;

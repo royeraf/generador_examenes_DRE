@@ -97,22 +97,22 @@ onMounted(() => {
         <!-- Header Nav within Component - Educativo -->
         <div class="mb-6 overflow-x-auto pb-2 scrollbar-hide">
             <div
-                class="flex gap-1 sm:gap-2 p-1.5 sm:p-2 bg-white dark:bg-[#252525] rounded-2xl shadow-lg border border-gray-100 dark:border-slate-700 w-fit min-w-max">
+                class="flex gap-1 sm:gap-2 p-1.5 sm:p-2 bg-surface-card rounded-2xl shadow-lg border border-gray-100 dark:border-slate-700 w-fit min-w-max">
                 <button @click="activeTab = 'config'"
                     class="flex items-center gap-2 px-3 py-2 sm:px-5 sm:py-3 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 whitespace-nowrap"
-                    :class="activeTab === 'config' ? 'bg-gradient-to-r from-teal-500 to-sky-500 text-white shadow-lg shadow-teal-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-teal-50 dark:hover:bg-slate-700'">
+                    :class="activeTab === 'config' ? 'bg-gradient-to-r from-teal-500 to-sky-500 text-white shadow-lg shadow-teal-500/30' : 'text-slate-600 dark:text-text-muted hover:bg-teal-50 dark:hover:bg-slate-700'">
                     <Settings class="w-4 h-4 sm:w-5 sm:h-5" />
                     <span>Configuración</span>
                 </button>
                 <button @click="activeTab = 'registro'"
                     class="flex items-center gap-2 px-3 py-2 sm:px-5 sm:py-3 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 whitespace-nowrap"
-                    :class="activeTab === 'registro' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-amber-50 dark:hover:bg-slate-700'">
+                    :class="activeTab === 'registro' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30' : 'text-slate-600 dark:text-text-muted hover:bg-amber-50 dark:hover:bg-slate-700'">
                     <ClipboardList class="w-4 h-4 sm:w-5 sm:h-5" />
                     <span>Registro</span>
                 </button>
                 <button @click="activeTab = 'resultados'"
                     class="flex items-center gap-2 px-3 py-2 sm:px-5 sm:py-3 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 whitespace-nowrap"
-                    :class="activeTab === 'resultados' ? 'bg-gradient-to-r from-violet-500 to-purple-500 text-white shadow-lg shadow-violet-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-violet-50 dark:hover:bg-slate-700'">
+                    :class="activeTab === 'resultados' ? 'bg-gradient-to-r from-violet-500 to-purple-500 text-white shadow-lg shadow-violet-500/30' : 'text-slate-600 dark:text-text-muted hover:bg-violet-50 dark:hover:bg-slate-700'">
                     <BarChart3 class="w-4 h-4 sm:w-5 sm:h-5" />
                     <span>Resultados</span>
                 </button>

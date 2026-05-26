@@ -47,17 +47,17 @@ const hasPreguntas = () => {
             </div>
             <div class="flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto">
                 <button @click="emit('addEstudiante')"
-                    class="flex-1 sm:flex-none px-3 py-2 sm:px-5 sm:py-3 bg-white dark:bg-[#252525] border-2 border-teal-200 dark:border-slate-700 rounded-xl text-teal-700 dark:text-slate-300 hover:bg-teal-50 dark:hover:bg-slate-700 text-xs sm:text-base font-bold flex items-center justify-center gap-2 transition-all duration-300">
+                    class="flex-1 sm:flex-none px-3 py-2 sm:px-5 sm:py-3 bg-surface-card border-2 border-teal-200 dark:border-slate-700 rounded-xl text-teal-700 dark:text-text-muted hover:bg-teal-50 dark:hover:bg-slate-700 text-xs sm:text-base font-bold flex items-center justify-center gap-2 transition-all duration-300">
                     <UserPlus class="w-4 h-4 sm:w-5 sm:h-5" />
                     <span class="whitespace-nowrap">Estudiante</span>
                 </button>
                 <button v-if="hasPreguntas()" @click="emit('descargarPlantilla')"
-                    class="flex-1 sm:flex-none px-3 py-2 sm:px-5 sm:py-3 bg-white dark:bg-[#252525] border-2 border-sky-200 dark:border-slate-700 rounded-xl text-sky-700 dark:text-slate-300 hover:bg-sky-50 dark:hover:bg-slate-700 text-xs sm:text-base font-bold flex items-center justify-center gap-2 transition-all duration-300">
+                    class="flex-1 sm:flex-none px-3 py-2 sm:px-5 sm:py-3 bg-surface-card border-2 border-sky-200 dark:border-slate-700 rounded-xl text-sky-700 dark:text-text-muted hover:bg-sky-50 dark:hover:bg-slate-700 text-xs sm:text-base font-bold flex items-center justify-center gap-2 transition-all duration-300">
                     <Download class="w-4 h-4 sm:w-5 sm:h-5" />
                     <span class="whitespace-nowrap">Plantilla</span>
                 </button>
                 <button v-if="hasPreguntas()" @click="fileInput?.click()"
-                    class="flex-1 sm:flex-none px-3 py-2 sm:px-5 sm:py-3 bg-white dark:bg-[#252525] border-2 border-violet-200 dark:border-slate-700 rounded-xl text-violet-700 dark:text-slate-300 hover:bg-violet-50 dark:hover:bg-slate-700 text-xs sm:text-base font-bold flex items-center justify-center gap-2 transition-all duration-300">
+                    class="flex-1 sm:flex-none px-3 py-2 sm:px-5 sm:py-3 bg-surface-card border-2 border-violet-200 dark:border-slate-700 rounded-xl text-violet-700 dark:text-text-muted hover:bg-violet-50 dark:hover:bg-slate-700 text-xs sm:text-base font-bold flex items-center justify-center gap-2 transition-all duration-300">
                     <Upload class="w-4 h-4 sm:w-5 sm:h-5" />
                     <span class="whitespace-nowrap">Importar</span>
                 </button>
@@ -71,15 +71,15 @@ const hasPreguntas = () => {
         </div>
 
         <div
-            class="overflow-x-auto rounded-2xl border-2 border-amber-100 dark:border-slate-700 shadow-lg bg-white dark:bg-[#252525]">
+            class="overflow-x-auto rounded-2xl border-2 border-amber-100 dark:border-slate-700 shadow-lg bg-surface-card">
             <table class="w-full text-sm">
                 <thead>
                     <tr>
                         <th rowspan="2"
-                            class="p-4 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-900 dark:to-slate-950 border-b-2 border-r-2 border-amber-100 dark:border-slate-700 text-left font-bold text-amber-700 dark:text-slate-300 w-12">
+                            class="p-4 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-900 dark:to-slate-950 border-b-2 border-r-2 border-amber-100 dark:border-slate-700 text-left font-bold text-amber-700 dark:text-text-muted w-12">
                             #</th>
                         <th rowspan="2"
-                            class="p-4 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-900 dark:to-slate-950 border-b-2 border-r-2 border-amber-100 dark:border-slate-700 text-left font-bold text-amber-700 dark:text-slate-300 min-w-[200px]">
+                            class="p-4 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-900 dark:to-slate-950 border-b-2 border-r-2 border-amber-100 dark:border-slate-700 text-left font-bold text-amber-700 dark:text-text-muted min-w-[200px]">
                             <Users class="w-4 h-4 inline" /> Apellidos y Nombres
                         </th>
 
@@ -92,16 +92,16 @@ const hasPreguntas = () => {
                         </template>
 
                         <th rowspan="2"
-                            class="p-4 bg-gradient-to-br from-violet-50 to-purple-50 dark:from-slate-900 dark:to-slate-950 border-b-2 text-center font-bold text-violet-700 dark:text-slate-300 min-w-[140px]">
+                            class="p-4 bg-gradient-to-br from-violet-50 to-purple-50 dark:from-slate-900 dark:to-slate-950 border-b-2 text-center font-bold text-violet-700 dark:text-text-muted min-w-[140px]">
                             <Trophy class="w-4 h-4 inline" /> Nivel Final
                         </th>
-                        <th rowspan="2" class="p-3 bg-slate-50 dark:bg-[#121212] border-b-2 text-center w-12">
+                        <th rowspan="2" class="p-3 bg-surface border-b-2 text-center w-12">
                         </th>
                     </tr>
                     <tr>
                         <template v-for="(nivel, key) in niveles" :key="key + '-sub'">
                             <th v-for="(preg, idx) in nivel.preguntas" :key="idx"
-                                class="p-2 border-b border-r border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#121212] text-xs text-center text-slate-500 dark:text-slate-400"
+                                class="p-2 border-b border-r border-slate-300 dark:border-slate-700 bg-surface text-xs text-center text-slate-500 dark:text-text-muted"
                                 :title="preg.descripcion">
                                 <div class="flex flex-col items-center">
                                     <span>P{{ idx + 1 }}</span>
@@ -121,7 +121,7 @@ const hasPreguntas = () => {
                             {{ i + 1 }}</td>
                         <td class="p-3 border-r border-slate-300 dark:border-slate-700">
                             <input v-model="est.nombre" type="text" placeholder="Nombre del estudiante"
-                                class="w-full bg-slate-50 dark:bg-[#393939]/50 border border-slate-300 dark:border-slate-600 rounded-xl py-1.5 px-3 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all placeholder-slate-400" />
+                                class="w-full bg-surface-input/50 border border-slate-300 dark:border-slate-600 rounded-xl py-1.5 px-3 text-sm font-bold text-slate-700 dark:text-text outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all placeholder-slate-400" />
                         </td>
 
                         <template v-for="(nivel, key) in niveles" :key="key">
@@ -132,12 +132,12 @@ const hasPreguntas = () => {
                                     const respArray = est.respuestas[String(key)];
                                     if (respArray) respArray[idx] = (e.target as HTMLSelectElement).value;
                                 }"
-                                    class="w-full text-center bg-transparent outline-none cursor-pointer focus:bg-emerald-50 dark:focus:bg-emerald-900/20 rounded py-1 text-slate-700 dark:text-slate-300">
-                                    <option value="" class="dark:bg-[#252525]">-</option>
-                                    <option value="A" class="dark:bg-[#252525]">A</option>
-                                    <option value="B" class="dark:bg-[#252525]">B</option>
-                                    <option value="C" class="dark:bg-[#252525]">C</option>
-                                    <option value="D" class="dark:bg-[#252525]">D</option>
+                                    class="w-full text-center bg-transparent outline-none cursor-pointer focus:bg-emerald-50 dark:focus:bg-emerald-900/20 rounded py-1 text-slate-700 dark:text-text-muted">
+                                    <option value="" class="dark:bg-surface-card">-</option>
+                                    <option value="A" class="dark:bg-surface-card">A</option>
+                                    <option value="B" class="dark:bg-surface-card">B</option>
+                                    <option value="C" class="dark:bg-surface-card">C</option>
+                                    <option value="D" class="dark:bg-surface-card">D</option>
                                 </select>
                             </td>
                         </template>
@@ -171,7 +171,7 @@ const hasPreguntas = () => {
                                     <GraduationCap class="w-10 h-10 text-amber-600" />
                                 </div>
                                 <div>
-                                    <p class="text-lg font-bold text-slate-700 dark:text-slate-300 mb-1">No hay
+                                    <p class="text-lg font-bold text-slate-700 dark:text-text-muted mb-1">No hay
                                         estudiantes registrados
                                     </p>
                                     <p class="text-sm text-slate-500">Haz clic en "Agregar Estudiante" para comenzar</p>

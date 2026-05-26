@@ -41,15 +41,15 @@ const nivelLabel: Record<string, string> = { inicial: 'Inicial', primaria: 'Prim
 
     <div v-else-if="ugel" class="space-y-6">
       <!-- Info UGEL -->
-      <div class="bg-white dark:bg-[#252525] rounded-2xl border border-slate-300 dark:border-slate-700 p-6 shadow-sm">
+      <div class="bg-surface-card rounded-2xl border border-slate-300 dark:border-slate-700 p-6 shadow-sm">
         <div class="flex items-start gap-4">
           <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center shrink-0">
             <Building2 class="w-6 h-6 text-white" />
           </div>
           <div class="flex-1 min-w-0">
-            <h2 class="text-xl font-bold text-slate-800 dark:text-white">{{ ugel.nombre }}</h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Código: <span class="font-mono font-semibold">{{ ugel.codigo }}</span></p>
-            <p v-if="ugel.provincia_nombre" class="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
+            <h2 class="text-xl font-bold text-text">{{ ugel.nombre }}</h2>
+            <p class="text-sm text-slate-500 dark:text-text-muted mt-0.5">Código: <span class="font-mono font-semibold">{{ ugel.codigo }}</span></p>
+            <p v-if="ugel.provincia_nombre" class="text-sm text-slate-500 dark:text-text-muted flex items-center gap-1 mt-1">
               <MapPin class="w-3.5 h-3.5" /> {{ ugel.provincia_nombre }}
             </p>
           </div>
@@ -62,31 +62,31 @@ const nivelLabel: Record<string, string> = { inicial: 'Inicial', primaria: 'Prim
 
       <!-- Estadísticas -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div class="bg-white dark:bg-[#252525] rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm text-center">
-          <p class="text-2xl font-bold text-teal-600 dark:text-emerald-400">{{ instituciones.length }}</p>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Total Instituciones</p>
+        <div class="bg-surface-card rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm text-center">
+          <p class="text-2xl font-bold text-primary">{{ instituciones.length }}</p>
+          <p class="text-xs text-slate-500 dark:text-text-muted mt-0.5">Total Instituciones</p>
         </div>
-        <div class="bg-white dark:bg-[#252525] rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm text-center">
+        <div class="bg-surface-card rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm text-center">
           <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ instituciones.filter(i => i.is_active).length }}</p>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Activas</p>
+          <p class="text-xs text-slate-500 dark:text-text-muted mt-0.5">Activas</p>
         </div>
-        <div class="bg-white dark:bg-[#252525] rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm text-center">
-          <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ instituciones.filter(i => Array.isArray(i.nivel_educativo) ? i.nivel_educativo.includes('primaria') : i.nivel_educativo === 'primaria').length }}</p>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Primaria</p>
+        <div class="bg-surface-card rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm text-center">
+          <p class="text-2xl font-bold text-emerald-600 dark:text-primary">{{ instituciones.filter(i => Array.isArray(i.nivel_educativo) ? i.nivel_educativo.includes('primaria') : i.nivel_educativo === 'primaria').length }}</p>
+          <p class="text-xs text-slate-500 dark:text-text-muted mt-0.5">Primaria</p>
         </div>
-        <div class="bg-white dark:bg-[#252525] rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm text-center">
+        <div class="bg-surface-card rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm text-center">
           <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">{{ instituciones.filter(i => Array.isArray(i.nivel_educativo) ? i.nivel_educativo.includes('secundaria') : i.nivel_educativo === 'secundaria').length }}</p>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Secundaria</p>
+          <p class="text-xs text-slate-500 dark:text-text-muted mt-0.5">Secundaria</p>
         </div>
       </div>
 
       <!-- Lista de instituciones -->
-      <div class="bg-white dark:bg-[#252525] rounded-2xl border border-slate-300 dark:border-slate-700 overflow-hidden shadow-sm">
+      <div class="bg-surface-card rounded-2xl border border-slate-300 dark:border-slate-700 overflow-hidden shadow-sm">
         <div class="px-5 py-4 border-b border-slate-300 dark:border-slate-700">
-          <h3 class="font-bold text-slate-800 dark:text-white">Instituciones Educativas</h3>
+          <h3 class="font-bold text-text">Instituciones Educativas</h3>
         </div>
         <table class="w-full text-sm">
-          <thead class="bg-slate-50 dark:bg-[#393939]/50 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+          <thead class="bg-surface-input/50 text-xs font-bold text-slate-500 dark:text-text-muted uppercase tracking-wider">
             <tr>
               <th class="px-4 py-3 text-left">Nombre</th>
               <th class="px-4 py-3 text-left">Nivel</th>
@@ -96,13 +96,13 @@ const nivelLabel: Record<string, string> = { inicial: 'Inicial', primaria: 'Prim
           <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
             <tr v-for="ie in instituciones" :key="ie.id" class="hover:bg-slate-50 dark:hover:bg-slate-700/30">
               <td class="px-4 py-3">
-                <p class="font-medium text-slate-800 dark:text-white">{{ ie.nombre }}</p>
+                <p class="font-medium text-text">{{ ie.nombre }}</p>
                 <p class="text-xs text-slate-400 font-mono">{{ ie.codigo_modular }}</p>
               </td>
               <td class="px-4 py-3">
                 <div class="flex flex-wrap gap-1">
                   <span v-for="niv in (Array.isArray(ie.nivel_educativo) ? ie.nivel_educativo : [ie.nivel_educativo])" :key="niv"
-                    class="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full text-xs font-semibold">
+                    class="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-primary px-2 py-0.5 rounded-full text-xs font-semibold">
                     {{ nivelLabel[niv] ?? niv }}
                   </span>
                 </div>

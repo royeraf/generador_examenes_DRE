@@ -36,9 +36,9 @@ const AREAS: AreaConfig[] = [
     icon: GraduationCap,
     panel: GradosPanel,
     accentBg: 'bg-slate-500',
-    accentText: 'text-slate-600 dark:text-slate-400',
+    accentText: 'text-slate-600 dark:text-text-muted',
     accentRing: 'ring-slate-500',
-    activeBg: 'bg-slate-50 dark:bg-[#252525]/60 border-slate-300 dark:border-slate-600',
+    activeBg: 'bg-slate-50 dark:bg-surface-card/60 border-slate-300 dark:border-slate-600',
   },
   {
     id: 'comunicacion',
@@ -47,7 +47,7 @@ const AREAS: AreaConfig[] = [
     icon: BookOpenText,
     panel: ComunicacionPanel,
     accentBg: 'bg-teal-500',
-    accentText: 'text-teal-600 dark:text-emerald-400',
+    accentText: 'text-primary',
     accentRing: 'ring-teal-500',
     activeBg: 'bg-teal-50 dark:bg-emerald-900/20 border-teal-200 dark:border-emerald-800',
   },
@@ -69,7 +69,7 @@ const AREAS: AreaConfig[] = [
     icon: FlaskConical,
     panel: null,
     accentBg: 'bg-emerald-500',
-    accentText: 'text-emerald-600 dark:text-emerald-400',
+    accentText: 'text-emerald-600 dark:text-primary',
     accentRing: 'ring-emerald-500',
     activeBg: 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800',
   },
@@ -123,7 +123,7 @@ const sidebarOpen = shallowRef(false) // Para móvil (drawer)
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-[#0d0d0d] font-sans relative flex flex-col">
+  <div class="min-h-screen bg-surface font-sans relative flex flex-col">
     <EduBackground variant="emerald" />
 
     <div class="relative z-10 flex flex-col h-screen">
@@ -137,7 +137,7 @@ const sidebarOpen = shallowRef(false) // Para móvil (drawer)
         <template #actions-before>
           <button
             @click="sidebarOpen = !sidebarOpen"
-            class="sm:hidden p-2 rounded-xl bg-slate-100 dark:bg-[#252525] text-slate-600 dark:text-white border border-slate-300 dark:border-slate-700 cursor-pointer"
+            class="sm:hidden p-2 rounded-xl bg-slate-100 dark:bg-surface-card text-slate-600 dark:text-text border border-slate-300 dark:border-slate-700 cursor-pointer"
           >
             <Menu class="w-5 h-5" />
           </button>
@@ -157,7 +157,7 @@ const sidebarOpen = shallowRef(false) // Para móvil (drawer)
 
         <!-- Sidebar / Navigation -->
         <aside
-          class="fixed sm:relative z-[70] h-full sm:h-auto bg-white dark:bg-[#121212] border-r border-slate-300 dark:border-slate-800 transition-all duration-300 flex flex-col"
+          class="fixed sm:relative z-[70] h-full sm:h-auto bg-surface border-r border-slate-300 dark:border-slate-800 transition-all duration-300 flex flex-col"
           :class="[
             sidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full sm:translate-x-0',
             !sidebarCollapsed ? 'sm:w-64' : 'sm:w-20'
@@ -166,7 +166,7 @@ const sidebarOpen = shallowRef(false) // Para móvil (drawer)
           <!-- Desktop toggle button -->
           <button
             @click="sidebarCollapsed = !sidebarCollapsed"
-            class="hidden sm:flex absolute -right-3 top-4 w-6 h-6 rounded-full bg-white dark:bg-[#252525] border border-slate-300 dark:border-slate-700 items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 shadow-sm z-10 transition-transform cursor-pointer"
+            class="hidden sm:flex absolute -right-3 top-4 w-6 h-6 rounded-full bg-surface-card border border-slate-300 dark:border-slate-700 items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 shadow-sm z-10 transition-transform cursor-pointer"
             :class="sidebarCollapsed ? 'rotate-180' : ''"
           >
             <PanelLeftClose class="w-3.5 h-3.5" />
@@ -174,7 +174,7 @@ const sidebarOpen = shallowRef(false) // Para móvil (drawer)
 
           <!-- Mobile close button -->
           <div class="sm:hidden flex items-center justify-between p-4 border-b border-slate-300 dark:border-slate-800">
-            <span class="font-bold text-slate-800 dark:text-white">Menú</span>
+            <span class="font-bold text-text">Menú</span>
             <button @click="sidebarOpen = false" class="text-slate-400 cursor-pointer">
               <X class="w-5 h-5" />
             </button>
@@ -203,14 +203,14 @@ const sidebarOpen = shallowRef(false) // Para móvil (drawer)
                   class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-colors"
                   :class="selectedAreaId === area.id && area.panel
                     ? `${area.accentBg} text-white shadow-md`
-                    : 'bg-slate-100 dark:bg-[#252525] text-slate-500'"
+                    : 'bg-slate-100 dark:bg-surface-card text-slate-500'"
                 >
                   <component :is="area.icon" class="w-4.5 h-4.5" />
                 </span>
 
                 <div v-if="!sidebarCollapsed || sidebarOpen" class="flex-1 min-w-0 transition-opacity duration-300">
                   <p class="text-sm font-semibold truncate"
-                     :class="selectedAreaId === area.id && area.panel ? area.accentText : 'text-slate-700 dark:text-slate-300'">
+                     :class="selectedAreaId === area.id && area.panel ? area.accentText : 'text-slate-700 dark:text-text-muted'">
                     {{ area.label }}
                   </p>
                   <p class="text-[10px] text-slate-400 truncate">{{ area.descripcion }}</p>
@@ -227,12 +227,12 @@ const sidebarOpen = shallowRef(false) // Para móvil (drawer)
 
           <!-- Bottom Footer Info -->
           <div v-if="!sidebarCollapsed || sidebarOpen" class="p-4 border-t border-slate-300 dark:border-slate-800">
-            <div class="flex items-center gap-3 p-2 bg-slate-50 dark:bg-[#252525]/50 rounded-xl">
+            <div class="flex items-center gap-3 p-2 bg-slate-50 dark:bg-surface-card/50 rounded-xl">
               <div class="w-8 h-8 rounded-full bg-teal-500 flex items-center justify-center text-white font-bold text-xs">
                 {{ auth.user?.nombres?.charAt(0) || 'A' }}
               </div>
               <div class="min-w-0">
-                <p class="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">{{ auth.user?.nombres || 'Admin' }}</p>
+                <p class="text-xs font-bold text-slate-700 dark:text-text truncate">{{ auth.user?.nombres || 'Admin' }}</p>
                 <p class="text-[10px] text-slate-500 truncate capitalize">{{ auth.userRole?.replace(/_/g, ' ') }}</p>
               </div>
             </div>
@@ -243,12 +243,12 @@ const sidebarOpen = shallowRef(false) // Para móvil (drawer)
         <main class="flex-1 min-w-0 flex flex-col overflow-hidden">
 
           <!-- Area header strip -->
-          <div class="shrink-0 px-6 py-3 border-b border-slate-300 dark:border-slate-800 bg-white dark:bg-[#121212] flex items-center gap-3">
+          <div class="shrink-0 px-6 py-3 border-b border-slate-300 dark:border-slate-800 bg-surface flex items-center gap-3">
             <span class="w-7 h-7 rounded-lg flex items-center justify-center text-white shadow-sm" :class="currentArea.accentBg">
               <component :is="currentArea.icon" class="w-3.5 h-3.5" />
             </span>
             <div>
-              <h2 class="text-sm font-bold text-slate-800 dark:text-white">{{ currentArea.label }}</h2>
+              <h2 class="text-sm font-bold text-text">{{ currentArea.label }}</h2>
               <p class="text-xs text-slate-400">{{ currentArea.descripcion }}</p>
             </div>
           </div>
@@ -259,11 +259,11 @@ const sidebarOpen = shallowRef(false) // Para móvil (drawer)
 
             <!-- Coming soon placeholder -->
             <div v-else class="h-full flex flex-col items-center justify-center text-center gap-4">
-              <span class="w-16 h-16 rounded-2xl flex items-center justify-center bg-slate-100 dark:bg-[#252525]">
+              <span class="w-16 h-16 rounded-2xl flex items-center justify-center bg-slate-100 dark:bg-surface-card">
                 <component :is="currentArea.icon" class="w-8 h-8 text-slate-400" />
               </span>
               <div>
-                <p class="font-bold text-slate-700 dark:text-slate-200">{{ currentArea.label }}</p>
+                <p class="font-bold text-slate-700 dark:text-text">{{ currentArea.label }}</p>
                 <p class="text-sm text-slate-400 mt-1">Este módulo estará disponible próximamente</p>
               </div>
             </div>

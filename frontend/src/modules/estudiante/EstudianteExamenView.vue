@@ -158,7 +158,7 @@ const tiempoFormato = computed(() => {
 const timerColor = computed(() => {
   if (tiempoRestante.value < 60) return 'text-red-500'
   if (tiempoRestante.value < 300) return 'text-orange-500'
-  return 'text-slate-700 dark:text-slate-200'
+  return 'text-slate-700 dark:text-text'
 })
 
 const progreso = computed(() => {
@@ -398,7 +398,7 @@ const nivelMensaje: Record<string, string> = {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-[#0d0d0d] transition-colors duration-500 font-sans selection:bg-teal-500/20" :class="{ 'select-none': examen && !resultado, 'examen-activo': examen && !resultado }">
+  <div class="min-h-screen bg-surface transition-colors duration-500 font-sans selection:bg-teal-500/20" :class="{ 'select-none': examen && !resultado, 'examen-activo': examen && !resultado }">
 
     <!-- Confetti -->
     <div v-if="resultado && confettis.length > 0" class="fixed inset-0 pointer-events-none overflow-hidden z-[100]">
@@ -427,18 +427,18 @@ const nivelMensaje: Record<string, string> = {
         <AlertCircle class="w-10 h-10 text-red-500" />
       </div>
       <div>
-        <h1 class="text-xl font-bold text-slate-900 dark:text-white mb-2">¡Ups! Algo salió mal</h1>
-        <p class="text-slate-500 dark:text-slate-400 max-w-xs">{{ error }}</p>
+        <h1 class="text-xl font-bold text-text mb-2">¡Ups! Algo salió mal</h1>
+        <p class="text-slate-500 dark:text-text-muted max-w-xs">{{ error }}</p>
       </div>
       <button @click="router.push('/estudiante/examenes')"
-        class="px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold transition-transform active:scale-95 shadow-lg">
+        class="px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-text-inverse rounded-xl font-bold transition-transform active:scale-95 shadow-lg">
         Volver a la lista
       </button>
     </div>
 
     <!-- Resultado final -->
     <div v-else-if="resultado"
-      class="min-h-screen flex flex-col items-center px-6 py-12 bg-slate-50 dark:bg-[#0d0d0d] relative overflow-y-auto">
+      class="min-h-screen flex flex-col items-center px-6 py-12 bg-surface relative overflow-y-auto">
       
       <!-- Background orbs -->
       <div class="fixed inset-0 pointer-events-none overflow-hidden">
@@ -448,7 +448,7 @@ const nivelMensaje: Record<string, string> = {
 
       <div class="w-full max-w-lg z-10">
         <!-- Success Card -->
-        <div class="bg-white dark:bg-[#121212] rounded-2xl border border-slate-300 dark:border-slate-800 shadow-2xl p-8 sm:p-10 mb-8 animate-slide-up-1 relative overflow-hidden">
+        <div class="bg-surface rounded-2xl border border-slate-300 dark:border-slate-800 shadow-2xl p-8 sm:p-10 mb-8 animate-slide-up-1 relative overflow-hidden">
           
           <div class="flex justify-center mb-8 animate-success-pop">
             <div class="w-24 h-24 rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center shadow-xl shadow-teal-500/20 rotate-12">
@@ -457,8 +457,8 @@ const nivelMensaje: Record<string, string> = {
           </div>
 
           <div class="text-center mb-10">
-            <h1 class="text-3xl font-black text-slate-900 dark:text-white mb-2">¡Examen Terminado!</h1>
-            <p class="text-slate-500 dark:text-slate-400 font-medium">
+            <h1 class="text-3xl font-black text-text mb-2">¡Examen Terminado!</h1>
+            <p class="text-slate-500 dark:text-text-muted font-medium">
               {{ nivelMensaje[resultado.nivel_logro] ?? 'Has completado satisfactoriamente tu evaluación.' }}
             </p>
           </div>
@@ -474,7 +474,7 @@ const nivelMensaje: Record<string, string> = {
                   {{ nivelLabels[resultado.nivel_logro] ?? resultado.nivel_logro ?? '—' }}
                 </span>
               </div>
-              <div class="h-3 bg-slate-100 dark:bg-[#252525] rounded-full overflow-hidden mb-2">
+              <div class="h-3 bg-slate-100 dark:bg-surface-card rounded-full overflow-hidden mb-2">
                 <div class="h-full rounded-full bg-gradient-to-r from-teal-500 to-emerald-600 transition-all duration-1000 ease-out"
                   :style="{ width: (resultado.puntaje_total ?? 0) + '%' }"></div>
               </div>
@@ -483,20 +483,20 @@ const nivelMensaje: Record<string, string> = {
           </div>
 
           <div class="grid grid-cols-2 gap-4">
-            <div class="bg-slate-50 dark:bg-[#252525]/50 rounded-2xl p-5 text-center group transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-500/10">
+            <div class="bg-slate-50 dark:bg-surface-card/50 rounded-2xl p-5 text-center group transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-500/10">
               <div class="flex justify-center mb-2 text-emerald-500">
                 <CheckCircle2 class="w-5 h-5" />
               </div>
-              <p class="text-2xl font-black text-slate-900 dark:text-white">
+              <p class="text-2xl font-black text-text">
                 {{ resultado.preguntas_correctas }}
               </p>
               <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Correctas</p>
             </div>
-            <div class="bg-slate-50 dark:bg-[#252525]/50 rounded-2xl p-5 text-center group transition-colors hover:bg-red-50 dark:hover:bg-red-500/10">
+            <div class="bg-slate-50 dark:bg-surface-card/50 rounded-2xl p-5 text-center group transition-colors hover:bg-red-50 dark:hover:bg-red-500/10">
               <div class="flex justify-center mb-2 text-red-500">
                 <XCircle class="w-5 h-5" />
               </div>
-              <p class="text-2xl font-black text-slate-900 dark:text-white">
+              <p class="text-2xl font-black text-text">
                 {{ (resultado.preguntas_total ?? 0) - (resultado.preguntas_correctas ?? 0) }}
               </p>
               <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Incorrectas</p>
@@ -507,7 +507,7 @@ const nivelMensaje: Record<string, string> = {
         <!-- Actions -->
         <div class="flex flex-col gap-4 animate-slide-up-2">
           <button @click="cargarRevision" :disabled="loadingRevision"
-            class="group w-full h-12 sm:h-14 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3 text-sm sm:text-base">
+            class="group w-full h-12 sm:h-14 bg-slate-900 dark:bg-white text-white dark:text-text-inverse font-bold rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3 text-sm sm:text-base">
             <ThinkingLoader v-if="loadingRevision" text="Analizando respuestas..." :variant="isDark ? 'purple' : 'teal'" />
             <template v-else>
               <ClipboardList class="w-4 h-4 sm:w-5 sm:h-5 group-hover:rotate-6 transition-transform" />
@@ -516,7 +516,7 @@ const nivelMensaje: Record<string, string> = {
           </button>
 
           <button @click="router.push('/estudiante/examenes')"
-            class="w-full h-10 sm:h-12 bg-white dark:bg-[#252525] text-slate-600 dark:text-slate-300 font-bold rounded-2xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all active:scale-95 flex items-center justify-center gap-2 text-sm">
+            class="w-full h-10 sm:h-12 bg-surface-card text-slate-600 dark:text-text-muted font-bold rounded-2xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all active:scale-95 flex items-center justify-center gap-2 text-sm">
             <ArrowLeft class="w-4 h-4" />
             <span>Volver a la lista</span>
           </button>
@@ -533,7 +533,7 @@ const nivelMensaje: Record<string, string> = {
           leave-from-class="opacity-100 translate-y-0"
           leave-to-class="opacity-0 translate-y-8"
         >
-          <div v-if="mostrarModalRevision && revision" class="fixed inset-0 z-50 bg-slate-50 dark:bg-[#0d0d0d] flex flex-col font-sans overflow-hidden">
+          <div v-if="mostrarModalRevision && revision" class="fixed inset-0 z-50 bg-surface flex flex-col font-sans overflow-hidden">
             
             <!-- Premium Background Blurs -->
             <div class="absolute inset-0 pointer-events-none overflow-hidden -z-10">
@@ -542,15 +542,15 @@ const nivelMensaje: Record<string, string> = {
             </div>
 
             <!-- Header -->
-            <header class="bg-white/80 dark:bg-[#121212]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/80 h-16 flex items-center shrink-0 px-4 sm:px-6 justify-between relative z-10 shadow-sm">
+            <header class="bg-white/80 dark:bg-surface/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/80 h-16 flex items-center shrink-0 px-4 sm:px-6 justify-between relative z-10 shadow-sm">
               <div class="flex items-center gap-2 sm:gap-4 min-w-0">
                 <button @click="mostrarModalRevision = false" 
                   class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer">
                   <X class="w-5 h-5" />
                 </button>
                 <div class="min-w-0">
-                  <h1 class="font-bold text-slate-900 dark:text-white text-sm sm:text-base truncate">Revisión de Evaluación</h1>
-                  <p class="hidden sm:block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mt-1">
+                  <h1 class="font-bold text-text text-sm sm:text-base truncate">Revisión de Evaluación</h1>
+                  <p class="hidden sm:block text-xs font-bold text-slate-400 dark:text-text-subtle uppercase tracking-widest leading-none mt-1">
                     Práctica y retroalimentación inteligente
                   </p>
                 </div>
@@ -559,20 +559,20 @@ const nivelMensaje: Record<string, string> = {
               <!-- Stats/Score Badge in Header -->
               <div class="flex items-center gap-2 sm:gap-3 shrink-0">
                 <button v-if="revision.lecturas && revision.lecturas.length" @click="mostrarBottomSheet = true; tabLecturaSheet = 0"
-                  class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-teal-200 dark:border-emerald-900 text-teal-600 dark:text-emerald-400 bg-teal-50 dark:bg-emerald-950/40 hover:bg-teal-100 dark:hover:bg-emerald-900/40 transition-colors text-xs font-bold shrink-0 cursor-pointer"
+                  class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-teal-200 dark:border-emerald-900 text-primary bg-teal-50 dark:bg-emerald-950/40 hover:bg-teal-100 dark:hover:bg-emerald-900/40 transition-colors text-xs font-bold shrink-0 cursor-pointer"
                   title="Ver lecturas asociadas">
                   <BookOpen class="w-4 h-4" />
                   <span>Ver Texto</span>
                 </button>
-                <div v-if="revision.lecturas && revision.lecturas.length" class="hidden md:block w-px h-8 bg-slate-200 dark:bg-[#252525]"></div>
+                <div v-if="revision.lecturas && revision.lecturas.length" class="hidden md:block w-px h-8 bg-slate-200 dark:bg-surface-card"></div>
 
                 <div class="hidden sm:flex flex-col items-end">
-                  <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Logro obtenido</span>
-                  <span class="text-sm font-black text-teal-600 dark:text-emerald-400 leading-none mt-1">
+                  <span class="text-[10px] font-black text-slate-400 dark:text-text-subtle uppercase tracking-widest">Logro obtenido</span>
+                  <span class="text-sm font-black text-primary leading-none mt-1">
                     {{ resultado?.puntaje_total?.toFixed(0) }}% ({{ resultado?.preguntas_correctas }}/{{ resultado?.preguntas_total }})
                   </span>
                 </div>
-                <div class="w-px h-8 bg-slate-200 dark:bg-[#252525] hidden sm:block"></div>
+                <div class="w-px h-8 bg-slate-200 dark:bg-surface-card hidden sm:block"></div>
                 <span :class="nivelColors[resultado?.nivel_logro || ''] || 'bg-slate-100 text-slate-600'"
                   class="px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider border border-transparent">
                   {{ nivelLabels[resultado?.nivel_logro || ''] || '—' }}
@@ -581,7 +581,7 @@ const nivelMensaje: Record<string, string> = {
             </header>
 
             <!-- Progress Bar under header -->
-            <div class="h-1.5 bg-slate-100 dark:bg-[#121212] w-full relative">
+            <div class="h-1.5 bg-slate-100 dark:bg-surface w-full relative">
               <div class="h-full bg-gradient-to-r from-teal-500 to-emerald-600 transition-all duration-300 ease-out"
                 :style="{ width: ((preguntaRevisionActual + 1) / revision.preguntas.length) * 100 + '%' }"></div>
             </div>
@@ -592,19 +592,19 @@ const nivelMensaje: Record<string, string> = {
 
                 <!-- Active Card with Vue transition -->
                 <Transition name="card-fade" mode="out-in">
-                  <div v-if="activeRevisionPregunta" :key="preguntaRevisionActual" class="bg-white dark:bg-[#121212] rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-6 md:p-8 shadow-xl relative flex flex-col w-full">
+                  <div v-if="activeRevisionPregunta" :key="preguntaRevisionActual" class="bg-surface rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-6 md:p-8 shadow-xl relative flex flex-col w-full">
                     
                     <!-- Card Header: Number, Level, Correctness -->
                     <div class="flex flex-wrap items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800/60">
                       <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
-                        <span class="text-[10px] sm:text-xs font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-xl border border-emerald-100/50 dark:border-emerald-900/30">
+                        <span class="text-[10px] sm:text-xs font-black uppercase tracking-widest text-emerald-600 dark:text-primary bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-xl border border-emerald-100/50 dark:border-emerald-900/30">
                           Pregunta {{ activeRevisionPregunta.numero }} de {{ revision.preguntas.length }}
                         </span>
-                        <span v-if="activeRevisionPregunta.nivel" class="text-[9px] sm:text-[10px] font-black text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-800 px-2 py-1 rounded-full uppercase tracking-wider">
+                        <span v-if="activeRevisionPregunta.nivel" class="text-[9px] sm:text-[10px] font-black text-slate-500 dark:text-text-muted border border-slate-200 dark:border-slate-800 px-2 py-1 rounded-full uppercase tracking-wider">
                           {{ activeRevisionPregunta.nivel }}
                         </span>
                         <button v-if="revision.lecturas && revision.lecturas.length" @click="mostrarBottomSheet = true; tabLecturaSheet = 0"
-                          class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-teal-200 dark:border-emerald-900 text-teal-600 dark:text-emerald-400 bg-teal-50 dark:bg-emerald-950/40 hover:bg-teal-100 dark:hover:bg-emerald-900/40 transition-colors text-[10px] font-black uppercase tracking-widest shrink-0 cursor-pointer">
+                          class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-teal-200 dark:border-emerald-900 text-primary bg-teal-50 dark:bg-emerald-950/40 hover:bg-teal-100 dark:hover:bg-emerald-900/40 transition-colors text-[10px] font-black uppercase tracking-widest shrink-0 cursor-pointer">
                           <BookOpen class="w-3.5 h-3.5" />
                           <span>Ver Texto</span>
                         </button>
@@ -612,7 +612,7 @@ const nivelMensaje: Record<string, string> = {
 
                       <div class="flex items-center gap-2">
                         <span v-if="activeRevisionPregunta.es_correcta" 
-                          class="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5">
+                          class="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-primary border border-emerald-100 dark:border-emerald-500/20 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5">
                           <CheckCircle class="w-3.5 h-3.5" /> Correcta
                         </span>
                         <span v-else 
@@ -624,7 +624,7 @@ const nivelMensaje: Record<string, string> = {
 
                     <!-- Question Text -->
                     <div class="mb-5 sm:mb-8">
-                      <h3 class="text-sm sm:text-base md:text-lg font-bold text-slate-900 dark:text-white leading-relaxed">
+                      <h3 class="text-sm sm:text-base md:text-lg font-bold text-text leading-relaxed">
                         {{ activeRevisionPregunta.enunciado }}
                       </h3>
                     </div>
@@ -635,10 +635,10 @@ const nivelMensaje: Record<string, string> = {
                         class="flex items-center gap-3 px-3 py-2.5 sm:px-5 sm:py-3.5 rounded-xl border text-sm transition-all"
                         :class="
                           opcion.letra === activeRevisionPregunta.respuesta_correcta
-                            ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-500 text-emerald-950 dark:text-emerald-300 font-bold shadow-sm shadow-emerald-500/5'
+                            ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-500 text-emerald-950 dark:text-primary-light font-bold shadow-sm shadow-emerald-500/5'
                             : opcion.letra === activeRevisionPregunta.respuesta_dada && !activeRevisionPregunta.es_correcta
                               ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-500 text-rose-950 dark:text-rose-300 shadow-sm shadow-rose-500/5'
-                              : 'bg-slate-50 dark:bg-[#252525]/40 border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100/50 dark:hover:bg-slate-800/70'
+                              : 'bg-slate-50 dark:bg-surface-card/40 border-transparent text-slate-600 dark:text-text-muted hover:bg-slate-100/50 dark:hover:bg-slate-800/70'
                         ">
                         <span class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black shrink-0 shadow-sm transition-colors duration-300"
                           :class="
@@ -646,12 +646,12 @@ const nivelMensaje: Record<string, string> = {
                               ? 'bg-emerald-500 text-white'
                               : opcion.letra === activeRevisionPregunta.respuesta_dada && !activeRevisionPregunta.es_correcta
                                 ? 'bg-rose-500 text-white'
-                                : 'bg-white dark:bg-[#393939] text-slate-400 border border-slate-200 dark:border-slate-600'
+                                : 'bg-surface-input text-slate-400 border border-slate-200 dark:border-slate-600'
                           ">{{ opcion.letra }}</span>
                         
                         <div class="flex-1 leading-snug">
                           <span class="block">{{ opcion.texto }}</span>
-                          <span v-if="opcion.letra === activeRevisionPregunta.respuesta_correcta" class="inline-block text-[9px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mt-1">
+                          <span v-if="opcion.letra === activeRevisionPregunta.respuesta_correcta" class="inline-block text-[9px] font-black uppercase tracking-wider text-emerald-600 dark:text-primary mt-1">
                             Respuesta Correcta
                           </span>
                           <span v-else-if="opcion.letra === activeRevisionPregunta.respuesta_dada && !activeRevisionPregunta.es_correcta" class="inline-block text-[9px] font-black uppercase tracking-wider text-rose-600 dark:text-rose-400 mt-1">
@@ -671,11 +671,11 @@ const nivelMensaje: Record<string, string> = {
                           <div class="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
                             <Zap class="w-4 h-4 text-white" />
                           </div>
-                          <span class="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Insight de Aprendizaje con IA</span>
+                          <span class="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-primary">Insight de Aprendizaje con IA</span>
                         </div>
-                        <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-[#252525]/80 px-2 py-0.5 rounded-md">Gemini AI</span>
+                        <span class="text-[9px] font-bold text-slate-400 dark:text-text-subtle bg-slate-100 dark:bg-surface-card/80 px-2 py-0.5 rounded-md">Gemini AI</span>
                       </div>
-                      <p class="text-sm text-emerald-900/90 dark:text-emerald-200/90 leading-relaxed font-medium">
+                      <p class="text-sm text-emerald-900/90 dark:text-primary-light/90 leading-relaxed font-medium">
                         {{ activeRevisionPregunta.retroalimentacion_ia }}
                       </p>
                     </div>
@@ -687,17 +687,17 @@ const nivelMensaje: Record<string, string> = {
             </div>
 
             <!-- Footer Navigation Bar -->
-            <footer class="bg-white dark:bg-[#121212] border-t border-slate-200 dark:border-slate-800 py-3.5 px-4 sm:py-4 sm:px-6 shrink-0 relative z-10 shadow-lg">
+            <footer class="bg-surface border-t border-slate-200 dark:border-slate-800 py-3.5 px-4 sm:py-4 sm:px-6 shrink-0 relative z-10 shadow-lg">
               <div class="max-w-3xl mx-auto w-full flex flex-col gap-3">
                 
                 <!-- Top Row (Mobile only): Progress counter and Ver Texto -->
                 <div v-if="revision.lecturas && revision.lecturas.length" class="flex sm:hidden items-center justify-between w-full pb-2 border-b border-slate-100 dark:border-slate-800/60 animate-fade-in">
-                  <span class="px-3 py-1 bg-slate-50 dark:bg-[#252525]/60 border border-slate-200 dark:border-slate-800 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">
+                  <span class="px-3 py-1 bg-slate-50 dark:bg-surface-card/60 border border-slate-200 dark:border-slate-800 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">
                     Pregunta {{ preguntaRevisionActual + 1 }} de {{ revision.preguntas.length }}
                   </span>
                   
                   <button @click="mostrarBottomSheet = true; tabLecturaSheet = 0"
-                    class="flex items-center gap-1.5 px-3 py-1 bg-teal-50 dark:bg-emerald-950/40 border border-teal-200 dark:border-emerald-900 text-teal-600 dark:text-emerald-400 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all active:scale-95 shadow-sm shadow-teal-500/5 cursor-pointer">
+                    class="flex items-center gap-1.5 px-3 py-1 bg-teal-50 dark:bg-emerald-950/40 border border-teal-200 dark:border-emerald-900 text-primary rounded-xl font-black text-[10px] uppercase tracking-wider transition-all active:scale-95 shadow-sm shadow-teal-500/5 cursor-pointer">
                     <BookOpen class="w-3.5 h-3.5 text-teal-500" />
                     <span>Ver Texto</span>
                   </button>
@@ -706,7 +706,7 @@ const nivelMensaje: Record<string, string> = {
                 <!-- Main Navigation Row -->
                 <div class="flex items-center justify-between gap-3 w-full">
                   <button @click="anteriorRevision" :disabled="preguntaRevisionActual === 0"
-                    class="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 h-11 sm:h-10 px-4 sm:px-6 bg-slate-100 dark:bg-[#252525] text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-40 font-bold text-xs sm:text-sm rounded-xl transition-all cursor-pointer select-none">
+                    class="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 h-11 sm:h-10 px-4 sm:px-6 bg-slate-100 dark:bg-surface-card text-slate-600 dark:text-text-muted hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-40 font-bold text-xs sm:text-sm rounded-xl transition-all cursor-pointer select-none">
                     <ChevronLeft class="w-4 h-4 shrink-0" />
                     <span>Anterior</span>
                   </button>
@@ -722,12 +722,12 @@ const nivelMensaje: Record<string, string> = {
                   </div>
 
                   <!-- Mobile only progress when there is NO reading (math) -->
-                  <span v-if="!revision.lecturas || !revision.lecturas.length" class="sm:hidden px-3 py-1 bg-slate-50 dark:bg-[#252525]/60 border border-slate-200 dark:border-slate-800 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">
+                  <span v-if="!revision.lecturas || !revision.lecturas.length" class="sm:hidden px-3 py-1 bg-slate-50 dark:bg-surface-card/60 border border-slate-200 dark:border-slate-800 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">
                     {{ preguntaRevisionActual + 1 }} / {{ revision.preguntas.length }}
                   </span>
 
                   <button @click="siguienteRevision"
-                    class="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 h-11 sm:h-10 px-4 sm:px-6 bg-slate-900 dark:bg-white text-white dark:text-slate-900 active:scale-[0.98] font-bold text-xs sm:text-sm rounded-xl transition-all cursor-pointer shadow-md select-none">
+                    class="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 h-11 sm:h-10 px-4 sm:px-6 bg-slate-900 dark:bg-white text-white dark:text-text-inverse active:scale-[0.98] font-bold text-xs sm:text-sm rounded-xl transition-all cursor-pointer shadow-md select-none">
                     <span>{{ preguntaRevisionActual === revision.preguntas.length - 1 ? 'Finalizar' : 'Siguiente' }}</span>
                     <ChevronRight class="w-4 h-4 shrink-0" />
                   </button>
@@ -753,7 +753,7 @@ const nivelMensaje: Record<string, string> = {
           <!-- Backdrop -->
           <div v-if="mostrarBottomSheet && revision" 
                @click="mostrarBottomSheet = false"
-               class="fixed inset-0 z-[100] bg-slate-900/60 dark:bg-[#0d0d0d]/80 backdrop-blur-sm transition-opacity">
+               class="fixed inset-0 z-[100] bg-slate-900/60 dark:bg-surface/80 backdrop-blur-sm transition-opacity">
           </div>
         </Transition>
 
@@ -767,63 +767,63 @@ const nivelMensaje: Record<string, string> = {
         >
           <!-- Sheet container -->
           <div v-if="mostrarBottomSheet && revision"
-               class="fixed bottom-0 inset-x-0 z-[101] bg-white dark:bg-[#121212] rounded-t-[2.5rem] border-t border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col max-h-[85vh] transition-all duration-300 select-none animate-slide-up">
+               class="fixed bottom-0 inset-x-0 z-[101] bg-surface rounded-t-[2.5rem] border-t border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col max-h-[85vh] transition-all duration-300 select-none animate-slide-up">
             
             <!-- Handle gesture bar -->
             <div class="py-3 flex justify-center shrink-0 cursor-pointer" @click="mostrarBottomSheet = false">
-              <div class="w-12 h-1.5 bg-slate-300 dark:bg-[#393939] rounded-full hover:bg-slate-400 dark:hover:bg-slate-600 transition-colors"></div>
+              <div class="w-12 h-1.5 bg-slate-300 dark:bg-surface-input rounded-full hover:bg-slate-400 dark:hover:bg-slate-600 transition-colors"></div>
             </div>
 
             <!-- Content Header -->
             <div class="px-6 pb-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
               <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-teal-500/10 text-teal-600 dark:text-emerald-400 flex items-center justify-center">
+                <div class="w-8 h-8 rounded-lg bg-teal-500/10 text-primary flex items-center justify-center">
                   <BookOpen class="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">Lectura(s) de la Evaluación</h3>
+                  <h3 class="text-sm sm:text-base font-bold text-text">Lectura(s) de la Evaluación</h3>
                   <p class="text-[10px] text-slate-500">Consulta los textos originales del examen rendido</p>
                 </div>
               </div>
               <button @click="mostrarBottomSheet = false"
-                class="w-8 h-8 rounded-full flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-[#252525] dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors cursor-pointer">
+                class="w-8 h-8 rounded-full flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-surface-card dark:hover:bg-slate-700 text-slate-500 dark:text-text-muted transition-colors cursor-pointer">
                 <X class="w-4 h-4" />
               </button>
             </div>
 
             <!-- Tab Navigation if multiple texts exist -->
             <div v-if="revision.lecturas && revision.lecturas.length > 1" 
-                 class="px-6 py-2 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0d0d0d]/20 shrink-0 overflow-x-auto flex items-center gap-2">
+                 class="px-6 py-2 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-surface/20 shrink-0 overflow-x-auto flex items-center gap-2">
               <button v-for="(lectura, idx) in revision.lecturas" :key="idx"
                 @click="tabLecturaSheet = idx"
                 class="shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer border border-slate-200 dark:border-slate-700"
                 :class="tabLecturaSheet === idx 
                   ? 'bg-teal-500 border-teal-500 text-white shadow-sm font-bold' 
-                  : 'bg-white dark:bg-[#252525] border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'">
+                  : 'bg-surface-card border-slate-200 dark:border-slate-700 text-slate-600 dark:text-text-muted hover:bg-slate-100 dark:hover:bg-slate-700'">
                 {{ lectura.titulo || `Texto ${idx + 1}` }}
               </button>
             </div>
 
             <!-- Reading Content (Scrollable) -->
-            <div class="flex-1 overflow-y-auto p-6 text-slate-800 dark:text-slate-200 font-sans select-text">
+            <div class="flex-1 overflow-y-auto p-6 text-slate-800 dark:text-text font-sans select-text">
               <div v-if="revision.lecturas && revision.lecturas.length" class="max-w-3xl mx-auto">
                 <h4 v-if="revision.lecturas[tabLecturaSheet]?.titulo" 
-                    class="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-3 text-center">
+                    class="text-base sm:text-lg font-bold text-text mb-3 text-center">
                   {{ revision.lecturas[tabLecturaSheet]?.titulo }}
                 </h4>
                 <div class="text-sm sm:text-base leading-relaxed whitespace-pre-wrap font-medium break-words text-justify">
                   {{ revision.lecturas[tabLecturaSheet]?.texto }}
                 </div>
               </div>
-              <div v-else class="text-center py-10 text-slate-500 dark:text-slate-400 text-sm">
+              <div v-else class="text-center py-10 text-slate-500 dark:text-text-muted text-sm">
                 No hay lecturas asociadas a esta evaluación.
               </div>
             </div>
 
             <!-- Close bar at the very bottom -->
-            <div class="p-4 border-t border-slate-100 dark:border-slate-800 flex justify-end bg-slate-50 dark:bg-[#0d0d0d]/40 shrink-0">
+            <div class="p-4 border-t border-slate-100 dark:border-slate-800 flex justify-end bg-surface/40 shrink-0">
               <button @click="mostrarBottomSheet = false"
-                class="px-5 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl text-xs sm:text-sm hover:opacity-90 active:scale-[0.97] transition-all cursor-pointer shadow-sm">
+                class="px-5 py-2 bg-slate-900 dark:bg-white text-white dark:text-text-inverse font-bold rounded-xl text-xs sm:text-sm hover:opacity-90 active:scale-[0.97] transition-all cursor-pointer shadow-sm">
                 Cerrar Lectura
               </button>
             </div>
@@ -836,7 +836,7 @@ const nivelMensaje: Record<string, string> = {
     <!-- Examen en curso -->
     <div v-else-if="examen" class="w-full flex flex-col h-screen">
       <!-- Exam Header -->
-      <header class="bg-white/80 dark:bg-[#121212]/80 backdrop-blur-md border-b border-slate-300 dark:border-slate-800 h-16 flex items-center shrink-0 z-40 px-6">
+      <header class="bg-white/80 dark:bg-surface/80 backdrop-blur-md border-b border-slate-300 dark:border-slate-800 h-16 flex items-center shrink-0 z-40 px-6">
         <div class="max-w-7xl mx-auto w-full flex items-center justify-between">
           <div class="flex items-center gap-4 min-w-0">
             <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-teal-500/20 shrink-0">
@@ -844,7 +844,7 @@ const nivelMensaje: Record<string, string> = {
               <Target v-else class="w-5 h-5 text-white" />
             </div>
             <div class="min-w-0">
-              <h1 class="font-bold text-slate-900 dark:text-white text-sm truncate leading-none mb-1">{{ examen.titulo }}</h1>
+              <h1 class="font-bold text-text text-sm truncate leading-none mb-1">{{ examen.titulo }}</h1>
               <div class="flex items-center gap-2">
                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ progreso }}% Completado</span>
               </div>
@@ -852,7 +852,7 @@ const nivelMensaje: Record<string, string> = {
           </div>
 
           <div class="flex items-center gap-4">
-            <div v-if="examen.duracion_minutos" :class="timerColor" class="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-[#252525] rounded-full font-mono font-black text-sm transition-colors border border-slate-300 dark:border-slate-700">
+            <div v-if="examen.duracion_minutos" :class="timerColor" class="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-surface-card rounded-full font-mono font-black text-sm transition-colors border border-slate-300 dark:border-slate-700">
               <Clock class="w-4 h-4" />
               {{ tiempoFormato }}
             </div>
@@ -861,7 +861,7 @@ const nivelMensaje: Record<string, string> = {
       </header>
 
       <!-- Progress Line -->
-      <div class="h-1 bg-slate-100 dark:bg-[#252525] shrink-0">
+      <div class="h-1 bg-slate-100 dark:bg-surface-card shrink-0">
         <div class="h-full bg-gradient-to-r from-teal-500 to-emerald-600 transition-all duration-700 ease-out"
           :style="{ width: progreso + '%' }"></div>
       </div>
@@ -879,7 +879,7 @@ const nivelMensaje: Record<string, string> = {
         <aside 
           v-if="lecturas.length" 
           :class="[
-            'w-full lg:w-1/2 flex flex-col bg-white dark:bg-[#121212]/50 z-10 relative transition-all duration-300 ease-in-out',
+            'w-full lg:w-1/2 flex flex-col bg-surface/50 z-10 relative transition-all duration-300 ease-in-out',
             lecturaAcordeonAbierto !== null 
               ? 'h-[40vh] sm:h-[45vh] lg:h-full border-b lg:border-b-0 lg:border-r border-slate-300 dark:border-slate-800' 
               : 'h-auto shrink-0 border-b border-slate-300 dark:border-slate-800'
@@ -890,18 +890,18 @@ const nivelMensaje: Record<string, string> = {
             <!-- Accordion Header Button -->
             <button 
               @click="toggleAcordeon(0)"
-              class="w-full px-6 py-5 sm:px-8 sm:py-6 flex items-center justify-between bg-slate-50/50 dark:bg-[#252525]/10 hover:bg-slate-50 dark:hover:bg-slate-800/20 border-b border-slate-200 dark:border-slate-800/50 transition-all select-none text-left focus:outline-none"
+              class="w-full px-6 py-5 sm:px-8 sm:py-6 flex items-center justify-between bg-slate-50/50 dark:bg-surface-card/10 hover:bg-slate-50 dark:hover:bg-slate-800/20 border-b border-slate-200 dark:border-slate-800/50 transition-all select-none text-left focus:outline-none"
             >
               <div class="flex items-center gap-3 min-w-0">
                 <div :class="[
                   'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors',
-                  lecturaAcordeonAbierto === 0 ? 'bg-teal-500/10' : 'bg-slate-100 dark:bg-[#252525]'
+                  lecturaAcordeonAbierto === 0 ? 'bg-teal-500/10' : 'bg-slate-100 dark:bg-surface-card'
                 ]">
                   <BookOpen :class="['w-4 h-4 transition-colors', lecturaAcordeonAbierto === 0 ? 'text-teal-500' : 'text-slate-400']" />
                 </div>
                 <div class="min-w-0">
                   <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-0.5">Contexto de Lectura</span>
-                  <h3 :class="['font-bold text-sm truncate leading-snug transition-colors', lecturaAcordeonAbierto === 0 ? 'text-teal-600 dark:text-emerald-400' : 'text-slate-700 dark:text-slate-200']">
+                  <h3 :class="['font-bold text-sm truncate leading-snug transition-colors', lecturaAcordeonAbierto === 0 ? 'text-primary' : 'text-slate-700 dark:text-text']">
                   {{ lecturas[0]?.titulo || 'Texto Principal' }}
                   </h3>
                 </div>
@@ -925,7 +925,7 @@ const nivelMensaje: Record<string, string> = {
             >
               <div 
                 v-show="lecturaAcordeonAbierto === 0"
-                class="flex-1 overflow-y-auto p-6 sm:p-10 font-serif text-base sm:text-lg leading-relaxed text-slate-700 dark:text-slate-200 custom-scrollbar selection:bg-teal-500/20 bg-white dark:bg-[#121212]"
+                class="flex-1 overflow-y-auto p-6 sm:p-10 font-serif text-base sm:text-lg leading-relaxed text-slate-700 dark:text-text custom-scrollbar selection:bg-teal-500/20 bg-surface"
               >
                 <div class="max-w-2xl mx-auto whitespace-pre-wrap">
                   {{ lecturas[0]?.texto }}
@@ -937,7 +937,7 @@ const nivelMensaje: Record<string, string> = {
           <!-- Multiple Lectures Accordion -->
           <template v-else>
             <!-- Label header (decorational, only on multiple) -->
-            <div class="px-8 py-4 bg-slate-50/50 dark:bg-[#252525]/10 border-b border-slate-200 dark:border-slate-800/50 flex items-center justify-between shrink-0">
+            <div class="px-8 py-4 bg-slate-50/50 dark:bg-surface-card/10 border-b border-slate-200 dark:border-slate-800/50 flex items-center justify-between shrink-0">
               <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center shrink-0">
                   <BookOpen class="w-4 h-4 text-teal-500" />
@@ -952,18 +952,18 @@ const nivelMensaje: Record<string, string> = {
                 <!-- Accordion Header -->
                 <button 
                   @click="toggleAcordeon(i)"
-                  class="w-full px-6 py-4 sm:px-8 sm:py-5 flex items-center justify-between bg-slate-50/20 dark:bg-[#252525]/5 hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-all select-none text-left focus:outline-none"
+                  class="w-full px-6 py-4 sm:px-8 sm:py-5 flex items-center justify-between bg-slate-50/20 dark:bg-surface-card/5 hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-all select-none text-left focus:outline-none"
                 >
                   <div class="flex items-center gap-3 min-w-0">
                     <div :class="[
                       'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors',
-                      lecturaAcordeonAbierto === i ? 'bg-teal-500/10' : 'bg-slate-100 dark:bg-[#252525]'
+                      lecturaAcordeonAbierto === i ? 'bg-teal-500/10' : 'bg-slate-100 dark:bg-surface-card'
                     ]">
                       <BookOpen :class="['w-4 h-4 transition-colors', lecturaAcordeonAbierto === i ? 'text-teal-500' : 'text-slate-400']" />
                     </div>
                     <div class="min-w-0">
                       <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-0.5">Texto {{ i + 1 }}</span>
-                      <h3 :class="['font-bold text-sm truncate leading-snug transition-colors', lecturaAcordeonAbierto === i ? 'text-teal-600 dark:text-emerald-400' : 'text-slate-700 dark:text-slate-200']">
+                      <h3 :class="['font-bold text-sm truncate leading-snug transition-colors', lecturaAcordeonAbierto === i ? 'text-primary' : 'text-slate-700 dark:text-text']">
                         {{ t.titulo || `Lectura ${i + 1}` }}
                       </h3>
                     </div>
@@ -987,7 +987,7 @@ const nivelMensaje: Record<string, string> = {
                 >
                   <div 
                     v-show="lecturaAcordeonAbierto === i"
-                    class="overflow-y-auto p-6 sm:p-10 font-serif text-base sm:text-lg leading-relaxed text-slate-700 dark:text-slate-200 custom-scrollbar selection:bg-teal-500/20 bg-white dark:bg-[#121212] border-t border-slate-100 dark:border-slate-800/80"
+                    class="overflow-y-auto p-6 sm:p-10 font-serif text-base sm:text-lg leading-relaxed text-slate-700 dark:text-text custom-scrollbar selection:bg-teal-500/20 bg-surface border-t border-slate-100 dark:border-slate-800/80"
                     :class="lecturas.length > 1 ? 'max-h-[300px] lg:max-h-none lg:flex-1' : 'flex-1'"
                   >
                     <div class="max-w-2xl mx-auto whitespace-pre-wrap">
@@ -1001,7 +1001,7 @@ const nivelMensaje: Record<string, string> = {
         </aside>
 
         <!-- Right: Questions -->
-        <section class="flex-1 min-h-0 lg:h-full flex flex-col z-20 bg-slate-50/30 dark:bg-[#0d0d0d]/30">
+        <section class="flex-1 min-h-0 lg:h-full flex flex-col z-20 bg-slate-50/30 dark:bg-surface/30">
           
           <!-- Question Nav -->
           <div class="px-8 py-6 flex flex-wrap gap-2 shrink-0">
@@ -1012,12 +1012,12 @@ const nivelMensaje: Record<string, string> = {
               :class="[
                 'w-10 h-10 rounded-xl text-xs font-black transition-all transform active:scale-90',
                 idx === preguntaActual
-                  ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-lg ring-4 ring-indigo-500/20'
+                  ? 'bg-slate-900 dark:bg-white text-white dark:text-text-inverse shadow-lg ring-4 ring-indigo-500/20'
                   : (examen?.preguntas?.[idx] ? preguntaRespondidaMap.has(examen.preguntas[idx].numero) : false)
                     ? 'bg-teal-500 text-white shadow-md shadow-teal-500/20'
                     : intentoEnvioIncompleto && sinResponder.includes(examen.preguntas[idx]!.numero)
                       ? 'bg-red-500 text-white animate-pulse'
-                      : 'bg-white dark:bg-[#252525] text-slate-400 border border-slate-300 dark:border-slate-700 hover:border-teal-400'
+                      : 'bg-surface-card text-slate-400 border border-slate-300 dark:border-slate-700 hover:border-teal-400'
               ]"
             >
               {{ idx + 1 }}
@@ -1047,7 +1047,7 @@ const nivelMensaje: Record<string, string> = {
               </Transition>
 
               <!-- Question Card -->
-              <div v-if="preguntaVisible" class="bg-white dark:bg-[#121212] rounded-2xl border border-slate-300 dark:border-slate-800 p-4 sm:p-8 shadow-xl relative overflow-hidden group">
+              <div v-if="preguntaVisible" class="bg-surface rounded-2xl border border-slate-300 dark:border-slate-800 p-4 sm:p-8 shadow-xl relative overflow-hidden group">
                 <div class="absolute top-0 right-0 p-6 opacity-5 group-hover:scale-110 transition-transform">
                   <Zap class="w-16 h-16 text-emerald-500" />
                 </div>
@@ -1057,7 +1057,7 @@ const nivelMensaje: Record<string, string> = {
                     <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Pregunta de Evaluación</span>
                   </div>
 
-                  <h3 class="text-sm sm:text-base md:text-lg font-bold text-slate-900 dark:text-white leading-relaxed mb-5 sm:mb-8">
+                  <h3 class="text-sm sm:text-base md:text-lg font-bold text-text leading-relaxed mb-5 sm:mb-8">
                     {{ preguntaVisible.enunciado }}
                   </h3>
 
@@ -1069,15 +1069,15 @@ const nivelMensaje: Record<string, string> = {
                       :class="[
                         'w-full text-left px-3 py-2.5 sm:p-4 rounded-xl border-2 transition-all flex items-center gap-3 sm:gap-4 group/opt',
                         respuestas[preguntaVisible.numero] === (opcion.valor ?? opcion.letra)
-                          ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-900 dark:text-emerald-300'
-                          : 'border-slate-300 dark:border-slate-800 bg-white dark:bg-[#121212] text-slate-600 dark:text-slate-400 hover:border-emerald-200 dark:hover:border-emerald-500/30 hover:bg-slate-50 dark:hover:bg-slate-800'
+                          ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-900 dark:text-primary-light'
+                          : 'border-slate-300 dark:border-slate-800 bg-surface text-slate-600 dark:text-text-muted hover:border-emerald-200 dark:hover:border-emerald-500/30 hover:bg-slate-50 dark:hover:bg-slate-800'
                       ]"
                     >
                       <div :class="[
                         'w-7 h-7 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center font-black text-xs sm:text-sm shrink-0 transition-colors',
                         respuestas[preguntaVisible.numero] === (opcion.valor ?? opcion.letra)
                           ? 'bg-emerald-500 text-white'
-                          : 'bg-slate-100 dark:bg-[#252525] text-slate-400 group-hover/opt:bg-emerald-100 dark:group-hover/opt:bg-slate-700'
+                          : 'bg-slate-100 dark:bg-surface-card text-slate-400 group-hover/opt:bg-emerald-100 dark:group-hover/opt:bg-slate-700'
                       ]">
                         {{ opcion.letra }}
                       </div>
@@ -1093,23 +1093,23 @@ const nivelMensaje: Record<string, string> = {
           </div>
 
           <!-- Bottom Footer -->
-          <footer class="px-4 py-3 sm:px-8 sm:py-4 bg-white dark:bg-[#121212] border-t border-slate-300 dark:border-slate-800 shrink-0">
+          <footer class="px-4 py-3 sm:px-8 sm:py-4 bg-surface border-t border-slate-300 dark:border-slate-800 shrink-0">
             <div class="max-w-2xl mx-auto flex items-center justify-between w-full gap-2 sm:gap-4">
 
               <button @click="anterior" :disabled="preguntaActual === 0"
-                class="flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl border border-slate-300 dark:border-slate-700 font-bold text-xs sm:text-sm text-slate-600 dark:text-slate-400 disabled:opacity-30 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all select-none cursor-pointer">
+                class="flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl border border-slate-300 dark:border-slate-700 font-bold text-xs sm:text-sm text-slate-600 dark:text-text-muted disabled:opacity-30 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all select-none cursor-pointer">
                 <ChevronLeft class="w-4 h-4 shrink-0" />
                 <span class="hidden xs:inline">Anterior</span>
               </button>
 
-              <span class="px-3 py-1 bg-slate-50 dark:bg-[#252525]/80 border border-slate-200 dark:border-slate-800 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400 whitespace-nowrap">
+              <span class="px-3 py-1 bg-slate-50 dark:bg-surface-card/80 border border-slate-200 dark:border-slate-800 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400 whitespace-nowrap">
                 {{ preguntaActual + 1 }} de {{ examen.preguntas.length }}
               </span>
 
               <button
                 v-if="preguntaActual < examen.preguntas.length - 1"
                 @click="siguiente"
-                class="flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-xs sm:text-sm shadow-md active:scale-[0.98] transition-all select-none cursor-pointer">
+                class="flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-text-inverse font-bold text-xs sm:text-sm shadow-md active:scale-[0.98] transition-all select-none cursor-pointer">
                 <span class="hidden xs:inline">Siguiente</span>
                 <ChevronRight class="w-4 h-4 shrink-0" />
               </button>

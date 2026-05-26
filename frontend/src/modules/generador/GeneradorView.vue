@@ -281,7 +281,7 @@ const getCapacidadLabel = (tipo: string): string => {
 
 const getNivelBadgeClass = (nivel: string): string => {
   const classes: Record<string, string> = {
-    'LITERAL': 'bg-teal-100 text-teal-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+    'LITERAL': 'bg-teal-100 text-teal-700 dark:bg-emerald-900/30 dark:text-primary',
     'INFERENCIAL': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
     'CRITICO': 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400'
   };
@@ -322,7 +322,7 @@ const getNivelBadgeClass = (nivel: string): string => {
                   class="text-[10px] sm:text-xs bg-amber-400 text-amber-900 px-2 py-0.5 rounded-full font-semibold">DRE</span>
               </h1>
               <p
-                class="text-teal-100 dark:text-slate-400 text-[10px] sm:text-sm font-medium flex items-center gap-1 truncate">
+                class="text-teal-100 dark:text-text-muted text-[10px] sm:text-sm font-medium flex items-center gap-1 truncate">
                 <GraduationCap class="w-3 h-3 sm:w-4 sm:h-4" />
                 <span class="truncate">Lectura inteligente</span>
               </p>
@@ -338,7 +338,7 @@ const getNivelBadgeClass = (nivel: string): string => {
               <div
                 class="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-y-0 translate-y-2">
                 <div
-                  class="bg-white dark:bg-[#393939] rounded-full px-2 py-1 shadow-lg border-2 border-amber-300 dark:border-amber-500">
+                  class="bg-surface-input rounded-full px-2 py-1 shadow-lg border-2 border-amber-300 dark:border-amber-500">
                   <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 whitespace-nowrap flex items-center gap-0.5">¡Hola!
                     <Hand class="w-3 h-3" /></span>
                 </div>
@@ -356,7 +356,7 @@ const getNivelBadgeClass = (nivel: string): string => {
             </button>
 
             <button @click="toggleTheme"
-              class="p-2.5 rounded-xl bg-white/20 text-white border border-white/30 hover:bg-white/30 dark:bg-[#393939] dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600 transition-all duration-300 cursor-pointer">
+              class="p-2.5 rounded-xl bg-white/20 text-white border border-white/30 hover:bg-white/30 dark:bg-surface-input dark:border-slate-600 dark:text-text-muted dark:hover:bg-slate-600 transition-all duration-300 cursor-pointer">
               <Sun v-if="isDark" class="w-5 h-5" />
               <Moon v-else class="w-5 h-5" />
             </button>
@@ -370,12 +370,12 @@ const getNivelBadgeClass = (nivel: string): string => {
       <!-- Tabs Navigation - Estilo Educativo -->
       <div class="mb-6 overflow-x-auto pb-2 scrollbar-hide">
         <div
-          class="bg-white dark:bg-[#252525] rounded-2xl p-1.5 sm:p-2 shadow-lg border border-gray-100 dark:border-slate-700 flex sm:inline-flex gap-1 sm:gap-2 min-w-max">
+          class="bg-surface-card rounded-2xl p-1.5 sm:p-2 shadow-lg border border-gray-100 dark:border-slate-700 flex sm:inline-flex gap-1 sm:gap-2 min-w-max">
           <button @click="activeTab = 'generador'"
             class="flex items-center gap-2 px-3 py-2 sm:px-5 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 whitespace-nowrap cursor-pointer"
             :class="activeTab === 'generador'
               ? 'bg-gradient-to-r from-teal-500 to-teal-600 text-white shadow-lg shadow-teal-500/30'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-teal-50 dark:hover:bg-slate-700'">
+              : 'text-slate-600 dark:text-text-muted hover:bg-teal-50 dark:hover:bg-slate-700'">
             <Brain class="w-4 h-4 sm:w-5 sm:h-5" />
             <span>Generador de Examen</span>
             <Sparkles v-if="activeTab === 'generador'" class="w-3 h-3 sm:w-4 sm:h-4 text-amber-300" />
@@ -385,7 +385,7 @@ const getNivelBadgeClass = (nivel: string): string => {
             class="flex items-center gap-2 px-3 py-2 sm:px-5 sm:py-3 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 whitespace-nowrap cursor-pointer"
             :class="activeTab === 'sistematizador'
               ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-amber-50 dark:hover:bg-slate-700'">
+              : 'text-slate-600 dark:text-text-muted hover:bg-amber-50 dark:hover:bg-slate-700'">
             <LayoutGrid class="w-4 h-4 sm:w-5 sm:h-5" />
             <span>Sistematizador</span>
             <Award v-if="activeTab === 'sistematizador'" class="w-3 h-3 sm:w-4 sm:h-4 text-yellow-300" />
@@ -400,8 +400,8 @@ const getNivelBadgeClass = (nivel: string): string => {
 
           <!-- Grade Selection -->
           <div
-            class="bg-white dark:bg-[#252525] rounded-xl sm:rounded-2xl p-4 sm:p-5 border-2 border-teal-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-teal-200 transition-all duration-300">
-            <label class="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 sm:mb-3">
+            class="bg-surface-card rounded-xl sm:rounded-2xl p-4 sm:p-5 border-2 border-teal-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-teal-200 transition-all duration-300">
+            <label class="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-text-muted mb-2 sm:mb-3">
               <div
                 class="w-8 h-8 bg-gradient-to-br from-teal-400 to-teal-600 rounded-lg flex items-center justify-center">
                 <GraduationCap class="w-4 h-4 text-white" />
@@ -409,9 +409,9 @@ const getNivelBadgeClass = (nivel: string): string => {
               Grado Escolar
             </label>
             <div v-if="loadingGrados"
-              class="w-full h-[46px] bg-slate-50 dark:bg-[#121212]/50 rounded-xl animate-pulse flex items-center px-4 border-2 border-slate-300/60 dark:border-slate-700/60 transition-all duration-300">
-              <div class="h-4 w-1/3 bg-slate-200 dark:bg-[#393939] rounded"></div>
-              <div class="ml-auto w-4 h-4 bg-slate-200 dark:bg-[#393939] rounded-sm"></div>
+              class="w-full h-[46px] bg-surface/50 rounded-xl animate-pulse flex items-center px-4 border-2 border-slate-300/60 dark:border-slate-700/60 transition-all duration-300">
+              <div class="h-4 w-1/3 bg-slate-200 dark:bg-surface-input rounded"></div>
+              <div class="ml-auto w-4 h-4 bg-slate-200 dark:bg-surface-input rounded-sm"></div>
             </div>
             <ComboBox v-else v-model="selectedGradoId" :options="gradoOptions" placeholder="Seleccionar grado..." />
           </div>
@@ -505,8 +505,8 @@ const getNivelBadgeClass = (nivel: string): string => {
 
           <!-- Quantity -->
           <div
-            class="bg-white dark:bg-[#252525] rounded-xl sm:rounded-2xl p-4 sm:p-5 border-2 border-amber-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-amber-200 transition-all duration-300">
-            <label class="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 sm:mb-3">
+            class="bg-surface-card rounded-xl sm:rounded-2xl p-4 sm:p-5 border-2 border-amber-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-amber-200 transition-all duration-300">
+            <label class="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-text-muted mb-2 sm:mb-3">
               <div
                 class="w-8 h-8 bg-gradient-to-br from-amber-400 to-amber-600 rounded-lg flex items-center justify-center">
                 <Hash class="w-4 h-4 text-white" />
@@ -515,7 +515,7 @@ const getNivelBadgeClass = (nivel: string): string => {
             </label>
             <div class="flex items-center gap-3 sm:gap-4">
               <input type="range" v-model="cantidadPreguntas" min="1" max="10"
-                class="flex-1 h-2.5 sm:h-3 bg-gradient-to-r from-teal-100 to-amber-100 dark:bg-[#393939] rounded-full appearance-none cursor-pointer accent-teal-600" />
+                class="flex-1 h-2.5 sm:h-3 bg-gradient-to-r from-teal-100 to-amber-100 dark:bg-surface-input rounded-full appearance-none cursor-pointer accent-teal-600" />
               <span
                 class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center text-lg sm:text-xl font-bold text-white shadow-lg shadow-teal-500/30">
                 {{ cantidadPreguntas }}
@@ -525,14 +525,14 @@ const getNivelBadgeClass = (nivel: string): string => {
 
           <!-- File Upload -->
           <div
-            class="bg-white dark:bg-[#252525] rounded-xl sm:rounded-2xl p-4 sm:p-5 border-2 border-sky-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-sky-200 transition-all duration-300">
+            class="bg-surface-card rounded-xl sm:rounded-2xl p-4 sm:p-5 border-2 border-sky-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-sky-200 transition-all duration-300">
             <Checkbox v-model="useTextoBase" class="items-center mb-2 sm:mb-3">
               <div class="flex items-center gap-2">
                 <div
                   class="w-8 h-8 bg-gradient-to-br from-sky-400 to-sky-600 rounded-lg flex items-center justify-center">
                   <FileUp class="w-4 h-4 text-white" />
                 </div>
-                <span class="text-sm font-bold text-slate-700 dark:text-slate-300">Usar Texto Base</span>
+                <span class="text-sm font-bold text-slate-700 dark:text-text-muted">Usar Texto Base</span>
               </div>
             </Checkbox>
 
@@ -541,25 +541,25 @@ const getNivelBadgeClass = (nivel: string): string => {
                 <input type="file" accept=".pdf,.docx,.doc" multiple @change="handleFileUpload"
                   class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                 <div
-                  class="flex items-center justify-center py-4 px-3 bg-gradient-to-br from-sky-50 to-teal-50 dark:bg-[#121212] border-2 border-dashed border-sky-300 dark:border-slate-600 rounded-xl hover:border-teal-400 hover:bg-teal-50 transition-all duration-300">
+                  class="flex items-center justify-center py-4 px-3 bg-gradient-to-br from-sky-50 to-teal-50 dark:bg-surface border-2 border-dashed border-sky-300 dark:border-slate-600 rounded-xl hover:border-teal-400 hover:bg-teal-50 transition-all duration-300">
                   <div class="text-center">
                     <CloudUpload class="w-6 h-6 text-teal-500 mx-auto mb-1" />
-                    <span class="text-teal-600 dark:text-slate-400 text-xs font-medium flex items-center gap-1"><FileText class="w-3 h-3" /> PDF o Word</span>
+                    <span class="text-teal-600 dark:text-text-muted text-xs font-medium flex items-center gap-1"><FileText class="w-3 h-3" /> PDF o Word</span>
                   </div>
                 </div>
               </div>
 
               <div v-if="uploadingFile"
-                class="flex items-center justify-center gap-2 py-4 bg-teal-50 dark:bg-[#121212] rounded-xl">
+                class="flex items-center justify-center gap-2 py-4 bg-teal-50 dark:bg-surface rounded-xl">
                 <Loader2 class="w-5 h-5 text-teal-600 animate-spin" />
-                <span class="text-teal-600 dark:text-emerald-400 text-sm font-medium">Procesando...</span>
+                <span class="text-primary text-sm font-medium">Procesando...</span>
               </div>
 
               <div v-if="selectedFiles.length > 0 && !uploadingFile && filesMetadata" class="space-y-2">
                 <div v-for="(archivo, index) in filesMetadata.archivos" :key="index"
                   class="flex items-center gap-2 p-3 bg-gradient-to-r from-teal-50 to-emerald-50 dark:bg-emerald-900/20 border-2 border-teal-200 dark:border-emerald-800 rounded-xl text-xs">
-                  <FileText class="w-5 h-5 text-teal-600 dark:text-emerald-400" />
-                  <span class="flex-1 truncate text-slate-700 dark:text-slate-200 font-medium">{{ archivo.filename
+                  <FileText class="w-5 h-5 text-primary" />
+                  <span class="flex-1 truncate text-slate-700 dark:text-text font-medium">{{ archivo.filename
                   }}</span>
                   <span class="text-teal-600 font-bold bg-teal-100 px-2 py-0.5 rounded-full">{{ archivo.palabras
                   }}p</span>
@@ -579,7 +579,7 @@ const getNivelBadgeClass = (nivel: string): string => {
               </div>
             </div>
 
-            <p v-else class="text-slate-400 dark:text-slate-500 text-xs mt-2 flex items-center gap-1">
+            <p v-else class="text-slate-400 dark:text-text-subtle text-xs mt-2 flex items-center gap-1">
               <BookOpen class="w-3 h-3" /> Activa para usar lectura personalizada
             </p>
           </div>
@@ -593,7 +593,7 @@ const getNivelBadgeClass = (nivel: string): string => {
 
             <!-- Desempeños Card -->
             <div
-              class="h-[500px] sm:h-[540px] lg:h-[580px] xl:h-[650px] flex flex-col bg-white dark:bg-[#252525] rounded-2xl border-2 border-teal-100 dark:border-slate-700 overflow-hidden shadow-lg">
+              class="h-[500px] sm:h-[540px] lg:h-[580px] xl:h-[650px] flex flex-col bg-surface-card rounded-2xl border-2 border-teal-100 dark:border-slate-700 overflow-hidden shadow-lg">
 
               <!-- Card Header - Educativo -->
               <div class="bg-gradient-to-r from-teal-500 via-teal-600 to-sky-500 px-5 py-4">
@@ -624,30 +624,30 @@ const getNivelBadgeClass = (nivel: string): string => {
                 <!-- Skeleton for Tabs -->
                 <div class="flex gap-2 mb-2">
                   <div v-for="i in 3" :key="i"
-                    class="h-10 flex-1 bg-slate-100 dark:bg-[#252525]/80 rounded-lg animate-pulse border border-slate-300/50 dark:border-slate-700">
+                    class="h-10 flex-1 bg-slate-100 dark:bg-surface-card/80 rounded-lg animate-pulse border border-slate-300/50 dark:border-slate-700">
                   </div>
                 </div>
                 <!-- Skeleton for Actions -->
                 <div class="flex justify-between items-center mb-2 px-1">
-                  <div class="h-3 w-48 bg-slate-200/70 dark:bg-[#252525] rounded-full animate-pulse"></div>
+                  <div class="h-3 w-48 bg-slate-200/70 dark:bg-surface-card rounded-full animate-pulse"></div>
                   <div class="flex gap-2">
-                    <div class="h-6 w-24 bg-slate-200/70 dark:bg-[#252525] rounded-full animate-pulse"></div>
-                    <div class="h-6 w-16 bg-slate-200/70 dark:bg-[#252525] rounded-full animate-pulse"></div>
+                    <div class="h-6 w-24 bg-slate-200/70 dark:bg-surface-card rounded-full animate-pulse"></div>
+                    <div class="h-6 w-16 bg-slate-200/70 dark:bg-surface-card rounded-full animate-pulse"></div>
                   </div>
                 </div>
                 <!-- Skeleton for List Items -->
                 <div class="space-y-3">
                   <div v-for="i in 4" :key="i"
-                    class="flex items-start gap-4 p-4 rounded-xl border border-slate-300 dark:border-slate-700/50 bg-slate-50/50 dark:bg-[#252525]/30 animate-pulse">
+                    class="flex items-start gap-4 p-4 rounded-xl border border-slate-300 dark:border-slate-700/50 bg-slate-50/50 dark:bg-surface-card/30 animate-pulse">
                     <div
-                      class="w-5 h-5 rounded border-2 border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-[#252525] mt-0.5">
+                      class="w-5 h-5 rounded border-2 border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-surface-card mt-0.5">
                     </div>
                     <div class="flex-1 space-y-3">
-                      <div class="h-5 w-16 bg-slate-200 dark:bg-[#393939] rounded-md"></div>
+                      <div class="h-5 w-16 bg-slate-200 dark:bg-surface-input rounded-md"></div>
                       <div class="space-y-2.5">
-                        <div class="h-3 w-full bg-slate-200 dark:bg-[#393939] rounded"></div>
-                        <div class="h-3 w-5/6 bg-slate-200 dark:bg-[#393939] rounded"></div>
-                        <div class="h-3 w-2/3 bg-slate-200 dark:bg-[#393939] rounded"></div>
+                        <div class="h-3 w-full bg-slate-200 dark:bg-surface-input rounded"></div>
+                        <div class="h-3 w-5/6 bg-slate-200 dark:bg-surface-input rounded"></div>
+                        <div class="h-3 w-2/3 bg-slate-200 dark:bg-surface-input rounded"></div>
                       </div>
                     </div>
                   </div>
@@ -658,7 +658,7 @@ const getNivelBadgeClass = (nivel: string): string => {
               <div v-else-if="desempenos.length > 0" class="flex-1 flex flex-col overflow-hidden">
 
                 <!-- Tab Navigation - Niveles de Comprensión -->
-                <div class="flex overflow-x-auto scrollbar-hide bg-slate-100 dark:bg-[#121212]/80 p-1.5 gap-1 min-w-full border-b border-slate-300/60 dark:border-slate-700/60">
+                <div class="flex overflow-x-auto scrollbar-hide bg-slate-100 dark:bg-surface/80 p-1.5 gap-1 min-w-full border-b border-slate-300/60 dark:border-slate-700/60">
                   <button v-for="tipo in ['literal', 'inferencial', 'critico']" :key="tipo"
                     @click="activeCapacidadTab = tipo"
                     class="flex-1 min-w-[100px] relative px-2 sm:px-4 py-2 sm:py-2.5 text-[10px] sm:text-xs font-bold uppercase tracking-wide transition-all duration-300 rounded-lg whitespace-nowrap cursor-pointer"
@@ -669,9 +669,9 @@ const getNivelBadgeClass = (nivel: string): string => {
                         'bg-violet-500 dark:bg-violet-600 text-white shadow-lg shadow-violet-500/30': tipo === 'critico'
                       }
                       : {
-                        'text-slate-500 dark:text-slate-400 hover:bg-teal-100/70 dark:hover:bg-emerald-900/30 hover:text-teal-700 dark:hover:text-emerald-300 hover:shadow-sm': tipo === 'literal',
-                        'text-slate-500 dark:text-slate-400 hover:bg-amber-100/70 dark:hover:bg-amber-900/30 hover:text-amber-700 dark:hover:text-amber-300 hover:shadow-sm': tipo === 'inferencial',
-                        'text-slate-500 dark:text-slate-400 hover:bg-violet-100/70 dark:hover:bg-violet-900/30 hover:text-violet-700 dark:hover:text-violet-300 hover:shadow-sm': tipo === 'critico'
+                        'text-slate-500 dark:text-text-muted hover:bg-teal-100/70 dark:hover:bg-emerald-900/30 hover:text-teal-700 dark:hover:text-emerald-300 hover:shadow-sm': tipo === 'literal',
+                        'text-slate-500 dark:text-text-muted hover:bg-amber-100/70 dark:hover:bg-amber-900/30 hover:text-amber-700 dark:hover:text-amber-300 hover:shadow-sm': tipo === 'inferencial',
+                        'text-slate-500 dark:text-text-muted hover:bg-violet-100/70 dark:hover:bg-violet-900/30 hover:text-violet-700 dark:hover:text-violet-300 hover:shadow-sm': tipo === 'critico'
                       }">
                     <div class="flex items-center justify-center gap-1.5 sm:gap-2">
                       <BookOpen v-if="tipo === 'literal'" class="w-3 h-3 sm:w-4 h-4" />
@@ -686,13 +686,13 @@ const getNivelBadgeClass = (nivel: string): string => {
                 <div class="flex-1 flex flex-col overflow-hidden p-3">
                   <!-- Actions Bar -->
                   <div class="flex items-center justify-between mb-3 px-1">
-                    <span class="text-xs text-slate-500 dark:text-slate-400">
+                    <span class="text-xs text-slate-500 dark:text-text-muted">
                       Selecciona los desempeños a evaluar
                     </span>
                     <div class="flex gap-2 text-[11px] font-medium">
                       <button @click="selectAllCapacidad(activeCapacidadTab)"
                         class="px-2.5 py-1 rounded-full transition-colors cursor-pointer" :class="{
-                          'text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-900/20': activeCapacidadTab === 'literal',
+                          'text-emerald-600 hover:bg-emerald-50 dark:text-primary dark:hover:bg-emerald-900/20': activeCapacidadTab === 'literal',
                           'text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-900/20': activeCapacidadTab === 'inferencial',
                           'text-purple-600 hover:bg-purple-50 dark:text-purple-400 dark:hover:bg-purple-900/20': activeCapacidadTab === 'critico'
                         }">
@@ -725,14 +725,14 @@ const getNivelBadgeClass = (nivel: string): string => {
                             : 'checked:bg-purple-600 checked:border-purple-600 dark:checked:bg-purple-500 dark:checked:border-purple-500 focus:ring-purple-500/50')">
                         <div class="flex items-center gap-2 mb-1">
                           <span class="text-[10px] px-2 py-0.5 rounded-md font-mono font-bold" :class="{
-                            'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400': activeCapacidadTab === 'literal',
+                            'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-primary': activeCapacidadTab === 'literal',
                             'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400': activeCapacidadTab === 'inferencial',
                             'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-400': activeCapacidadTab === 'critico'
                           }">
                             {{ des.codigo }}
                           </span>
                         </div>
-                        <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                        <p class="text-sm text-slate-700 dark:text-text-muted leading-relaxed">
                           {{ des.descripcion }}
                         </p>
                       </Checkbox>
@@ -740,7 +740,7 @@ const getNivelBadgeClass = (nivel: string): string => {
 
                     <!-- Empty Tab -->
                     <div v-else class="py-8 text-center">
-                      <p class="text-slate-400 dark:text-slate-500 text-sm">
+                      <p class="text-slate-400 dark:text-text-subtle text-sm">
                         No hay desempeños de tipo {{ getCapacidadLabel(activeCapacidadTab) }}
                       </p>
                     </div>
@@ -752,10 +752,10 @@ const getNivelBadgeClass = (nivel: string): string => {
               <div v-else class="flex-1 flex flex-col items-center justify-center px-6 text-center">
                 <div
                   class="w-14 h-14 bg-gradient-to-br from-violet-100 to-purple-100 dark:from-emerald-900/30 dark:to-purple-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <BookOpen class="w-7 h-7 text-emerald-500 dark:text-emerald-400" />
+                  <BookOpen class="w-7 h-7 text-emerald-500 dark:text-primary" />
                 </div>
-                <h3 class="text-slate-700 dark:text-slate-200 font-medium mb-1">Sin desempeños</h3>
-                <p class="text-slate-500 dark:text-slate-400 text-sm">Selecciona un grado para ver los desempeños
+                <h3 class="text-slate-700 dark:text-text font-medium mb-1">Sin desempeños</h3>
+                <p class="text-slate-500 dark:text-text-muted text-sm">Selecciona un grado para ver los desempeños
                   disponibles</p>
               </div>
             </div>
@@ -790,10 +790,10 @@ const getNivelBadgeClass = (nivel: string): string => {
 
             <!-- Empty State -->
             <div v-if="!resultado && !loading"
-              class="h-[300px] sm:h-[400px] lg:h-[580px] xl:h-[650px] bg-white dark:bg-[#252525] rounded-xl border border-gray-200 dark:border-slate-700 text-center flex flex-col items-center justify-center shadow-sm p-6">
-              <Zap class="w-10 h-10 sm:w-12 sm:h-12 text-gray-300 dark:text-slate-600 mb-4" />
-              <h3 class="text-base sm:text-lg font-semibold text-slate-800 dark:text-white mb-2">Listo para generar</h3>
-              <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm max-w-xs mb-4">
+              class="h-[300px] sm:h-[400px] lg:h-[580px] xl:h-[650px] bg-surface-card rounded-xl border border-gray-200 dark:border-slate-700 text-center flex flex-col items-center justify-center shadow-sm p-6">
+              <Zap class="w-10 h-10 sm:w-12 sm:h-12 text-gray-300 dark:text-text-subtle mb-4" />
+              <h3 class="text-base sm:text-lg font-semibold text-text mb-2">Listo para generar</h3>
+              <p class="text-slate-500 dark:text-text-muted text-xs sm:text-sm max-w-xs mb-4">
                 Selecciona los desempeños y genera tu examen con IA.
               </p>
               <!-- Advertencia de riesgos de IA -->
@@ -818,7 +818,7 @@ const getNivelBadgeClass = (nivel: string): string => {
               </div>
               <div class="relative z-10 flex flex-col items-center">
                 <ThinkingLoader text="Generando examen" variant="purple" />
-                <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-4">Esto puede tomar unos segundos...
+                <p class="text-slate-500 dark:text-text-muted text-xs sm:text-sm mt-4">Esto puede tomar unos segundos...
                 </p>
                 <div
                   class="mt-6 max-w-sm mx-auto flex items-start gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20">
@@ -833,7 +833,7 @@ const getNivelBadgeClass = (nivel: string): string => {
 
             <!-- Results -->
             <div v-if="resultado && !loading && showResults"
-              class="h-[500px] sm:h-[540px] lg:h-[580px] xl:h-[650px] bg-white dark:bg-[#252525] rounded-2xl border-2 border-amber-200 dark:border-slate-700 shadow-xl flex flex-col overflow-hidden">
+              class="h-[500px] sm:h-[540px] lg:h-[580px] xl:h-[650px] bg-surface-card rounded-2xl border-2 border-amber-200 dark:border-slate-700 shadow-xl flex flex-col overflow-hidden">
 
               <!-- Results Header - Celebratorio -->
               <div
@@ -868,8 +868,8 @@ const getNivelBadgeClass = (nivel: string): string => {
                 <!-- Instrucciones -->
                 <div
                   class="bg-gradient-to-r from-teal-50 to-sky-50 dark:from-emerald-900/40 dark:to-slate-900 rounded-xl p-3 sm:p-4 border-2 border-teal-100 dark:border-emerald-800">
-                  <p class="text-slate-700 dark:text-slate-300 text-sm">
-                    <strong class="text-teal-700 dark:text-emerald-400 flex items-center gap-2 mb-2">
+                  <p class="text-slate-700 dark:text-text-muted text-sm">
+                    <strong class="text-teal-700 dark:text-primary flex items-center gap-2 mb-2">
                       <ClipboardCheck class="w-4 h-4" />
                       Instrucciones:
                     </strong>
@@ -880,7 +880,7 @@ const getNivelBadgeClass = (nivel: string): string => {
                 <!-- Lectura -->
                 <div
                   class="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-900 dark:to-slate-950 rounded-xl p-4 sm:p-5 border-2 border-amber-100 dark:border-slate-700">
-                  <h4 class="text-sm font-bold text-slate-800 dark:text-white mb-2 sm:mb-3 flex items-center gap-2">
+                  <h4 class="text-sm font-bold text-text mb-2 sm:mb-3 flex items-center gap-2">
                     <div
                       class="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center">
                       <BookOpen class="w-4 h-4 text-white" />
@@ -888,14 +888,14 @@ const getNivelBadgeClass = (nivel: string): string => {
                     Lectura
                   </h4>
                   <p
-                    class="text-slate-700 dark:text-slate-300 text-sm leading-7 whitespace-pre-line bg-white/50 dark:bg-black/20 p-3 sm:p-4 rounded-lg">
+                    class="text-slate-700 dark:text-text-muted text-sm leading-7 whitespace-pre-line bg-white/50 dark:bg-black/20 p-3 sm:p-4 rounded-lg">
                     {{ resultado.examen.lectura }}
                   </p>
                 </div>
 
                 <!-- Preguntas -->
                 <div class="space-y-3 sm:space-y-4">
-                  <h4 class="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                  <h4 class="text-sm font-bold text-text flex items-center gap-2">
                     <div
                       class="w-8 h-8 bg-gradient-to-br from-violet-400 to-purple-500 rounded-lg flex items-center justify-center">
                       <HelpCircle class="w-4 h-4 text-white" />
@@ -904,7 +904,7 @@ const getNivelBadgeClass = (nivel: string): string => {
                   </h4>
 
                   <div v-for="pregunta in resultado.examen.preguntas" :key="pregunta.numero"
-                    class="bg-white dark:bg-[#252525] rounded-xl p-4 sm:p-5 border-2 border-slate-300 dark:border-slate-700 hover:border-teal-200 dark:hover:border-emerald-700 transition-all duration-300">
+                    class="bg-surface-card rounded-xl p-4 sm:p-5 border-2 border-slate-300 dark:border-slate-700 hover:border-teal-200 dark:hover:border-emerald-700 transition-all duration-300">
                     <div class="flex items-start gap-3 sm:gap-4">
                       <span
                         class="w-10 h-10 bg-gradient-to-br from-teal-500 to-sky-500 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-lg shadow-teal-500/20">
@@ -919,16 +919,16 @@ const getNivelBadgeClass = (nivel: string): string => {
                           <Lightbulb v-else class="w-3 h-3" />
                           {{ pregunta.nivel }}
                         </span>
-                        <p class="text-slate-800 dark:text-slate-200 font-semibold mb-4">{{ pregunta.enunciado }}</p>
+                        <p class="text-slate-800 dark:text-text font-semibold mb-4">{{ pregunta.enunciado }}</p>
 
                         <div class="space-y-2">
                           <div v-for="opcion in pregunta.opciones" :key="opcion.letra"
                             class="flex items-center gap-2 sm:gap-3 text-sm py-2 sm:py-3 px-3 sm:px-4 rounded-xl border-2 transition-all duration-200"
                             :class="opcion.es_correcta
-                              ? 'bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-emerald-900/40 dark:to-slate-900 border-teal-300 dark:border-emerald-800 text-teal-700 dark:text-emerald-400'
-                              : 'bg-gray-50 dark:bg-[#121212] border-gray-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-gray-300'">
+                              ? 'bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-emerald-900/40 dark:to-slate-900 border-teal-300 dark:border-emerald-800 text-teal-700 dark:text-primary'
+                              : 'bg-gray-50 dark:bg-surface border-gray-200 dark:border-slate-700 text-slate-600 dark:text-text-muted hover:border-gray-300'">
                             <span class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm flex-shrink-0"
-                              :class="opcion.es_correcta ? 'bg-teal-500 text-white' : 'bg-gray-200 dark:bg-[#393939] text-slate-600 dark:text-slate-400'">{{
+                              :class="opcion.es_correcta ? 'bg-teal-500 text-white' : 'bg-gray-200 dark:bg-surface-input text-slate-600 dark:text-text-muted'">{{
                                 opcion.letra }}</span>
                             <span class="flex-1 min-w-0">{{ opcion.texto }}</span>
                             <Check v-if="opcion.es_correcta" class="w-5 h-5 flex-shrink-0 text-teal-500" />
@@ -940,8 +940,8 @@ const getNivelBadgeClass = (nivel: string): string => {
                 </div>
 
                 <!-- Answer Table -->
-                <div class="bg-white dark:bg-[#252525] rounded-xl p-3 sm:p-5 border-2 border-sky-100 dark:border-slate-700">
-                  <h4 class="text-sm font-bold text-slate-800 dark:text-white mb-3 sm:mb-4 flex items-center gap-2">
+                <div class="bg-surface-card rounded-xl p-3 sm:p-5 border-2 border-sky-100 dark:border-slate-700">
+                  <h4 class="text-sm font-bold text-text mb-3 sm:mb-4 flex items-center gap-2">
                     <div
                       class="w-8 h-8 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg flex items-center justify-center">
                       <LayoutGrid class="w-4 h-4 text-white" />
@@ -953,22 +953,22 @@ const getNivelBadgeClass = (nivel: string): string => {
                       <thead>
                         <tr
                           class="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-900 dark:to-slate-950 border-b-2 border-gray-200 dark:border-slate-700">
-                          <th class="text-left py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">#</th>
-                          <th class="text-left py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
+                          <th class="text-left py-3 px-3 sm:px-4 text-slate-600 dark:text-text-muted font-bold text-xs">#</th>
+                          <th class="text-left py-3 px-3 sm:px-4 text-slate-600 dark:text-text-muted font-bold text-xs">
                             Desempeño
                           </th>
-                          <th class="text-left py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">Nivel
+                          <th class="text-left py-3 px-3 sm:px-4 text-slate-600 dark:text-text-muted font-bold text-xs">Nivel
                           </th>
-                          <th class="text-center py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">Rpta.
+                          <th class="text-center py-3 px-3 sm:px-4 text-slate-600 dark:text-text-muted font-bold text-xs">Rpta.
                           </th>
                         </tr>
                       </thead>
                       <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
                         <tr v-for="fila in resultado.examen.tabla_respuestas" :key="fila.pregunta"
                           class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
-                          <td class="py-3 px-3 sm:px-4 text-slate-800 dark:text-slate-200 font-bold">{{ fila.pregunta }}
+                          <td class="py-3 px-3 sm:px-4 text-slate-800 dark:text-text font-bold">{{ fila.pregunta }}
                           </td>
-                          <td class="py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 text-xs">{{ fila.desempeno }}</td>
+                          <td class="py-3 px-3 sm:px-4 text-slate-600 dark:text-text-muted text-xs">{{ fila.desempeno }}</td>
                           <td class="py-3 px-3 sm:px-4">
                             <span class="px-2.5 py-1 text-[10px] font-bold rounded-full inline-flex items-center gap-1"
                               :class="getNivelBadgeClass(fila.nivel)">
@@ -991,7 +991,7 @@ const getNivelBadgeClass = (nivel: string): string => {
                 </div>
 
                 <p
-                  class="text-center text-xs text-slate-500 dark:text-slate-400 bg-gradient-to-r from-teal-50 to-amber-50 dark:from-slate-900 dark:to-slate-800 p-3 rounded-xl flex items-center justify-center gap-2">
+                  class="text-center text-xs text-slate-500 dark:text-text-muted bg-gradient-to-r from-teal-50 to-amber-50 dark:from-slate-900 dark:to-slate-800 p-3 rounded-xl flex items-center justify-center gap-2">
                   <Sparkles class="w-4 h-4 text-amber-500" /> Examen generado con IA - <strong>Revisar antes de usar con
                     los
                     estudiantes</strong>

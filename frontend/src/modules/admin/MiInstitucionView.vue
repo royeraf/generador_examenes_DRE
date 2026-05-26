@@ -61,16 +61,16 @@ const completadosPct = () => {
 
     <div v-else-if="institucion" class="space-y-5">
       <!-- Cabecera -->
-      <div class="bg-white dark:bg-[#252525] rounded-2xl border border-slate-300 dark:border-slate-700 p-6 shadow-sm">
+      <div class="bg-surface-card rounded-2xl border border-slate-300 dark:border-slate-700 p-6 shadow-sm">
         <div class="flex items-start gap-4">
           <div :class="`bg-gradient-to-br ${nivelColor[(Array.isArray(institucion.nivel_educativo) ? (institucion.nivel_educativo[0] ?? '') : institucion.nivel_educativo)] || 'from-teal-500 to-emerald-600'}`"
             class="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0">
             <Building2 class="w-7 h-7 text-white" />
           </div>
           <div class="flex-1 min-w-0">
-            <h2 class="text-xl font-bold text-slate-800 dark:text-white leading-tight">{{ institucion.nombre }}</h2>
+            <h2 class="text-xl font-bold text-text leading-tight">{{ institucion.nombre }}</h2>
             <div class="flex items-center gap-3 mt-1.5 flex-wrap">
-              <span class="font-mono text-xs text-slate-500 dark:text-slate-400">{{ institucion.codigo_modular }}</span>
+              <span class="font-mono text-xs text-slate-500 dark:text-text-muted">{{ institucion.codigo_modular }}</span>
               <span v-for="niv in (Array.isArray(institucion.nivel_educativo) ? institucion.nivel_educativo : [institucion.nivel_educativo])"
                 :key="niv"
                 :class="`bg-gradient-to-r ${nivelColor[niv] || 'from-teal-500 to-emerald-600'} text-white`"
@@ -84,26 +84,26 @@ const completadosPct = () => {
       </div>
 
       <!-- Detalles -->
-      <div class="bg-white dark:bg-[#252525] rounded-2xl border border-slate-300 dark:border-slate-700 p-6 shadow-sm space-y-4">
-        <h3 class="text-xs uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">Información</h3>
+      <div class="bg-surface-card rounded-2xl border border-slate-300 dark:border-slate-700 p-6 shadow-sm space-y-4">
+        <h3 class="text-xs uppercase font-bold text-slate-400 dark:text-text-subtle tracking-wider">Información</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <p class="text-[10px] font-semibold text-slate-400 mb-0.5">UGEL</p>
-            <p class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ institucion.ugel_nombre || '—' }}</p>
+            <p class="text-sm font-medium text-slate-700 dark:text-text">{{ institucion.ugel_nombre || '—' }}</p>
           </div>
           <div v-if="institucion.distrito_nombre">
             <p class="text-[10px] font-semibold text-slate-400 mb-0.5">Distrito</p>
-            <p class="text-sm font-medium text-slate-700 dark:text-slate-200 flex items-center gap-1">
+            <p class="text-sm font-medium text-slate-700 dark:text-text flex items-center gap-1">
               <MapPin class="w-3.5 h-3.5 text-teal-500" /> {{ institucion.distrito_nombre }}
             </p>
           </div>
           <div v-if="institucion.direccion" class="sm:col-span-2">
             <p class="text-[10px] font-semibold text-slate-400 mb-0.5">Dirección</p>
-            <p class="text-sm font-medium text-slate-700 dark:text-slate-200">{{ institucion.direccion }}</p>
+            <p class="text-sm font-medium text-slate-700 dark:text-text">{{ institucion.direccion }}</p>
           </div>
           <div>
             <p class="text-[10px] font-semibold text-slate-400 mb-0.5">Estado</p>
-            <span :class="institucion.is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-slate-100 text-slate-500 dark:bg-[#393939] dark:text-slate-400'"
+            <span :class="institucion.is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-slate-100 text-slate-500 dark:bg-surface-input dark:text-text-muted'"
               class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-bold">
               {{ institucion.is_active ? 'Activa' : 'Inactiva' }}
             </span>
@@ -113,88 +113,88 @@ const completadosPct = () => {
 
       <!-- Analytics -->
       <div v-if="analytics" class="space-y-4">
-        <h3 class="text-xs uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider px-1">Actividad</h3>
+        <h3 class="text-xs uppercase font-bold text-slate-400 dark:text-text-subtle tracking-wider px-1">Actividad</h3>
 
         <!-- Stats cards -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div class="bg-white dark:bg-[#252525] rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm">
+          <div class="bg-surface-card rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm">
             <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center mb-2">
               <Users class="w-4 h-4 text-white" />
             </div>
-            <p class="text-2xl font-black text-slate-800 dark:text-white">{{ analytics.total_estudiantes }}</p>
+            <p class="text-2xl font-black text-text">{{ analytics.total_estudiantes }}</p>
             <p class="text-[11px] text-slate-400 mt-0.5">Estudiantes</p>
           </div>
-          <div class="bg-white dark:bg-[#252525] rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm">
+          <div class="bg-surface-card rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm">
             <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center mb-2">
               <GraduationCap class="w-4 h-4 text-white" />
             </div>
-            <p class="text-2xl font-black text-slate-800 dark:text-white">{{ analytics.total_docentes }}</p>
+            <p class="text-2xl font-black text-text">{{ analytics.total_docentes }}</p>
             <p class="text-[11px] text-slate-400 mt-0.5">Docentes</p>
           </div>
-          <div class="bg-white dark:bg-[#252525] rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm">
+          <div class="bg-surface-card rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm">
             <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-400 to-emerald-500 flex items-center justify-center mb-2">
               <ClipboardList class="w-4 h-4 text-white" />
             </div>
-            <p class="text-2xl font-black text-slate-800 dark:text-white">{{ analytics.total_asignaciones }}</p>
+            <p class="text-2xl font-black text-text">{{ analytics.total_asignaciones }}</p>
             <p class="text-[11px] text-slate-400 mt-0.5">Asignaciones</p>
           </div>
-          <div class="bg-white dark:bg-[#252525] rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm">
+          <div class="bg-surface-card rounded-2xl border border-slate-300 dark:border-slate-700 p-4 shadow-sm">
             <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center mb-2">
               <CheckCircle2 class="w-4 h-4 text-white" />
             </div>
-            <p class="text-2xl font-black text-slate-800 dark:text-white">{{ completadosPct() }}%</p>
+            <p class="text-2xl font-black text-text">{{ completadosPct() }}%</p>
             <p class="text-[11px] text-slate-400 mt-0.5">Completados</p>
           </div>
         </div>
 
         <!-- Exámenes generados -->
-        <div class="bg-white dark:bg-[#252525] rounded-2xl border border-slate-300 dark:border-slate-700 p-5 shadow-sm">
-          <h4 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Exámenes generados</h4>
+        <div class="bg-surface-card rounded-2xl border border-slate-300 dark:border-slate-700 p-5 shadow-sm">
+          <h4 class="text-xs font-bold text-slate-500 dark:text-text-muted uppercase tracking-wider mb-3">Exámenes generados</h4>
           <div class="flex items-center gap-4">
             <div class="flex items-center gap-2 flex-1">
               <div class="w-7 h-7 rounded-lg bg-teal-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
-                <BookOpen class="w-3.5 h-3.5 text-teal-600 dark:text-emerald-400" />
+                <BookOpen class="w-3.5 h-3.5 text-primary" />
               </div>
               <div>
-                <p class="text-lg font-black text-slate-800 dark:text-white">{{ analytics.total_examenes_lectura }}</p>
+                <p class="text-lg font-black text-text">{{ analytics.total_examenes_lectura }}</p>
                 <p class="text-[10px] text-slate-400">Comunicación</p>
               </div>
             </div>
-            <div class="w-px h-8 bg-slate-100 dark:bg-[#393939]"></div>
+            <div class="w-px h-8 bg-surface-input"></div>
             <div class="flex items-center gap-2 flex-1">
               <div class="w-7 h-7 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center shrink-0">
-                <Calculator class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                <Calculator class="w-3.5 h-3.5 text-emerald-600 dark:text-primary" />
               </div>
               <div>
-                <p class="text-lg font-black text-slate-800 dark:text-white">{{ analytics.total_examenes_matematica }}</p>
+                <p class="text-lg font-black text-text">{{ analytics.total_examenes_matematica }}</p>
                 <p class="text-[10px] text-slate-400">Matemática</p>
               </div>
             </div>
-            <div class="w-px h-8 bg-slate-100 dark:bg-[#393939]"></div>
+            <div class="w-px h-8 bg-surface-input"></div>
             <div class="flex-1 text-right">
-              <p class="text-lg font-black text-slate-800 dark:text-white">{{ analytics.total_examenes }}</p>
+              <p class="text-lg font-black text-text">{{ analytics.total_examenes }}</p>
               <p class="text-[10px] text-slate-400">Total</p>
             </div>
           </div>
         </div>
 
         <!-- Actividad reciente -->
-        <div v-if="analytics.recientes.length > 0" class="bg-white dark:bg-[#252525] rounded-2xl border border-slate-300 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div v-if="analytics.recientes.length > 0" class="bg-surface-card rounded-2xl border border-slate-300 dark:border-slate-700 shadow-sm overflow-hidden">
           <div class="px-5 py-4 border-b border-slate-300 dark:border-slate-700">
-            <h4 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Exámenes recientes</h4>
+            <h4 class="text-xs font-bold text-slate-500 dark:text-text-muted uppercase tracking-wider">Exámenes recientes</h4>
           </div>
           <div class="divide-y divide-slate-100 dark:divide-slate-700">
             <div v-for="ex in analytics.recientes" :key="`${ex.area}-${ex.id}`"
               class="flex items-center gap-3 px-5 py-3">
               <div :class="ex.area === 'lectura'
-                ? 'bg-teal-100 dark:bg-emerald-900/30 text-teal-600 dark:text-emerald-400'
-                : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400'"
+                ? 'bg-teal-100 dark:bg-emerald-900/30 text-primary'
+                : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-primary'"
                 class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0">
                 <BookOpen v-if="ex.area === 'lectura'" class="w-4 h-4" />
                 <Calculator v-else class="w-4 h-4" />
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate">{{ ex.titulo }}</p>
+                <p class="text-sm font-semibold text-slate-700 dark:text-text truncate">{{ ex.titulo }}</p>
                 <p class="text-[10px] text-slate-400">{{ ex.grado }} · {{ ex.docente }}</p>
               </div>
               <p class="text-[10px] text-slate-400 shrink-0">{{ formatFecha(ex.fecha) }}</p>

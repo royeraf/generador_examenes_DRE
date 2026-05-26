@@ -11,9 +11,9 @@ const editingId = ref<number | null>(null)
 const editDraft = ref<Partial<Grado>>({})
 
 const NIVEL_BADGE: Record<string, string> = {
-  inicial:    'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-  primaria:   'bg-sky-100 text-sky-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-  secundaria: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+  inicial:    'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-primary',
+  primaria:   'bg-sky-100 text-sky-700 dark:bg-emerald-900/30 dark:text-primary',
+  secundaria: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-primary',
 }
 
 async function load() {
@@ -64,9 +64,9 @@ onMounted(load)
     </div>
 
     <!-- Tabla -->
-    <div class="flex-1 min-h-0 overflow-y-auto bg-white dark:bg-[#252525] rounded-xl border border-slate-300 dark:border-slate-700 overflow-x-auto custom-scrollbar">
+    <div class="flex-1 min-h-0 overflow-y-auto bg-surface-card rounded-xl border border-slate-300 dark:border-slate-700 overflow-x-auto custom-scrollbar">
       <table class="w-full text-sm min-w-[500px] sm:min-w-0">
-        <thead class="sticky top-0 bg-slate-50 dark:bg-[#121212]">
+        <thead class="sticky top-0 bg-surface">
           <tr class="border-b border-slate-300 dark:border-slate-700">
             <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wide">Orden</th>
             <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wide">Nombre</th>
@@ -79,10 +79,10 @@ onMounted(load)
 
           <template v-if="loading">
             <tr v-for="n in 12" :key="n" class="animate-pulse">
-              <td class="px-4 py-3"><div class="h-3 w-6 bg-slate-200 dark:bg-[#393939] rounded" /></td>
-              <td class="px-4 py-3"><div class="h-3 w-48 bg-slate-200 dark:bg-[#393939] rounded" /></td>
-              <td class="px-4 py-3"><div class="h-3 w-6 bg-slate-200 dark:bg-[#393939] rounded" /></td>
-              <td class="px-4 py-3"><div class="h-5 w-16 bg-slate-200 dark:bg-[#393939] rounded-full" /></td>
+              <td class="px-4 py-3"><div class="h-3 w-6 bg-slate-200 dark:bg-surface-input rounded" /></td>
+              <td class="px-4 py-3"><div class="h-3 w-48 bg-slate-200 dark:bg-surface-input rounded" /></td>
+              <td class="px-4 py-3"><div class="h-3 w-6 bg-slate-200 dark:bg-surface-input rounded" /></td>
+              <td class="px-4 py-3"><div class="h-5 w-16 bg-slate-200 dark:bg-surface-input rounded-full" /></td>
               <td class="px-4 py-3" />
             </tr>
           </template>
@@ -94,7 +94,7 @@ onMounted(load)
               <!-- Modo lectura -->
               <template v-if="editingId !== g.id">
                 <td class="px-4 py-3 text-xs font-mono text-slate-400">{{ g.orden }}</td>
-                <td class="px-4 py-3 font-medium text-slate-800 dark:text-slate-100">{{ g.nombre }}</td>
+                <td class="px-4 py-3 font-medium text-slate-800 dark:text-text">{{ g.nombre }}</td>
                 <td class="px-4 py-3 text-slate-500">{{ g.numero }}</td>
                 <td class="px-4 py-3">
                   <span class="px-2 py-0.5 rounded-full text-xs font-bold capitalize"
@@ -152,7 +152,7 @@ onMounted(load)
       </table>
     </div>
 
-    <p class="shrink-0 text-center text-xs text-slate-400 dark:text-slate-600">
+    <p class="shrink-0 text-center text-xs text-slate-400 dark:text-text-subtle">
       {{ grados.length }} grados registrados · Solo lectura — edición disponible por fila
     </p>
   </div>

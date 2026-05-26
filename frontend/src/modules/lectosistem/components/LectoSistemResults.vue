@@ -47,16 +47,16 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
 </script>
 
 <template>
-    <div class="flex flex-col h-full bg-transparent text-slate-700 dark:text-slate-200">
+    <div class="flex flex-col h-full bg-transparent text-slate-700 dark:text-text">
 
         <!-- Header -->
         <div class="h-14 px-4 border-b border-slate-300 dark:border-slate-700 flex items-center justify-between shrink-0">
-            <h2 class="text-sm font-medium text-slate-800 dark:text-white flex items-center gap-2">
-                <Sparkles class="w-4 h-4 text-slate-500 dark:text-slate-400" /> Examen Generado
+            <h2 class="text-sm font-medium text-text flex items-center gap-2">
+                <Sparkles class="w-4 h-4 text-slate-500 dark:text-text-muted" /> Examen Generado
             </h2>
             <div v-if="resultado" class="flex gap-2">
                 <button @click="emit('descargar-word')" :disabled="descargandoWord"
-                    class="p-1.5 rounded-full hover:bg-slate-200 dark:bg-[#393939]/50 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors"
+                    class="p-1.5 rounded-full hover:bg-slate-200 dark:bg-surface-input/50 text-slate-500 dark:text-text-muted hover:text-slate-800 dark:hover:text-white transition-colors"
                     title="Descargar Word">
                     <Loader2 v-if="descargandoWord" class="w-4 h-4 animate-spin" />
                     <Download v-else class="w-4 h-4" />
@@ -66,10 +66,10 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
 
         <!-- Empty State -->
         <div v-if="!resultado && !loading" class="flex-1 flex flex-col items-center justify-center p-6 text-center">
-            <div class="w-12 h-12 bg-slate-50 dark:bg-[#0d0d0d] rounded-2xl flex items-center justify-center mb-4 border border-slate-300 dark:border-slate-700">
+            <div class="w-12 h-12 bg-surface rounded-2xl flex items-center justify-center mb-4 border border-slate-300 dark:border-slate-700">
                 <Bot class="w-6 h-6 text-slate-600" />
             </div>
-            <h3 class="text-sm font-medium text-slate-800 dark:text-white mb-2">Comienza a generar</h3>
+            <h3 class="text-sm font-medium text-text mb-2">Comienza a generar</h3>
             <p class="text-xs text-slate-500 max-w-xs mb-6">Selecciona los parámetros a la izquierda y presiona Generar Examen.</p>
             <div class="max-w-sm flex items-start gap-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
                 <AlertTriangle class="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
@@ -88,35 +88,35 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
             <div class="max-w-2xl mx-auto space-y-8">
 
                 <div class="text-center space-y-2">
-                    <h1 class="text-xl font-bold text-slate-800 dark:text-white">{{ resultado.examen.titulo }}</h1>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">{{ resultado.examen.grado }} | {{ resultado.total_preguntas }} Preguntas</p>
+                    <h1 class="text-xl font-bold text-text">{{ resultado.examen.titulo }}</h1>
+                    <p class="text-xs text-slate-500 dark:text-text-muted">{{ resultado.examen.grado }} | {{ resultado.total_preguntas }} Preguntas</p>
                 </div>
 
                 <div v-if="resultado.lecturas && resultado.lecturas.length" class="space-y-6">
                     <div v-for="(lectura, idx) in resultado.lecturas" :key="idx"
-                        class="bg-slate-50 dark:bg-[#0d0d0d] rounded-2xl p-5 border border-slate-300 dark:border-slate-700">
-                        <h3 class="text-sm font-bold text-slate-800 dark:text-white mb-3">{{ lectura.titulo }}</h3>
-                        <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-serif">{{ lectura.texto }}</p>
+                        class="bg-surface rounded-2xl p-5 border border-slate-300 dark:border-slate-700">
+                        <h3 class="text-sm font-bold text-text mb-3">{{ lectura.titulo }}</h3>
+                        <p class="text-sm text-slate-600 dark:text-text-muted leading-relaxed whitespace-pre-wrap font-serif">{{ lectura.texto }}</p>
                     </div>
                 </div>
 
                 <div class="space-y-6">
                     <div v-for="(pregunta, pIdx) in resultado.examen.preguntas" :key="pIdx"
-                        class="bg-slate-50 dark:bg-[#0d0d0d] rounded-2xl p-5 border border-slate-300 dark:border-slate-700 space-y-4">
+                        class="bg-surface rounded-2xl p-5 border border-slate-300 dark:border-slate-700 space-y-4">
 
                         <!-- Encabezado pregunta -->
                         <div class="flex items-start justify-between gap-3">
-                            <h4 class="text-sm font-medium text-slate-800 dark:text-white leading-relaxed flex-1">
+                            <h4 class="text-sm font-medium text-text leading-relaxed flex-1">
                                 <span class="text-slate-500 font-bold">{{ pIdx + 1 }}.</span> {{ pregunta.enunciado }}
                             </h4>
                             <div class="flex items-center gap-2 shrink-0">
-                                <span class="text-[9px] font-bold uppercase px-2 py-1 rounded bg-slate-100 dark:bg-[#252525]/50 text-slate-500 dark:text-slate-400">
+                                <span class="text-[9px] font-bold uppercase px-2 py-1 rounded bg-slate-100 dark:bg-surface-card/50 text-slate-500 dark:text-text-muted">
                                     {{ pregunta.nivel }}
                                 </span>
                                 <!-- Botón retroalimentación -->
                                 <button v-if="tieneRetroalimentacion(pregunta.numero)"
                                     @click="abrirModal(pregunta.numero)"
-                                    class="p-1.5 rounded-lg bg-teal-50 dark:bg-emerald-900/20 hover:bg-teal-100 dark:hover:bg-emerald-900/40 text-teal-600 dark:text-emerald-400 transition-colors"
+                                    class="p-1.5 rounded-lg bg-teal-50 dark:bg-emerald-900/20 hover:bg-teal-100 dark:hover:bg-emerald-900/40 text-primary transition-colors"
                                     title="Ver retroalimentación">
                                     <MessageSquare class="w-3.5 h-3.5" />
                                 </button>
@@ -129,7 +129,7 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
                                 <span class="font-bold w-5" :class="alt.es_correcta ? 'text-emerald-500' : 'text-slate-500'">
                                     {{ String.fromCharCode(65 + aIdx) }})
                                 </span>
-                                <span :class="alt.es_correcta ? 'text-emerald-500' : 'text-slate-600 dark:text-slate-300'">
+                                <span :class="alt.es_correcta ? 'text-emerald-500' : 'text-slate-600 dark:text-text-muted'">
                                     {{ alt.texto }}
                                 </span>
                             </div>
@@ -137,7 +137,7 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
 
                         <!-- Justificación -->
                         <div v-if="getTablaRow(pregunta.numero)?.justificacion"
-                            class="p-3 bg-slate-100 dark:bg-[#252525]/50 rounded-xl text-xs text-slate-500 dark:text-slate-400">
+                            class="p-3 bg-slate-100 dark:bg-surface-card/50 rounded-xl text-xs text-slate-500 dark:text-text-muted">
                             <strong>Justificación:</strong> {{ getTablaRow(pregunta.numero)?.justificacion }}
                         </div>
                     </div>
@@ -156,18 +156,18 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
                     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm cursor-pointer" @click="cerrarModal" />
 
                     <!-- Dialog -->
-                    <div class="relative z-10 w-full sm:max-w-lg bg-white dark:bg-[#121212] rounded-t-2xl sm:rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[85vh]">
+                    <div class="relative z-10 w-full sm:max-w-lg bg-surface rounded-t-2xl sm:rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[85vh]">
                         
                         <!-- Drag handle (mobile) -->
                         <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0" @click="cerrarModal">
-                            <div class="w-10 h-1 rounded-full bg-slate-200 dark:bg-[#4f4f4f]"></div>
+                            <div class="w-10 h-1 rounded-full bg-slate-200 dark:bg-surface-elevated"></div>
                         </div>
 
                         <!-- Header modal -->
                         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-300 dark:border-slate-700">
                             <div class="flex items-center gap-2">
                                 <MessageSquare class="w-4 h-4 text-teal-500" />
-                                <span class="text-sm font-semibold text-slate-800 dark:text-white">
+                                <span class="text-sm font-semibold text-text">
                                     Retroalimentación — Pregunta {{ modalPregunta.pregunta }}
                                 </span>
                             </div>
@@ -185,11 +185,11 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
                                 class="rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/10 p-4 space-y-2">
                                 <div class="flex items-center gap-2">
                                     <CheckCircle2 class="w-4 h-4 text-emerald-500 shrink-0" />
-                                    <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">
+                                    <span class="text-xs font-semibold text-emerald-700 dark:text-primary uppercase tracking-wide">
                                         Si respondió correctamente
                                     </span>
                                 </div>
-                                <p class="text-sm text-emerald-800 dark:text-emerald-300 leading-relaxed">
+                                <p class="text-sm text-emerald-800 dark:text-primary-light leading-relaxed">
                                     {{ modalPregunta.retroalimentacion_correcta }}
                                 </p>
                             </div>
@@ -210,11 +210,11 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
 
                             <!-- Justificación (si existe) -->
                             <div v-if="modalPregunta.justificacion"
-                                class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#252525]/50 p-4 space-y-2">
-                                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                                class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-surface-card/50 p-4 space-y-2">
+                                <span class="text-xs font-semibold text-slate-500 dark:text-text-muted uppercase tracking-wide">
                                     Justificación de la respuesta correcta
                                 </span>
-                                <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                                <p class="text-sm text-slate-600 dark:text-text-muted leading-relaxed">
                                     {{ modalPregunta.justificacion }}
                                 </p>
                             </div>
@@ -223,7 +223,7 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
                         <!-- Footer modal -->
                         <div class="px-5 py-3 border-t border-slate-300 dark:border-slate-700 flex justify-end">
                             <button @click="cerrarModal"
-                                class="px-4 py-2 text-xs font-medium rounded-lg bg-slate-100 dark:bg-[#252525] hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">
+                                class="px-4 py-2 text-xs font-medium rounded-lg bg-slate-100 dark:bg-surface-card hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-text-muted transition-colors">
                                 Cerrar
                             </button>
                         </div>

@@ -93,19 +93,19 @@ const rolLabel = computed(() => {
       <!-- Top Actions & Welcome -->
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div class="space-y-1">
-          <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-sm tracking-wider uppercase">
+          <div class="flex items-center gap-2 text-emerald-600 dark:text-primary font-bold text-sm tracking-wider uppercase">
             <TrendingUp class="w-4 h-4" />
             <span>Métricas en tiempo real</span>
           </div>
-          <h2 class="text-3xl md:text-4xl font-black text-slate-800 dark:text-white tracking-tight">
+          <h2 class="text-3xl md:text-4xl font-black text-text tracking-tight">
             Dashboard Global
           </h2>
-          <p class="text-slate-500 dark:text-slate-400 text-sm md:text-base max-w-2xl">
-            Estadísticas consolidadas para el rol <span class="text-emerald-600 dark:text-emerald-400 font-bold border-b-2 border-emerald-500/20">{{ rolLabel }}</span>.
+          <p class="text-slate-500 dark:text-text-muted text-sm md:text-base max-w-2xl">
+            Estadísticas consolidadas para el rol <span class="text-emerald-600 dark:text-primary font-bold border-b-2 border-emerald-500/20">{{ rolLabel }}</span>.
           </p>
         </div>
         <button @click="fetchMetricas" :disabled="loading"
-          class="group flex items-center justify-center gap-2 px-6 py-3 text-sm font-bold text-white bg-slate-900 dark:bg-white dark:text-slate-900 rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-slate-900/10 dark:shadow-white/5 disabled:opacity-50 cursor-pointer">
+          class="group flex items-center justify-center gap-2 px-6 py-3 text-sm font-bold text-white bg-slate-900 dark:bg-white dark:text-text-inverse rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-slate-900/10 dark:shadow-white/5 disabled:opacity-50 cursor-pointer">
           <RefreshCw class="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" :class="{'animate-spin': loading}" />
           <span>Actualizar Datos</span>
         </button>
@@ -131,7 +131,7 @@ const rolLabel = computed(() => {
           <div class="absolute inset-0 rounded-full border-4 border-emerald-500 border-t-transparent animate-spin"></div>
           <div class="absolute inset-4 rounded-full border-4 border-teal-400 border-b-transparent animate-spin-reverse"></div>
         </div>
-        <p class="text-slate-500 dark:text-slate-400 font-bold mt-6 tracking-widest uppercase text-xs">Analizando Datos...</p>
+        <p class="text-slate-500 dark:text-text-muted font-bold mt-6 tracking-widest uppercase text-xs">Analizando Datos...</p>
       </div>
 
       <template v-if="resumen">
@@ -140,10 +140,10 @@ const rolLabel = computed(() => {
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           
           <!-- Exámenes Totales -->
-          <div class="bg-white dark:bg-[#121212] border border-slate-300/60 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
+          <div class="bg-surface border border-slate-300/60 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="flex justify-between items-start mb-6">
-              <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 transform group-hover:rotate-12 transition-transform">
+              <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-primary transform group-hover:rotate-12 transition-transform">
                 <BarChart3 class="w-7 h-7" />
               </div>
               <div class="flex flex-col items-end">
@@ -153,44 +153,44 @@ const rolLabel = computed(() => {
                 </span>
               </div>
             </div>
-            <h3 class="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Exámenes Generados</h3>
-            <p class="text-4xl md:text-5xl font-black text-slate-800 dark:text-white tracking-tighter">{{ resumen.total_examenes }}</p>
+            <h3 class="text-slate-500 dark:text-text-muted text-xs font-bold uppercase tracking-widest mb-1">Exámenes Generados</h3>
+            <p class="text-4xl md:text-5xl font-black text-text tracking-tighter">{{ resumen.total_examenes }}</p>
           </div>
 
           <!-- Total Usuarios -->
-          <div class="bg-white dark:bg-[#121212] border border-slate-300/60 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
+          <div class="bg-surface border border-slate-300/60 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="flex justify-between items-start mb-6">
-              <div class="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-emerald-500/10 flex items-center justify-center text-blue-600 dark:text-emerald-400 transform group-hover:-rotate-12 transition-transform">
+              <div class="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-emerald-500/10 flex items-center justify-center text-blue-600 dark:text-primary transform group-hover:-rotate-12 transition-transform">
                 <Users class="w-7 h-7" />
               </div>
             </div>
-            <h3 class="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Comunidad Activa</h3>
-            <p class="text-4xl md:text-5xl font-black text-slate-800 dark:text-white tracking-tighter">{{ resumen.total_usuarios }}</p>
+            <h3 class="text-slate-500 dark:text-text-muted text-xs font-bold uppercase tracking-widest mb-1">Comunidad Activa</h3>
+            <p class="text-4xl md:text-5xl font-black text-text tracking-tighter">{{ resumen.total_usuarios }}</p>
           </div>
 
           <!-- Asignaciones -->
-          <div class="bg-white dark:bg-[#121212] border border-slate-300/60 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
+          <div class="bg-surface border border-slate-300/60 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="flex justify-between items-start mb-6">
               <div class="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400 transform group-hover:scale-110 transition-transform">
                 <ClipboardList class="w-7 h-7" />
               </div>
             </div>
-            <h3 class="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Evaluaciones</h3>
-            <p class="text-4xl md:text-5xl font-black text-slate-800 dark:text-white tracking-tighter">{{ resumen.total_asignaciones }}</p>
+            <h3 class="text-slate-500 dark:text-text-muted text-xs font-bold uppercase tracking-widest mb-1">Evaluaciones</h3>
+            <p class="text-4xl md:text-5xl font-black text-text tracking-tighter">{{ resumen.total_asignaciones }}</p>
           </div>
 
           <!-- Instituciones -->
-          <div class="bg-white dark:bg-[#121212] border border-slate-300/60 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
+          <div class="bg-surface border border-slate-300/60 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 group overflow-hidden relative cursor-pointer">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
             <div class="flex justify-between items-start mb-6">
-              <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 transform group-hover:rotate-6 transition-transform">
+              <div class="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-primary transform group-hover:rotate-6 transition-transform">
                 <Building2 class="w-7 h-7" />
               </div>
             </div>
-            <h3 class="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Red Educativa</h3>
-            <p class="text-4xl md:text-5xl font-black text-slate-800 dark:text-white tracking-tighter">{{ resumen.total_instituciones }}</p>
+            <h3 class="text-slate-500 dark:text-text-muted text-xs font-bold uppercase tracking-widest mb-1">Red Educativa</h3>
+            <p class="text-4xl md:text-5xl font-black text-text tracking-tighter">{{ resumen.total_instituciones }}</p>
           </div>
 
         </div>
@@ -199,12 +199,12 @@ const rolLabel = computed(() => {
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
           
           <!-- Left Wing: Completion Gauge -->
-          <div class="lg:col-span-4 bg-white dark:bg-[#121212] border border-slate-300 dark:border-slate-800 rounded-2xl p-8 shadow-sm flex flex-col relative overflow-hidden">
+          <div class="lg:col-span-4 bg-surface border border-slate-300 dark:border-slate-800 rounded-2xl p-8 shadow-sm flex flex-col relative overflow-hidden">
             <div class="absolute top-0 right-0 p-8 opacity-10">
               <CheckCircle2 class="w-32 h-32 text-emerald-500 rotate-12" />
             </div>
             
-            <h3 class="text-lg font-black text-slate-800 dark:text-white mb-8 flex items-center gap-3">
+            <h3 class="text-lg font-black text-text mb-8 flex items-center gap-3">
               <span class="w-2 h-8 bg-emerald-500 rounded-full"></span>
               Progreso de Evaluación
             </h3>
@@ -212,7 +212,7 @@ const rolLabel = computed(() => {
             <div class="flex-1 flex flex-col items-center justify-center py-6">
               <div class="relative w-56 h-56 md:w-64 md:h-64">
                 <svg viewBox="0 0 36 36" class="w-full h-full transform -rotate-90 filter drop-shadow-lg">
-                  <circle class="text-slate-100 dark:text-slate-800" stroke-width="2.5" stroke="currentColor" fill="none" r="15.9155" cx="18" cy="18" />
+                  <circle class="text-slate-100 dark:text-text-inverse" stroke-width="2.5" stroke="currentColor" fill="none" r="15.9155" cx="18" cy="18" />
                   <circle class="text-emerald-500 transition-all duration-[1500ms] cubic-bezier(0.34, 1.56, 0.64, 1)" 
                     stroke-width="2.5" 
                     :stroke-dasharray="`${completadosPct}, 100`" 
@@ -222,27 +222,27 @@ const rolLabel = computed(() => {
                     r="15.9155" cx="18" cy="18" />
                 </svg>
                 <div class="absolute inset-0 flex flex-col items-center justify-center">
-                  <span class="text-5xl md:text-6xl font-black text-slate-800 dark:text-white leading-none">{{ completadosPct }}%</span>
-                  <span class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mt-3">Completados</span>
+                  <span class="text-5xl md:text-6xl font-black text-text leading-none">{{ completadosPct }}%</span>
+                  <span class="text-[10px] font-black text-slate-400 dark:text-text-subtle uppercase tracking-[0.2em] mt-3">Completados</span>
                 </div>
               </div>
             </div>
             
             <div class="grid grid-cols-2 gap-4 mt-4">
-              <div class="bg-slate-50 dark:bg-[#252525]/40 rounded-2xl p-4 border border-slate-300 dark:border-slate-700/50">
+              <div class="bg-slate-50 dark:bg-surface-card/40 rounded-2xl p-4 border border-slate-300 dark:border-slate-700/50">
                 <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Asignados</p>
-                <p class="text-xl font-black text-slate-800 dark:text-white">{{ resumen.total_asignaciones }}</p>
+                <p class="text-xl font-black text-text">{{ resumen.total_asignaciones }}</p>
               </div>
               <div class="bg-emerald-50/50 dark:bg-emerald-500/10 rounded-2xl p-4 border border-emerald-100 dark:border-emerald-500/20">
-                <p class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase mb-1">Resueltos</p>
-                <p class="text-xl font-black text-emerald-600 dark:text-emerald-400">{{ resumen.total_completados }}</p>
+                <p class="text-[10px] font-bold text-emerald-600 dark:text-primary uppercase mb-1">Resueltos</p>
+                <p class="text-xl font-black text-emerald-600 dark:text-primary">{{ resumen.total_completados }}</p>
               </div>
             </div>
           </div>
 
           <!-- Middle Section: Distribution Bars -->
-          <div class="lg:col-span-4 bg-white dark:bg-[#121212] border border-slate-300 dark:border-slate-800 rounded-2xl p-8 shadow-sm flex flex-col">
-            <h3 class="text-lg font-black text-slate-800 dark:text-white mb-8 flex items-center gap-3">
+          <div class="lg:col-span-4 bg-surface border border-slate-300 dark:border-slate-800 rounded-2xl p-8 shadow-sm flex flex-col">
+            <h3 class="text-lg font-black text-text mb-8 flex items-center gap-3">
               <span class="w-2 h-8 bg-emerald-500 rounded-full"></span>
               Distribución Regional
             </h3>
@@ -253,19 +253,19 @@ const rolLabel = computed(() => {
                 <div class="flex justify-between items-center mb-4">
                   <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-emerald-500/10 flex items-center justify-center border border-teal-100 dark:border-emerald-500/20 group-hover:scale-110 transition-transform">
-                      <BookOpen class="w-6 h-6 text-teal-600 dark:text-emerald-400" />
+                      <BookOpen class="w-6 h-6 text-primary" />
                     </div>
                     <div>
-                      <p class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tight">LectoSistem</p>
+                      <p class="text-sm font-black text-text uppercase tracking-tight">LectoSistem</p>
                       <p class="text-xs font-bold text-slate-400">Comprensión Lectora</p>
                     </div>
                   </div>
                   <div class="text-right">
-                    <p class="text-2xl font-black text-slate-800 dark:text-white leading-none">{{ resumen.total_examenes_lectura }}</p>
+                    <p class="text-2xl font-black text-text leading-none">{{ resumen.total_examenes_lectura }}</p>
                     <p class="text-xs font-black text-teal-500 mt-1">{{ lecturaPct }}%</p>
                   </div>
                 </div>
-                <div class="h-4 w-full bg-slate-100 dark:bg-[#252525]/50 rounded-full p-1 border border-slate-300 dark:border-slate-700/30">
+                <div class="h-4 w-full bg-slate-100 dark:bg-surface-card/50 rounded-full p-1 border border-slate-300 dark:border-slate-700/30">
                   <div class="h-full bg-gradient-to-r from-teal-400 to-emerald-500 rounded-full transition-all duration-1000 shadow-sm" :style="`width: ${lecturaPct}%`"></div>
                 </div>
               </div>
@@ -275,28 +275,28 @@ const rolLabel = computed(() => {
                 <div class="flex justify-between items-center mb-4">
                   <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center border border-emerald-100 dark:border-emerald-500/20 group-hover:scale-110 transition-transform">
-                      <Calculator class="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                      <Calculator class="w-6 h-6 text-emerald-600 dark:text-primary" />
                     </div>
                     <div>
-                      <p class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tight">MatSistem</p>
+                      <p class="text-sm font-black text-text uppercase tracking-tight">MatSistem</p>
                       <p class="text-xs font-bold text-slate-400">Pensamiento Lógico</p>
                     </div>
                   </div>
                   <div class="text-right">
-                    <p class="text-2xl font-black text-slate-800 dark:text-white leading-none">{{ resumen.total_examenes_matematica }}</p>
+                    <p class="text-2xl font-black text-text leading-none">{{ resumen.total_examenes_matematica }}</p>
                     <p class="text-xs font-black text-emerald-500 mt-1">{{ matematicaPct }}%</p>
                   </div>
                 </div>
-                <div class="h-4 w-full bg-slate-100 dark:bg-[#252525]/50 rounded-full p-1 border border-slate-300 dark:border-slate-700/30">
+                <div class="h-4 w-full bg-slate-100 dark:bg-surface-card/50 rounded-full p-1 border border-slate-300 dark:border-slate-700/30">
                   <div class="h-full bg-gradient-to-r from-violet-400 to-purple-500 rounded-full transition-all duration-1000 shadow-sm" :style="`width: ${matematicaPct}%`"></div>
                 </div>
               </div>
             </div>
 
-            <div class="mt-8 p-4 bg-slate-50 dark:bg-[#252525]/20 rounded-2xl border border-slate-300 dark:border-slate-700/30">
+            <div class="mt-8 p-4 bg-slate-50 dark:bg-surface-card/20 rounded-2xl border border-slate-300 dark:border-slate-700/30">
                <div class="flex items-center gap-3">
                  <Activity class="w-4 h-4 text-emerald-500" />
-                 <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 leading-tight">
+                 <p class="text-[11px] font-bold text-slate-500 dark:text-text-muted leading-tight">
                    El sistema prioriza la equidad en el despliegue de evaluaciones por área.
                  </p>
                </div>
@@ -304,9 +304,9 @@ const rolLabel = computed(() => {
           </div>
 
           <!-- Right Wing: Recent Activity -->
-          <div class="lg:col-span-4 bg-white dark:bg-[#121212] border border-slate-300 dark:border-slate-800 rounded-2xl p-0 shadow-sm flex flex-col overflow-hidden">
+          <div class="lg:col-span-4 bg-surface border border-slate-300 dark:border-slate-800 rounded-2xl p-0 shadow-sm flex flex-col overflow-hidden">
             <div class="p-8 border-b border-slate-300 dark:border-slate-800">
-              <h3 class="text-lg font-black text-slate-800 dark:text-white flex items-center gap-3">
+              <h3 class="text-lg font-black text-text flex items-center gap-3">
                 <span class="w-2 h-8 bg-amber-500 rounded-full"></span>
                 Actividad Reciente
               </h3>
@@ -314,10 +314,10 @@ const rolLabel = computed(() => {
             
             <div class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 max-h-[600px] custom-scrollbar">
               <div v-if="resumen.recientes.length === 0" class="h-full flex flex-col items-center justify-center text-center px-6 py-12">
-                <div class="w-20 h-20 bg-slate-50 dark:bg-[#252525]/50 rounded-full flex items-center justify-center mb-4">
-                  <Medal class="w-10 h-10 text-slate-200 dark:text-slate-700" />
+                <div class="w-20 h-20 bg-slate-50 dark:bg-surface-card/50 rounded-full flex items-center justify-center mb-4">
+                  <Medal class="w-10 h-10 text-slate-200 dark:text-text-subtle" />
                 </div>
-                <p class="text-sm font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Sin actividad</p>
+                <p class="text-sm font-black text-slate-400 dark:text-text-subtle uppercase tracking-widest">Sin actividad</p>
                 <p class="text-xs text-slate-400 mt-2">Los nuevos exámenes aparecerán aquí instantáneamente.</p>
               </div>
               
@@ -325,8 +325,8 @@ const rolLabel = computed(() => {
                 class="flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-all duration-300 border border-transparent hover:border-slate-300 dark:hover:border-slate-700/50 cursor-pointer group active:scale-95">
                 
                 <div :class="item.area === 'lectura'
-                  ? 'bg-teal-50 dark:bg-emerald-500/10 text-teal-600 dark:text-emerald-400 group-hover:bg-teal-500 group-hover:text-white'
-                  : 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white'"
+                  ? 'bg-teal-50 dark:bg-emerald-500/10 text-primary group-hover:bg-teal-500 group-hover:text-white'
+                  : 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-primary group-hover:bg-emerald-500 group-hover:text-white'"
                   class="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all duration-500 shadow-sm">
                   <BookOpen v-if="item.area === 'lectura'" class="w-6 h-6" />
                   <Calculator v-else class="w-6 h-6" />
@@ -334,13 +334,13 @@ const rolLabel = computed(() => {
                 
                 <div class="min-w-0 flex-1">
                   <div class="flex items-center gap-2 mb-0.5">
-                    <p class="text-sm font-black text-slate-800 dark:text-slate-200 truncate">{{ item.titulo }}</p>
+                    <p class="text-sm font-black text-slate-800 dark:text-text truncate">{{ item.titulo }}</p>
                   </div>
                   <div class="flex items-center gap-3">
                     <span class="text-[10px] font-black uppercase tracking-wider" :class="item.area === 'lectura' ? 'text-teal-500' : 'text-emerald-500'">
                       {{ item.grado }}
                     </span>
-                    <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-[#393939]"></span>
+                    <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-surface-input"></span>
                     <span class="text-[10px] font-bold text-slate-400 flex items-center gap-1">
                       <Clock class="w-3 h-3" />
                       {{ formatFecha(item.fecha) }}
@@ -350,7 +350,7 @@ const rolLabel = computed(() => {
               </div>
             </div>
             
-            <div class="p-6 bg-slate-50 dark:bg-[#252525]/30 text-center">
+            <div class="p-6 bg-slate-50 dark:bg-surface-card/30 text-center">
               <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">LectoSistem DRE Engine</p>
             </div>
           </div>

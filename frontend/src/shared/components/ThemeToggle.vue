@@ -13,7 +13,7 @@ const options: { value: ThemeMode; icon: typeof Sun; label: string }[] = [
 
 <template>
   <div
-    class="inline-flex items-center bg-white dark:bg-[#252525] rounded-full p-1 shadow-lg border border-slate-300/60 dark:border-slate-700/60 gap-0.5"
+    class="inline-flex items-center bg-surface-card rounded-full p-1 shadow-lg border border-slate-300/60 dark:border-slate-700/60 gap-0.5"
     role="group"
     aria-label="Tema de color"
   >
@@ -26,7 +26,7 @@ const options: { value: ThemeMode; icon: typeof Sun; label: string }[] = [
       class="relative flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
       :class="themeMode === opt.value
         ? 'bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-md'
-        : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'"
+        : 'text-slate-500 dark:text-text-muted hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'"
     >
       <component :is="opt.icon" class="w-4 h-4" />
     </button>

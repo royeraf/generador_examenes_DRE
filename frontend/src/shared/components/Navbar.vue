@@ -20,7 +20,7 @@ const router = useRouter();
 
 <template>
   <header class="sticky top-0 z-50 h-14 flex items-center justify-between px-4 sm:px-6 gap-3
-    bg-white dark:bg-[#121212]
+    bg-surface
     border-b border-slate-300/80 dark:border-slate-800
     transition-colors duration-300">
 
@@ -28,16 +28,16 @@ const router = useRouter();
     <div class="flex items-center gap-3 shrink-0">
       <div class="relative w-8 h-8 shrink-0">
         <div class="absolute -inset-0.5 bg-gradient-to-r from-teal-500 to-emerald-600 rounded-lg blur opacity-20"></div>
-        <div class="absolute inset-0 flex items-center justify-center p-1.5 bg-white dark:bg-[#252525]
+        <div class="absolute inset-0 flex items-center justify-center p-1.5 bg-surface-card
           rounded-lg border border-slate-300 dark:border-slate-700 overflow-hidden">
-          <GraduationCap class="absolute w-4 h-4 text-teal-600 dark:text-emerald-400 nav-logo-1" />
+          <GraduationCap class="absolute w-4 h-4 text-primary nav-logo-1" />
           <div class="absolute nav-logo-img w-4 h-4 nav-logo-2"
             :style="{ 'mask-image': `url(${logoDre})`, '-webkit-mask-image': `url(${logoDre})` }"></div>
         </div>
       </div>
       <div class="hidden sm:block min-w-0">
-        <h1 class="text-sm font-bold text-slate-800 dark:text-white tracking-tight truncate">{{ title }}</h1>
-        <p v-if="subtitle" class="text-[10px] text-slate-400 dark:text-slate-500 truncate leading-tight">{{ subtitle }}</p>
+        <h1 class="text-sm font-bold text-text tracking-tight truncate">{{ title }}</h1>
+        <p v-if="subtitle" class="text-[10px] text-slate-400 dark:text-text-subtle truncate leading-tight">{{ subtitle }}</p>
       </div>
     </div>
 
@@ -50,9 +50,9 @@ const router = useRouter();
     <div class="flex items-center gap-2 shrink-0">
       <slot name="actions" />
       <button v-if="showHome" @click="router.push('/')"
-        class="p-2 sm:px-3 sm:py-1.5 rounded-full bg-slate-200/60 dark:bg-[#252525] hover:bg-slate-200 dark:hover:bg-slate-700
+        class="p-2 sm:px-3 sm:py-1.5 rounded-full bg-slate-200/60 dark:bg-surface-card hover:bg-slate-200 dark:hover:bg-slate-700
           border border-slate-300 dark:border-slate-700 transition-colors
-          text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 cursor-pointer"
+          text-xs font-bold text-slate-700 dark:text-text-muted flex items-center gap-1.5 cursor-pointer"
         title="Inicio">
         <Home class="w-3.5 h-3.5" />
         <span class="hidden sm:inline">Inicio</span>

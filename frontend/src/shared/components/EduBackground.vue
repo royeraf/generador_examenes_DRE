@@ -55,7 +55,7 @@ const cells = Array.from({ length: COLS * ROWS }, (_, i) => {
         <component
           v-if="cell.dark"
           :is="cell.icon"
-          class="w-5 h-5 text-slate-500/60 dark:text-slate-400/40"
+          class="w-5 h-5 text-slate-500/60 dark:text-text-muted/40"
         />
       </div>
     </div>

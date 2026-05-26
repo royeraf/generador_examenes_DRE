@@ -230,13 +230,13 @@ const deleteItem = async (id: number) => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-slate-50 dark:bg-[#0d0d0d] font-sans relative flex flex-col overflow-x-hidden">
+    <div class="min-h-screen bg-surface font-sans relative flex flex-col overflow-x-hidden">
         <EduBackground variant="violet" />
         <Header title="Gestión" subtitle="Matemática" :show-home="true" />
         <div class="max-w-7xl mx-auto w-full relative z-10 flex-1 flex flex-col p-4 sm:p-8">
 
             <!-- Mobile Navigation Tabs (Premium Style) -->
-            <div v-if="!isDesktop" class="shrink-0 flex items-center justify-around bg-white dark:bg-[#252525] rounded-2xl border-2 border-slate-200 dark:border-slate-700 p-1.5 mb-8 shadow-sm">
+            <div v-if="!isDesktop" class="shrink-0 flex items-center justify-around bg-surface-card rounded-2xl border-2 border-slate-200 dark:border-slate-700 p-1.5 mb-8 shadow-sm">
                 <button v-for="tab in [
                     { id: 'competencias', label: 'Competencias', icon: Target },
                     { id: 'capacidades', label: 'Capacidades', icon: Layers },
@@ -251,7 +251,7 @@ const deleteItem = async (id: number) => {
 
             <!-- Desktop Navigation Tabs -->
             <div v-else class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div class="flex items-center gap-1 bg-white dark:bg-[#252525] p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 w-fit shadow-sm">
+                <div class="flex items-center gap-1 bg-surface-card p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 w-fit shadow-sm">
                     <button v-for="tab in [
                         { id: 'competencias', label: 'Competencias', icon: Target },
                         { id: 'capacidades', label: 'Capacidades', icon: Layers },
@@ -263,7 +263,7 @@ const deleteItem = async (id: number) => {
                     </button>
                 </div>
 
-                <div class="grid grid-cols-4 gap-3 bg-white dark:bg-[#252525] p-2 rounded-2xl border-2 border-slate-200 dark:border-slate-700">
+                <div class="grid grid-cols-4 gap-3 bg-surface-card p-2 rounded-2xl border-2 border-slate-200 dark:border-slate-700">
                     <div v-for="stat in [
                         { label: 'Comp.', value: stats.competencias, color: 'text-violet-600' },
                         { label: 'Cap.', value: stats.capacidades, color: 'text-purple-600' },
@@ -277,7 +277,7 @@ const deleteItem = async (id: number) => {
             </div>
 
             <!-- Tool Bar -->
-            <div class="flex flex-col lg:flex-row items-center justify-between gap-6 mb-8 bg-white dark:bg-[#252525] p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm">
+            <div class="flex flex-col lg:flex-row items-center justify-between gap-6 mb-8 bg-surface-card p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm">
                 <div v-if="activeTab === 'desempenos'" class="w-full flex flex-col sm:flex-row gap-6">
                     <div class="flex-1 space-y-2">
                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Grado</label>
@@ -295,7 +295,7 @@ const deleteItem = async (id: number) => {
                 <div v-else></div>
 
                 <button @click="openModal()"
-                    class="w-full lg:w-auto flex items-center justify-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black px-8 py-4 rounded-2xl shadow-xl hover:-translate-y-1 transition-all active:scale-95 text-xs uppercase tracking-widest cursor-pointer">
+                    class="w-full lg:w-auto flex items-center justify-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-text-inverse font-black px-8 py-4 rounded-2xl shadow-xl hover:-translate-y-1 transition-all active:scale-95 text-xs uppercase tracking-widest cursor-pointer">
                     <Plus class="w-5 h-5" />
                     <span>Nuevo {{ activeTab.slice(0, -1) }}</span>
                 </button>
@@ -304,11 +304,11 @@ const deleteItem = async (id: number) => {
             <!-- Content Area -->
             <div class="flex-1 flex flex-col min-h-0">
                 <!-- Desktop Table -->
-                <div v-if="isDesktop" class="bg-white dark:bg-[#252525] rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden">
+                <div v-if="isDesktop" class="bg-surface-card rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden">
                     <div class="overflow-x-auto custom-scrollbar">
                         <table class="w-full text-left border-collapse text-sm">
                             <thead>
-                                <tr class="bg-slate-50 dark:bg-[#121212] border-b-2 border-slate-100 dark:border-slate-700">
+                                <tr class="bg-surface border-b-2 border-slate-100 dark:border-slate-700">
                                     <th class="p-5 text-xs font-black text-slate-500 uppercase tracking-widest">ID</th>
                                     <template v-if="activeTab === 'competencias'">
                                         <th class="p-5 text-xs font-black text-slate-500 uppercase tracking-widest">Cód</th>
@@ -330,9 +330,9 @@ const deleteItem = async (id: number) => {
                             </thead>
                             <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
                                 <tr v-if="loading" v-for="n in 5" :key="n" class="animate-pulse">
-                                    <td class="p-5"><div class="h-4 w-8 bg-slate-200 dark:bg-[#393939] rounded"></div></td>
-                                    <td colspan="3" class="p-5"><div class="h-4 w-3/4 bg-slate-200 dark:bg-[#393939] rounded"></div></td>
-                                    <td class="p-5 text-right"><div class="h-8 w-16 bg-slate-200 dark:bg-[#393939] rounded ml-auto"></div></td>
+                                    <td class="p-5"><div class="h-4 w-8 bg-slate-200 dark:bg-surface-input rounded"></div></td>
+                                    <td colspan="3" class="p-5"><div class="h-4 w-3/4 bg-slate-200 dark:bg-surface-input rounded"></div></td>
+                                    <td class="p-5 text-right"><div class="h-8 w-16 bg-slate-200 dark:bg-surface-input rounded ml-auto"></div></td>
                                 </tr>
                                 <template v-else>
                                     <tr v-for="item in (activeTab === 'competencias' ? competencias : activeTab === 'capacidades' ? capacidadesFiltradas : desempenos)" :key="item.id" class="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors group">
@@ -340,19 +340,19 @@ const deleteItem = async (id: number) => {
                                         
                                         <template v-if="activeTab === 'competencias'">
                                             <td class="p-5"><span class="px-3 py-1 bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400 rounded-lg text-xs font-black">{{ (item as any).codigo }}</span></td>
-                                            <td class="p-5 text-sm font-black text-slate-800 dark:text-white leading-tight">{{ (item as any).nombre }}</td>
-                                            <td class="p-5 text-xs text-slate-500 dark:text-slate-400 max-w-md truncate">{{ (item as any).descripcion }}</td>
+                                            <td class="p-5 text-sm font-black text-text leading-tight">{{ (item as any).nombre }}</td>
+                                            <td class="p-5 text-xs text-slate-500 dark:text-text-muted max-w-md truncate">{{ (item as any).descripcion }}</td>
                                         </template>
 
                                         <template v-else-if="activeTab === 'capacidades'">
                                             <td class="p-5"><span class="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded-lg text-xs font-black">{{ (item as any).orden }}</span></td>
-                                            <td class="p-5 text-sm font-black text-slate-800 dark:text-white leading-tight">{{ (item as any).nombre }}</td>
-                                            <td class="p-5"><span class="px-3 py-1 bg-slate-100 dark:bg-[#393939] rounded-full text-[10px] font-black text-slate-500 uppercase">{{ (item as any).competencia_nombre }}</span></td>
+                                            <td class="p-5 text-sm font-black text-text leading-tight">{{ (item as any).nombre }}</td>
+                                            <td class="p-5"><span class="px-3 py-1 bg-surface-input rounded-full text-[10px] font-black text-slate-500 uppercase">{{ (item as any).competencia_nombre }}</span></td>
                                         </template>
 
                                         <template v-else>
-                                            <td class="p-5 font-mono font-black text-emerald-600 dark:text-emerald-400">{{ (item as any).codigo }}</td>
-                                            <td class="p-5 text-sm font-bold text-slate-600 dark:text-slate-300 max-w-lg leading-relaxed">{{ (item as any).descripcion }}</td>
+                                            <td class="p-5 font-mono font-black text-emerald-600 dark:text-primary">{{ (item as any).codigo }}</td>
+                                            <td class="p-5 text-sm font-bold text-slate-600 dark:text-text-muted max-w-lg leading-relaxed">{{ (item as any).descripcion }}</td>
                                             <td class="p-5">
                                                 <div class="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-1">Cap. {{ (item as any).capacidad_orden }}</div>
                                                 <div class="text-[10px] font-bold text-slate-400 uppercase leading-tight">{{ (item as any).capacidad_nombre }}</div>
@@ -374,26 +374,26 @@ const deleteItem = async (id: number) => {
 
                 <!-- Mobile Cards -->
                 <div v-else class="space-y-4 pb-24">
-                    <div v-if="loading" v-for="n in 3" :key="n" class="bg-white dark:bg-[#252525] p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 animate-pulse">
-                        <div class="h-4 w-1/2 bg-slate-200 dark:bg-[#393939] rounded mb-4"></div>
-                        <div class="h-3 w-3/4 bg-slate-200 dark:bg-[#393939] rounded mb-2"></div>
+                    <div v-if="loading" v-for="n in 3" :key="n" class="bg-surface-card p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 animate-pulse">
+                        <div class="h-4 w-1/2 bg-slate-200 dark:bg-surface-input rounded mb-4"></div>
+                        <div class="h-3 w-3/4 bg-slate-200 dark:bg-surface-input rounded mb-2"></div>
                     </div>
                     <div v-else v-for="item in (activeTab === 'competencias' ? competencias : activeTab === 'capacidades' ? capacidadesFiltradas : desempenos)" :key="item.id" 
-                        class="bg-white dark:bg-[#252525] p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm">
+                        class="bg-surface-card p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm">
                         <div class="flex justify-between items-start mb-4">
                             <div class="space-y-1">
                                 <div class="text-[9px] font-mono font-black text-violet-500 uppercase tracking-widest">ID #{{ item.id }}</div>
-                                <h3 class="font-black text-slate-800 dark:text-white tracking-tight text-lg leading-tight">
+                                <h3 class="font-black text-text tracking-tight text-lg leading-tight">
                                     {{ activeTab === 'desempenos' ? (item as any).codigo : (item as any).nombre }}
                                 </h3>
                             </div>
                             <div class="flex gap-1">
-                                <button @click="openModal(item)" class="p-2.5 bg-slate-50 dark:bg-[#393939] rounded-xl text-slate-400 active:scale-95 transition-all cursor-pointer"><Edit class="w-5 h-5" /></button>
+                                <button @click="openModal(item)" class="p-2.5 bg-surface-input rounded-xl text-slate-400 active:scale-95 transition-all cursor-pointer"><Edit class="w-5 h-5" /></button>
                                 <button @click="deleteItem(item.id)" class="p-2.5 bg-red-50 dark:bg-red-900/20 rounded-xl text-red-400 active:scale-95 transition-all cursor-pointer"><Trash2 class="w-5 h-5" /></button>
                             </div>
                         </div>
                         <div v-if="activeTab === 'desempenos'" class="space-y-3">
-                            <p class="text-xs font-bold text-slate-600 dark:text-slate-400 leading-relaxed">{{ (item as any).descripcion }}</p>
+                            <p class="text-xs font-bold text-slate-600 dark:text-text-muted leading-relaxed">{{ (item as any).descripcion }}</p>
                             <div class="pt-4 border-t border-slate-100 dark:border-slate-700">
                                 <div class="text-[9px] font-black text-purple-600 uppercase tracking-widest">Capacidad {{ (item as any).capacidad_orden }}</div>
                                 <div class="text-[10px] font-bold text-slate-400 uppercase leading-tight mt-1">{{ (item as any).capacidad_nombre }}</div>
@@ -401,7 +401,7 @@ const deleteItem = async (id: number) => {
                         </div>
                         <div v-else class="flex flex-wrap gap-2 mt-2">
                              <span class="px-3 py-1 bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400 rounded-lg text-[10px] font-black uppercase tracking-widest border border-violet-100">{{ activeTab === 'competencias' ? 'Cód ' + (item as any).codigo : 'Orden ' + (item as any).orden }}</span>
-                             <span v-if="activeTab === 'capacidades'" class="px-3 py-1 bg-slate-50 dark:bg-[#393939] text-slate-500 rounded-lg text-[10px] font-black uppercase tracking-widest border border-slate-100">{{ (item as any).competencia_nombre }}</span>
+                             <span v-if="activeTab === 'capacidades'" class="px-3 py-1 bg-surface-input text-slate-500 rounded-lg text-[10px] font-black uppercase tracking-widest border border-slate-100">{{ (item as any).competencia_nombre }}</span>
                         </div>
                     </div>
                 </div>
@@ -412,9 +412,9 @@ const deleteItem = async (id: number) => {
         <Teleport to="body">
             <Transition name="modal">
                 <div v-if="showModal" class="fixed inset-0 z-50 flex items-center sm:items-center justify-center items-end bg-slate-900/60 backdrop-blur-sm cursor-pointer" @click.self="showModal = false">
-                    <div class="bg-white dark:bg-[#252525] rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden relative">
+                    <div class="bg-surface-card rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden relative">
                         <!-- Mobile handle -->
-                        <div class="sm:hidden flex justify-center pt-4 pb-1 cursor-pointer" @click="showModal = false"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-[#393939]"></div></div>
+                        <div class="sm:hidden flex justify-center pt-4 pb-1 cursor-pointer" @click="showModal = false"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-surface-input"></div></div>
                         
                         <div class="flex items-center justify-between p-8 border-b border-slate-100 dark:border-slate-700">
                             <div class="flex items-center gap-5">
@@ -422,7 +422,7 @@ const deleteItem = async (id: number) => {
                                     <Calculator class="w-6 h-6 text-white" />
                                 </div>
                                 <div>
-                                    <h2 class="text-xl font-black text-slate-800 dark:text-white tracking-tight leading-tight">
+                                    <h2 class="text-xl font-black text-text tracking-tight leading-tight">
                                         {{ isEditing ? 'Ver' : 'Nuevo' }} {{ activeTab.slice(0, -1) }}
                                     </h2>
                                     <p class="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-0.5">Gestión Matemática</p>
@@ -436,16 +436,16 @@ const deleteItem = async (id: number) => {
                                 <div class="grid grid-cols-4 gap-4">
                                     <div class="space-y-1.5">
                                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Código</label>
-                                        <input v-model.number="editItem.codigo" type="number" :disabled="isEditing" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400" />
+                                        <input v-model.number="editItem.codigo" type="number" :disabled="isEditing" class="w-full bg-surface-input border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-text outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400" />
                                     </div>
                                     <div class="col-span-3 space-y-1.5">
                                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nombre</label>
-                                        <input v-model="editItem.nombre" type="text" :disabled="isEditing" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400" />
+                                        <input v-model="editItem.nombre" type="text" :disabled="isEditing" class="w-full bg-surface-input border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-text outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400" />
                                     </div>
                                 </div>
                                 <div class="space-y-1.5">
                                     <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Descripción</label>
-                                    <textarea v-model="editItem.descripcion" rows="4" :disabled="isEditing" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400"></textarea>
+                                    <textarea v-model="editItem.descripcion" rows="4" :disabled="isEditing" class="w-full bg-surface-input border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-text outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400"></textarea>
                                 </div>
                             </template>
 
@@ -453,17 +453,17 @@ const deleteItem = async (id: number) => {
                                 <div class="grid grid-cols-4 gap-4">
                                     <div class="space-y-1.5">
                                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Orden</label>
-                                        <input v-model.number="editItem.orden" type="number" :disabled="isEditing" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400" />
+                                        <input v-model.number="editItem.orden" type="number" :disabled="isEditing" class="w-full bg-surface-input border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-text outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400" />
                                     </div>
                                     <div class="col-span-3 space-y-1.5">
                                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Competencia</label>
                                         <ComboBox v-if="!isEditing" v-model="editItem.competencia_id" :options="competenciaOptions" placeholder="Seleccionar..." />
-                                        <div v-else class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-400 opacity-60">{{ editItem?.competencia_nombre }}</div>
+                                        <div v-else class="w-full bg-surface-input border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-400 opacity-60">{{ editItem?.competencia_nombre }}</div>
                                     </div>
                                 </div>
                                 <div class="space-y-1.5">
                                     <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nombre</label>
-                                    <input v-model="editItem.nombre" type="text" :disabled="isEditing" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400" />
+                                    <input v-model="editItem.nombre" type="text" :disabled="isEditing" class="w-full bg-surface-input border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-text outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400" />
                                 </div>
                             </template>
 
@@ -471,7 +471,7 @@ const deleteItem = async (id: number) => {
                                 <div class="grid grid-cols-3 gap-4">
                                     <div class="space-y-1.5">
                                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Código</label>
-                                        <input v-model="editItem.codigo" type="text" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400" />
+                                        <input v-model="editItem.codigo" type="text" class="w-full bg-surface-input border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-text outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400" />
                                     </div>
                                     <div class="col-span-2 space-y-1.5">
                                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Capacidad</label>
@@ -480,13 +480,13 @@ const deleteItem = async (id: number) => {
                                 </div>
                                 <div class="space-y-1.5">
                                     <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Descripción</label>
-                                    <textarea v-model="editItem.descripcion" rows="6" class="w-full bg-slate-50 dark:bg-[#393939] border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400"></textarea>
+                                    <textarea v-model="editItem.descripcion" rows="6" class="w-full bg-surface-input border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-text outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all placeholder-slate-400"></textarea>
                                 </div>
                             </template>
                         </div>
 
-                        <div class="p-8 bg-slate-50 dark:bg-[#121212]/50 flex flex-col sm:flex-row gap-4">
-                            <button @click="showModal = false" class="flex-1 px-8 py-4 text-xs font-black uppercase tracking-widest text-slate-500 bg-white dark:bg-[#252525] rounded-2xl border-2 border-slate-200 dark:border-slate-700 transition-all hover:bg-slate-50 cursor-pointer">Cerrar</button>
+                        <div class="p-8 bg-surface/50 flex flex-col sm:flex-row gap-4">
+                            <button @click="showModal = false" class="flex-1 px-8 py-4 text-xs font-black uppercase tracking-widest text-slate-500 bg-surface-card rounded-2xl border-2 border-slate-200 dark:border-slate-700 transition-all hover:bg-slate-50 cursor-pointer">Cerrar</button>
                             <button v-if="activeTab === 'desempenos'" @click="saveItem" :disabled="saving" class="flex-1 flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-violet-600 to-purple-700 text-white font-black text-xs rounded-2xl shadow-xl shadow-violet-500/20 transition-all transform active:scale-95 disabled:opacity-70 cursor-pointer">
                                 <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
                                 <span class="uppercase tracking-widest">{{ saving ? 'Guardando...' : 'Guardar Cambios' }}</span>

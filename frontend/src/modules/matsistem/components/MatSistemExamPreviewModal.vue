@@ -28,7 +28,7 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
     const cap = capacidad.toLowerCase();
     if (cap.includes('cantidad'))    return 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400';
     if (cap.includes('regularidad')) return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
-    if (cap.includes('forma'))       return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
+    if (cap.includes('forma'))       return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-primary';
     if (cap.includes('datos'))       return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
     return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400';
 };
@@ -57,7 +57,7 @@ const cerrarRetro = () => { modalRetro.value = null; };
 
                 <!-- Modal -->
                 <div
-                    class="relative w-full max-w-4xl max-h-[90vh] bg-white dark:bg-[#252525] rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-700 flex flex-col overflow-hidden">
+                    class="relative w-full max-w-4xl max-h-[90vh] bg-surface-card rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-700 flex flex-col overflow-hidden">
 
                     <!-- Header -->
                     <div class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 px-5 py-4 flex-shrink-0">
@@ -104,20 +104,20 @@ const cerrarRetro = () => { modalRetro.value = null; };
                             <!-- Skeleton Body -->
                             <div class="space-y-6">
                                 <!-- Instructions Skeleton -->
-                                <div class="bg-gray-100 dark:bg-[#393939]/50 rounded-xl p-4 animate-pulse">
-                                    <div class="h-4 w-32 bg-gray-200 dark:bg-[#4f4f4f] rounded mb-3"></div>
-                                    <div class="h-3 w-full bg-gray-200 dark:bg-[#4f4f4f] rounded"></div>
+                                <div class="bg-gray-100 dark:bg-surface-input/50 rounded-xl p-4 animate-pulse">
+                                    <div class="h-4 w-32 bg-gray-200 dark:bg-surface-elevated rounded mb-3"></div>
+                                    <div class="h-3 w-full bg-gray-200 dark:bg-surface-elevated rounded"></div>
                                 </div>
                                 <!-- Problem Skeleton -->
-                                <div class="bg-gray-100 dark:bg-[#393939]/50 rounded-xl p-5 animate-pulse">
+                                <div class="bg-gray-100 dark:bg-surface-input/50 rounded-xl p-5 animate-pulse">
                                     <div class="flex items-center gap-2 mb-4">
-                                        <div class="w-8 h-8 bg-gray-200 dark:bg-[#4f4f4f] rounded"></div>
-                                        <div class="h-4 w-28 bg-gray-200 dark:bg-[#4f4f4f] rounded"></div>
+                                        <div class="w-8 h-8 bg-gray-200 dark:bg-surface-elevated rounded"></div>
+                                        <div class="h-4 w-28 bg-gray-200 dark:bg-surface-elevated rounded"></div>
                                     </div>
                                     <div class="space-y-3">
-                                        <div class="h-3 w-full bg-gray-200 dark:bg-[#4f4f4f] rounded"></div>
-                                        <div class="h-3 w-full bg-gray-200 dark:bg-[#4f4f4f] rounded"></div>
-                                        <div class="h-3 w-4/5 bg-gray-200 dark:bg-[#4f4f4f] rounded"></div>
+                                        <div class="h-3 w-full bg-gray-200 dark:bg-surface-elevated rounded"></div>
+                                        <div class="h-3 w-full bg-gray-200 dark:bg-surface-elevated rounded"></div>
+                                        <div class="h-3 w-4/5 bg-gray-200 dark:bg-surface-elevated rounded"></div>
                                     </div>
                                 </div>
                                 <!-- Questions Skeleton -->
@@ -126,14 +126,14 @@ const cerrarRetro = () => { modalRetro.value = null; };
                                         class="p-5 border-2 border-gray-100 dark:border-slate-700 rounded-xl animate-pulse">
                                         <div class="flex gap-4">
                                             <div
-                                                class="w-10 h-10 bg-gray-200 dark:bg-[#4f4f4f] rounded-xl flex-shrink-0">
+                                                class="w-10 h-10 bg-gray-200 dark:bg-surface-elevated rounded-xl flex-shrink-0">
                                             </div>
                                             <div class="flex-1 space-y-3">
-                                                <div class="h-3 w-20 bg-gray-200 dark:bg-[#4f4f4f] rounded"></div>
-                                                <div class="h-4 w-full bg-gray-200 dark:bg-[#4f4f4f] rounded"></div>
+                                                <div class="h-3 w-20 bg-gray-200 dark:bg-surface-elevated rounded"></div>
+                                                <div class="h-4 w-full bg-gray-200 dark:bg-surface-elevated rounded"></div>
                                                 <div class="grid grid-cols-1 gap-2">
                                                     <div v-for="j in 3" :key="j"
-                                                        class="h-10 bg-gray-100 dark:bg-[#393939] rounded-lg"></div>
+                                                        class="h-10 bg-gray-100 dark:bg-surface-input rounded-lg"></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -146,7 +146,7 @@ const cerrarRetro = () => { modalRetro.value = null; };
                             <!-- Instrucciones -->
                             <div
                                 class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/40 dark:to-slate-900 rounded-xl p-4 border-2 border-indigo-100 dark:border-indigo-800">
-                                <p class="text-slate-700 dark:text-slate-300 text-sm">
+                                <p class="text-slate-700 dark:text-text-muted text-sm">
                                     <strong class="text-indigo-700 dark:text-indigo-400 flex items-center gap-2 mb-2">
                                         <ClipboardCheck class="w-4 h-4" />
                                         Instrucciones:
@@ -159,7 +159,7 @@ const cerrarRetro = () => { modalRetro.value = null; };
                             <div
                                 class="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-900 dark:to-slate-950 rounded-xl p-5 border-2 border-amber-100 dark:border-slate-700">
                                 <h4
-                                    class="text-sm font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
+                                    class="text-sm font-bold text-text mb-3 flex items-center gap-2">
                                     <div
                                         class="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center">
                                         <BookOpen class="w-4 h-4 text-white" />
@@ -167,7 +167,7 @@ const cerrarRetro = () => { modalRetro.value = null; };
                                     Situación Problemática
                                 </h4>
                                 <p
-                                    class="text-slate-700 dark:text-slate-300 text-sm leading-7 whitespace-pre-line bg-white/50 dark:bg-black/20 p-4 rounded-lg">
+                                    class="text-slate-700 dark:text-text-muted text-sm leading-7 whitespace-pre-line bg-white/50 dark:bg-black/20 p-4 rounded-lg">
                                     {{ (entry.resultado.examen as any).situacion_problematica ||
                                     entry.resultado.examen.lectura }}
                                 </p>
@@ -175,7 +175,7 @@ const cerrarRetro = () => { modalRetro.value = null; };
 
                             <!-- Preguntas -->
                             <div class="space-y-4">
-                                <h4 class="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                <h4 class="text-sm font-bold text-text flex items-center gap-2">
                                     <div
                                         class="w-8 h-8 bg-gradient-to-br from-violet-400 to-purple-500 rounded-lg flex items-center justify-center">
                                         <HelpCircle class="w-4 h-4 text-white" />
@@ -184,7 +184,7 @@ const cerrarRetro = () => { modalRetro.value = null; };
                                 </h4>
 
                                 <div v-for="pregunta in entry.resultado.examen.preguntas" :key="pregunta.numero"
-                                    class="bg-white dark:bg-[#252525] rounded-xl p-5 border-2 border-slate-300 dark:border-slate-700 hover:border-indigo-200 dark:hover:border-indigo-700 transition-all duration-300">
+                                    class="bg-surface-card rounded-xl p-5 border-2 border-slate-300 dark:border-slate-700 hover:border-indigo-200 dark:hover:border-indigo-700 transition-all duration-300">
                                     <div class="flex items-start gap-4">
                                         <span
                                             class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-violet-500 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-lg shadow-indigo-500/20">
@@ -207,7 +207,7 @@ const cerrarRetro = () => { modalRetro.value = null; };
                                                 </button>
                                             </div>
 
-                                            <p class="text-slate-800 dark:text-slate-200 font-semibold mb-4">
+                                            <p class="text-slate-800 dark:text-text font-semibold mb-4">
                                                 {{ pregunta.enunciado }}
                                             </p>
 
@@ -215,11 +215,11 @@ const cerrarRetro = () => { modalRetro.value = null; };
                                                 <div v-for="opcion in pregunta.opciones" :key="opcion.letra"
                                                     class="flex items-center gap-3 text-sm py-3 px-4 rounded-xl border-2 transition-all duration-200"
                                                     :class="opcion.es_correcta
-                                                        ? 'bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-emerald-900/40 dark:to-slate-900 border-teal-300 dark:border-emerald-800 text-teal-700 dark:text-emerald-400'
-                                                        : 'bg-gray-50 dark:bg-[#121212] border-gray-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'">
+                                                        ? 'bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-emerald-900/40 dark:to-slate-900 border-teal-300 dark:border-emerald-800 text-teal-700 dark:text-primary'
+                                                        : 'bg-gray-50 dark:bg-surface border-gray-200 dark:border-slate-700 text-slate-600 dark:text-text-muted'">
                                                     <span
                                                         class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm"
-                                                        :class="opcion.es_correcta ? 'bg-teal-500 text-white' : 'bg-gray-200 dark:bg-[#393939] text-slate-600 dark:text-slate-400'">
+                                                        :class="opcion.es_correcta ? 'bg-teal-500 text-white' : 'bg-gray-200 dark:bg-surface-input text-slate-600 dark:text-text-muted'">
                                                         {{ opcion.letra }}
                                                     </span>
                                                     <span class="flex-1">{{ opcion.texto }}</span>
@@ -233,9 +233,9 @@ const cerrarRetro = () => { modalRetro.value = null; };
 
                             <!-- Tabla de Respuestas -->
                             <div
-                                class="bg-white dark:bg-[#252525] rounded-xl p-5 border-2 border-indigo-100 dark:border-slate-700">
+                                class="bg-surface-card rounded-xl p-5 border-2 border-indigo-100 dark:border-slate-700">
                                 <h4
-                                    class="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                                    class="text-sm font-bold text-text mb-4 flex items-center gap-2">
                                     <div
                                         class="w-8 h-8 bg-gradient-to-br from-indigo-400 to-blue-500 rounded-lg flex items-center justify-center">
                                         <LayoutGrid class="w-4 h-4 text-white" />
@@ -248,16 +248,16 @@ const cerrarRetro = () => { modalRetro.value = null; };
                                             <tr
                                                 class="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-900 dark:to-slate-950 border-b-2 border-gray-200 dark:border-slate-700">
                                                 <th
-                                                    class="text-left py-3 px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
+                                                    class="text-left py-3 px-4 text-slate-600 dark:text-text-muted font-bold text-xs">
                                                     #</th>
                                                 <th
-                                                    class="text-left py-3 px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
+                                                    class="text-left py-3 px-4 text-slate-600 dark:text-text-muted font-bold text-xs">
                                                     Desempeño</th>
                                                 <th
-                                                    class="text-left py-3 px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
+                                                    class="text-left py-3 px-4 text-slate-600 dark:text-text-muted font-bold text-xs">
                                                     Capacidad</th>
                                                 <th
-                                                    class="text-center py-3 px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
+                                                    class="text-center py-3 px-4 text-slate-600 dark:text-text-muted font-bold text-xs">
                                                     Rpta.</th>
                                             </tr>
                                         </thead>
@@ -265,10 +265,10 @@ const cerrarRetro = () => { modalRetro.value = null; };
                                             <tr v-for="fila in entry.resultado.examen.tabla_respuestas"
                                                 :key="fila.pregunta"
                                                 class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
-                                                <td class="py-3 px-4 text-slate-800 dark:text-slate-200 font-bold">
+                                                <td class="py-3 px-4 text-slate-800 dark:text-text font-bold">
                                                     {{ fila.pregunta }}
                                                 </td>
-                                                <td class="py-3 px-4 text-slate-600 dark:text-slate-400 text-xs">
+                                                <td class="py-3 px-4 text-slate-600 dark:text-text-muted text-xs">
                                                     {{ fila.desempeno }}
                                                 </td>
                                                 <td class="py-3 px-4">
@@ -292,7 +292,7 @@ const cerrarRetro = () => { modalRetro.value = null; };
                             </div>
 
                             <p
-                                class="text-center text-xs text-slate-500 dark:text-slate-400 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-slate-900 dark:to-slate-800 p-3 rounded-xl flex items-center justify-center gap-2">
+                                class="text-center text-xs text-slate-500 dark:text-text-muted bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-slate-900 dark:to-slate-800 p-3 rounded-xl flex items-center justify-center gap-2">
                                 <Sparkles class="w-4 h-4 text-amber-500" /> Examen de Matemática con IA -
                                 <strong>Revisar antes de usar</strong>
                                 <GraduationCap class="w-4 h-4 text-indigo-500" />
@@ -302,7 +302,7 @@ const cerrarRetro = () => { modalRetro.value = null; };
 
                     <!-- Footer -->
                     <div
-                        class="flex-shrink-0 px-5 py-4 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-[#121212]/50 flex items-center justify-between gap-3">
+                        class="flex-shrink-0 px-5 py-4 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-surface/50 flex items-center justify-between gap-3">
                         <button @click="emit('eliminar')" :disabled="loadingDelete"
                             class="px-4 py-2.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl text-sm font-bold flex items-center gap-2 transition-colors disabled:opacity-50">
                             <Loader2 v-if="loadingDelete" class="w-4 h-4 animate-spin" />
@@ -311,13 +311,13 @@ const cerrarRetro = () => { modalRetro.value = null; };
                         </button>
                         <div class="flex gap-2">
                             <button @click="emit('descargar-word')" :disabled="downloadingWord || isLoading"
-                                class="px-4 py-2.5 text-teal-600 dark:text-emerald-400 hover:bg-teal-50 dark:hover:bg-emerald-900/20 rounded-xl text-sm font-bold flex items-center gap-2 transition-colors disabled:opacity-50">
+                                class="px-4 py-2.5 text-primary hover:bg-teal-50 dark:hover:bg-emerald-900/20 rounded-xl text-sm font-bold flex items-center gap-2 transition-colors disabled:opacity-50">
                                 <Loader2 v-if="downloadingWord" class="w-4 h-4 animate-spin" />
                                 <Download v-else class="w-4 h-4" />
                                 {{ downloadingWord ? 'Descargando...' : 'Word' }}
                             </button>
                             <button @click="emit('close')"
-                                class="px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl text-sm font-semibold transition-colors">
+                                class="px-4 py-2.5 text-slate-600 dark:text-text-muted hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl text-sm font-semibold transition-colors">
                                 Cerrar
                             </button>
                             <button @click="emit('vincular')"
@@ -339,11 +339,11 @@ const cerrarRetro = () => { modalRetro.value = null; };
                 class="fixed inset-0 z-[110] flex items-center justify-center p-4 cursor-pointer"
                 @click.self="cerrarRetro">
                 <div class="absolute inset-0 bg-black/40 backdrop-blur-sm cursor-pointer" @click="cerrarRetro" />
-                <div class="relative z-10 w-full max-w-lg bg-white dark:bg-[#121212] rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden">
+                <div class="relative z-10 w-full max-w-lg bg-surface rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden">
                     <div class="flex items-center justify-between px-5 py-4 border-b border-slate-300 dark:border-slate-700">
                         <div class="flex items-center gap-2">
                             <MessageSquare class="w-4 h-4 text-indigo-500" />
-                            <span class="text-sm font-semibold text-slate-800 dark:text-white">
+                            <span class="text-sm font-semibold text-text">
                                 Retroalimentación — Pregunta {{ modalRetro.pregunta }}
                             </span>
                         </div>
@@ -357,9 +357,9 @@ const cerrarRetro = () => { modalRetro.value = null; };
                             class="rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/10 p-4 space-y-2">
                             <div class="flex items-center gap-2">
                                 <CheckCircle2 class="w-4 h-4 text-emerald-500 shrink-0" />
-                                <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">Si respondió correctamente</span>
+                                <span class="text-xs font-semibold text-emerald-700 dark:text-primary uppercase tracking-wide">Si respondió correctamente</span>
                             </div>
-                            <p class="text-sm text-emerald-800 dark:text-emerald-300 leading-relaxed">{{ modalRetro.retroalimentacion_correcta }}</p>
+                            <p class="text-sm text-emerald-800 dark:text-primary-light leading-relaxed">{{ modalRetro.retroalimentacion_correcta }}</p>
                         </div>
                         <div v-if="modalRetro.retroalimentacion_incorrecta"
                             class="rounded-xl border border-rose-200 dark:border-rose-800/50 bg-rose-50 dark:bg-rose-900/10 p-4 space-y-2">
@@ -370,14 +370,14 @@ const cerrarRetro = () => { modalRetro.value = null; };
                             <p class="text-sm text-rose-800 dark:text-rose-300 leading-relaxed">{{ modalRetro.retroalimentacion_incorrecta }}</p>
                         </div>
                         <div v-if="modalRetro.justificacion"
-                            class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#252525]/50 p-4 space-y-2">
-                            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Justificación</span>
-                            <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{{ modalRetro.justificacion }}</p>
+                            class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-surface-card/50 p-4 space-y-2">
+                            <span class="text-xs font-semibold text-slate-500 dark:text-text-muted uppercase tracking-wide">Justificación</span>
+                            <p class="text-sm text-slate-600 dark:text-text-muted leading-relaxed">{{ modalRetro.justificacion }}</p>
                         </div>
                     </div>
                     <div class="px-5 py-3 border-t border-slate-300 dark:border-slate-700 flex justify-end">
                         <button @click="cerrarRetro"
-                            class="px-4 py-2 text-xs font-medium rounded-lg bg-slate-100 dark:bg-[#252525] hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">
+                            class="px-4 py-2 text-xs font-medium rounded-lg bg-slate-100 dark:bg-surface-card hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-text-muted transition-colors">
                             Cerrar
                         </button>
                     </div>

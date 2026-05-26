@@ -25,7 +25,7 @@ const emit = defineEmits<{
 
 const getNivelBadgeClass = (nivel: string): string => {
     const classes: Record<string, string> = {
-        'LITERAL': 'bg-teal-100 text-teal-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+        'LITERAL': 'bg-teal-100 text-teal-700 dark:bg-emerald-900/30 dark:text-primary',
         'INFERENCIAL': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
         'CRITICO': 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400'
     };
@@ -61,11 +61,11 @@ const tieneRetro = (numeroPregunta: number): boolean => {
 
                 <!-- Modal -->
                 <div
-                    class="relative w-full max-w-4xl max-h-[90vh] bg-white dark:bg-[#252525] rounded-t-2xl sm:rounded-2xl shadow-2xl border-0 sm:border border-gray-200 dark:border-slate-700 flex flex-col overflow-hidden modal-content cursor-default" @click.stop>
+                    class="relative w-full max-w-4xl max-h-[90vh] bg-surface-card rounded-t-2xl sm:rounded-2xl shadow-2xl border-0 sm:border border-gray-200 dark:border-slate-700 flex flex-col overflow-hidden modal-content cursor-default" @click.stop>
 
                     <!-- Drag handle -->
                     <div class="flex justify-center pt-3 pb-1 sm:hidden cursor-pointer flex-shrink-0" @click="emit('close')">
-                        <div class="w-12 h-1.5 bg-slate-200 dark:bg-[#393939] rounded-full"></div>
+                        <div class="w-12 h-1.5 bg-slate-200 dark:bg-surface-input rounded-full"></div>
                     </div>
 
                     <!-- Header -->
@@ -113,20 +113,20 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                             <!-- Skeleton Body -->
                             <div class="space-y-6">
                                 <!-- Instructions Skeleton -->
-                                <div class="bg-gray-100 dark:bg-[#393939]/50 rounded-xl p-4 animate-pulse">
-                                    <div class="h-4 w-32 bg-gray-200 dark:bg-[#4f4f4f] rounded mb-3"></div>
-                                    <div class="h-3 w-full bg-gray-200 dark:bg-[#4f4f4f] rounded"></div>
+                                <div class="bg-gray-100 dark:bg-surface-input/50 rounded-xl p-4 animate-pulse">
+                                    <div class="h-4 w-32 bg-gray-200 dark:bg-surface-elevated rounded mb-3"></div>
+                                    <div class="h-3 w-full bg-gray-200 dark:bg-surface-elevated rounded"></div>
                                 </div>
                                 <!-- Text Skeleton -->
-                                <div class="bg-gray-100 dark:bg-[#393939]/50 rounded-xl p-5 animate-pulse">
+                                <div class="bg-gray-100 dark:bg-surface-input/50 rounded-xl p-5 animate-pulse">
                                     <div class="flex items-center gap-2 mb-4">
-                                        <div class="w-8 h-8 bg-gray-200 dark:bg-[#4f4f4f] rounded"></div>
-                                        <div class="h-4 w-24 bg-gray-200 dark:bg-[#4f4f4f] rounded"></div>
+                                        <div class="w-8 h-8 bg-gray-200 dark:bg-surface-elevated rounded"></div>
+                                        <div class="h-4 w-24 bg-gray-200 dark:bg-surface-elevated rounded"></div>
                                     </div>
                                     <div class="space-y-3">
-                                        <div class="h-3 w-full bg-gray-200 dark:bg-[#4f4f4f] rounded"></div>
-                                        <div class="h-3 w-full bg-gray-200 dark:bg-[#4f4f4f] rounded"></div>
-                                        <div class="h-3 w-3/4 bg-gray-200 dark:bg-[#4f4f4f] rounded"></div>
+                                        <div class="h-3 w-full bg-gray-200 dark:bg-surface-elevated rounded"></div>
+                                        <div class="h-3 w-full bg-gray-200 dark:bg-surface-elevated rounded"></div>
+                                        <div class="h-3 w-3/4 bg-gray-200 dark:bg-surface-elevated rounded"></div>
                                     </div>
                                 </div>
                                 <!-- Questions Skeleton -->
@@ -135,14 +135,14 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                                         class="p-5 border-2 border-gray-100 dark:border-slate-700 rounded-xl animate-pulse">
                                         <div class="flex gap-4">
                                             <div
-                                                class="w-10 h-10 bg-gray-200 dark:bg-[#4f4f4f] rounded-xl flex-shrink-0">
+                                                class="w-10 h-10 bg-gray-200 dark:bg-surface-elevated rounded-xl flex-shrink-0">
                                             </div>
                                             <div class="flex-1 space-y-3">
-                                                <div class="h-3 w-20 bg-gray-200 dark:bg-[#4f4f4f] rounded"></div>
-                                                <div class="h-4 w-full bg-gray-200 dark:bg-[#4f4f4f] rounded"></div>
+                                                <div class="h-3 w-20 bg-gray-200 dark:bg-surface-elevated rounded"></div>
+                                                <div class="h-4 w-full bg-gray-200 dark:bg-surface-elevated rounded"></div>
                                                 <div class="grid grid-cols-1 gap-2">
                                                     <div v-for="j in 3" :key="j"
-                                                        class="h-10 bg-gray-100 dark:bg-[#393939] rounded-lg"></div>
+                                                        class="h-10 bg-gray-100 dark:bg-surface-input rounded-lg"></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -155,8 +155,8 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                             <!-- Instrucciones -->
                             <div
                                 class="bg-gradient-to-r from-teal-50 to-sky-50 dark:from-emerald-900/40 dark:to-slate-900 rounded-xl p-4 border-2 border-teal-100 dark:border-emerald-800">
-                                <p class="text-slate-700 dark:text-slate-300 text-sm">
-                                    <strong class="text-teal-700 dark:text-emerald-400 flex items-center gap-2 mb-2">
+                                <p class="text-slate-700 dark:text-text-muted text-sm">
+                                    <strong class="text-teal-700 dark:text-primary flex items-center gap-2 mb-2">
                                         <ClipboardCheck class="w-4 h-4" />
                                         Instrucciones:
                                     </strong>
@@ -168,7 +168,7 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                             <div
                                 class="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-900 dark:to-slate-950 rounded-xl p-5 border-2 border-amber-100 dark:border-slate-700">
                                 <h4
-                                    class="text-sm font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
+                                    class="text-sm font-bold text-text mb-3 flex items-center gap-2">
                                     <div
                                         class="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center">
                                         <BookOpen class="w-4 h-4 text-white" />
@@ -176,14 +176,14 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                                     Lectura
                                 </h4>
                                 <p
-                                    class="text-slate-700 dark:text-slate-300 text-sm leading-7 whitespace-pre-line bg-white/50 dark:bg-black/20 p-4 rounded-lg">
+                                    class="text-slate-700 dark:text-text-muted text-sm leading-7 whitespace-pre-line bg-white/50 dark:bg-black/20 p-4 rounded-lg">
                                     {{ entry.resultado.examen.lectura }}
                                 </p>
                             </div>
 
                             <!-- Preguntas -->
                             <div class="space-y-4">
-                                <h4 class="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                <h4 class="text-sm font-bold text-text flex items-center gap-2">
                                     <div
                                         class="w-8 h-8 bg-gradient-to-br from-violet-400 to-purple-500 rounded-lg flex items-center justify-center">
                                         <HelpCircle class="w-4 h-4 text-white" />
@@ -192,7 +192,7 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                                 </h4>
 
                                 <div v-for="pregunta in entry.resultado.examen.preguntas" :key="pregunta.numero"
-                                    class="bg-white dark:bg-[#252525] rounded-xl p-5 border-2 border-slate-300 dark:border-slate-700 hover:border-teal-200 dark:hover:border-emerald-700 transition-all duration-300">
+                                    class="bg-surface-card rounded-xl p-5 border-2 border-slate-300 dark:border-slate-700 hover:border-teal-200 dark:hover:border-emerald-700 transition-all duration-300">
                                     <div class="flex items-start gap-4">
                                         <span
                                             class="w-10 h-10 bg-gradient-to-br from-teal-500 to-sky-500 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-lg shadow-teal-500/20">
@@ -211,13 +211,13 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                                                 </span>
                                                 <button v-if="tieneRetro(pregunta.numero)"
                                                     @click="abrirRetro(pregunta.numero)"
-                                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-semibold rounded-full bg-teal-50 dark:bg-emerald-900/20 hover:bg-teal-100 dark:hover:bg-emerald-900/40 text-teal-600 dark:text-emerald-400 border border-teal-200 dark:border-emerald-800 transition-colors">
+                                                    class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-semibold rounded-full bg-teal-50 dark:bg-emerald-900/20 hover:bg-teal-100 dark:hover:bg-emerald-900/40 text-primary border border-teal-200 dark:border-emerald-800 transition-colors">
                                                     <MessageSquare class="w-3 h-3" />
                                                     Retroalimentación
                                                 </button>
                                             </div>
 
-                                            <p class="text-slate-800 dark:text-slate-200 font-semibold mb-4">
+                                            <p class="text-slate-800 dark:text-text font-semibold mb-4">
                                                 {{ pregunta.enunciado }}
                                             </p>
 
@@ -225,11 +225,11 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                                                 <div v-for="opcion in pregunta.opciones" :key="opcion.letra"
                                                     class="flex items-center gap-3 text-sm py-3 px-4 rounded-xl border-2 transition-all duration-200"
                                                     :class="opcion.es_correcta
-                                                        ? 'bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-emerald-900/40 dark:to-slate-900 border-teal-300 dark:border-emerald-800 text-teal-700 dark:text-emerald-400'
-                                                        : 'bg-gray-50 dark:bg-[#121212] border-gray-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'">
+                                                        ? 'bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-emerald-900/40 dark:to-slate-900 border-teal-300 dark:border-emerald-800 text-teal-700 dark:text-primary'
+                                                        : 'bg-gray-50 dark:bg-surface border-gray-200 dark:border-slate-700 text-slate-600 dark:text-text-muted'">
                                                     <span
                                                         class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm"
-                                                        :class="opcion.es_correcta ? 'bg-teal-500 text-white' : 'bg-gray-200 dark:bg-[#393939] text-slate-600 dark:text-slate-400'">
+                                                        :class="opcion.es_correcta ? 'bg-teal-500 text-white' : 'bg-gray-200 dark:bg-surface-input text-slate-600 dark:text-text-muted'">
                                                         {{ opcion.letra }}
                                                     </span>
                                                     <span class="flex-1">{{ opcion.texto }}</span>
@@ -243,9 +243,9 @@ const tieneRetro = (numeroPregunta: number): boolean => {
 
                             <!-- Tabla de Respuestas -->
                             <div
-                                class="bg-white dark:bg-[#252525] rounded-xl p-5 border-2 border-sky-100 dark:border-slate-700">
+                                class="bg-surface-card rounded-xl p-5 border-2 border-sky-100 dark:border-slate-700">
                                 <h4
-                                    class="text-sm font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                                    class="text-sm font-bold text-text mb-4 flex items-center gap-2">
                                     <div
                                         class="w-8 h-8 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg flex items-center justify-center">
                                         <LayoutGrid class="w-4 h-4 text-white" />
@@ -258,16 +258,16 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                                             <tr
                                                 class="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-900 dark:to-slate-950 border-b-2 border-gray-200 dark:border-slate-700">
                                                 <th
-                                                    class="text-left py-3 px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
+                                                    class="text-left py-3 px-4 text-slate-600 dark:text-text-muted font-bold text-xs">
                                                     #</th>
                                                 <th
-                                                    class="text-left py-3 px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
+                                                    class="text-left py-3 px-4 text-slate-600 dark:text-text-muted font-bold text-xs">
                                                     Desempeño</th>
                                                 <th
-                                                    class="text-left py-3 px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
+                                                    class="text-left py-3 px-4 text-slate-600 dark:text-text-muted font-bold text-xs">
                                                     Nivel</th>
                                                 <th
-                                                    class="text-center py-3 px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
+                                                    class="text-center py-3 px-4 text-slate-600 dark:text-text-muted font-bold text-xs">
                                                     Rpta.</th>
                                             </tr>
                                         </thead>
@@ -275,10 +275,10 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                                             <tr v-for="fila in entry.resultado.examen.tabla_respuestas"
                                                 :key="fila.pregunta"
                                                 class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
-                                                <td class="py-3 px-4 text-slate-800 dark:text-slate-200 font-bold">
+                                                <td class="py-3 px-4 text-slate-800 dark:text-text font-bold">
                                                     {{ fila.pregunta }}
                                                 </td>
-                                                <td class="py-3 px-4 text-slate-600 dark:text-slate-400 text-xs">
+                                                <td class="py-3 px-4 text-slate-600 dark:text-text-muted text-xs">
                                                     {{ fila.desempeno }}
                                                 </td>
                                                 <td class="py-3 px-4">
@@ -305,7 +305,7 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                             </div>
 
                             <p
-                                class="text-center text-xs text-slate-500 dark:text-slate-400 bg-gradient-to-r from-teal-50 to-amber-50 dark:from-slate-900 dark:to-slate-800 p-3 rounded-xl flex items-center justify-center gap-2">
+                                class="text-center text-xs text-slate-500 dark:text-text-muted bg-gradient-to-r from-teal-50 to-amber-50 dark:from-slate-900 dark:to-slate-800 p-3 rounded-xl flex items-center justify-center gap-2">
                                 <Sparkles class="w-4 h-4 text-amber-500" /> Examen generado con IA -
                                 <strong>Revisar antes de usar con los estudiantes</strong>
                                 <GraduationCap class="w-4 h-4 text-teal-500" />
@@ -315,7 +315,7 @@ const tieneRetro = (numeroPregunta: number): boolean => {
 
                     <!-- Footer -->
                     <div
-                        class="flex-shrink-0 px-5 py-4 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-[#121212]/50 flex items-center justify-between gap-3">
+                        class="flex-shrink-0 px-5 py-4 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-surface/50 flex items-center justify-between gap-3">
                         <button @click="emit('eliminar')" :disabled="loadingDelete"
                             class="px-4 py-2.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl text-sm font-bold flex items-center gap-2 transition-colors disabled:opacity-50">
                             <Loader2 v-if="loadingDelete" class="w-4 h-4 animate-spin" />
@@ -324,13 +324,13 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                         </button>
                         <div class="flex gap-2">
                             <button @click="emit('descargar-word')" :disabled="downloadingWord || isLoading"
-                                class="px-4 py-2.5 text-teal-600 dark:text-emerald-400 hover:bg-teal-50 dark:hover:bg-emerald-900/20 rounded-xl text-sm font-bold flex items-center gap-2 transition-colors disabled:opacity-50">
+                                class="px-4 py-2.5 text-primary hover:bg-teal-50 dark:hover:bg-emerald-900/20 rounded-xl text-sm font-bold flex items-center gap-2 transition-colors disabled:opacity-50">
                                 <Loader2 v-if="downloadingWord" class="w-4 h-4 animate-spin" />
                                 <Download v-else class="w-4 h-4" />
                                 {{ downloadingWord ? 'Descargando...' : 'Word' }}
                             </button>
                             <button @click="emit('close')"
-                                class="px-4 py-2.5 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl text-sm font-semibold transition-colors">
+                                class="px-4 py-2.5 text-slate-600 dark:text-text-muted hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl text-sm font-semibold transition-colors">
                                 Cerrar
                             </button>
                             <button @click="emit('vincular')"
@@ -354,13 +354,13 @@ const tieneRetro = (numeroPregunta: number): boolean => {
 
                 <div class="absolute inset-0 bg-black/40 backdrop-blur-sm cursor-pointer" @click="cerrarRetro" />
 
-                <div class="relative z-10 w-full max-w-lg bg-white dark:bg-[#121212] rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden cursor-default" @click.stop>
+                <div class="relative z-10 w-full max-w-lg bg-surface rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden cursor-default" @click.stop>
 
                     <!-- Header -->
                     <div class="flex items-center justify-between px-5 py-4 border-b border-slate-300 dark:border-slate-700">
                         <div class="flex items-center gap-2">
                             <MessageSquare class="w-4 h-4 text-teal-500" />
-                            <span class="text-sm font-semibold text-slate-800 dark:text-white">
+                            <span class="text-sm font-semibold text-text">
                                 Retroalimentación — Pregunta {{ modalRetro.pregunta }}
                             </span>
                         </div>
@@ -377,11 +377,11 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                             class="rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/10 p-4 space-y-2">
                             <div class="flex items-center gap-2">
                                 <CheckCircle2 class="w-4 h-4 text-emerald-500 shrink-0" />
-                                <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">
+                                <span class="text-xs font-semibold text-emerald-700 dark:text-primary uppercase tracking-wide">
                                     Si respondió correctamente
                                 </span>
                             </div>
-                            <p class="text-sm text-emerald-800 dark:text-emerald-300 leading-relaxed">
+                            <p class="text-sm text-emerald-800 dark:text-primary-light leading-relaxed">
                                 {{ modalRetro.retroalimentacion_correcta }}
                             </p>
                         </div>
@@ -400,11 +400,11 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                         </div>
 
                         <div v-if="modalRetro.justificacion"
-                            class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-[#252525]/50 p-4 space-y-2">
-                            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                            class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-surface-card/50 p-4 space-y-2">
+                            <span class="text-xs font-semibold text-slate-500 dark:text-text-muted uppercase tracking-wide">
                                 Justificación de la respuesta correcta
                             </span>
-                            <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                            <p class="text-sm text-slate-600 dark:text-text-muted leading-relaxed">
                                 {{ modalRetro.justificacion }}
                             </p>
                         </div>
@@ -413,7 +413,7 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                     <!-- Footer -->
                     <div class="px-5 py-3 border-t border-slate-300 dark:border-slate-700 flex justify-end">
                         <button @click="cerrarRetro"
-                            class="px-4 py-2 text-xs font-medium rounded-lg bg-slate-100 dark:bg-[#252525] hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">
+                            class="px-4 py-2 text-xs font-medium rounded-lg bg-slate-100 dark:bg-surface-card hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-text-muted transition-colors">
                             Cerrar
                         </button>
                     </div>
