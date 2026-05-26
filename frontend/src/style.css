@@ -3,99 +3,113 @@
 
 @import "tailwindcss";
 
-/* Enable class-based dark mode for Tailwind CSS v4 */
+/* Dark mode via clase .dark en <html> */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Fix native browser UI (date/time pickers, scrollbars) in dark mode */
+/* =====================================================
+   DESIGN TOKENS — ÚNICA FUENTE DE VERDAD
+   Tailwind genera automáticamente: bg-primary,
+   text-surface-card, border-border, etc.
+   Para cambiar el tema completo, editar solo aquí.
+   ===================================================== */
+@theme {
+
+  /* --- Tipografía --- */
+  --font-heading: 'Fredoka', 'Nunito', sans-serif;
+  --font-body:    'Nunito', 'Inter', sans-serif;
+
+  /* --- Primario (acento principal) --- */
+  --color-primary:       #0d9488;
+  --color-primary-light: #14b8a6;
+  --color-primary-dark:  #0f766e;
+  --color-primary-muted: #f0fdfa;
+
+  /* --- Secundario (logros, highlights) --- */
+  --color-secondary:       #f59e0b;
+  --color-secondary-light: #fbbf24;
+  --color-secondary-dark:  #d97706;
+  --color-secondary-muted: #fef3c7;
+
+  /* --- Superficies --- */
+  --color-surface:        #fafafa;
+  --color-surface-card:   #ffffff;
+  --color-surface-input:  #f8fafc;
+  --color-surface-raised: #ffffff;
+
+  /* --- Bordes --- */
+  --color-border:        #e2e8f0;
+  --color-border-strong: #cbd5e1;
+
+  /* --- Texto --- */
+  --color-text:         #1e293b;
+  --color-text-muted:   #64748b;
+  --color-text-subtle:  #94a3b8;
+  --color-text-inverse: #ffffff;
+
+  /* --- Estados semánticos --- */
+  --color-success:       #10b981;
+  --color-success-muted: #ecfdf5;
+  --color-warning:       #f59e0b;
+  --color-warning-muted: #fffbeb;
+  --color-danger:        #ef4444;
+  --color-danger-muted:  #fef2f2;
+  --color-info:          #0ea5e9;
+  --color-info-muted:    #f0f9ff;
+}
+
+/* =====================================================
+   DARK MODE — mismos tokens, distintos valores.
+   Las clases bg-primary, bg-surface-card, etc.
+   cambian automáticamente al activarse .dark
+   ===================================================== */
+.dark {
+  /* Primario */
+  --color-primary:       #4ada49;
+  --color-primary-light: #79e375;
+  --color-primary-dark:  #64de60;
+  --color-primary-muted: #1a2319;
+
+  /* Secundario */
+  --color-secondary:       #ffbc5e;
+  --color-secondary-light: #ffd8a4;
+  --color-secondary-dark:  #ffca83;
+  --color-secondary-muted: #1f1506;
+
+  /* Superficies */
+  --color-surface:        #121212;
+  --color-surface-card:   #252525;
+  --color-surface-input:  #393939;
+  --color-surface-raised: #2d352c;
+
+  /* Bordes */
+  --color-border:        #393939;
+  --color-border-strong: #4f4f4f;
+
+  /* Texto */
+  --color-text:         #f1f5f9;
+  --color-text-muted:   #94a3b8;
+  --color-text-subtle:  #64748b;
+  --color-text-inverse: #121212;
+
+  /* Estados semánticos */
+  --color-success:       #7dff95;
+  --color-success-muted: #0d1f10;
+  --color-warning:       #ffbc5e;
+  --color-warning-muted: #1f1506;
+  --color-danger:        #ff8080;
+  --color-danger-muted:  #1f0a0a;
+  --color-info:          #87d1ff;
+  --color-info-muted:    #071a2a;
+}
+
+/* Fuerza el esquema nativo del navegador (pickers, scrollbars) */
 html.dark {
   color-scheme: dark;
-
-  /** Theme primary colors */
-  --clr-primary-a0: #4ada49;
-  --clr-primary-a10: #64de60;
-  --clr-primary-a20: #79e375;
-  --clr-primary-a30: #8ce788;
-  --clr-primary-a40: #9eeb9a;
-  --clr-primary-a50: #b0efab;
-
-  /** Theme surface colors */
-  --clr-surface-a0: #121212;
-  --clr-surface-a10: #252525;
-  --clr-surface-a20: #393939;
-  --clr-surface-a30: #4f4f4f;
-  --clr-surface-a40: #666666;
-  --clr-surface-a50: #7d7d7d;
-
-  /** Theme tonal surface colors */
-  --clr-surface-tonal-a0: #1a2319;
-  --clr-surface-tonal-a10: #2d352c;
-  --clr-surface-tonal-a20: #414940;
-  --clr-surface-tonal-a30: #565d55;
-  --clr-surface-tonal-a40: #6c736b;
-  --clr-surface-tonal-a50: #838982;
-
-  /** Success colors */
-  --clr-success-a0: #7dff95;
-  --clr-success-a10: #9dffac;
-  --clr-success-a20: #b8ffc1;
-
-  /** Warning colors */
-  --clr-warning-a0: #ffbc5e;
-  --clr-warning-a10: #ffca83;
-  --clr-warning-a20: #ffd8a4;
-
-  /** Danger colors */
-  --clr-danger-a0: #ff8080;
-  --clr-danger-a10: #ff9b99;
-  --clr-danger-a20: #ffb5b2;
-
-  /** Info colors */
-  --clr-info-a0: #87d1ff;
-  --clr-info-a10: #a1dbff;
-  --clr-info-a20: #b9e4ff;
-
-  /* Mapeo a variables edu existentes */
-  --edu-primary: var(--clr-primary-a0);
-  --edu-primary-light: var(--clr-primary-a20);
-  --edu-primary-dark: var(--clr-primary-a10);
-  --edu-accent: var(--clr-primary-a30);
-  --edu-accent-light: var(--clr-primary-a50);
-  --edu-accent-dark: var(--clr-primary-a0);
 }
 
-/* Fix placeholder visibility in dark mode */
-html.dark input::placeholder,
-html.dark textarea::placeholder {
-  color: rgb(100 116 139); /* slate-500 */
-}
-
-/* ====== LECTOSISTEM - TEMA EDUCATIVO ====== */
-
-:root {
-  /* Colores Primarios Educativos */
-  --edu-primary: #0d9488;       /* Teal - Conocimiento */
-  --edu-primary-light: #14b8a6;
-  --edu-primary-dark: #0f766e;
-  
-  --edu-secondary: #f59e0b;     /* Amber - Logro */
-  --edu-secondary-light: #fbbf24;
-  --edu-secondary-dark: #d97706;
-  
-  --edu-accent: #0ea5e9;        /* Sky - Creatividad */
-  --edu-accent-light: #38bdf8;
-  --edu-accent-dark: #0284c7;
-  
-  /* Fondos Educativos */
-  --edu-bg-cream: #fefdf8;
-  --edu-bg-warm: #fef7ed;
-  --edu-bg-mint: #f0fdfa;
-  
-  /* Tipografía */
-  --font-heading: 'Fredoka', 'Nunito', sans-serif;
-  --font-body: 'Nunito', 'Inter', sans-serif;
-}
-
-/* Aplicar fuentes educativas */
+/* =====================================================
+   ESTILOS GLOBALES
+   ===================================================== */
 body {
   font-family: var(--font-body);
 }
@@ -104,207 +118,113 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
 }
 
-/* Animaciones educativas */
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-}
+/* Scrollbar */
+::-webkit-scrollbar        { width: 8px; height: 8px; }
+::-webkit-scrollbar-track  { background: var(--color-primary-muted); border-radius: 10px; }
+::-webkit-scrollbar-thumb  { background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%); }
 
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.4); }
-  50% { box-shadow: 0 0 20px 5px rgba(13, 148, 136, 0.2); }
-}
+/* Ocultar scrollbar manteniendo funcionalidad */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-@keyframes wiggle {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-3deg); }
-  75% { transform: rotate(3deg); }
-}
-
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-
-.animate-wiggle:hover {
-  animation: wiggle 0.5s ease-in-out;
-}
-
-/* Scrollbar Educativo */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f0fdfa;
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, var(--edu-primary) 0%, var(--edu-accent) 100%);
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, var(--edu-primary-dark) 0%, var(--edu-accent-dark) 100%);
-}
-
-/* Dark mode scrollbar */
-.dark ::-webkit-scrollbar-track {
-  background: var(--clr-surface-a10);
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, var(--clr-primary-a0) 0%, var(--clr-primary-a20) 100%);
-}
-
-/* Patrón de fondo educativo decorativo */
-.edu-pattern-bg {
-  background-image: 
-    radial-gradient(circle at 20% 80%, rgba(13, 148, 136, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(14, 165, 233, 0.03) 0%, transparent 50%);
-}
-
-/* Efecto de brillo para logros */
-.achievement-glow {
-  position: relative;
-}
-
-.achievement-glow::after {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  background: linear-gradient(45deg, var(--edu-secondary), var(--edu-primary), var(--edu-accent));
-  border-radius: inherit;
-  z-index: -1;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.achievement-glow:hover::after {
-  opacity: 0.3;
-}
-
-/* Utility to hide scrollbars while keeping functionality */
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-/* ====== MASCOTA LECTOSISTEM ====== */
-@keyframes mascota-float {
-  0%, 100% { 
-    transform: translateY(0px) rotate(0deg); 
-  }
-  25% { 
-    transform: translateY(-3px) rotate(1deg); 
-  }
-  50% { 
-    transform: translateY(-6px) rotate(0deg); 
-  }
-  75% { 
-    transform: translateY(-3px) rotate(-1deg); 
-  }
-}
-
-.animate-mascota-float {
-  animation: mascota-float 4s ease-in-out infinite;
-}
-
-/* Efecto de brillo para la mascota */
-.mascota-glow {
-  filter: drop-shadow(0 0 10px rgba(13, 148, 136, 0.3));
-  transition: filter 0.3s ease;
-}
-
-.mascota-glow:hover {
-  filter: drop-shadow(0 0 20px rgba(13, 148, 136, 0.5));
-}
-
-
-/* Curriculum admin shared field style */
+/* Inputs — foco con token primary */
 .curriculum-field {
-  @apply w-full px-3 py-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 outline-none transition-all;
+  @apply w-full px-3 py-2 text-sm rounded-lg outline-none transition-all;
+  border: 1px solid var(--color-border-strong);
+  background-color: var(--color-surface-card);
+  color: var(--color-text);
 }
 .curriculum-field:focus {
-  @apply ring-4 ring-teal-500/10 border-teal-500;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary) 10%, transparent);
 }
 .curriculum-field:disabled {
-  @apply opacity-60 cursor-not-allowed bg-slate-50 dark:bg-slate-900;
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: var(--color-surface-input);
 }
 
-/* Global input focus improvements */
+/* Foco global en inputs */
 input:focus, select:focus, textarea:focus {
-  @apply ring-4 ring-teal-500/10 border-teal-500 transition-all;
+  outline: none;
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary) 10%, transparent);
 }
 
-/* Global input/select text and placeholder styling */
-input, select, textarea {
-  @apply text-slate-900 dark:text-white transition-colors;
-}
-
-/* Modern browsers */
-::placeholder {
-  color: #94a3b8 !important;
-  opacity: 1 !important;
-  -webkit-text-fill-color: #94a3b8 !important;
-}
-
-/* Chrome, Safari, Edge */
-::-webkit-input-placeholder {
-  color: #94a3b8 !important;
-  -webkit-text-fill-color: #94a3b8 !important;
-  opacity: 1 !important;
-}
-
-/* Firefox */
-::-moz-placeholder {
-  color: #94a3b8 !important;
-  opacity: 1 !important;
-}
-
-/* Internet Explorer 10-11 */
+/* Placeholder */
+::placeholder,
+::-webkit-input-placeholder,
+::-moz-placeholder,
 :-ms-input-placeholder {
-  color: #94a3b8 !important;
-}
-
-/* Microsoft Edge */
-::-ms-input-placeholder {
-  color: #94a3b8 !important;
-}
-
-/* Dark mode specific - force bright color */
-.dark ::placeholder,
-.dark ::-webkit-input-placeholder,
-.dark ::-moz-placeholder,
-.dark :-ms-input-placeholder,
-.dark ::-ms-input-placeholder {
-  color: #94a3b8 !important;
-  -webkit-text-fill-color: #94a3b8 !important;
+  color: var(--color-text-subtle) !important;
   opacity: 1 !important;
 }
 
-/* Fix date and time input icons in dark mode */
+/* Inputs de fecha/hora en dark mode */
 .dark input[type="date"],
 .dark input[type="time"],
 .dark input[type="datetime-local"],
 .dark input[type="month"] {
   color-scheme: dark !important;
 }
-
 .dark input[type="date"]::-webkit-calendar-picker-indicator,
 .dark input[type="time"]::-webkit-calendar-picker-indicator,
 .dark input[type="datetime-local"]::-webkit-calendar-picker-indicator,
 .dark input[type="month"]::-webkit-calendar-picker-indicator {
   filter: invert(1) brightness(1.5) !important;
   cursor: pointer;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='15' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='4' width='18' height='18' rx='2' ry='2'></rect><line x1='16' y1='2' x2='16' y2='6'></line><line x1='8' y1='2' x2='8' y2='6'></line><line x1='3' y1='10' x2='21' y2='10'></line></svg>") !important;
+}
+
+/* =====================================================
+   ANIMACIONES
+   ===================================================== */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-primary) 40%, transparent); }
+  50%       { box-shadow: 0 0 20px 5px color-mix(in srgb, var(--color-primary) 20%, transparent); }
+}
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25%       { transform: rotate(-3deg); }
+  75%       { transform: rotate(3deg); }
+}
+@keyframes mascota-float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  25%       { transform: translateY(-3px) rotate(1deg); }
+  50%       { transform: translateY(-6px) rotate(0deg); }
+  75%       { transform: translateY(-3px) rotate(-1deg); }
+}
+
+.animate-float         { animation: float 6s ease-in-out infinite; }
+.animate-pulse-glow    { animation: pulse-glow 2s ease-in-out infinite; }
+.animate-wiggle:hover  { animation: wiggle 0.5s ease-in-out; }
+.animate-mascota-float { animation: mascota-float 4s ease-in-out infinite; }
+
+/* Mascota glow */
+.mascota-glow       { filter: drop-shadow(0 0 10px color-mix(in srgb, var(--color-primary) 30%, transparent)); transition: filter 0.3s ease; }
+.mascota-glow:hover { filter: drop-shadow(0 0 20px color-mix(in srgb, var(--color-primary) 50%, transparent)); }
+
+/* Achievement glow */
+.achievement-glow { position: relative; }
+.achievement-glow::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(45deg, var(--color-secondary), var(--color-primary), var(--color-primary-light));
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.achievement-glow:hover::after { opacity: 0.3; }
+
+/* Fondo decorativo */
+.edu-pattern-bg {
+  background-image:
+    radial-gradient(circle at 20% 80%, color-mix(in srgb, var(--color-primary) 5%, transparent) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, color-mix(in srgb, var(--color-secondary) 5%, transparent) 0%, transparent 50%);
 }
