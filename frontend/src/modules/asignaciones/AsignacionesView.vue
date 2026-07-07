@@ -387,7 +387,7 @@ const estadoColors: Record<string, string> = {
             </button>
           </div>
           <button @click="openModal"
-            class="group flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-violet-600 to-emerald-700 hover:from-violet-700 hover:to-emerald-800 text-white font-bold text-sm rounded-2xl shadow-xl shadow-violet-500/20 hover:-translate-y-0.5 transition-all active:scale-95 cursor-pointer">
+            class="group flex items-center justify-center gap-2 px-6 py-4 bg-violet-600 hover:bg-violet-700 text-white font-bold text-sm rounded-2xl shadow-xl shadow-violet-500/20 hover:-translate-y-0.5 transition-all active:scale-95 cursor-pointer">
             <Plus class="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
             <span>Nueva Asignación</span>
           </button>
@@ -427,7 +427,7 @@ const estadoColors: Record<string, string> = {
           Comienza asignando uno de tus exámenes generados a un grado o sección específica.
         </p>
         <button @click="openModal"
-          class="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-violet-500 to-emerald-600 text-white font-black text-sm rounded-2xl shadow-xl shadow-violet-500/20 hover:from-violet-600 hover:to-emerald-700 transition-all active:scale-95 cursor-pointer">
+          class="inline-flex items-center gap-2 px-8 py-4 bg-violet-600 hover:bg-violet-700 text-white font-black text-sm rounded-2xl shadow-xl shadow-violet-500/20 transition-all active:scale-95 cursor-pointer">
           <Plus class="w-5 h-5" />
           <span>Crear Primera Asignación</span>
         </button>
@@ -617,7 +617,7 @@ const estadoColors: Record<string, string> = {
             <!-- Header -->
             <div class="flex items-center justify-between px-8 py-6 border-b border-slate-300 dark:border-slate-800 shrink-0">
               <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-600 to-emerald-700 flex items-center justify-center shadow-lg shadow-violet-500/20">
+                <div class="w-12 h-12 rounded-2xl bg-violet-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
                   <BookMarked class="w-6 h-6 text-white" />
                 </div>
                 <div>
@@ -959,7 +959,7 @@ const estadoColors: Record<string, string> = {
                 Cancelar
               </button>
               <button @click="guardar" :disabled="saving || (!isEditing && !examenSeleccionadoId)"
-                class="flex-[1.5] flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-violet-600 to-emerald-700 text-white font-black text-sm rounded-2xl shadow-xl shadow-violet-500/20 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                class="flex-[1.5] flex items-center justify-center gap-3 px-8 py-4 bg-violet-600 hover:bg-violet-700 text-white font-black text-sm rounded-2xl shadow-xl shadow-violet-500/20 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                 <Loader2 v-if="saving" class="w-5 h-5 animate-spin" />
                 <Save v-else class="w-5 h-5" />
                 <span>{{ isEditing ? 'Actualizar Evaluación' : 'Confirmar Asignación' }}</span>
@@ -1051,7 +1051,7 @@ const estadoColors: Record<string, string> = {
                 <div v-for="r in resultados[resultadosAsig?.id ?? 0]" :key="r.codigo ?? r.estudiante"
                   class="flex items-center gap-4 px-8 py-5 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all group">
                   
-                  <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-100 to-emerald-100 dark:from-violet-900/30 dark:to-emerald-900/30 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <div class="w-12 h-12 rounded-2xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                     <span class="text-sm font-black text-violet-600 dark:text-violet-400">
                       {{ (r.estudiante || r.codigo || '?').slice(0, 2).toUpperCase() }}
                     </span>

@@ -128,8 +128,8 @@ const onSubmit = handleSubmit(async (formValues) => {
             </div>
 
             <!-- Form Container -->
-            <div class="flex-1 flex flex-col justify-start pt-16 sm:pt-24 lg:pt-20 xl:pt-32 px-6 sm:px-12 md:px-20 lg:px-16 xl:px-24 pb-12 relative">
-                
+            <div class="flex-1 flex flex-col justify-start pt-10 sm:pt-14 lg:pt-12 xl:pt-20 px-6 sm:px-12 md:px-20 lg:px-16 xl:px-24 pb-10 relative">
+
                 <!-- Background Accents (Mobile) -->
                 <div class="lg:hidden absolute inset-0 pointer-events-none">
                     <div class="absolute top-0 right-0 w-64 h-64 bg-teal-500/5 rounded-full blur-[80px]"></div>
@@ -137,85 +137,81 @@ const onSubmit = handleSubmit(async (formValues) => {
                 </div>
 
                 <div class="w-full max-w-md mx-auto relative z-10">
-                    
+
                     <!-- Form Header -->
-                    <div class="mb-4 text-center lg:text-left">
-                        <h2 class="text-3xl font-bold text-text tracking-tight mb-2">Bienvenido a SIEVA</h2>
-                        <p class="text-slate-500 dark:text-text-muted font-medium">Ingresa a tu cuenta para continuar</p>
+                    <div class="mb-3 text-center lg:text-left">
+                        <h2 class="text-2xl font-bold text-text tracking-tight mb-1">Bienvenido a SIEVA</h2>
+                        <p class="text-sm text-slate-500 dark:text-text-muted font-medium">Ingresa a tu cuenta para continuar</p>
                     </div>
 
                     <!-- Error Alert -->
-                    <div class="min-h-14 mb-6">
+                    <div class="min-h-10 mb-3">
                         <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="transform -translate-y-2 opacity-0" enter-to-class="transform translate-y-0 opacity-100">
-                            <div v-if="error" class="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-2xl text-red-600 dark:text-red-400 text-sm font-bold animate-shake">
-                                <AlertCircle class="w-5 h-5 shrink-0" />
+                            <div v-if="error" class="flex items-center gap-3 p-3 bg-red-50 dark:bg-danger-muted border border-red-100 dark:border-danger/20 rounded-xl text-red-600 dark:text-danger text-sm font-bold animate-shake">
+                                <AlertCircle class="w-4 h-4 shrink-0" />
                                 <span>{{ error }}</span>
                             </div>
                         </Transition>
                     </div>
 
-
-
                     <!-- Form -->
-                    <form @submit="onSubmit" class="space-y-6" autocomplete="off">
+                    <form @submit="onSubmit" class="space-y-4" autocomplete="off">
                         <!-- Fields -->
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-bold text-slate-400 dark:text-text-subtle uppercase tracking-widest ml-1">DNI o Código</label>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-400 dark:text-text-muted uppercase tracking-widest ml-1">DNI o Código</label>
                             <div class="relative group">
-                                <User class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-teal-500 transition-colors" />
-                                <input 
+                                <User class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-primary transition-colors" />
+                                <input
                                     v-model="identifierValue"
-                                    type="text" 
+                                    type="text"
                                     placeholder="DNI o Código"
-                                    class="w-full bg-surface-input border border-slate-300 dark:border-slate-600 rounded-xl py-4 pl-12 pr-4 text-sm font-bold text-slate-700 dark:text-text outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all uppercase placeholder:normal-case"
-                                    :class="{'border-red-500/50': identifierError}"
+                                    class="w-full bg-surface-input border border-slate-300 dark:border-border-strong rounded-xl py-3 pl-11 pr-4 text-sm font-bold text-slate-700 dark:text-text outline-none transition-all uppercase placeholder:normal-case"
+                                    :class="{'border-red-500/50 dark:border-danger/50': identifierError}"
                                 />
                             </div>
-                            <div class="h-4 text-[10px] font-bold text-red-500 ml-1">
+                            <div class="h-3.5 text-[10px] font-bold text-red-500 dark:text-danger ml-1">
                                 {{ identifierError }}
                             </div>
                         </div>
 
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-bold text-slate-400 dark:text-text-subtle uppercase tracking-widest ml-1">Contraseña</label>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-400 dark:text-text-muted uppercase tracking-widest ml-1">Contraseña</label>
                             <div class="relative group">
-                                <Lock class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-teal-500 transition-colors" />
-                                <input 
+                                <Lock class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-primary transition-colors" />
+                                <input
                                     v-model="passwordValue"
-                                    :type="passwordFieldType" 
+                                    :type="passwordFieldType"
                                     placeholder="••••••••"
-                                    class="w-full bg-surface-input border border-slate-300 dark:border-slate-600 rounded-xl py-4 pl-12 pr-12 text-sm font-bold text-slate-700 dark:text-text outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all"
-                                    :class="{'border-red-500/50': passwordError}"
+                                    class="w-full bg-surface-input border border-slate-300 dark:border-border-strong rounded-xl py-3 pl-11 pr-12 text-sm font-bold text-slate-700 dark:text-text outline-none transition-all"
+                                    :class="{'border-red-500/50 dark:border-danger/50': passwordError}"
                                 />
-                                <button type="button" @click="passwordFieldType = passwordFieldType === 'password' ? 'text' : 'password'" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors">
-                                    <Eye v-if="passwordFieldType === 'password'" class="w-5 h-5" />
-                                    <EyeOff v-else class="w-5 h-5" />
+                                <button type="button" @click="passwordFieldType = passwordFieldType === 'password' ? 'text' : 'password'" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-text transition-colors">
+                                    <Eye v-if="passwordFieldType === 'password'" class="w-4 h-4" />
+                                    <EyeOff v-else class="w-4 h-4" />
                                 </button>
                             </div>
-                            <div class="h-4 text-[10px] font-bold text-red-500 ml-1">
+                            <div class="h-3.5 text-[10px] font-bold text-red-500 dark:text-danger ml-1">
                                 {{ passwordError }}
                             </div>
                         </div>
 
                         <!-- Action Button -->
-                        <button type="submit" :disabled="loading" 
-                            class="w-full bg-slate-900 dark:bg-white text-white dark:text-text-inverse font-bold py-4 rounded-xl shadow-xl shadow-slate-950/10 dark:shadow-white/5 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50">
+                        <button type="submit" :disabled="loading"
+                            class="w-full bg-slate-900 dark:bg-primary text-white dark:text-text-inverse font-bold py-3.5 rounded-xl shadow-lg shadow-slate-950/10 dark:shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50">
                             <Loader2 v-if="loading" class="w-5 h-5 animate-spin" />
                             <template v-else>
                                 <span>Acceder al Sistema</span>
                                 <LogIn class="w-5 h-5" />
                             </template>
                         </button>
-
-
                     </form>
 
                     <!-- Student Registration Link -->
-                    <div class="mt-10 pt-8 border-t border-slate-300 dark:border-slate-900 text-center">
+                    <div class="mt-6 pt-5 border-t border-slate-200 dark:border-border text-center">
                         <p class="text-sm text-slate-500 dark:text-text-muted font-medium">
                             ¿Eres estudiante y no tienes cuenta?
                         </p>
-                        <router-link to="/registro" class="inline-block mt-2 text-primary font-bold hover:underline underline-offset-4">
+                        <router-link to="/registro" class="inline-block mt-1.5 text-primary font-bold hover:underline underline-offset-4">
                             Regístrate con tu código de aula
                         </router-link>
                     </div>
