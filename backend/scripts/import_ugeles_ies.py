@@ -31,6 +31,7 @@ from app.core.database import AsyncSessionLocal
 import app.models.usuario  # noqa: F401
 import app.models.db_models  # noqa: F401
 import app.models.ubigeo  # noqa: F401
+import app.models.estudiante  # noqa: F401
 from app.models.db_models import Ugel, InstitucionEducativa, InstitucionNivel
 from app.models.ubigeo import Provincia, Distrito
 
