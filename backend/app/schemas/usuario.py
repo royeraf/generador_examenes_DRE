@@ -3,6 +3,20 @@ from datetime import datetime
 from pydantic import BaseModel, Field, model_validator
 
 
+class PersonaReniecData(BaseModel):
+    dni: str
+    nombres: str
+    apellido_paterno: str
+    apellido_materno: str
+    nombre_completo: str
+
+
+class ConsultaDniResponse(BaseModel):
+    success: bool
+    message: str
+    data: Optional[PersonaReniecData] = None
+
+
 class MatriculaSchema(BaseModel):
     id: int
     año_escolar: int

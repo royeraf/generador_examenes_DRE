@@ -12,6 +12,14 @@ class Settings(BaseSettings):
     # API Keys
     openai_api_key: str = os.getenv("OPENAI_API_KEY", "")
     google_api_key: str = os.getenv("GOOGLE_API_KEY", "")
+
+    # Consulta DNI (RENIEC) - fuente principal + contingencias
+    reniec_api_url: str = os.getenv("RENIEC_API_URL", "https://api.decolecta.com/v1/reniec/dni")
+    reniec_api_token: str = os.getenv("RENIEC_API_TOKEN", "")
+    perudevs_dni_url: str = os.getenv("PERUDEVS_DNI_URL", "https://api.perudevs.com/api/v1/dni/simple")
+    perudevs_dni_token: str = os.getenv("PERUDEVS_DNI_TOKEN", "")
+    apiperu_dni_url: str = os.getenv("APIPERU_DNI_URL", "https://apiperu.dev/api/dni")
+    apiperu_dni_token: str = os.getenv("APIPERU_DNI_TOKEN", "")
     
     # App settings
     app_name: str = "Generador de Preguntas DREHCO"

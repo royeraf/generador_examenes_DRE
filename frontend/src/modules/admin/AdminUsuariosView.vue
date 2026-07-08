@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { formatFecha } from '../../shared/utils/dateUtils'
-import { ref, watch, onMounted, onUnmounted, computed } from 'vue'
+import { ref, watch, onMounted, onUnmounted, computed, nextTick, type Ref } from 'vue'
 import { useAuthStore } from '../../stores/auth'
-import { adminUsuariosService, ubigeoService, organizacionService, rolesConfigService, type DocenteCreatePayload, type DocenteUpdatePayload, type RolConfig } from '../../shared/services/api'
+import { adminUsuariosService, ubigeoService, organizacionService, rolesConfigService, reniecService, type DocenteCreatePayload, type DocenteUpdatePayload, type RolConfig } from '../../shared/services/api'
 import type { Docente, Provincia, Distrito, Ugel, InstitucionEducativa } from '../../shared/types'
 import {
   Plus, Edit2, Trash2,
@@ -317,6 +317,66 @@ const { value: distrito_id } = useField<number | null>('distrito_id')
 const { value: password, errorMessage: passwordError } = useField<string>('password')
 const { value: is_active } = useField<boolean>('is_active')
 
+// =====================================================
+// CONSULTA DNI (RENIEC) — autocompletar nombres y apellidos
+// =====================================================
+const consultandoDni = ref(false)
+const dniConsultaMessage = ref('')
+const dniConsultaSuccess = ref(false)
+let dniConsultaTimeout: ReturnType<typeof setTimeout> | null = null
+
+async function consultarDni(valorDni: string) {
+  consultandoDni.value = true
+  dniConsultaMessage.value = ''
+  dniConsultaSuccess.value = false
+  try {
+    const resp = await reniecService.consultarDni(valorDni)
+    if (resp.success && resp.data) {
+      nombres.value = resp.data.nombres.toUpperCase()
+      apellidos.value = [resp.data.apellido_paterno, resp.data.apellido_materno].filter(Boolean).join(' ').toUpperCase()
+      dniConsultaMessage.value = `Datos encontrados: ${resp.data.nombre_completo}`
+      dniConsultaSuccess.value = true
+    } else {
+      dniConsultaMessage.value = resp.message || 'No se encontraron datos para este DNI'
+      dniConsultaSuccess.value = false
+    }
+  } catch {
+    dniConsultaMessage.value = 'Error al consultar el DNI'
+    dniConsultaSuccess.value = false
+  } finally {
+    consultandoDni.value = false
+  }
+}
+
+watch(dni, (newVal) => {
+  dniConsultaMessage.value = ''
+  if (dniConsultaTimeout) clearTimeout(dniConsultaTimeout)
+  if (editingId.value) return
+  if (newVal && /^\d{8}$/.test(newVal)) {
+    dniConsultaTimeout = setTimeout(() => consultarDni(newVal), 300)
+  }
+})
+
+// Nombres y apellidos: forzar mayúsculas conservando la posición del cursor
+function forzarMayusculasEnInput(input: HTMLInputElement, field: Ref<string>) {
+  const upper = input.value.toUpperCase()
+  if (input.value === upper) return
+  const start = input.selectionStart
+  const end = input.selectionEnd
+  field.value = upper
+  nextTick(() => {
+    input.setSelectionRange(start, end)
+  })
+}
+
+function handleNombresInput(e: Event) {
+  forzarMayusculasEnInput(e.target as HTMLInputElement, nombres)
+}
+
+function handleApellidosInput(e: Event) {
+  forzarMayusculasEnInput(e.target as HTMLInputElement, apellidos)
+}
+
 // Load
 async function loadDocentes(resetPage = false) {
   if (resetPage) currentPage.value = 1
@@ -409,6 +469,8 @@ function openCreate() {
   modulosSeleccionados.value = null
   usandoDefaultModulos.value = true
   ugelFiltroIE.value = null
+  dniConsultaMessage.value = ''
+  dniConsultaSuccess.value = false
   resetForm()
   if (auth.isDirector && auth.user?.institucion_educativa_id) {
     ugelFiltroIE.value = auth.user.ugel_id ?? null
@@ -1324,14 +1386,26 @@ async function saveResetPassword() {
               <div>
                 <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">DNI <span
                     class="text-red-500">*</span></label>
-                <input v-model="dni" type="text" maxlength="8" placeholder="12345678" :disabled="!!editingId" :class="[
-                  'w-full bg-slate-50 dark:bg-slate-700 border rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed font-black tracking-widest placeholder-slate-400',
-                  dniError
-                    ? 'border-red-400 dark:border-red-500 focus:ring-red-400/40 focus:border-red-400'
-                    : 'border-slate-300 dark:border-slate-600 focus:ring-teal-500/50 focus:border-teal-500'
-                ]" />
+                <div class="relative">
+                  <input v-model="dni" type="text" maxlength="8" placeholder="12345678" :disabled="!!editingId" :class="[
+                    'w-full bg-slate-50 dark:bg-slate-700 border rounded-xl py-2.5 px-3.5 pr-10 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed font-black tracking-widest placeholder-slate-400',
+                    dniError
+                      ? 'border-red-400 dark:border-red-500 focus:ring-red-400/40 focus:border-red-400'
+                      : 'border-slate-300 dark:border-slate-600 focus:ring-teal-500/50 focus:border-teal-500'
+                  ]" />
+                  <Loader2 v-if="consultandoDni" class="w-4 h-4 text-teal-500 animate-spin absolute right-3 top-1/2 -translate-y-1/2" />
+                  <CheckCircle v-else-if="dniConsultaSuccess" class="w-4 h-4 text-teal-500 absolute right-3 top-1/2 -translate-y-1/2" />
+                </div>
                 <p v-if="dniError" class="mt-1 text-xs text-red-500 flex items-center gap-1">
                   <AlertCircle class="w-3 h-3" /> {{ dniError }}
+                </p>
+                <p v-else-if="dniConsultaMessage" :class="[
+                  'mt-1 text-xs flex items-center gap-1',
+                  dniConsultaSuccess ? 'text-teal-600 dark:text-teal-400' : 'text-amber-600 dark:text-amber-400'
+                ]">
+                  <CheckCircle v-if="dniConsultaSuccess" class="w-3 h-3" />
+                  <AlertCircle v-else class="w-3 h-3" />
+                  {{ dniConsultaMessage }}
                 </p>
               </div>
 
@@ -1340,8 +1414,8 @@ async function saveResetPassword() {
                 <div>
                   <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Nombres <span
                       class="text-red-500">*</span></label>
-                  <input v-model="nombres" type="text" placeholder="Juan" :class="[
-                    'w-full bg-slate-50 dark:bg-slate-700 border rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 transition-all placeholder-slate-400',
+                  <input v-model="nombres" @input="handleNombresInput" type="text" placeholder="JUAN" :class="[
+                    'w-full bg-slate-50 dark:bg-slate-700 border rounded-xl py-2.5 px-3.5 text-sm font-bold uppercase text-slate-700 dark:text-slate-200 outline-none focus:ring-2 transition-all placeholder-slate-400',
                     nombresError
                       ? 'border-red-400 dark:border-red-500 focus:ring-red-400/40 focus:border-red-400'
                       : 'border-slate-300 dark:border-slate-600 focus:ring-teal-500/50 focus:border-teal-500'
@@ -1353,8 +1427,8 @@ async function saveResetPassword() {
                 <div>
                   <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">Apellidos <span
                       class="text-red-500">*</span></label>
-                  <input v-model="apellidos" type="text" placeholder="Pérez" :class="[
-                    'w-full bg-slate-50 dark:bg-slate-700 border rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 transition-all placeholder-slate-400',
+                  <input v-model="apellidos" @input="handleApellidosInput" type="text" placeholder="PÉREZ" :class="[
+                    'w-full bg-slate-50 dark:bg-slate-700 border rounded-xl py-2.5 px-3.5 text-sm font-bold uppercase text-slate-700 dark:text-slate-200 outline-none focus:ring-2 transition-all placeholder-slate-400',
                     apellidosError
                       ? 'border-red-400 dark:border-red-500 focus:ring-red-400/40 focus:border-red-400'
                       : 'border-slate-300 dark:border-slate-600 focus:ring-teal-500/50 focus:border-teal-500'

@@ -8,8 +8,14 @@ from app.core.database import get_db
 from app.core.db_utils import get_or_404
 from app.models.db_models import Grado, Capacidad, Desempeno, Rol
 from app.models.usuario import Usuario as DocenteModel
-from app.schemas.usuario import Usuario as Docente, UsuarioAdminCreate as DocenteAdminCreate, UsuarioUpdate as DocenteUpdate
+from app.schemas.usuario import (
+    Usuario as Docente,
+    UsuarioAdminCreate as DocenteAdminCreate,
+    UsuarioUpdate as DocenteUpdate,
+    ConsultaDniResponse,
+)
 from app.services.usuario_service import usuario_service as docente_service
+from app.services.reniec_service import reniec_service
 from app.api.dependencies import get_current_superuser, get_current_active_user, require_role
 from app.models.enums import RolCodigo
 
@@ -260,6 +266,15 @@ async def delete_desempeno(
 
 from app.schemas.pagination import PaginatedResponse
 import math
+
+@router.get("/consultar-dni/{dni}", response_model=ConsultaDniResponse)
+async def consultar_dni(
+    dni: str,
+    _: DocenteModel = Depends(get_gestor),
+):
+    """Consulta datos de una persona por DNI (RENIEC + contingencias) para autocompletar el registro de usuarios."""
+    return await reniec_service.consultar_dni(dni)
+
 
 @router.get("/docentes", response_model=PaginatedResponse[Docente])
 async def list_docentes(

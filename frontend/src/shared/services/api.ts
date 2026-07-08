@@ -459,6 +459,27 @@ export const rolesConfigService = {
   },
 }
 
+export interface PersonaReniecData {
+  dni: string
+  nombres: string
+  apellido_paterno: string
+  apellido_materno: string
+  nombre_completo: string
+}
+
+export interface ConsultaDniResponse {
+  success: boolean
+  message: string
+  data: PersonaReniecData | null
+}
+
+export const reniecService = {
+  async consultarDni(dni: string): Promise<ConsultaDniResponse> {
+    const response = await apiClient.get<ConsultaDniResponse>(`/admin/consultar-dni/${dni}`)
+    return response.data
+  },
+}
+
 export const adminUsuariosService = {
   async getAll(page: number = 1, size: number = 10, search?: string): Promise<PaginatedResponse<Docente>> {
     const params: Record<string, any> = { page, size }
