@@ -16,6 +16,7 @@ from app.schemas.usuario import (
 )
 from app.services.usuario_service import usuario_service as docente_service
 from app.services.reniec_service import reniec_service
+from app.services.gemini_service import gemini_service
 from app.api.dependencies import get_current_superuser, get_current_active_user, require_role
 from app.models.enums import RolCodigo
 
@@ -641,3 +642,21 @@ async def toggle_active(
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     update_data = {"is_active": not docente.is_active}
     return await docente_repository.update(db, docente, update_data)
+
+
+@router.get("/gemini-stats")
+async def get_gemini_stats(
+    _: DocenteModel = Depends(get_current_superuser)
+):
+    """
+    Consumo de cuota de las claves de Gemini configuradas (principal + contingencias),
+    acumulado en memoria desde el último reinicio del proceso.
+    """
+    return {
+        "claves_configuradas": len(gemini_service.clients),
+        "por_clave": [
+            {"clave": f"#{i + 1}", **stats}
+            for i, stats in enumerate(gemini_service.stats)
+        ],
+        "agotamientos_totales": gemini_service.agotamientos_totales,
+    }

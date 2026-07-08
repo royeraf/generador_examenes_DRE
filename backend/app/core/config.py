@@ -11,7 +11,12 @@ class Settings(BaseSettings):
     
     # API Keys
     openai_api_key: str = os.getenv("OPENAI_API_KEY", "")
+
+    # Google Gemini - clave principal + contingencias (misma cuota gratuita
+    # se agota rápido en free tier; se rota a la siguiente clave en un 429)
     google_api_key: str = os.getenv("GOOGLE_API_KEY", "")
+    google_api_key_2: str = os.getenv("GOOGLE_API_KEY_2", "")
+    google_api_key_3: str = os.getenv("GOOGLE_API_KEY_3", "")
 
     # Consulta DNI (RENIEC) - fuente principal + contingencias
     reniec_api_url: str = os.getenv("RENIEC_API_URL", "https://api.decolecta.com/v1/reniec/dni")
@@ -51,6 +56,11 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         extra = "ignore"  # Ignorar variables de entorno no declaradas
+
+    @property
+    def google_api_keys(self) -> list[str]:
+        """Claves de Gemini en orden de prioridad, sin las vacías."""
+        return [k for k in (self.google_api_key, self.google_api_key_2, self.google_api_key_3) if k]
 
 
 @lru_cache()
