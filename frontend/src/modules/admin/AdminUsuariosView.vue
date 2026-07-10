@@ -233,6 +233,16 @@ const distritoOptions = computed(() => [
   ...distritos.value.map(d => ({ id: d.id, label: d.nombre })),
 ])
 
+const ugelFiltroIEOptions = computed(() => [
+  { id: null as null, label: '— Seleccionar UGEL primero —' },
+  ...ugeles.value.map(u => ({ id: u.id, label: u.nombre })),
+])
+
+const institucionOptions = computed(() => [
+  { id: null as null, label: '— Sin especificar —' },
+  ...institucionesFiltradas.value.map(ie => ({ id: ie.id, label: ie.nombre })),
+])
+
 // Pagination
 const currentPage = ref(1)
 const pageSize = ref(10)
@@ -1493,22 +1503,15 @@ async function saveResetPassword() {
                       UGEL
                       <Loader2 v-if="loadingOrganizacion" class="inline w-3 h-3 animate-spin ml-1" />
                     </label>
-                    <select v-model="ugelFiltroIE"
-                      class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all cursor-pointer appearance-none">
-                      <option :value="null">— Seleccionar UGEL primero —</option>
-                      <option v-for="u in ugeles" :key="u.id" :value="u.id">{{ u.nombre }}</option>
-                    </select>
+                    <ComboBox v-model="ugelFiltroIE" :options="ugelFiltroIEOptions" placeholder="— Seleccionar UGEL primero —" />
                   </div>
                   <div>
                     <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">
                       Institución Educativa
                       <span v-if="ugelFiltroIE" class="text-slate-400 font-normal">({{ institucionesFiltradas.length }} disponibles)</span>
                     </label>
-                    <select v-model="institucion_educativa_id" :disabled="!ugelFiltroIE"
-                      class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all cursor-pointer appearance-none disabled:opacity-50 disabled:cursor-not-allowed">
-                      <option :value="null">— Sin especificar —</option>
-                      <option v-for="ie in institucionesFiltradas" :key="ie.id" :value="ie.id">{{ ie.nombre }}</option>
-                    </select>
+                    <ComboBox v-model="institucion_educativa_id" :options="institucionOptions" :disabled="!ugelFiltroIE"
+                      searchable placeholder="Buscar institución por nombre..." />
                   </div>
                 </template>
               </template>

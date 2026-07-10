@@ -13,11 +13,13 @@ interface Props {
     options: Option[];
     placeholder?: string;
     disabled?: boolean;
+    searchable?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
     placeholder: 'Seleccionar...',
     disabled: false,
+    searchable: false,
 });
 
 const emit = defineEmits<{
@@ -26,6 +28,7 @@ const emit = defineEmits<{
 
 const isOpen = ref(false);
 const dropUp = ref(false);
+const searchQuery = ref('');
 const containerRef = ref<HTMLDivElement | null>(null);
 const dropdownRef = ref<HTMLDivElement | null>(null);
 
@@ -46,10 +49,22 @@ const displayValue = computed(() =>
     selectedOption.value?.label || ''
 );
 
-// We no longer filter options, just use props.options directly
+// Cuando es buscable y está abierto, el input muestra el texto de búsqueda;
+// en cualquier otro caso muestra la opción seleccionada.
+const inputDisplayValue = computed(() =>
+    props.searchable && isOpen.value ? searchQuery.value : displayValue.value
+);
+
+const filteredOptions = computed(() => {
+    if (!props.searchable) return props.options;
+    const query = searchQuery.value.trim().toLowerCase();
+    if (!query) return props.options;
+    return props.options.filter(opt => opt.label.toLowerCase().includes(query));
+});
+
 const groupedOptions = computed(() => {
     const groups: Record<string, Option[]> = {};
-    props.options.forEach(opt => {
+    filteredOptions.value.forEach(opt => {
         const group = opt.group || 'General';
         if (!groups[group]) groups[group] = [];
         groups[group].push(opt);
@@ -65,36 +80,69 @@ const hasGroups = computed(() => {
 const DROPDOWN_HEIGHT = 260; // max-h-60 (240px) + padding
 const GAP = 8;
 
+const computeDropdownPosition = () => {
+    if (!containerRef.value) return;
+    const rect = containerRef.value.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceAbove = rect.top;
+    dropUp.value = spaceBelow < DROPDOWN_HEIGHT && spaceAbove > spaceBelow;
+
+    if (dropUp.value) {
+        dropdownStyle.value = {
+            position: 'fixed',
+            bottom: `${window.innerHeight - rect.top + GAP}px`,
+            left: `${rect.left}px`,
+            width: `${rect.width}px`,
+        };
+    } else {
+        dropdownStyle.value = {
+            position: 'fixed',
+            top: `${rect.bottom + GAP}px`,
+            left: `${rect.left}px`,
+            width: `${rect.width}px`,
+        };
+    }
+};
+
 const toggleDropdown = () => {
     if (props.disabled) return;
-    if (!isOpen.value && containerRef.value) {
-        const rect = containerRef.value.getBoundingClientRect();
-        const spaceBelow = window.innerHeight - rect.bottom;
-        const spaceAbove = rect.top;
-        dropUp.value = spaceBelow < DROPDOWN_HEIGHT && spaceAbove > spaceBelow;
-
-        if (dropUp.value) {
-            dropdownStyle.value = {
-                position: 'fixed',
-                bottom: `${window.innerHeight - rect.top + GAP}px`,
-                left: `${rect.left}px`,
-                width: `${rect.width}px`,
-            };
-        } else {
-            dropdownStyle.value = {
-                position: 'fixed',
-                top: `${rect.bottom + GAP}px`,
-                left: `${rect.left}px`,
-                width: `${rect.width}px`,
-            };
-        }
+    if (!isOpen.value) {
+        computeDropdownPosition();
+        isOpen.value = true;
+    } else {
+        isOpen.value = false;
     }
-    isOpen.value = !isOpen.value;
+};
+
+// En modo buscable, un click en el trigger mientras ya está abierto no debe
+// cerrarlo (el usuario solo quiere posicionar el cursor para escribir).
+const handleTriggerClick = () => {
+    if (props.disabled) return;
+    if (props.searchable && isOpen.value) return;
+    toggleDropdown();
+};
+
+const handleSearchFocus = () => {
+    if (props.disabled) return;
+    if (!isOpen.value) {
+        computeDropdownPosition();
+        isOpen.value = true;
+    }
+    searchQuery.value = '';
+};
+
+const handleSearchInput = (event: Event) => {
+    searchQuery.value = (event.target as HTMLInputElement).value;
+    if (!isOpen.value) {
+        computeDropdownPosition();
+        isOpen.value = true;
+    }
 };
 
 const selectOption = (option: Option) => {
     emit('update:modelValue', option.id);
     isOpen.value = false;
+    searchQuery.value = '';
 };
 
 const handleClickOutside = (event: MouseEvent) => {
@@ -118,8 +166,12 @@ onUnmounted(() => {
 <template>
     <div ref="containerRef" class="relative">
         <!-- Input -->
-        <div class="relative" :class="disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'" @click="toggleDropdown">
-            <input type="text" readonly :value="displayValue" :placeholder="placeholder" class="w-full px-4 py-3 pr-10
+        <div class="relative" :class="disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'" @click="handleTriggerClick">
+            <input type="text" :readonly="!searchable" :value="inputDisplayValue" :placeholder="placeholder"
+               @focus="searchable ? handleSearchFocus() : undefined"
+               @input="searchable ? handleSearchInput($event) : undefined"
+               @keydown.escape="isOpen = false"
+               class="w-full px-4 py-3 pr-10
                bg-white dark:bg-slate-900
                border-2 border-slate-300 dark:border-slate-600
                rounded-xl
@@ -127,8 +179,8 @@ onUnmounted(() => {
                text-sm font-medium
                focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20
                placeholder:text-slate-400 dark:placeholder:text-slate-500
-               pointer-events-none transition-all duration-300"
-               :class="disabled ? 'cursor-not-allowed' : 'cursor-pointer hover:border-teal-400'"
+               transition-all duration-300"
+               :class="[disabled ? 'cursor-not-allowed' : (searchable ? 'cursor-text hover:border-teal-400' : 'cursor-pointer hover:border-teal-400'), searchable ? '' : 'pointer-events-none']"
                role="combobox" :aria-expanded="isOpen" />
             <button type="button"
                 class="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-lg bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 flex items-center justify-center transition-all duration-300"
@@ -171,7 +223,7 @@ onUnmounted(() => {
 
                     <!-- Flat options (no groups) -->
                     <template v-else>
-                        <div v-for="option in props.options" :key="String(option.id)" @click="selectOption(option)"
+                        <div v-for="option in filteredOptions" :key="String(option.id)" @click="selectOption(option)"
                             class="flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-200
                             text-sm text-slate-700 dark:text-slate-200 font-medium
                             hover:bg-teal-50 dark:hover:bg-slate-700"
@@ -182,7 +234,7 @@ onUnmounted(() => {
                     </template>
 
                     <!-- Empty state -->
-                    <div v-if="props.options.length === 0" class="px-4 py-6 text-center">
+                    <div v-if="filteredOptions.length === 0" class="px-4 py-6 text-center">
                         <div class="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center mx-auto mb-2">
                             <BookOpen class="w-6 h-6 text-amber-500 dark:text-amber-400" />
                         </div>
