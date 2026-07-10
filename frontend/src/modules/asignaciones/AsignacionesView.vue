@@ -125,7 +125,6 @@ const gradoSeleccionado = computed(() =>
 const fechaAplicacion = ref('')
 const horaInicio = ref('')
 const horaFin = ref('')
-const duracionMinutos = ref<number | null>(null)
 const intentosPermitidos = ref(1)
 const mezclarPreguntas = ref(true)
 const mezclarAlternativas = ref(true)
@@ -133,6 +132,25 @@ const mezclarAlternativas = ref(true)
 const examenesActuales = computed(() =>
   tipoExamen.value === 'lectura' ? examenesLectura.value : examenesMatematica.value
 )
+
+const duracionVentanaMinutos = computed(() => {
+  if (!horaInicio.value || !horaFin.value) return null
+  const [h1, m1] = horaInicio.value.split(':').map(Number) as [number, number]
+  const [h2, m2] = horaFin.value.split(':').map(Number) as [number, number]
+  let minutos = (h2 * 60 + m2) - (h1 * 60 + m1)
+  if (minutos < 0) minutos += 24 * 60
+  return minutos
+})
+
+const duracionVentanaTexto = computed(() => {
+  const min = duracionVentanaMinutos.value
+  if (min === null) return null
+  const horas = Math.floor(min / 60)
+  const mins = min % 60
+  if (horas === 0) return `${mins} min`
+  if (mins === 0) return `${horas} h`
+  return `${horas} h ${mins} min`
+})
 
 async function fetchAsignaciones() {
   loading.value = true
@@ -166,7 +184,6 @@ function openEditModal(asig: Asignacion) {
   fechaAplicacion.value = inicio.date
   horaInicio.value = inicio.time
   horaFin.value = fin.time
-  duracionMinutos.value = asig.duracion_minutos
   intentosPermitidos.value = asig.intentos_permitidos
   mezclarPreguntas.value = asig.mezclar_preguntas
   mezclarAlternativas.value = asig.mezclar_alternativas
@@ -183,7 +200,6 @@ async function openModal() {
   fechaAplicacion.value = ''
   horaInicio.value = ''
   horaFin.value = ''
-  duracionMinutos.value = null
   intentosPermitidos.value = 1
   mezclarPreguntas.value = true
   mezclarAlternativas.value = true
@@ -232,7 +248,6 @@ async function guardar() {
       await asignacionesService.updateAsignacion(editingId.value!, {
         fecha_inicio: construirFechaISO(fechaAplicacion.value, horaInicio.value),
         fecha_fin: construirFechaISO(fechaAplicacion.value, horaFin.value),
-        duracion_minutos: duracionMinutos.value || null,
         intentos_permitidos: intentosPermitidos.value,
         mezclar_preguntas: mezclarPreguntas.value,
         mezclar_alternativas: mezclarAlternativas.value,
@@ -260,7 +275,6 @@ async function guardar() {
       examen_id: examenSeleccionadoId.value,
       fecha_inicio: construirFechaISO(fechaAplicacion.value, horaInicio.value),
       fecha_fin: construirFechaISO(fechaAplicacion.value, horaFin.value),
-      duracion_minutos: duracionMinutos.value || null,
       intentos_permitidos: intentosPermitidos.value,
       mezclar_preguntas: mezclarPreguntas.value,
       mezclar_alternativas: mezclarAlternativas.value,
@@ -778,7 +792,9 @@ const estadoColors: Record<string, string> = {
                       </div>
 
                       <!-- Roles Superiores -->
-                      <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div v-else class="grid grid-cols-1 gap-4">
+                        <div class="space-y-2">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Grado</label>
                         <div class="relative">
                           <button type="button" @click="gradoDropdownOpen = !gradoDropdownOpen" :class="['w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border transition-all text-left bg-slate-50 dark:bg-slate-700 cursor-pointer', gradoDropdownOpen ? 'border-violet-500 ring-4 ring-violet-500/10 shadow-lg' : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500']">
                             <div class="min-w-0 flex items-center gap-2">
@@ -805,6 +821,9 @@ const estadoColors: Record<string, string> = {
                             </div>
                           </Transition>
                         </div>
+                        </div>
+                        <div class="space-y-2">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Sección</label>
                         <div class="relative">
                           <button type="button" @click="seccionDropdownOpen = !seccionDropdownOpen" :class="['w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border transition-all text-left bg-slate-50 dark:bg-slate-700 cursor-pointer', seccionDropdownOpen ? 'border-violet-500 ring-4 ring-violet-500/10 shadow-lg' : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500']">
                             <div class="min-w-0"><p v-if="seccion" class="text-xs font-black text-slate-800 dark:text-white truncate leading-tight">Sección {{ seccion }}</p><span v-else class="text-slate-400 text-xs font-bold">— Todas —</span></div>
@@ -824,6 +843,7 @@ const estadoColors: Record<string, string> = {
                               </div>
                             </div>
                           </Transition>
+                        </div>
                         </div>
                       </div>
                     </div>
@@ -882,15 +902,25 @@ const estadoColors: Record<string, string> = {
                       </div>
                     </div>
 
-                    <div class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-700/50 flex flex-col sm:flex-row items-center gap-4">
-                      <div class="flex items-center gap-3 bg-slate-100/50 dark:bg-slate-900/50 p-1.5 pr-4 rounded-xl border border-slate-200 dark:border-slate-700">
-                        <input v-model.number="duracionMinutos" type="number" placeholder="Libre"
-                          class="w-20 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 focus:border-violet-500 rounded-xl py-2 px-3 text-xs font-black text-violet-600 dark:text-violet-400 outline-none transition-all text-center shadow-sm" />
-                        <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">Minutos de duración</span>
+                    <div class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-700/50">
+                      <div v-if="duracionVentanaTexto"
+                        class="flex flex-wrap items-center gap-4 bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-500/10 dark:to-indigo-500/10 border border-violet-100 dark:border-violet-500/20 rounded-2xl px-5 py-4">
+                        <div class="w-11 h-11 rounded-xl bg-violet-600 text-white flex items-center justify-center shrink-0 shadow-lg shadow-violet-600/30">
+                          <Clock class="w-5 h-5" />
+                        </div>
+                        <div class="flex-1 min-w-[10rem]">
+                          <p class="text-[10px] font-black text-violet-500 dark:text-violet-400 uppercase tracking-widest leading-none mb-1.5">Duración total de la evaluación</p>
+                          <p class="text-lg font-black text-slate-800 dark:text-white leading-none">{{ duracionVentanaTexto }}</p>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs font-black text-slate-500 dark:text-slate-400 shrink-0">
+                          <span class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">{{ horaInicio }}</span>
+                          <span class="text-slate-300 dark:text-slate-600">→</span>
+                          <span class="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">{{ horaFin }}</span>
+                        </div>
                       </div>
-                      <p class="text-xs font-bold text-slate-400 flex items-center gap-2">
-                        <AlertCircle class="w-4 h-4 text-amber-500" />
-                        Si se deja vacío, el tiempo será ilimitado dentro del rango horario.
+                      <p v-else class="flex items-center gap-2 text-xs font-bold text-slate-400">
+                        <AlertCircle class="w-4 h-4 text-amber-500 shrink-0" />
+                        Selecciona la hora de apertura y cierre para calcular la duración total.
                       </p>
                     </div>
                   </div>

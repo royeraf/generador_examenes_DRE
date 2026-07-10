@@ -744,7 +744,7 @@ export interface Asignacion {
 export interface UpdateAsignacionPayload {
   fecha_inicio: string | null
   fecha_fin: string | null
-  duracion_minutos: number | null
+  duracion_minutos?: number | null
   intentos_permitidos: number
   mezclar_preguntas: boolean
   mezclar_alternativas: boolean
