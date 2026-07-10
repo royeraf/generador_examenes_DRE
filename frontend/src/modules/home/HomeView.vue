@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import {
   BookOpen, Calculator, Sparkles, GraduationCap, Users, ArrowRight,
-  BarChart3, Building2, MapPin, ClipboardList, Loader2, ChevronRight, School
+  BarChart3, Building2, MapPin, ClipboardList, Loader2, ChevronRight, School,
+  SlidersHorizontal, Check, GripVertical
 } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
@@ -97,6 +98,99 @@ const nombreCompleto = computed(() => {
   const partes = [u.nombres, u.apellidos].filter(Boolean).join(' ');
   return partes || (u as any).dni || '';
 });
+
+// Drag and drop / Reorder state
+const isReorganizing = ref(false);
+const dragIndex = ref<number | null>(null);
+const dragOverIndex = ref<number | null>(null);
+const orderedManagementItems = ref<NavItem[]>([]);
+
+const saveOrder = () => {
+  const userKey = auth.user?.dni || auth.userRole || 'guest';
+  const order = orderedManagementItems.value.map(item => item.route);
+  localStorage.setItem(`sieva_mgmt_order_${userKey}`, JSON.stringify(order));
+};
+
+const loadAndApplyOrder = () => {
+  const defaultItems = [...managementItems.value];
+  const userKey = auth.user?.dni || auth.userRole || 'guest';
+  const savedOrderRaw = localStorage.getItem(`sieva_mgmt_order_${userKey}`);
+  if (savedOrderRaw) {
+    try {
+      const savedOrder = JSON.parse(savedOrderRaw) as string[];
+      const sorted: NavItem[] = [];
+      savedOrder.forEach(route => {
+        const item = defaultItems.find(i => i.route === route);
+        if (item) {
+          sorted.push(item);
+        }
+      });
+      defaultItems.forEach(item => {
+        if (!sorted.some(s => s.route === item.route)) {
+          sorted.push(item);
+        }
+      });
+      orderedManagementItems.value = sorted;
+      return;
+    } catch (e) {
+      console.error('Error parsing saved management order', e);
+    }
+  }
+  orderedManagementItems.value = defaultItems;
+};
+
+// Listen to computed changes to initialize/sync ordering
+watch(managementItems, () => {
+  loadAndApplyOrder();
+}, { immediate: true });
+
+const toggleReorganize = () => {
+  if (isReorganizing.value) {
+    saveOrder();
+    isReorganizing.value = false;
+  } else {
+    isReorganizing.value = true;
+  }
+};
+
+const onDragStart = (index: number, event: DragEvent) => {
+  if (!isReorganizing.value) return;
+  dragIndex.value = index;
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', index.toString());
+  }
+};
+
+const onDragOver = (index: number, event: DragEvent) => {
+  if (!isReorganizing.value) return;
+  event.preventDefault();
+  if (dragIndex.value !== index) {
+    dragOverIndex.value = index;
+  }
+};
+
+const onDrop = (index: number, event: DragEvent) => {
+  if (!isReorganizing.value) return;
+  event.preventDefault();
+  if (dragIndex.value !== null && dragIndex.value !== index) {
+    const items = [...orderedManagementItems.value];
+    const draggedItem = items[dragIndex.value];
+    if (draggedItem) {
+      items.splice(dragIndex.value, 1);
+      items.splice(index, 0, draggedItem);
+      orderedManagementItems.value = items;
+      saveOrder();
+    }
+  }
+  dragIndex.value = null;
+  dragOverIndex.value = null;
+};
+
+const onDragEnd = () => {
+  dragIndex.value = null;
+  dragOverIndex.value = null;
+};
 </script>
 
 <template>
@@ -168,103 +262,138 @@ const nombreCompleto = computed(() => {
               IA</span>
           </div>
 
-          <div class="grid sm:grid-cols-2 gap-3">
-
-            <!-- LectoSistem -->
-            <button v-if="auth.canAccessLectosistem" @click="router.push('/lectosistem')"
-              class="module-card-teal cursor-pointer group relative bg-white dark:bg-slate-900 rounded-2xl p-5 text-left overflow-hidden flex flex-col gap-4 border border-slate-300 dark:border-slate-800 hover:border-teal-200 dark:hover:border-teal-700/60 shadow-sm hover:shadow-lg hover:shadow-teal-500/10 transition-all duration-200 animate-slide-up"
-              style="animation-delay:0ms">
-              <div class="card-overlay absolute inset-0 rounded-2xl pointer-events-none"></div>
-              <div class="card-line absolute bottom-0 left-6 right-6 h-[2px] rounded-full pointer-events-none"></div>
-              <div
-                class="absolute -right-3 -bottom-3 pointer-events-none opacity-[0.05] group-hover:opacity-[0.10] transition-opacity">
-                <BookOpen class="w-24 h-24 text-teal-500" />
-              </div>
-              <div class="flex items-center justify-between relative z-10">
-                <div
-                  class="card-icon-teal w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center">
-                  <BookOpen class="w-5 h-5 text-white" />
-                </div>
-                <span
-                  class="text-[10px] font-bold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-2 py-0.5 rounded-full uppercase tracking-wide border border-teal-100 dark:border-teal-800/50">
-                  Comunicación
-                </span>
-              </div>
-              <div class="relative z-10 flex-1">
-                <h2
-                  class="text-base font-bold text-slate-800 dark:text-white mb-1 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
-                  LectoSistem</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Genera exámenes de comprensión
-                  lectora con niveles literal, inferencial y crítico.</p>
-              </div>
-              <div class="relative z-10 flex items-center gap-1.5 text-xs font-bold text-teal-600 dark:text-teal-400">
-                Ir al módulo
-                <ArrowRight class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </button>
-
-            <!-- MatSistem -->
-            <button v-if="auth.canAccessMatsistem" @click="router.push('/matsistem')"
-              class="module-card-indigo cursor-pointer group relative bg-white dark:bg-slate-900 rounded-2xl p-5 text-left overflow-hidden flex flex-col gap-4 border border-slate-300 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700/60 shadow-sm hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-200 animate-slide-up"
-              style="animation-delay:80ms">
-              <div class="card-overlay absolute inset-0 rounded-2xl pointer-events-none"></div>
-              <div class="card-line absolute bottom-0 left-6 right-6 h-[2px] rounded-full pointer-events-none"></div>
-              <div
-                class="absolute -right-3 -bottom-3 pointer-events-none opacity-[0.05] group-hover:opacity-[0.10] transition-opacity">
-                <Calculator class="w-24 h-24 text-indigo-500" />
-              </div>
-              <div class="flex items-center justify-between relative z-10">
-                <div
-                  class="card-icon-indigo w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center">
-                  <Calculator class="w-5 h-5 text-white" />
-                </div>
-                <span
-                  class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded-full uppercase tracking-wide border border-indigo-100 dark:border-indigo-800/50">
-                  Matemática
-                </span>
-              </div>
-              <div class="relative z-10 flex-1">
-                <h2
-                  class="text-base font-bold text-slate-800 dark:text-white mb-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                  MatSistem</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Genera prácticas matemáticas por
-                  competencia, capacidad y grado escolar.</p>
-              </div>
-              <div
-                class="relative z-10 flex items-center gap-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400">
-                Ir al módulo
-                <ArrowRight class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </button>
-
-          </div>
+          <div class="grid grid-cols-2 gap-3">
+ 
+             <!-- LectoSistem -->
+             <button v-if="auth.canAccessLectosistem" @click="router.push('/lectosistem')"
+               class="module-card-teal cursor-pointer group relative bg-white dark:bg-slate-900 rounded-2xl p-3.5 sm:p-5 text-left overflow-hidden flex flex-col gap-3 sm:gap-4 border border-slate-300 dark:border-slate-800 hover:border-teal-200 dark:hover:border-teal-700/60 shadow-sm hover:shadow-lg hover:shadow-teal-500/10 transition-all duration-200 animate-slide-up"
+               style="animation-delay:0ms">
+               <div class="card-overlay absolute inset-0 rounded-2xl pointer-events-none"></div>
+               <div class="card-line absolute bottom-0 left-6 right-6 h-[2px] rounded-full pointer-events-none"></div>
+               <div
+                 class="absolute -right-3 -bottom-3 pointer-events-none opacity-[0.05] group-hover:opacity-[0.10] transition-opacity">
+                 <BookOpen class="w-24 h-24 text-teal-500" />
+               </div>
+               <div class="flex items-center justify-between flex-wrap gap-2 relative z-10">
+                 <div
+                   class="card-icon-teal w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-emerald-500 flex items-center justify-center shrink-0">
+                   <BookOpen class="w-5 h-5 text-white" />
+                 </div>
+                 <span
+                   class="hidden sm:inline-block text-[10px] font-bold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-2 py-0.5 rounded-full uppercase tracking-wide border border-teal-100 dark:border-teal-800/50 shrink-0">
+                   Comunicación
+                 </span>
+               </div>
+               <div class="relative z-10 flex-1">
+                 <h2
+                   class="text-base font-bold text-slate-800 dark:text-white mb-1 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
+                   LectoSistem</h2>
+                 <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Genera exámenes de comprensión
+                   lectora con niveles literal, inferencial y crítico.</p>
+               </div>
+               <div class="relative z-10 flex items-center gap-1.5 text-xs font-bold text-teal-600 dark:text-teal-400 shrink-0">
+                 Ir al módulo
+                 <ArrowRight class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+               </div>
+             </button>
+ 
+             <!-- MatSistem -->
+             <button v-if="auth.canAccessMatsistem" @click="router.push('/matsistem')"
+               class="module-card-indigo cursor-pointer group relative bg-white dark:bg-slate-900 rounded-2xl p-3.5 sm:p-5 text-left overflow-hidden flex flex-col gap-3 sm:gap-4 border border-slate-300 dark:border-slate-800 hover:border-indigo-200 dark:hover:border-indigo-700/60 shadow-sm hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-200 animate-slide-up"
+               style="animation-delay:80ms">
+               <div class="card-overlay absolute inset-0 rounded-2xl pointer-events-none"></div>
+               <div class="card-line absolute bottom-0 left-6 right-6 h-[2px] rounded-full pointer-events-none"></div>
+               <div
+                 class="absolute -right-3 -bottom-3 pointer-events-none opacity-[0.05] group-hover:opacity-[0.10] transition-opacity">
+                 <Calculator class="w-24 h-24 text-indigo-500" />
+               </div>
+               <div class="flex items-center justify-between flex-wrap gap-2 relative z-10">
+                 <div
+                   class="card-icon-indigo w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shrink-0">
+                   <Calculator class="w-5 h-5 text-white" />
+                 </div>
+                 <span
+                   class="hidden sm:inline-block text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 rounded-full uppercase tracking-wide border border-indigo-100 dark:border-indigo-800/50 shrink-0">
+                   Matemática
+                 </span>
+               </div>
+               <div class="relative z-10 flex-1">
+                 <h2
+                   class="text-base font-bold text-slate-800 dark:text-white mb-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                   MatSistem</h2>
+                 <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Genera prácticas matemáticas por
+                   competencia, capacidad y grado escolar.</p>
+               </div>
+               <div
+                 class="relative z-10 flex items-center gap-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 shrink-0">
+                 Ir al módulo
+                 <ArrowRight class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+               </div>
+             </button>
+ 
+           </div>
         </div>
 
         <!-- RIGHT: Gestión -->
         <div v-if="hasManagement" class="space-y-2">
-          <div class="flex items-center gap-2 mb-4">
+          <div class="flex items-center justify-between mb-4">
             <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Gestión</span>
+            <button
+              @click="toggleReorganize"
+              class="text-xs font-bold px-2.5 py-1 rounded-lg border flex items-center gap-1 transition-all duration-200 cursor-pointer shadow-sm"
+              :class="isReorganizing
+                ? 'bg-teal-500 hover:bg-teal-600 text-white border-teal-500 dark:bg-teal-600 dark:hover:bg-teal-700 dark:border-teal-600'
+                : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-300 dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-slate-300 dark:border-slate-800'"
+            >
+              <component :is="isReorganizing ? Check : SlidersHorizontal" class="w-3.5 h-3.5" />
+              {{ isReorganizing ? 'Guardar' : 'Reorganizar' }}
+            </button>
           </div>
 
           <div
-            class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 overflow-hidden shadow-sm">
-            <button v-for="(item, i) in managementItems" :key="item.route" @click="router.push(item.route)"
-              class="mgmt-item cursor-pointer w-full flex items-center gap-3 px-4 py-3 text-left transition-all duration-150 hover:bg-slate-50 dark:hover:bg-slate-800/60 group animate-slide-up"
-              :style="`animation-delay:${i * 40 + 160}ms`"
-              :class="i < managementItems.length - 1 ? 'border-b border-slate-300 dark:border-slate-800' : ''">
+            class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 overflow-hidden shadow-sm transition-all duration-300"
+            :class="{ 'ring-2 ring-teal-500/20 border-teal-500/50': isReorganizing }"
+          >
+            <div
+              v-for="(item, i) in orderedManagementItems"
+              :key="item.route"
+              :draggable="isReorganizing"
+              @dragstart="onDragStart(i, $event)"
+              @dragover="onDragOver(i, $event)"
+              @drop="onDrop(i, $event)"
+              @dragend="onDragEnd"
+              @click="!isReorganizing && router.push(item.route)"
+              class="mgmt-item select-none w-full flex items-center gap-3 px-4 py-3 text-left transition-all duration-150 group"
+              :class="[
+                isReorganizing ? 'cursor-grab active:cursor-grabbing hover:bg-slate-50/50 dark:hover:bg-slate-800/30' : 'cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/60',
+                i < orderedManagementItems.length - 1 ? 'border-b border-slate-300 dark:border-slate-800' : '',
+                dragIndex === i ? 'opacity-40 bg-slate-100 dark:bg-slate-800/40' : '',
+                dragOverIndex === i && dragIndex !== i ? 'bg-teal-50/30 dark:bg-teal-950/10 border-t-2 border-t-teal-500' : ''
+              ]"
+            >
+              <!-- Drag Handle -->
+              <div v-if="isReorganizing" class="text-slate-400 dark:text-slate-600 mr-1 cursor-grab hover:text-slate-600 dark:hover:text-slate-400">
+                <GripVertical class="w-4 h-4" />
+              </div>
+
+              <!-- Icon -->
               <div
                 class="w-8 h-8 rounded-lg bg-gradient-to-br shrink-0 flex items-center justify-center shadow-sm mgmt-icon"
                 :class="item.color">
                 <component :is="item.icon" class="w-4 h-4 text-white" />
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold text-slate-700 dark:text-slate-200 leading-tight truncate">{{ item.label
-                  }}</p>
-                <p class="text-[11px] text-slate-400 dark:text-slate-500 leading-tight">{{ item.sub }}</p>
+                <p class="text-sm font-semibold text-slate-700 dark:text-slate-200 leading-tight truncate">
+                  {{ item.label }}
+                </p>
+                <p class="text-[11px] text-slate-400 dark:text-slate-500 leading-tight">
+                  {{ item.sub }}
+                </p>
               </div>
               <ChevronRight
+                v-if="!isReorganizing"
                 class="w-4 h-4 text-slate-300 dark:text-slate-600 shrink-0 group-hover:text-slate-400 group-hover:translate-x-0.5 transition-all" />
-            </button>
+            </div>
           </div>
         </div>
 
