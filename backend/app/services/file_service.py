@@ -5,6 +5,7 @@ Incluye validaciones de seguridad multicapa para prevenir archivos maliciosos.
 import fitz  # PyMuPDF
 from docx import Document
 from fastapi import UploadFile, HTTPException
+from fastapi.concurrency import run_in_threadpool
 import io
 import re
 import unicodedata
@@ -186,6 +187,24 @@ class FileExtractionService:
         except Exception as e:
             raise HTTPException(400, f"Error al procesar Word: {e}")
 
+    def _validate_scan_and_extract(self, content: bytes, extension: str) -> str:
+        """Trabajo CPU-bound (magic bytes, escaneo de amenazas, extracción de texto).
+
+        Se ejecuta en threadpool porque bloquearía el event loop si corriera
+        directamente dentro de la ruta async (archivos grandes/lentos frenan
+        a todos los usuarios conectados al mismo worker).
+        """
+        self._validate_magic_bytes(content, extension)
+
+        if extension == "pdf":
+            self._scan_pdf_for_threats(content)
+        elif extension == "docx":
+            self._scan_docx_for_threats(content)
+
+        if extension == "pdf":
+            return self._extract_text_from_pdf(content)
+        return self._extract_text_from_docx(content)
+
     # ── Pipeline público ───────────────────────────────────────────────────────
 
     async def extract_text_from_file(self, file: UploadFile) -> Tuple[str, dict]:
@@ -221,17 +240,7 @@ class FileExtractionService:
                 ),
             )
 
-        self._validate_magic_bytes(content, extension)
-
-        if extension == "pdf":
-            self._scan_pdf_for_threats(content)
-        elif extension == "docx":
-            self._scan_docx_for_threats(content)
-
-        if extension == "pdf":
-            text = self._extract_text_from_pdf(content)
-        else:
-            text = self._extract_text_from_docx(content)
+        text = await run_in_threadpool(self._validate_scan_and_extract, content, extension)
 
         text = text.strip()
         if not text:

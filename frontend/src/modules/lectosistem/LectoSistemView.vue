@@ -12,7 +12,7 @@ import {
   Sparkles, LayoutGrid, History, Trash2,
   GraduationCap, FileText, Loader2, X,
   CloudUpload, Plus, Check, Hash, Target,
-  Eye, FileDown, Send, PanelLeft,
+  Eye, FileDown, Send, PanelLeft, AlertTriangle,
 } from 'lucide-vue-next';
 
 import Checkbox from '../../shared/components/Checkbox.vue';
@@ -624,11 +624,17 @@ onMounted(async () => {
                   <div class="flex justify-between items-center mb-3">
                     <h4 class="text-sm font-medium text-slate-800 dark:text-white">Texto {{ idx + 1 }}</h4>
                     <div class="flex items-center gap-2">
-                      <input type="file" :id="'file-' + idx" class="hidden" accept=".pdf,.doc,.docx,.txt" @change="(e) => handleFileUploadAt(idx, e)" />
-                      <label :for="'file-' + idx" class="cursor-pointer text-xs flex items-center gap-1.5 px-3 py-1.5 bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-lg transition-colors"><CloudUpload class="w-3.5 h-3.5" /> Archivo</label>
+                      <input type="file" :id="'file-' + idx" class="hidden" :disabled="texto.uploadingFile" accept=".pdf,.doc,.docx" @change="(e) => handleFileUploadAt(idx, e)" />
+                      <label :for="'file-' + idx" class="cursor-pointer text-xs flex items-center gap-1.5 px-3 py-1.5 bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-lg transition-colors" :class="{ 'opacity-50 pointer-events-none': texto.uploadingFile }"><CloudUpload class="w-3.5 h-3.5" /> Archivo</label>
                       <button v-if="texto.filesMetadata && texto.filesMetadata.archivos.length > 0" @click="clearFilesAt(idx)" class="text-xs text-red-400 hover:text-red-300 ml-2">Eliminar archivo</button>
                       <button v-if="textosBase.length > 1" @click="removeTexto(idx)" class="text-slate-500 dark:text-slate-400 hover:text-red-400 ml-2"><Trash2 class="w-4 h-4" /></button>
                     </div>
+                  </div>
+                  <div v-if="texto.uploadingFile" class="mb-3 flex items-center gap-2 py-2.5 px-3 bg-teal-500/10 text-teal-500 dark:text-teal-400 text-xs rounded-lg border border-teal-500/20">
+                    <Loader2 class="w-3.5 h-3.5 animate-spin" /> Procesando archivo...
+                  </div>
+                  <div v-if="texto.uploadError" class="mb-3 flex items-center gap-2 py-2.5 px-3 bg-red-500/10 text-red-500 dark:text-red-400 text-xs rounded-lg border border-red-500/20">
+                    <AlertTriangle class="w-3.5 h-3.5 shrink-0" /> {{ texto.uploadError }}
                   </div>
                   <div v-if="texto.filesMetadata && texto.filesMetadata.archivos.length > 0" class="mb-3 flex flex-wrap gap-2">
                     <div v-for="(archivo, aIdx) in texto.filesMetadata.archivos" :key="aIdx" class="px-3 py-2 bg-emerald-500/10 text-emerald-400 text-xs rounded-lg border border-emerald-500/20 flex items-center gap-2"><Check class="w-3.5 h-3.5" />{{ archivo.filename }}</div>

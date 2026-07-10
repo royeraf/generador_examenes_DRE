@@ -234,9 +234,13 @@ export function useLectoSistem() {
       item.texto = result.texto;
       item.filesMetadata = { archivos: result.archivos, total_palabras: result.total_palabras, total_caracteres: result.total_caracteres };
     } catch (e: any) {
-      item.uploadError = e.response?.data?.detail || 'Error al procesar los archivos';
+      const detail = e.response?.data?.detail;
+      item.uploadError = typeof detail === 'string'
+        ? detail
+        : detail?.mensaje || 'Error al procesar los archivos';
       item.texto = '';
       input.value = '';
+      console.error('Error al subir archivo de texto base:', e);
     } finally {
       item.uploadingFile = false;
     }
