@@ -15,6 +15,8 @@ from app.models.db_models import Ugel, InstitucionEducativa, InstitucionNivel, G
 from app.models.usuario import Usuario
 from app.models.enums import RolCodigo
 from app.api.dependencies import get_current_active_user, require_role
+from app.schemas.pagination import PaginatedResponse
+import math
 
 router = APIRouter()
 
@@ -226,6 +228,68 @@ async def listar_instituciones(
         )
         for ie in ies
     ]
+
+
+@router.get("/instituciones/paginado", response_model=PaginatedResponse[IEResponse])
+async def listar_instituciones_paginado(
+    page: int = Query(1, ge=1),
+    size: int = Query(20, ge=1, le=200),
+    ugel_id: Optional[int] = Query(None),
+    provincia_id: Optional[int] = Query(None),
+    search: Optional[str] = Query(None),
+    solo_activas: bool = Query(False),
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(get_current_active_user),
+):
+    q = select(InstitucionEducativa).options(selectinload(InstitucionEducativa.niveles))
+    if solo_activas:
+        q = q.where(InstitucionEducativa.is_active == True)
+    if ugel_id:
+        q = q.where(InstitucionEducativa.ugel_id == ugel_id)
+    elif current_user.rol_codigo == RolCodigo.RESPONSABLE_UGEL and current_user.ugel_id:
+        q = q.where(InstitucionEducativa.ugel_id == current_user.ugel_id)
+    if provincia_id:
+        q = q.join(Ugel, Ugel.id == InstitucionEducativa.ugel_id).where(Ugel.provincia_id == provincia_id)
+    if search:
+        q = q.where(
+            or_(
+                InstitucionEducativa.nombre.ilike(f"%{search}%"),
+                InstitucionEducativa.codigo_modular.ilike(f"%{search}%"),
+            )
+        )
+
+    count_stmt = select(func.count()).select_from(q.subquery())
+    total = (await db.execute(count_stmt)).scalar() or 0
+
+    q = q.order_by(InstitucionEducativa.nombre).offset((page - 1) * size).limit(size)
+    result = await db.execute(q)
+    ies = result.scalars().all()
+
+    ugel_ids = list({ie.ugel_id for ie in ies})
+    ugel_map: dict = {}
+    if ugel_ids:
+        ugel_result = await db.execute(select(Ugel).where(Ugel.id.in_(ugel_ids)))
+        ugel_map = {u.id: u.nombre for u in ugel_result.scalars().all()}
+
+    items = [
+        IEResponse(
+            id=ie.id, codigo_modular=ie.codigo_modular, nombre=ie.nombre,
+            nivel_educativo=ie.nivel_educativo, direccion=ie.direccion,
+            ugel_id=ie.ugel_id, ugel_nombre=ugel_map.get(ie.ugel_id),
+            distrito_id=ie.distrito_id,
+            distrito_nombre=ie.distrito.nombre if ie.distrito else None,
+            is_active=ie.is_active, fecha_creacion=ie.fecha_creacion,
+        )
+        for ie in ies
+    ]
+
+    return PaginatedResponse(
+        items=items,
+        total=total,
+        page=page,
+        size=size,
+        pages=math.ceil(total / size) if total > 0 else 0,
+    )
 
 
 @router.get("/instituciones/{ie_id}", response_model=IEResponse)

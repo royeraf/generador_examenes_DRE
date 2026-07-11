@@ -598,6 +598,26 @@ export const organizacionService = {
     })
     return response.data
   },
+  async getInstitucionesPaginado(params: {
+    page?: number
+    size?: number
+    ugelId?: number
+    provinciaId?: number
+    search?: string
+    soloActivas?: boolean
+  }): Promise<PaginatedResponse<InstitucionEducativa>> {
+    const response = await apiClient.get<PaginatedResponse<InstitucionEducativa>>('/organizacion/instituciones/paginado', {
+      params: {
+        page: params.page,
+        size: params.size,
+        ugel_id: params.ugelId,
+        provincia_id: params.provinciaId,
+        search: params.search,
+        solo_activas: params.soloActivas,
+      },
+    })
+    return response.data
+  },
   async getInstitucion(id: number): Promise<InstitucionEducativa> {
     const response = await apiClient.get<InstitucionEducativa>(`/organizacion/instituciones/${id}`)
     return response.data
@@ -832,8 +852,8 @@ export interface ImportarEstudiantesResponse {
 }
 
 export const docenteEstudiantesService = {
-  async getMisEstudiantes(params?: { grado_id?: number; seccion?: string; año_escolar?: number; q?: string }): Promise<EstudianteDocente[]> {
-    const response = await apiClient.get<EstudianteDocente[]>('/docente/mis-estudiantes', { params })
+  async getMisEstudiantes(params?: { grado_id?: number; seccion?: string; año_escolar?: number; q?: string; page?: number; size?: number }): Promise<PaginatedResponse<EstudianteDocente>> {
+    const response = await apiClient.get<PaginatedResponse<EstudianteDocente>>('/docente/mis-estudiantes', { params })
     return response.data
   },
 

@@ -19,6 +19,8 @@ from app.api.dependencies import get_current_active_user, require_role, require_
 from app.core.security import get_password_hash
 from app.services.matricula_service import crear_matricula, get_matricula_activa
 from app.services.estudiante_service import estudiante_service
+from app.schemas.pagination import PaginatedResponse
+import math
 
 router = APIRouter()
 
@@ -553,12 +555,14 @@ async def importar_estudiantes_desde_nomina(
     return ImportarEstudiantesResponse(creados=creados, pendientes_generacion_usuario=creados)
 
 
-@router.get("/docente/mis-estudiantes", response_model=List[EstudianteListItem])
+@router.get("/docente/mis-estudiantes", response_model=PaginatedResponse[EstudianteListItem])
 async def listar_mis_estudiantes(
     grado_id: Optional[int] = Query(None),
     seccion: Optional[str] = Query(None),
     año_escolar: Optional[int] = Query(None),
     q: Optional[str] = Query(None),
+    page: int = Query(1, ge=1),
+    size: int = Query(20, ge=1, le=1000),
     db: AsyncSession = Depends(get_db),
     current_user: Usuario = Depends(get_current_active_user),
 ):
@@ -592,7 +596,10 @@ async def listar_mis_estudiantes(
             )
         )
 
-    stmt = stmt.order_by(Estudiante.apellidos, Estudiante.nombres)
+    count_stmt = select(func.count()).select_from(stmt.subquery())
+    total = (await db.execute(count_stmt)).scalar() or 0
+
+    stmt = stmt.order_by(Estudiante.apellidos, Estudiante.nombres).offset((page - 1) * size).limit(size)
     result = await db.execute(stmt)
     rows = result.all()
 
@@ -603,7 +610,7 @@ async def listar_mis_estudiantes(
         gr = await db.execute(select(Grado).where(Grado.id.in_(grado_ids)))
         grado_map = {g.id: g.nombre for g in gr.scalars().all()}
 
-    return [
+    items = [
         EstudianteListItem(
             id=e.id,
             codigo_estudiante=e.codigo_estudiante,
@@ -620,6 +627,14 @@ async def listar_mis_estudiantes(
         )
         for e, m in rows
     ]
+
+    return PaginatedResponse(
+        items=items,
+        total=total,
+        page=page,
+        size=size,
+        pages=math.ceil(total / size) if total > 0 else 0,
+    )
 
 
 @router.put("/docente/mis-estudiantes/{estudiante_id}", response_model=EstudianteListItem)

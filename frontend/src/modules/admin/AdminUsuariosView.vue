@@ -244,6 +244,7 @@ const institucionOptions = computed(() => [
 ])
 
 // Pagination
+const PAGE_SIZE_OPTIONS = [10, 20, 50, 100]
 const currentPage = ref(1)
 const pageSize = ref(10)
 const totalPages = ref(0)
@@ -409,6 +410,8 @@ function handleSearch() {
     loadDocentes(true)
   }, 400) // Debounce 400ms
 }
+
+watch(pageSize, () => loadDocentes(true))
 
 function setPage(page: number) {
   if (page < 1 || page > totalPages.value) return
@@ -1164,12 +1167,24 @@ async function saveResetPassword() {
         <div v-if="!loading && totalPages > 1"
           class="px-4 py-4 bg-slate-50 dark:bg-slate-700/30 border-t border-slate-300 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
 
-          <div class="text-[11px] md:text-xs text-slate-500 dark:text-slate-400">
-            Mostrando <span class="font-bold text-slate-700 dark:text-slate-200">{{ Math.min((currentPage - 1) *
-              pageSize + 1, totalCount) }}</span>
-            a <span class="font-bold text-slate-700 dark:text-slate-200">{{ Math.min(currentPage * pageSize, totalCount)
-            }}</span>
-            de <span class="font-bold text-slate-700 dark:text-slate-200">{{ totalCount }}</span>
+          <div class="flex items-center gap-4 flex-wrap">
+            <p class="text-[11px] md:text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
+              Mostrando <span class="font-bold text-slate-700 dark:text-slate-200">{{ Math.min((currentPage - 1) *
+                pageSize + 1, totalCount) }}</span>
+              a <span class="font-bold text-slate-700 dark:text-slate-200">{{ Math.min(currentPage * pageSize, totalCount)
+              }}</span>
+              de <span class="font-bold text-slate-700 dark:text-slate-200">{{ totalCount }}</span>
+            </p>
+            <div class="flex items-center gap-1">
+              <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-1">Por página</span>
+              <button v-for="n in PAGE_SIZE_OPTIONS" :key="n" @click="pageSize = n"
+                :class="['h-7 px-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer',
+                  pageSize === n
+                    ? 'bg-teal-600 text-white shadow-sm'
+                    : 'bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-teal-400 hover:text-teal-600']">
+                {{ n }}
+              </button>
+            </div>
           </div>
 
           <div class="flex items-center gap-1">
@@ -1181,14 +1196,19 @@ async function saveResetPassword() {
 
             <!-- Pages -->
             <div class="flex items-center gap-1 mx-1">
-              <button v-for="p in totalPages" :key="p" @click="setPage(p)" :class="[
-                'w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-xs font-bold transition-all cursor-pointer',
-                currentPage === p
-                  ? 'bg-gradient-to-r from-teal-500 to-indigo-600 text-white shadow-md scale-110'
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
-              ]">
-                {{ p }}
-              </button>
+              <template v-for="p in totalPages" :key="p">
+                <button v-if="p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1"
+                  @click="setPage(p)" :class="[
+                  'w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-xs font-bold transition-all cursor-pointer',
+                  currentPage === p
+                    ? 'bg-teal-600 text-white shadow-md scale-110'
+                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+                ]">
+                  {{ p }}
+                </button>
+                <span v-else-if="p === currentPage - 2 || p === currentPage + 2"
+                  class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-slate-400 text-xs">…</span>
+              </template>
             </div>
 
             <!-- Next -->

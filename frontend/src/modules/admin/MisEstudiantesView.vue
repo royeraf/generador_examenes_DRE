@@ -45,11 +45,6 @@ const advanceServerError = ref('')
 // Responsive State
 const isDesktop = ref(window.innerWidth >= 1024)
 const onResize = () => { isDesktop.value = window.innerWidth >= 1024 }
-onMounted(() => {
-  window.addEventListener('resize', onResize)
-  cargarEstudiantes()
-  cargarGrados()
-})
 onUnmounted(() => window.removeEventListener('resize', onResize))
 const mobileTab = ref<'filtros' | 'estudiantes'>('estudiantes')
 
@@ -57,6 +52,7 @@ const mobileTab = ref<'filtros' | 'estudiantes'>('estudiantes')
 const filtroQ = ref('')
 const filtroGrado = ref<number | null>(null)
 const filtroSeccion = ref('')
+let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
 const gradosOpciones = computed(() => [
   { id: null, label: 'Todos los grados' },
@@ -95,21 +91,6 @@ const formError = computed(() => {
   return ''
 })
 
-const estudiantesFiltrados = computed(() => {
-  return estudiantes.value.filter(e => {
-    const q = filtroQ.value.toLowerCase()
-    if (q && !(
-      (e.nombres || '').toLowerCase().includes(q) ||
-      (e.apellidos || '').toLowerCase().includes(q) ||
-      (e.dni || '').includes(q) ||
-      (e.codigo_estudiante || '').toLowerCase().includes(q)
-    )) return false
-    if (filtroGrado.value && e.grado_id !== filtroGrado.value) return false
-    if (filtroSeccion.value && e.seccion !== filtroSeccion.value) return false
-    return true
-  })
-})
-
 const importFormError = computed(() => {
   if (!importForm.value.grado_id) return 'Selecciona el grado de la nómina'
   if (!importForm.value.seccion.trim()) return 'La sección es requerida'
@@ -131,36 +112,82 @@ const editingPendingUser = computed(() =>
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100]
 const currentPage = ref(1)
 const pageSize = ref(20)
-const totalPages = computed(() => Math.ceil(estudiantesFiltrados.value.length / pageSize.value))
-const paginados = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value
-  return estudiantesFiltrados.value.slice(start, start + pageSize.value)
-})
+const totalPages = ref(0)
+const totalCount = ref(0)
 
-watch([filtroQ, filtroGrado, filtroSeccion], () => { currentPage.value = 1 })
-watch(pageSize, () => { currentPage.value = 1 })
+function handleFiltroChange() {
+  if (searchTimeout) clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => cargarEstudiantes(true), 400)
+}
+
+watch(filtroQ, handleFiltroChange)
+watch([filtroGrado, filtroSeccion], () => cargarEstudiantes(true))
+watch(pageSize, () => cargarEstudiantes(true))
+
+function setPage(page: number) {
+  if (page < 1 || page > totalPages.value) return
+  currentPage.value = page
+  cargarEstudiantes()
+}
+function nextPage() {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++
+    cargarEstudiantes()
+  }
+}
+function prevPage() {
+  if (currentPage.value > 1) {
+    currentPage.value--
+    cargarEstudiantes()
+  }
+}
 
 // ── Lifecycle ────────────────────────────────────────────────────────────────
 onMounted(async () => {
-  const onResize = () => {
-    isDesktop.value = window.innerWidth >= 1024
-  }
   window.addEventListener('resize', onResize)
   await Promise.all([cargarEstudiantes(), cargarGrados()])
 })
 
-onUnmounted(() => {
-  window.removeEventListener('resize', () => {})
-})
-
-async function cargarEstudiantes() {
+async function cargarEstudiantes(resetPage = false) {
+  if (resetPage) currentPage.value = 1
   loading.value = true
   try {
-    estudiantes.value = await docenteEstudiantesService.getMisEstudiantes()
+    const response = await docenteEstudiantesService.getMisEstudiantes({
+      grado_id: filtroGrado.value ?? undefined,
+      seccion: filtroSeccion.value || undefined,
+      q: filtroQ.value || undefined,
+      page: currentPage.value,
+      size: pageSize.value,
+    })
+    estudiantes.value = response.items
+    totalPages.value = response.pages
+    totalCount.value = response.total
   } catch {
     Swal.fire('Error', 'No se pudo cargar la lista de estudiantes', 'error')
   } finally {
     loading.value = false
+  }
+}
+
+async function exportarExcel() {
+  try {
+    const response = await docenteEstudiantesService.getMisEstudiantes({
+      grado_id: filtroGrado.value ?? undefined,
+      seccion: filtroSeccion.value || undefined,
+      q: filtroQ.value || undefined,
+      page: 1,
+      size: Math.min(Math.max(totalCount.value, 1), 1000),
+    })
+    const wsData = [['nombres', 'apellidos', 'dni', 'codigo', 'grado', 'sección']]
+    response.items.forEach(e => {
+      wsData.push([e.nombres || '', e.apellidos || '', e.dni || '', e.codigo_estudiante || '', e.grado_nombre || '', e.seccion || ''])
+    })
+    const ws = XLSX.utils.aoa_to_sheet(wsData)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Estudiantes')
+    XLSX.writeFile(wb, `estudiantes_${new Date().toISOString().split('T')[0]}.xlsx`)
+  } catch {
+    Swal.fire('Error', 'No se pudo exportar la lista de estudiantes', 'error')
   }
 }
 
@@ -282,17 +309,6 @@ async function avanzarAño() {
   }
 }
 
-function exportarExcel() {
-  const wsData = [['nombres', 'apellidos', 'dni', 'codigo', 'grado', 'sección']]
-  estudiantes.value.forEach(e => {
-    wsData.push([e.nombres || '', e.apellidos || '', e.dni || '', e.codigo_estudiante || '', e.grado_nombre || '', e.seccion || ''])
-  })
-  const ws = XLSX.utils.aoa_to_sheet(wsData)
-  const wb = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(wb, ws, 'Estudiantes')
-  XLSX.writeFile(wb, `estudiantes_${new Date().toISOString().split('T')[0]}.xlsx`)
-}
-
 function descargarPlantillaNomina() {
   const wsData = [['dni', 'nombres', 'apellidos'], ['12345678', 'María Fernanda', 'García López']]
   const ws = XLSX.utils.aoa_to_sheet(wsData)
@@ -412,7 +428,7 @@ function nombreGrado(id: number | null) {
             <h2 class="text-2xl font-black text-slate-800 dark:text-white tracking-tight leading-none">Mis Estudiantes</h2>
             <p class="text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1.5 flex items-center gap-2">
               <span class="w-2 h-2 rounded-full bg-teal-500 animate-pulse"></span>
-              {{ estudiantes.length }} registrados
+              {{ totalCount }} registrados
             </p>
           </div>
         </div>
@@ -474,7 +490,7 @@ function nombreGrado(id: number | null) {
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-                <tr v-for="est in paginados" :key="est.id" class="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors" :class="!est.is_active ? 'opacity-50' : ''">
+                <tr v-for="est in estudiantes" :key="est.id" class="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors" :class="!est.is_active ? 'opacity-50' : ''">
                   <td class="p-4">
                     <div class="flex items-center gap-3">
                       <div class="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center font-black text-teal-600">
@@ -505,7 +521,7 @@ function nombreGrado(id: number | null) {
                     </div>
                   </td>
                 </tr>
-                <tr v-if="estudiantesFiltrados.length === 0">
+                <tr v-if="totalCount === 0">
                   <td colspan="5" class="p-12 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">Sin resultados</td>
                 </tr>
               </tbody>
@@ -518,11 +534,11 @@ function nombreGrado(id: number | null) {
             <div class="flex items-center gap-4 flex-wrap">
               <p class="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
                 Mostrando
-                <span class="font-bold text-slate-700 dark:text-slate-200">{{ estudiantesFiltrados.length === 0 ? 0 : (currentPage - 1) * pageSize + 1 }}</span>
+                <span class="font-bold text-slate-700 dark:text-slate-200">{{ totalCount === 0 ? 0 : (currentPage - 1) * pageSize + 1 }}</span>
                 –
-                <span class="font-bold text-slate-700 dark:text-slate-200">{{ Math.min(currentPage * pageSize, estudiantesFiltrados.length) }}</span>
+                <span class="font-bold text-slate-700 dark:text-slate-200">{{ Math.min(currentPage * pageSize, totalCount) }}</span>
                 de
-                <span class="font-bold text-slate-700 dark:text-slate-200">{{ estudiantesFiltrados.length }}</span>
+                <span class="font-bold text-slate-700 dark:text-slate-200">{{ totalCount }}</span>
               </p>
               <div class="flex items-center gap-1">
                 <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-1">Por página</span>
@@ -537,17 +553,17 @@ function nombreGrado(id: number | null) {
             </div>
             <!-- Right: page navigation -->
             <div v-if="totalPages > 1" class="flex items-center gap-1">
-              <button @click="currentPage--" :disabled="currentPage === 1"
+              <button @click="prevPage" :disabled="currentPage === 1"
                 class="p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
                 <ChevronLeft class="w-4 h-4" />
               </button>
               <div class="flex items-center gap-1 mx-1">
                 <template v-for="p in totalPages" :key="p">
                   <button v-if="p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1"
-                    @click="currentPage = p"
+                    @click="setPage(p)"
                     :class="['w-8 h-8 rounded-lg text-xs font-bold transition-all cursor-pointer',
                       currentPage === p
-                        ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white shadow-md scale-110'
+                        ? 'bg-teal-600 text-white shadow-md scale-110'
                         : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700']">
                     {{ p }}
                   </button>
@@ -555,7 +571,7 @@ function nombreGrado(id: number | null) {
                     class="w-8 h-8 flex items-center justify-center text-slate-400 text-xs">…</span>
                 </template>
               </div>
-              <button @click="currentPage++" :disabled="currentPage === totalPages"
+              <button @click="nextPage" :disabled="currentPage === totalPages"
                 class="p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
                 <ChevronRight class="w-4 h-4" />
               </button>
@@ -565,7 +581,7 @@ function nombreGrado(id: number | null) {
 
         <!-- Mobile View: Cards -->
         <div v-else class="flex-1 overflow-y-auto space-y-4 pb-4">
-          <div v-for="est in paginados" :key="est.id" class="bg-white dark:bg-slate-800 p-5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-500" :class="!est.is_active ? 'opacity-50' : ''">
+          <div v-for="est in estudiantes" :key="est.id" class="bg-white dark:bg-slate-800 p-5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-bottom-2 duration-500" :class="!est.is_active ? 'opacity-50' : ''">
             <div class="flex justify-between items-start mb-4">
               <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center font-black text-teal-600 text-lg">
@@ -598,7 +614,7 @@ function nombreGrado(id: number | null) {
               </div>
             </div>
           </div>
-          <div v-if="estudiantesFiltrados.length === 0" class="py-12 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">Sin resultados</div>
+          <div v-if="totalCount === 0" class="py-12 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">Sin resultados</div>
 
           <!-- Pagination (mobile) -->
           <div class="bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 p-4 flex flex-col items-center gap-3">
@@ -615,20 +631,20 @@ function nombreGrado(id: number | null) {
             </div>
             <p class="text-[11px] text-slate-500 dark:text-slate-400">
               Página <span class="font-bold text-slate-700 dark:text-slate-200">{{ currentPage }}</span> de <span class="font-bold text-slate-700 dark:text-slate-200">{{ totalPages }}</span>
-              · <span class="font-bold text-slate-700 dark:text-slate-200">{{ estudiantesFiltrados.length }}</span> alumnos
+              · <span class="font-bold text-slate-700 dark:text-slate-200">{{ totalCount }}</span> alumnos
             </p>
             <div v-if="totalPages > 1" class="flex items-center gap-2">
-              <button @click="currentPage--" :disabled="currentPage === 1"
+              <button @click="prevPage" :disabled="currentPage === 1"
                 class="p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
                 <ChevronLeft class="w-4 h-4" />
               </button>
               <div class="flex items-center gap-1">
                 <template v-for="p in totalPages" :key="p">
                   <button v-if="p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1"
-                    @click="currentPage = p"
+                    @click="setPage(p)"
                     :class="['w-9 h-9 rounded-xl text-xs font-bold transition-all cursor-pointer',
                       currentPage === p
-                        ? 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white shadow-md'
+                        ? 'bg-teal-600 text-white shadow-md'
                         : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700']">
                     {{ p }}
                   </button>
@@ -636,7 +652,7 @@ function nombreGrado(id: number | null) {
                     class="w-9 h-9 flex items-center justify-center text-slate-400 text-xs">…</span>
                 </template>
               </div>
-              <button @click="currentPage++" :disabled="currentPage === totalPages"
+              <button @click="nextPage" :disabled="currentPage === totalPages"
                 class="p-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
                 <ChevronRight class="w-4 h-4" />
               </button>
