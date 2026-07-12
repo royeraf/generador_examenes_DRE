@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Plus, Edit, Trash2, Save, X, Target, Layers, BookOpen } from 'lucide-vue-next'
 import ComboBox from '../../../../shared/components/ComboBox.vue'
+import BaseButton from '../../../../shared/components/BaseButton.vue'
 import { useMatematica } from '../../composables/useMatematica'
 import type { CompetenciaMatematica, CapacidadMatConCompetencia, DesempenoMatCompleto } from '../../../../shared/types/matematica'
 
@@ -68,13 +69,10 @@ const TABS = [
         </template>
       </div>
 
-      <button
-        @click="openModal()"
-        class="w-full sm:w-auto flex items-center justify-center gap-1.5 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-sm font-bold transition-colors shadow-lg shadow-violet-500/20"
-      >
-        <Plus class="w-4 h-4" />
+      <BaseButton variant="primary" size="sm" class="w-full sm:w-auto" @click="openModal()">
+        <template #icon><Plus class="w-3.5 h-3.5" /></template>
         Nuevo {{ activeTab === 'competencias' ? 'competencia' : activeTab === 'capacidades' ? 'capacidad' : 'desempeño' }}
-      </button>
+      </BaseButton>
     </div>
 
     <!-- Table -->
@@ -297,18 +295,15 @@ const TABS = [
           </div>
 
           <div class="px-8 py-6 border-t border-slate-300 dark:border-slate-800 flex justify-end gap-3 bg-slate-50 dark:bg-slate-800">
-            <button @click="showModal = false" class="px-6 py-3 text-sm font-bold rounded-2xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700 transition-all">
-              Cancelar
-            </button>
-            <button
+            <BaseButton variant="secondary" size="md" @click="showModal = false">Cancelar</BaseButton>
+            <BaseButton
               v-if="activeTab === 'desempenos'"
-              @click="saveItem" :disabled="saving"
-              class="flex items-center gap-2 px-8 py-3 text-sm font-black rounded-2xl bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-xl shadow-violet-500/20 transition-all disabled:opacity-50 active:scale-95"
+              variant="primary" size="md" :loading="saving"
+              @click="saveItem"
             >
-              <Save v-if="!saving" class="w-4 h-4" />
-              <div v-else class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              <template #icon><Save class="w-4 h-4" /></template>
               {{ saving ? 'Guardando...' : 'Guardar Cambios' }}
-            </button>
+            </BaseButton>
           </div>
         </div>
       </div>

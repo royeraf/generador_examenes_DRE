@@ -10,8 +10,8 @@ import {
     X,
     PanelRight
 } from 'lucide-vue-next';
-import ThinkingLoader from '../../../shared/components/ThinkingLoader.vue';
 import Checkbox from '../../../shared/components/Checkbox.vue';
+import BaseButton from '../../../shared/components/BaseButton.vue';
 import type { DesempenoMatCompleto, CapacidadMatConCompetencia } from '../../../shared/types/matematica';
 
 const props = defineProps<{
@@ -315,18 +315,12 @@ watch(() => props.error, () => { errorDismissed.value = false; });
         </div>
 
         <!-- Generate Button -->
-        <button v-if="!collapsed" @click="emit('generarPreguntas')"
+        <BaseButton v-if="!collapsed" variant="primary" size="lg" block
             :disabled="loading || !selectedGradoId || selectedDesempenoIds.length === 0"
-            class="flex-shrink-0 w-full px-4 py-4 sm:px-6 sm:py-5 font-bold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 shadow-xl hover:shadow-2xl hover:-translate-y-1 text-base sm:text-lg cursor-pointer"
-            :class="loading
-                ? 'bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 shadow-lg cursor-wait'
-                : 'bg-gradient-to-r from-indigo-500 via-indigo-600 to-purple-500 hover:from-indigo-600 hover:via-indigo-700 hover:to-purple-600 shadow-indigo-500/30 hover:shadow-indigo-500/40 text-white'">
-            <ThinkingLoader v-if="loading" text="Generando" variant="indigo" />
-            <template v-else>
-                <Rocket class="w-5 h-5 sm:w-6 sm:h-6" />
-                <span>Generar Examen con IA</span>
-            </template>
-        </button>
+            :loading="loading" @click="emit('generarPreguntas')">
+            <template #icon><Rocket class="w-5 h-5" /></template>
+            {{ loading ? 'Generando...' : 'Generar Examen con IA' }}
+        </BaseButton>
 
         <!-- Error -->
         <div v-if="!collapsed && error && !errorDismissed"

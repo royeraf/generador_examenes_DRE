@@ -7,6 +7,7 @@ import type { UpdateAsignacionPayload, CodigoClase } from '../../shared/services
 import Header from '../../shared/components/Header.vue'
 import Footer from '../../shared/components/Footer.vue'
 import EduBackground from '../../shared/components/EduBackground.vue'
+import BaseButton from '../../shared/components/BaseButton.vue'
 import Swal from 'sweetalert2'
 import { Toast } from '../../shared/utils/swal'
 import {
@@ -400,11 +401,12 @@ const estadoColors: Record<string, string> = {
               <LayoutList class="w-4 h-4" />
             </button>
           </div>
-          <button @click="openModal"
-            class="group flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-violet-600 to-indigo-700 hover:from-violet-700 hover:to-indigo-800 text-white font-bold text-sm rounded-2xl shadow-xl shadow-violet-500/20 hover:-translate-y-0.5 transition-all active:scale-95 cursor-pointer">
-            <Plus class="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
+          <BaseButton size="lg" class="group hover:-translate-y-0.5" @click="openModal">
+            <template #icon>
+              <Plus class="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
+            </template>
             <span>Nueva Asignación</span>
-          </button>
+          </BaseButton>
         </div>
       </div>
 
@@ -415,9 +417,9 @@ const estadoColors: Record<string, string> = {
             <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div> 
             {{ error }}
           </span>
-          <button @click="fetchAsignaciones" class="px-4 py-1.5 bg-red-100 dark:bg-red-500/20 rounded-xl font-bold hover:bg-red-200 dark:hover:bg-red-500/30 transition-colors cursor-pointer">
+          <BaseButton size="sm" variant="secondary" @click="fetchAsignaciones">
             Reintentar
-          </button>
+          </BaseButton>
         </div>
       </Transition>
 
@@ -440,11 +442,12 @@ const estadoColors: Record<string, string> = {
         <p class="text-sm text-slate-500 dark:text-slate-400 mb-8 max-w-sm mx-auto">
           Comienza asignando uno de tus exámenes generados a un grado o sección específica.
         </p>
-        <button @click="openModal"
-          class="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-violet-500 to-indigo-600 text-white font-black text-sm rounded-2xl shadow-xl shadow-violet-500/20 hover:from-violet-600 hover:to-indigo-700 transition-all active:scale-95 cursor-pointer">
-          <Plus class="w-5 h-5" />
+        <BaseButton size="lg" @click="openModal">
+          <template #icon>
+            <Plus class="w-5 h-5" />
+          </template>
           <span>Crear Primera Asignación</span>
-        </button>
+        </BaseButton>
       </div>
 
       <!-- Cards -->
@@ -504,11 +507,12 @@ const estadoColors: Record<string, string> = {
 
           <!-- Actions -->
           <div class="flex items-center gap-2 pt-4 mt-4 border-t border-slate-100 dark:border-slate-800 relative z-10">
-            <button @click="openResultados(asig)"
-              class="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs rounded-xl transition-all active:scale-95 border border-slate-200 dark:border-slate-700 cursor-pointer">
-              <Users class="w-4 h-4" />
+            <BaseButton size="sm" variant="secondary" class="flex-1" @click="openResultados(asig)">
+              <template #icon>
+                <Users class="w-3.5 h-3.5" />
+              </template>
               <span>Reporte</span>
-            </button>
+            </BaseButton>
             <button v-if="asig.puede_eliminar" @click="openEditModal(asig)"
               class="p-2.5 bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400 rounded-xl hover:bg-violet-600 hover:text-white transition-all active:scale-95 border border-violet-100 dark:border-violet-900/50 cursor-pointer"
               title="Editar">
@@ -984,16 +988,16 @@ const estadoColors: Record<string, string> = {
                 </div>
               </Transition>
               <div class="flex flex-col sm:flex-row gap-4">
-              <button @click="closeModal()"
-                class="flex-1 px-6 py-4 text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-2xl transition-colors">
+              <BaseButton size="lg" variant="secondary" class="flex-1" @click="closeModal()">
                 Cancelar
-              </button>
-              <button @click="guardar" :disabled="saving || (!isEditing && !examenSeleccionadoId)"
-                class="flex-[1.5] flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-violet-600 to-indigo-700 text-white font-black text-sm rounded-2xl shadow-xl shadow-violet-500/20 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                <Loader2 v-if="saving" class="w-5 h-5 animate-spin" />
-                <Save v-else class="w-5 h-5" />
+              </BaseButton>
+              <BaseButton size="lg" class="flex-[1.5]" :loading="saving"
+                :disabled="saving || (!isEditing && !examenSeleccionadoId)" @click="guardar">
+                <template #icon>
+                  <Save class="w-5 h-5" />
+                </template>
                 <span>{{ isEditing ? 'Actualizar Evaluación' : 'Confirmar Asignación' }}</span>
-              </button>
+              </BaseButton>
               </div>
             </div>
 

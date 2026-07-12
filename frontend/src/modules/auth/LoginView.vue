@@ -2,13 +2,14 @@
 import { shallowRef } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
-import { LogIn, User, Lock, Loader2, AlertCircle, Eye, EyeOff, Sparkles } from 'lucide-vue-next';
+import { LogIn, User, Lock, AlertCircle, Eye, EyeOff, Sparkles } from 'lucide-vue-next';
 import { useForm, useField } from 'vee-validate';
 import * as yup from 'yup';
 import logoDre from '../../assets/logo.png';
 import Swal from 'sweetalert2';
 import teachingSvg from '../../assets/undraw_visual-explanation_vd4l.svg';
 import ThemeToggle from '../../shared/components/ThemeToggle.vue';
+import BaseButton from '../../shared/components/BaseButton.vue';
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -198,14 +199,10 @@ const onSubmit = handleSubmit(async (formValues) => {
                         </div>
 
                         <!-- Action Button -->
-                        <button type="submit" :disabled="loading" 
-                            class="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-bold py-4 rounded-xl shadow-xl shadow-slate-950/10 dark:shadow-white/5 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-50">
-                            <Loader2 v-if="loading" class="w-5 h-5 animate-spin" />
-                            <template v-else>
-                                <span>Acceder al Sistema</span>
-                                <LogIn class="w-5 h-5" />
-                            </template>
-                        </button>
+                        <BaseButton type="submit" variant="primary" size="lg" block :loading="loading">
+                            Acceder al Sistema
+                            <LogIn v-if="!loading" class="w-5 h-5" />
+                        </BaseButton>
 
 
                     </form>

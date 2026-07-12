@@ -2,6 +2,7 @@
 import { ref, onMounted, watch } from 'vue';
 import { BarChart3, Download, Users, FileText } from 'lucide-vue-next';
 import * as d3 from 'd3';
+import BaseButton from '../../../shared/components/BaseButton.vue';
 import type { Stats, Estudiante } from '../../../shared/types';
 
 // Define Props
@@ -131,11 +132,12 @@ watch(() => props.stats, () => {
                 </h2>
                 <p class="text-slate-500 mt-1">Resumen estadístico y gráficos de evaluación</p>
             </div>
-            <button @click="emit('exportarExcel')"
-                class="px-5 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 text-white rounded-xl hover:from-teal-600 hover:to-emerald-600 font-bold shadow-lg shadow-teal-500/30 flex items-center gap-2 transition-all duration-300 hover:-translate-y-0.5">
-                <Download class="w-5 h-5" />
+            <BaseButton class="hover:-translate-y-0.5" @click="emit('exportarExcel')">
+                <template #icon>
+                    <Download class="w-4 h-4" />
+                </template>
                 Exportar Excel
-            </button>
+            </BaseButton>
         </div>
 
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">

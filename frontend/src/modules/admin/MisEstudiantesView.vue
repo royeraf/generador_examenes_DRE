@@ -12,10 +12,11 @@ import type { Grado } from '../../shared/types'
 import Header from '../../shared/components/Header.vue'
 import EduBackground from '../../shared/components/EduBackground.vue'
 import ComboBox from '../../shared/components/ComboBox.vue'
+import BaseButton from '../../shared/components/BaseButton.vue'
 import Swal from 'sweetalert2'
 import {
   Plus, Edit2, Search, X, Eye, EyeOff,
-  GraduationCap, Loader2, AlertCircle, CheckCircle, Users, Download, FileSpreadsheet,
+  GraduationCap, AlertCircle, CheckCircle, Users, Download, FileSpreadsheet,
   Filter, ChevronDown, ChevronLeft, ChevronRight, CalendarPlus
 } from 'lucide-vue-next'
 
@@ -434,16 +435,19 @@ function nombreGrado(id: number | null) {
         </div>
         
         <div class="flex items-center gap-3 flex-wrap">
-          <button @click="openCreate" class="flex-1 lg:flex-none flex items-center justify-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black px-6 py-3.5 rounded-2xl shadow-xl hover:-translate-y-1 transition-all active:scale-95 text-xs uppercase tracking-widest">
-            <Plus class="w-5 h-5" /> Nuevo Alumno
-          </button>
+          <BaseButton variant="primary" size="md" class="flex-1 lg:flex-none" @click="openCreate">
+            <template #icon><Plus class="w-4 h-4" /></template>
+            Nuevo Alumno
+          </BaseButton>
           <div class="flex items-center gap-2 flex-1 lg:flex-none">
-            <button @click="exportarExcel" class="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold px-5 py-3.5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition-all text-xs uppercase tracking-widest">
-              <Download class="w-4 h-4 text-teal-500" /> Exportar
-            </button>
-            <button @click="openImport" class="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold px-5 py-3.5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition-all text-xs uppercase tracking-widest">
-              <FileSpreadsheet class="w-4 h-4 text-emerald-500" /> Importar
-            </button>
+            <BaseButton variant="secondary" size="md" class="flex-1 lg:flex-none" @click="exportarExcel">
+              <template #icon><Download class="w-4 h-4 text-teal-500" /></template>
+              Exportar
+            </BaseButton>
+            <BaseButton variant="secondary" size="md" class="flex-1 lg:flex-none" @click="openImport">
+              <template #icon><FileSpreadsheet class="w-4 h-4 text-emerald-500" /></template>
+              Importar
+            </BaseButton>
           </div>
         </div>
       </div>
@@ -716,11 +720,10 @@ function nombreGrado(id: number | null) {
               <p v-if="formError" class="text-[10px] font-bold text-amber-600 uppercase">{{ formError }}</p>
             </div>
             <div class="p-6 bg-slate-50 dark:bg-slate-900/50 flex flex-col sm:flex-row gap-3">
-              <button @click="closeModal" class="flex-1 px-6 py-3.5 text-xs font-black uppercase tracking-widest text-slate-500 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 transition-all">Cancelar</button>
-              <button @click="guardar" :disabled="saving || !!formError" class="flex-1 flex items-center justify-center gap-3 py-3.5 bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-black text-xs rounded-2xl shadow-xl shadow-teal-500/20 transition-all disabled:opacity-50 active:scale-95">
-                <Loader2 v-if="saving" class="w-5 h-5 animate-spin" />
-                <span class="uppercase tracking-widest">{{ editingPendingUser ? 'Activar' : editingId ? 'Actualizar' : 'Registrar' }}</span>
-              </button>
+              <BaseButton variant="secondary" size="md" class="flex-1" @click="closeModal">Cancelar</BaseButton>
+              <BaseButton variant="primary" size="md" class="flex-1" :disabled="saving || !!formError" :loading="saving" @click="guardar">
+                {{ editingPendingUser ? 'Activar' : editingId ? 'Actualizar' : 'Registrar' }}
+              </BaseButton>
             </div>
           </div>
         </div>
@@ -766,19 +769,18 @@ function nombreGrado(id: number | null) {
                     <p class="text-xs font-bold text-slate-400 truncate">{{ selectedImportFileName || 'No seleccionado' }}</p>
                   </div>
                   <div class="flex gap-2">
-                    <button @click="descargarPlantillaNomina" class="px-4 py-2.5 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 cursor-pointer">Modelo</button>
-                    <button @click="seleccionarArchivoNomina" class="px-4 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg cursor-pointer">Subir</button>
+                    <BaseButton variant="secondary" size="sm" @click="descargarPlantillaNomina">Modelo</BaseButton>
+                    <BaseButton variant="primary" size="sm" @click="seleccionarArchivoNomina">Subir</BaseButton>
                   </div>
                 </div>
               </div>
               <p v-if="importFormError" class="text-[10px] font-bold text-amber-600 uppercase">{{ importFormError }}</p>
             </div>
             <div class="flex flex-col sm:flex-row gap-3 p-6 bg-slate-50 dark:bg-slate-900/50">
-              <button @click="closeImportModal" class="flex-1 rounded-2xl bg-white px-6 py-3.5 text-xs font-black uppercase tracking-widest text-slate-500 border border-slate-200">Cancelar</button>
-              <button @click="importarNomina" :disabled="importing || !!importFormError" class="flex-1 flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-600 py-3.5 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-teal-500/20 transition-all disabled:opacity-50">
-                <Loader2 v-if="importing" class="h-5 w-5 animate-spin" />
-                <span>Confirmar Importación</span>
-              </button>
+              <BaseButton variant="secondary" size="md" class="flex-1" @click="closeImportModal">Cancelar</BaseButton>
+              <BaseButton variant="primary" size="md" class="flex-1" :disabled="importing || !!importFormError" :loading="importing" @click="importarNomina">
+                Confirmar Importación
+              </BaseButton>
             </div>
           </div>
         </div>
@@ -805,7 +807,7 @@ function nombreGrado(id: number | null) {
             <div class="bg-amber-50 dark:bg-amber-900/20 rounded-2xl p-4 border border-amber-100 dark:border-amber-900/30">
                 <p class="text-[10px] font-bold text-amber-700 dark:text-amber-300 leading-relaxed uppercase tracking-tight">Comparte este código con el estudiante. Lo necesitará junto a su contraseña para entrar.</p>
             </div>
-            <button @click="showSuccessModal = false" class="w-full py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black rounded-2xl shadow-xl transition-all active:scale-95 uppercase tracking-widest text-sm">Entendido</button>
+            <BaseButton variant="primary" size="lg" block @click="showSuccessModal = false">Entendido</BaseButton>
           </div>
         </div>
       </Transition>
@@ -863,12 +865,10 @@ function nombreGrado(id: number | null) {
             </div>
 
             <div class="flex gap-3 px-6 pb-6">
-              <button @click="closeAdvanceModal" class="flex-1 rounded-2xl bg-white dark:bg-slate-700 px-6 py-3.5 text-xs font-black uppercase tracking-widest text-slate-500 border border-slate-200 dark:border-slate-600">Cancelar</button>
-              <button @click="avanzarAño" :disabled="advancing || !!advanceFormError"
-                class="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 py-3.5 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-emerald-500/20 transition-all disabled:opacity-50 active:scale-95">
-                <Loader2 v-if="advancing" class="h-4 w-4 animate-spin" />
-                <span>Crear Matrícula</span>
-              </button>
+              <BaseButton variant="secondary" size="md" class="flex-1" @click="closeAdvanceModal">Cancelar</BaseButton>
+              <BaseButton variant="primary" size="md" class="flex-1" :disabled="advancing || !!advanceFormError" :loading="advancing" @click="avanzarAño">
+                Crear Matrícula
+              </BaseButton>
             </div>
           </div>
         </div>

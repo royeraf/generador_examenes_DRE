@@ -9,6 +9,7 @@ import {
   X, ChevronDown
 } from 'lucide-vue-next'
 import ThinkingLoader from '../../shared/components/ThinkingLoader.vue'
+import BaseButton from '../../shared/components/BaseButton.vue'
 import { useTheme } from '../../shared/composables/useTheme'
 
 const route = useRoute()
@@ -430,10 +431,9 @@ const nivelMensaje: Record<string, string> = {
         <h1 class="text-xl font-bold text-slate-900 dark:text-white mb-2">¡Ups! Algo salió mal</h1>
         <p class="text-slate-500 dark:text-slate-400 max-w-xs">{{ error }}</p>
       </div>
-      <button @click="router.push('/estudiante/examenes')"
-        class="px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold transition-transform active:scale-95 shadow-lg">
+      <BaseButton type="button" variant="primary" size="lg" @click="router.push('/estudiante/examenes')">
         Volver a la lista
-      </button>
+      </BaseButton>
     </div>
 
     <!-- Resultado final -->
@@ -515,11 +515,10 @@ const nivelMensaje: Record<string, string> = {
             </template>
           </button>
 
-          <button @click="router.push('/estudiante/examenes')"
-            class="w-full h-10 sm:h-12 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold rounded-2xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all active:scale-95 flex items-center justify-center gap-2 text-sm">
-            <ArrowLeft class="w-4 h-4" />
-            <span>Volver a la lista</span>
-          </button>
+          <BaseButton type="button" variant="secondary" size="md" block @click="router.push('/estudiante/examenes')">
+            <template #icon><ArrowLeft class="w-4 h-4" /></template>
+            Volver a la lista
+          </BaseButton>
         </div>
       </div>
 
@@ -822,10 +821,9 @@ const nivelMensaje: Record<string, string> = {
 
             <!-- Close bar at the very bottom -->
             <div class="p-4 border-t border-slate-100 dark:border-slate-800 flex justify-end bg-slate-50 dark:bg-slate-950/40 shrink-0">
-              <button @click="mostrarBottomSheet = false"
-                class="px-5 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl text-xs sm:text-sm hover:opacity-90 active:scale-[0.97] transition-all cursor-pointer shadow-sm">
+              <BaseButton type="button" variant="primary" size="sm" @click="mostrarBottomSheet = false">
                 Cerrar Lectura
-              </button>
+              </BaseButton>
             </div>
 
           </div>
@@ -1114,21 +1112,20 @@ const nivelMensaje: Record<string, string> = {
                 <ChevronRight class="w-4 h-4 shrink-0" />
               </button>
 
-              <button
+              <BaseButton
                 v-else
+                type="button"
+                size="sm"
+                :variant="todasRespondidas ? 'primary' : 'destructive'"
+                :loading="enviando"
                 @click="finalizar"
-                :disabled="enviando"
-                class="flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl font-bold text-xs sm:text-sm shadow-md transition-all active:scale-[0.98] select-none cursor-pointer"
-                :class="todasRespondidas
-                  ? 'bg-gradient-to-r from-teal-500 to-indigo-600 text-white'
-                  : 'bg-red-500 text-white'">
-                <Loader2 v-if="enviando" class="w-4 h-4 animate-spin shrink-0" />
-                <template v-else>
-                  <CheckCircle2 v-if="todasRespondidas" class="w-4 h-4 shrink-0" />
-                  <AlertCircle v-else class="w-4 h-4 shrink-0" />
-                  <span>Finalizar</span>
+              >
+                <template #icon>
+                  <CheckCircle2 v-if="todasRespondidas" class="w-3.5 h-3.5" />
+                  <AlertCircle v-else class="w-3.5 h-3.5" />
                 </template>
-              </button>
+                Finalizar
+              </BaseButton>
             </div>
           </footer>
         </section>

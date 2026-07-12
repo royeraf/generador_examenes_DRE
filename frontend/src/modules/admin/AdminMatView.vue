@@ -8,13 +8,14 @@ import type {
     GradoMatematica
 } from '../../shared/types/matematica';
 import {
-    Trash2, Edit, Plus, X, Calculator, Target, Layers, BookOpen, Loader2
+    Trash2, Edit, Plus, X, Calculator, Target, Layers, BookOpen
 } from 'lucide-vue-next';
 
 import Swal from 'sweetalert2';
 import Header from '../../shared/components/Header.vue';
 import EduBackground from '../../shared/components/EduBackground.vue';
 import ComboBox from '../../shared/components/ComboBox.vue';
+import BaseButton from '../../shared/components/BaseButton.vue';
 
 // Responsive State
 const isDesktop = ref(window.innerWidth >= 1024);
@@ -294,11 +295,10 @@ const deleteItem = async (id: number) => {
                 </div>
                 <div v-else></div>
 
-                <button @click="openModal()"
-                    class="w-full lg:w-auto flex items-center justify-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black px-8 py-4 rounded-2xl shadow-xl hover:-translate-y-1 transition-all active:scale-95 text-xs uppercase tracking-widest cursor-pointer">
-                    <Plus class="w-5 h-5" />
-                    <span>Nuevo {{ activeTab.slice(0, -1) }}</span>
-                </button>
+                <BaseButton variant="primary" size="lg" class="w-full lg:w-auto" @click="openModal()">
+                    <template #icon><Plus class="w-5 h-5" /></template>
+                    Nuevo {{ activeTab.slice(0, -1) }}
+                </BaseButton>
             </div>
 
             <!-- Content Area -->
@@ -486,11 +486,10 @@ const deleteItem = async (id: number) => {
                         </div>
 
                         <div class="p-8 bg-slate-50 dark:bg-slate-900/50 flex flex-col sm:flex-row gap-4">
-                            <button @click="showModal = false" class="flex-1 px-8 py-4 text-xs font-black uppercase tracking-widest text-slate-500 bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 transition-all hover:bg-slate-50 cursor-pointer">Cerrar</button>
-                            <button v-if="activeTab === 'desempenos'" @click="saveItem" :disabled="saving" class="flex-1 flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-violet-600 to-purple-700 text-white font-black text-xs rounded-2xl shadow-xl shadow-violet-500/20 transition-all transform active:scale-95 disabled:opacity-70 cursor-pointer">
-                                <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
-                                <span class="uppercase tracking-widest">{{ saving ? 'Guardando...' : 'Guardar Cambios' }}</span>
-                            </button>
+                            <BaseButton variant="secondary" size="lg" class="flex-1" @click="showModal = false">Cerrar</BaseButton>
+                            <BaseButton v-if="activeTab === 'desempenos'" variant="primary" size="lg" class="flex-1" :loading="saving" @click="saveItem">
+                                {{ saving ? 'Guardando...' : 'Guardar Cambios' }}
+                            </BaseButton>
                         </div>
                     </div>
                 </div>

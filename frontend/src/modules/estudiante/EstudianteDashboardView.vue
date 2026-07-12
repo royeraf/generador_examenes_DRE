@@ -5,6 +5,7 @@ import { useAuthStore } from '../../stores/auth'
 import { apiClient } from '../../shared/services/api'
 import EstudianteNavbar from './components/EstudianteNavbar.vue'
 import { isSidebarCollapsed } from './composables/useStudentLayout'
+import BaseButton from '../../shared/components/BaseButton.vue'
 import {
   Trophy, Flame, Target, Sparkles,
   BookOpen, Star, Zap,
@@ -334,9 +335,9 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
         <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-xs mx-auto">
           Aún no has rendido exámenes. Empieza hoy mismo y desbloquea tus primeros logros.
         </p>
-        <button @click="router.push('/estudiante/examenes')" class="mt-8 px-8 py-3 bg-teal-500 text-white font-bold rounded-xl shadow-lg shadow-teal-500/25 hover:scale-105 active:scale-95 transition-all">
+        <BaseButton type="button" variant="primary" size="lg" class="mt-8" @click="router.push('/estudiante/examenes')">
           Ver Exámenes Disponibles
-        </button>
+        </BaseButton>
       </section>
 
       <!-- Footer Info -->

@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import { apiClient } from '../../shared/services/api'
 import EstudianteNavbar from './components/EstudianteNavbar.vue'
 import { isSidebarCollapsed } from './composables/useStudentLayout'
+import BaseButton from '../../shared/components/BaseButton.vue'
 import {
   Loader2, AlertCircle, BarChart3,
   BookOpen, Calculator, Target, TrendingUp, Calendar, Award
@@ -84,10 +85,9 @@ const nivelLabels: Record<string, string> = {
         </div>
         <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Sin actividad aún</h2>
         <p class="text-slate-500 dark:text-slate-400 max-w-xs">Completa al menos una evaluación para comenzar a trackear tu progreso.</p>
-        <button @click="router.push('/estudiante/examenes')"
-          class="mt-8 px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold transition-all active:scale-95 shadow-lg">
+        <BaseButton type="button" variant="primary" size="lg" class="mt-8" @click="router.push('/estudiante/examenes')">
           Ver exámenes
-        </button>
+        </BaseButton>
       </div>
 
       <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-8">

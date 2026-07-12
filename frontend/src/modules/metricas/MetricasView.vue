@@ -5,6 +5,7 @@ import { apiClient } from '../../shared/services/api'
 import Navbar from '../../shared/components/Navbar.vue'
 import Footer from '../../shared/components/Footer.vue'
 import EduBackground from '../../shared/components/EduBackground.vue'
+import BaseButton from '../../shared/components/BaseButton.vue'
 import {
   Users, BookOpen, Calculator,
   Clock, BarChart3, RefreshCw,
@@ -104,11 +105,12 @@ const rolLabel = computed(() => {
             Estadísticas consolidadas para el rol <span class="text-indigo-600 dark:text-indigo-400 font-bold border-b-2 border-indigo-500/20">{{ rolLabel }}</span>.
           </p>
         </div>
-        <button @click="fetchMetricas" :disabled="loading"
-          class="group flex items-center justify-center gap-2 px-6 py-3 text-sm font-bold text-white bg-slate-900 dark:bg-white dark:text-slate-900 rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-slate-900/10 dark:shadow-white/5 disabled:opacity-50 cursor-pointer">
-          <RefreshCw class="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" :class="{'animate-spin': loading}" />
-          <span>Actualizar Datos</span>
-        </button>
+        <BaseButton type="button" variant="primary" size="md" class="group" :disabled="loading" @click="fetchMetricas">
+          <template #icon>
+            <RefreshCw class="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" :class="{'animate-spin': loading}" />
+          </template>
+          Actualizar Datos
+        </BaseButton>
       </div>
 
       <!-- Error state -->

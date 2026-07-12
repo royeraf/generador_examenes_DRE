@@ -4,6 +4,7 @@ import { organizacionService, ubigeoService, type UgelCreatePayload } from '../.
 import type { Ugel, Provincia } from '../../shared/types'
 import Header from '../../shared/components/Header.vue'
 import EduBackground from '../../shared/components/EduBackground.vue'
+import BaseButton from '../../shared/components/BaseButton.vue'
 import { Plus, Edit2, Trash2, Loader2, AlertCircle, X, Building, MapPin, ChevronDown } from 'lucide-vue-next'
 import Swal from 'sweetalert2'
 
@@ -124,11 +125,10 @@ async function eliminar(ugel: Ugel) {
       <!-- Action Bar -->
       <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 bg-white dark:bg-slate-800 p-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 shadow-sm animate-in fade-in slide-in-from-top-2 duration-500">
         <h2 class="text-lg font-black text-slate-800 dark:text-white tracking-tight uppercase">Unidades Ejecutoras</h2>
-        <button @click="openCreate"
-          class="w-full sm:w-auto flex items-center justify-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black px-8 py-4 rounded-2xl shadow-xl hover:-translate-y-1 transition-all active:scale-95 text-xs uppercase tracking-widest cursor-pointer">
-          <Plus class="w-5 h-5" />
-          <span>Nueva UGEL</span>
-        </button>
+        <BaseButton variant="primary" size="lg" class="w-full sm:w-auto" @click="openCreate">
+          <template #icon><Plus class="w-5 h-5" /></template>
+          Nueva UGEL
+        </BaseButton>
       </div>
 
       <div v-if="loading" class="flex-1 flex flex-col items-center justify-center py-20">
@@ -259,11 +259,10 @@ async function eliminar(ugel: Ugel) {
             </div>
 
             <div class="p-8 bg-slate-50 dark:bg-slate-900/50 flex flex-col sm:flex-row gap-4">
-              <button @click="showModal = false" class="flex-1 px-8 py-4 text-xs font-black uppercase tracking-widest text-slate-500 bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 transition-all hover:bg-slate-50 cursor-pointer">Cancelar</button>
-              <button @click="guardar" :disabled="saving" class="flex-1 flex items-center justify-center gap-3 py-4 bg-gradient-to-r from-indigo-600 to-indigo-800 text-white font-black text-xs rounded-2xl shadow-xl shadow-indigo-500/20 transition-all transform active:scale-95 disabled:opacity-70 cursor-pointer">
-                <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
-                <span class="uppercase tracking-widest">{{ saving ? 'Guardando...' : 'Guardar Cambios' }}</span>
-              </button>
+              <BaseButton variant="secondary" size="lg" class="flex-1" @click="showModal = false">Cancelar</BaseButton>
+              <BaseButton variant="primary" size="lg" class="flex-1" :loading="saving" @click="guardar">
+                {{ saving ? 'Guardando...' : 'Guardar Cambios' }}
+              </BaseButton>
             </div>
           </div>
         </div>

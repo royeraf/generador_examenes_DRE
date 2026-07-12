@@ -45,6 +45,7 @@ import {
 } from 'lucide-vue-next';
 import ThinkingLoader from '../../shared/components/ThinkingLoader.vue';
 import Footer from '../../shared/components/Footer.vue'
+import BaseButton from '../../shared/components/BaseButton.vue'
 import logoDre from '../../assets/logo.png'
 import mascotaLectosistem from '../../assets/mascota_lectosistem.png'
 import Checkbox from '../../shared/components/Checkbox.vue'
@@ -564,10 +565,12 @@ const getNivelBadgeClass = (nivel: string): string => {
                   <span class="text-teal-600 font-bold bg-teal-100 px-2 py-0.5 rounded-full">{{ archivo.palabras
                   }}p</span>
                 </div>
-                <button @click="clearFiles"
-                  class="text-xs text-red-500 hover:text-red-600 flex items-center gap-1 font-medium cursor-pointer">
-                  <X class="w-3 h-3" /> Quitar archivo
-                </button>
+                <BaseButton size="sm" variant="destructive" @click="clearFiles">
+                  <template #icon>
+                    <X class="w-3.5 h-3.5" />
+                  </template>
+                  Quitar archivo
+                </BaseButton>
               </div>
 
               <div v-if="uploadError"
@@ -761,16 +764,15 @@ const getNivelBadgeClass = (nivel: string): string => {
             </div>
 
             <!-- Generate Button - Educativo -->
-            <button @click="generarPreguntas"
+            <BaseButton size="lg" block class="hover:-translate-y-1" :loading="loading"
               :disabled="loading || !selectedGradoId || selectedDesempenoIds.length === 0"
-              class="w-full px-4 py-4 sm:px-6 sm:py-5 bg-gradient-to-r from-teal-500 via-teal-600 to-sky-500 hover:from-teal-600 hover:via-teal-700 hover:to-sky-600 text-white font-bold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 shadow-xl shadow-teal-500/30 hover:shadow-2xl hover:shadow-teal-500/40 hover:-translate-y-1 text-base sm:text-lg cursor-pointer">
-              <Loader2 v-if="loading" class="w-5 h-5 sm:w-6 sm:h-6 animate-spin" />
-              <template v-else>
-                <Rocket class="w-5 h-5 sm:w-6 sm:h-6" />
-                <span>{{ loading ? 'Generando...' : 'Generar Examen con IA' }}</span>
+              @click="generarPreguntas">
+              <template #icon>
+                <Rocket class="w-5 h-5" />
               </template>
+              <span>{{ loading ? 'Generando...' : 'Generar Examen con IA' }}</span>
               <span v-if="loading" class="hidden sm:inline">Generando examen mágico...</span>
-            </button>
+            </BaseButton>
 
             <!-- Error -->
             <div v-if="error"
@@ -853,12 +855,13 @@ const getNivelBadgeClass = (nivel: string): string => {
                       </span>
                     </div>
                   </div>
-                  <button @click="descargarExamenWord" :disabled="descargandoWord"
-                    class="w-full sm:w-auto px-4 py-2 bg-white text-amber-600 hover:bg-amber-50 text-xs sm:text-sm font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:-translate-y-0.5 cursor-pointer">
-                    <Loader2 v-if="descargandoWord" class="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
-                    <Download v-else class="w-3 h-3 sm:w-4 sm:h-4" />
+                  <BaseButton size="sm" variant="secondary" block class="sm:w-auto hover:-translate-y-0.5"
+                    :loading="descargandoWord" :disabled="descargandoWord" @click="descargarExamenWord">
+                    <template #icon>
+                      <Download class="w-3.5 h-3.5" />
+                    </template>
                     {{ descargandoWord ? 'Generando...' : 'Descargar Word' }}
-                  </button>
+                  </BaseButton>
                 </div>
               </div>
 

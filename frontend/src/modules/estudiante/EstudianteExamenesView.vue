@@ -7,6 +7,7 @@ import { useTheme } from '../../shared/composables/useTheme'
 import EstudianteNavbar from './components/EstudianteNavbar.vue'
 import { isSidebarCollapsed } from './composables/useStudentLayout'
 import { BookOpen, Loader2, Clock, CheckCircle2, AlertCircle, X, BookText, Calculator, ArrowRight, Zap, Target, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import BaseButton from '../../shared/components/BaseButton.vue'
 
 const router = useRouter()
 useTheme()
@@ -268,17 +269,15 @@ const nivelLabels: Record<string, string> = {
               <BookText class="w-5 h-5" />
             </button>
             <template v-if="!examen.completado || examen.mis_intentos < examen.intentos_permitidos">
-              <button @click="router.push(`/estudiante/examen/${examen.id}`)"
-                class="flex-1 h-11 sm:h-12 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-sm rounded-xl shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+              <BaseButton type="button" variant="primary" size="md" class="flex-1" @click="router.push(`/estudiante/examen/${examen.id}`)">
                 {{ examen.mis_intentos > 0 ? 'Reintentar' : 'Comenzar' }}
                 <ArrowRight class="w-4 h-4" />
-              </button>
+              </BaseButton>
             </template>
-            <button v-else @click="router.push(`/estudiante/examen/${examen.id}?modo=resultados`)"
-              class="flex-1 h-11 sm:h-12 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold text-sm rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2">
-              <Target class="w-4 h-4" />
+            <BaseButton v-else type="button" variant="secondary" size="md" class="flex-1" @click="router.push(`/estudiante/examen/${examen.id}?modo=resultados`)">
+              <template #icon><Target class="w-4 h-4" /></template>
               Resultados
-            </button>
+            </BaseButton>
           </div>
         </div>
         </div>
@@ -491,10 +490,9 @@ const nivelLabels: Record<string, string> = {
                 </button>
               </div>
               <div v-else />
-              <button @click="showPreview = false"
-                class="h-9 px-5 text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all">
+              <BaseButton type="button" variant="secondary" size="sm" @click="showPreview = false">
                 Cerrar
-              </button>
+              </BaseButton>
             </div>
 
           </div>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Target, GraduationCap, BookOpen, Key, Plus, X } from 'lucide-vue-next';
 import ComboBox from '../../../shared/components/ComboBox.vue';
+import BaseButton from '../../../shared/components/BaseButton.vue';
 import { computed } from 'vue';
 import type { NivelConfig } from '../../../shared/types';
 
@@ -137,12 +138,13 @@ const localCompetencia = computed({
                         </div>
                     </div>
 
-                    <button @click="emit('addPregunta', String(key))"
-                        class="w-full py-4 border-2 border-dashed rounded-xl text-slate-500 hover:text-teal-600 hover:border-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/10 transition-all duration-300 flex items-center justify-center gap-2 text-sm font-bold"
-                        :style="{ borderColor: nivel.color + '50' }">
-                        <Plus class="w-5 h-5" />
+                    <BaseButton size="lg" variant="secondary" block :style="{ borderColor: nivel.color + '50' }"
+                        @click="emit('addPregunta', String(key))">
+                        <template #icon>
+                            <Plus class="w-5 h-5" />
+                        </template>
                         Agregar Pregunta
-                    </button>
+                    </BaseButton>
                 </div>
             </div>
         </div>

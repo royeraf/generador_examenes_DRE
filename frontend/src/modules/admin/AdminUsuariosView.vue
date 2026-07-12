@@ -13,6 +13,7 @@ import {
 import ComboBox from '../../shared/components/ComboBox.vue'
 import Header from '../../shared/components/Header.vue'
 import EduBackground from '../../shared/components/EduBackground.vue'
+import BaseButton from '../../shared/components/BaseButton.vue'
 import Swal from 'sweetalert2'
 import { useForm, useField } from 'vee-validate'
 import * as yup from 'yup'
@@ -890,19 +891,19 @@ async function saveResetPassword() {
         
         <!-- Action Buttons -->
         <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
-          <button @click="openCreate"
-            class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-bold px-4 md:px-5 py-2 md:py-2.5 rounded-xl shadow-lg transition-all duration-200 hover:-translate-y-0.5 text-xs sm:text-sm cursor-pointer">
-            <Plus class="w-4 h-4" />
-            <span>Nuevo Usuario</span>
-          </button>
+          <BaseButton variant="primary" size="sm" class="flex-1 sm:flex-none" @click="openCreate">
+            <template #icon><Plus class="w-3.5 h-3.5" /></template>
+            Nuevo Usuario
+          </BaseButton>
 
-          <button @click="showStats = !showStats"
-            class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold px-4 md:px-5 py-2 md:py-2.5 rounded-xl shadow-sm border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200 text-xs sm:text-sm cursor-pointer">
-            <EyeOff v-if="showStats" class="w-4 h-4 text-slate-400" />
-            <Eye v-else class="w-4 h-4 text-slate-400" />
+          <BaseButton variant="secondary" size="sm" class="flex-1 sm:flex-none" @click="showStats = !showStats">
+            <template #icon>
+              <EyeOff v-if="showStats" class="w-3.5 h-3.5 text-slate-400" />
+              <Eye v-else class="w-3.5 h-3.5 text-slate-400" />
+            </template>
             <span class="hidden sm:inline">{{ showStats ? 'Ocultar Estadísticas' : 'Ver Estadísticas' }}</span>
             <span class="sm:hidden">{{ showStats ? 'Ocultar' : 'Ver Estadísticas' }}</span>
-          </button>
+          </BaseButton>
         </div>
 
         <!-- Search Bar -->
@@ -1297,20 +1298,15 @@ async function saveResetPassword() {
                     </div>
                     <!-- Acciones -->
                     <div class="flex items-center gap-2 pt-1">
-                      <button @click="saveRolConfig(rol.codigo)" :disabled="savingRol[rol.codigo]"
-                        :class="['flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all cursor-pointer',
-                          savingRol[rol.codigo]
-                            ? 'bg-slate-100 dark:bg-slate-700 text-slate-400 cursor-not-allowed'
-                            : 'bg-teal-500 hover:bg-teal-600 text-white']">
-                        <Loader2 v-if="savingRol[rol.codigo]" class="w-3 h-3 animate-spin" />
-                        <Save v-else class="w-3 h-3" />
+                      <BaseButton variant="primary" size="sm" :disabled="savingRol[rol.codigo]" :loading="savingRol[rol.codigo]"
+                        @click="saveRolConfig(rol.codigo)">
+                        <template #icon><Save class="w-3.5 h-3.5" /></template>
                         Guardar
-                      </button>
-                      <button @click="cancelEditRol(rol.codigo)" :disabled="savingRol[rol.codigo]"
-                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-all cursor-pointer">
-                        <RotateCcw class="w-3 h-3" />
+                      </BaseButton>
+                      <BaseButton variant="secondary" size="sm" :disabled="savingRol[rol.codigo]" @click="cancelEditRol(rol.codigo)">
+                        <template #icon><RotateCcw class="w-3.5 h-3.5" /></template>
                         Cancelar
-                      </button>
+                      </BaseButton>
                     </div>
                   </div>
                 </div>
@@ -1630,15 +1626,10 @@ async function saveResetPassword() {
 
             <!-- Modal Footer -->
             <div class="flex justify-end gap-2 sm:gap-3 p-4 sm:px-6 sm:py-4 border-t border-slate-300 dark:border-slate-700 shrink-0 bg-slate-50 dark:bg-slate-800/50">
-              <button @click="closeModal"
-                class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors">
-                Cancelar
-              </button>
-              <button @click="saveDocente" :disabled="saving"
-                class="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-bold text-sm rounded-xl shadow-lg transition-all disabled:opacity-70 disabled:cursor-not-allowed">
-                <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
+              <BaseButton variant="secondary" size="sm" @click="closeModal">Cancelar</BaseButton>
+              <BaseButton variant="primary" size="sm" :disabled="saving" :loading="saving" @click="saveDocente">
                 {{ editingId ? 'Guardar Cambios' : 'Crear Usuario' }}
-              </button>
+              </BaseButton>
             </div>
 
           </div>
@@ -1726,16 +1717,11 @@ async function saveResetPassword() {
 
             <!-- Footer -->
             <div class="flex items-center justify-end gap-2 p-4 sm:px-5 sm:py-4 border-t border-slate-300 dark:border-slate-700 shrink-0 bg-slate-50 dark:bg-slate-800/50">
-              <button @click="showResetModal = false"
-                class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors">
-                Cerrar
-              </button>
-              <button @click="saveResetPassword" :disabled="resetSaving || !resetPassword"
-                class="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm rounded-xl shadow transition-all disabled:opacity-60 disabled:cursor-not-allowed">
-                <Loader2 v-if="resetSaving" class="w-3.5 h-3.5 animate-spin" />
-                <KeyRound v-else class="w-3.5 h-3.5" />
+              <BaseButton variant="secondary" size="sm" @click="showResetModal = false">Cerrar</BaseButton>
+              <BaseButton variant="primary" size="sm" :disabled="resetSaving || !resetPassword" :loading="resetSaving" @click="saveResetPassword">
+                <template #icon><KeyRound class="w-3.5 h-3.5" /></template>
                 Restablecer
-              </button>
+              </BaseButton>
             </div>
 
           </div>
@@ -1857,10 +1843,7 @@ async function saveResetPassword() {
             </div>
             
             <div class="bg-slate-50 dark:bg-slate-800/50 p-4 border-t border-slate-300 dark:border-slate-700 flex justify-end shrink-0">
-               <button @click="showDetailsModal = false"
-                  class="w-full sm:w-auto px-5 py-2.5 sm:py-2 text-sm font-bold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 rounded-xl transition-all shadow-sm">
-                  Cerrar
-                </button>
+               <BaseButton variant="secondary" size="sm" class="w-full sm:w-auto" @click="showDetailsModal = false">Cerrar</BaseButton>
             </div>
           </div>
         </div>

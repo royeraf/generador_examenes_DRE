@@ -8,6 +8,7 @@ import {
 
 import Header from '../../shared/components/Header.vue';
 import EduBackground from '../../shared/components/EduBackground.vue';
+import BaseButton from '../../shared/components/BaseButton.vue';
 import { showError, showSuccess, showDeleteConfirm } from '../../shared/utils/swal';
 
 // Responsive State
@@ -181,11 +182,10 @@ const deleteItem = async (id: number) => {
                 </div>
                 <div v-else></div>
 
-                <button @click="openModal()"
-                    class="w-full sm:w-auto flex items-center justify-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black px-6 py-3.5 rounded-2xl shadow-xl hover:-translate-y-1 transition-all active:scale-95 text-xs uppercase tracking-widest cursor-pointer">
-                    <Plus class="w-5 h-5" />
-                    <span>Nuevo {{ activeTab.slice(0, -1) }}</span>
-                </button>
+                <BaseButton variant="primary" size="md" class="w-full sm:w-auto" @click="openModal()">
+                    <template #icon><Plus class="w-4 h-4" /></template>
+                    Nuevo {{ activeTab.slice(0, -1) }}
+                </BaseButton>
             </div>
 
             <!-- Content Area -->
@@ -382,11 +382,11 @@ const deleteItem = async (id: number) => {
                         </div>
 
                         <div class="p-6 bg-slate-50 dark:bg-slate-900/50 flex flex-col sm:flex-row gap-3">
-                            <button @click="showModal = false" class="flex-1 px-6 py-3.5 text-xs font-black uppercase tracking-widest text-slate-500 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 transition-all cursor-pointer">Cancelar</button>
-                            <button @click="saveItem" class="flex-1 flex items-center justify-center gap-3 py-3.5 bg-gradient-to-r from-teal-500 to-emerald-600 text-white font-black text-xs rounded-2xl shadow-xl shadow-teal-500/20 transition-all transform active:scale-95 cursor-pointer">
-                                <Save class="w-4 h-4" />
-                                <span class="uppercase tracking-widest">Guardar Cambios</span>
-                            </button>
+                            <BaseButton variant="secondary" size="md" class="flex-1" @click="showModal = false">Cancelar</BaseButton>
+                            <BaseButton variant="primary" size="md" class="flex-1" @click="saveItem">
+                                <template #icon><Save class="w-4 h-4" /></template>
+                                Guardar Cambios
+                            </BaseButton>
                         </div>
                     </div>
                 </div>

@@ -2,6 +2,7 @@
 import { shallowRef } from 'vue';
 import { ClipboardList, UserPlus, Calculator, Users, Trophy, GraduationCap, Trash2, Download, Upload } from 'lucide-vue-next';
 import type { Estudiante, NivelConfig } from '../../../shared/types';
+import BaseButton from '../../../shared/components/BaseButton.vue';
 
 // Define Props
 interface Props {
@@ -46,27 +47,33 @@ const hasPreguntas = () => {
                 <p class="text-xs sm:text-sm text-slate-500 mt-1">Ingresa datos y respuestas</p>
             </div>
             <div class="flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto">
-                <button @click="emit('addEstudiante')"
-                    class="flex-1 sm:flex-none px-3 py-2 sm:px-5 sm:py-3 bg-white dark:bg-slate-800 border-2 border-teal-200 dark:border-slate-700 rounded-xl text-teal-700 dark:text-slate-300 hover:bg-teal-50 dark:hover:bg-slate-700 text-xs sm:text-base font-bold flex items-center justify-center gap-2 transition-all duration-300">
-                    <UserPlus class="w-4 h-4 sm:w-5 sm:h-5" />
+                <BaseButton variant="secondary" class="flex-1 sm:flex-none" @click="emit('addEstudiante')">
+                    <template #icon>
+                        <UserPlus class="w-4 h-4" />
+                    </template>
                     <span class="whitespace-nowrap">Estudiante</span>
-                </button>
-                <button v-if="hasPreguntas()" @click="emit('descargarPlantilla')"
-                    class="flex-1 sm:flex-none px-3 py-2 sm:px-5 sm:py-3 bg-white dark:bg-slate-800 border-2 border-sky-200 dark:border-slate-700 rounded-xl text-sky-700 dark:text-slate-300 hover:bg-sky-50 dark:hover:bg-slate-700 text-xs sm:text-base font-bold flex items-center justify-center gap-2 transition-all duration-300">
-                    <Download class="w-4 h-4 sm:w-5 sm:h-5" />
+                </BaseButton>
+                <BaseButton v-if="hasPreguntas()" variant="secondary" class="flex-1 sm:flex-none"
+                    @click="emit('descargarPlantilla')">
+                    <template #icon>
+                        <Download class="w-4 h-4" />
+                    </template>
                     <span class="whitespace-nowrap">Plantilla</span>
-                </button>
-                <button v-if="hasPreguntas()" @click="fileInput?.click()"
-                    class="flex-1 sm:flex-none px-3 py-2 sm:px-5 sm:py-3 bg-white dark:bg-slate-800 border-2 border-violet-200 dark:border-slate-700 rounded-xl text-violet-700 dark:text-slate-300 hover:bg-violet-50 dark:hover:bg-slate-700 text-xs sm:text-base font-bold flex items-center justify-center gap-2 transition-all duration-300">
-                    <Upload class="w-4 h-4 sm:w-5 sm:h-5" />
+                </BaseButton>
+                <BaseButton v-if="hasPreguntas()" variant="secondary" class="flex-1 sm:flex-none"
+                    @click="fileInput?.click()">
+                    <template #icon>
+                        <Upload class="w-4 h-4" />
+                    </template>
                     <span class="whitespace-nowrap">Importar</span>
-                </button>
+                </BaseButton>
                 <input ref="fileInput" type="file" accept=".xlsx,.xls" class="hidden" @change="onFileChange" />
-                <button @click="emit('calcularResultados')"
-                    class="flex-1 sm:flex-none px-3 py-2 sm:px-5 sm:py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl hover:from-amber-600 hover:to-orange-600 text-xs sm:text-base font-bold shadow-lg shadow-amber-500/30 flex items-center justify-center gap-2 transition-all duration-300 hover:-translate-y-0.5">
-                    <Calculator class="w-4 h-4 sm:w-5 sm:h-5" />
+                <BaseButton class="flex-1 sm:flex-none hover:-translate-y-0.5" @click="emit('calcularResultados')">
+                    <template #icon>
+                        <Calculator class="w-4 h-4" />
+                    </template>
                     <span class="whitespace-nowrap">Calcular</span>
-                </button>
+                </BaseButton>
             </div>
         </div>
 

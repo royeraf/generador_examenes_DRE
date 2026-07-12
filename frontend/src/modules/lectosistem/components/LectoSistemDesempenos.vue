@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Target, BookOpen, FileSearch, Lightbulb, Rocket, AlertTriangle, PanelRight } from 'lucide-vue-next';
-import ThinkingLoader from '../../../shared/components/ThinkingLoader.vue';
 import Checkbox from '../../../shared/components/Checkbox.vue';
+import BaseButton from '../../../shared/components/BaseButton.vue';
 import type { DesempenoItem } from '../../../shared/types';
 
 const props = defineProps<{
@@ -129,15 +129,12 @@ const getCapacidadLabel = (tipo: string): string => {
 
         <!-- Generate Button fixed at bottom -->
         <div v-if="!collapsed" class="p-4 border-t border-slate-300 dark:border-slate-700 shrink-0 bg-white dark:bg-slate-800">
-            <button @click="emit('generar-preguntas')"
+            <BaseButton variant="primary" block
                 :disabled="loading || !selectedGradoId || selectedDesempenoIds.length === 0 || isBreakdownValid === false"
-                class="w-full py-2.5 rounded-full font-medium transition-all flex items-center justify-center gap-2 text-sm cursor-pointer"
-                :class="loading ? 'bg-teal-500 dark:bg-teal-600 text-slate-500 dark:text-slate-400 cursor-wait' : (isBreakdownValid === false || !selectedGradoId || selectedDesempenoIds.length === 0 ? 'bg-slate-100 dark:bg-slate-800/50 text-slate-500 cursor-not-allowed' : 'bg-white text-black hover:bg-slate-200 shadow-lg')">
-                <ThinkingLoader v-if="loading" text="Generando..." variant="teal" />
-                <template v-else>
-                    <Rocket class="w-4 h-4" /> Generar Examen
-                </template>
-            </button>
+                :loading="loading" @click="emit('generar-preguntas')">
+                <template #icon><Rocket class="w-4 h-4" /></template>
+                {{ loading ? 'Generando...' : 'Generar Examen' }}
+            </BaseButton>
             <div v-if="error" class="mt-3 p-2 bg-red-500/10 border border-red-500/20 rounded-lg text-[10px] text-red-400 flex items-start gap-2">
                 <AlertTriangle class="w-3.5 h-3.5 shrink-0 mt-0.5" />
                 <p>{{ error }}</p>

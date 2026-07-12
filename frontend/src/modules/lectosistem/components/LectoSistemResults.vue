@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { Bot, AlertTriangle, Download, Loader2, Sparkles, MessageSquare, X, CheckCircle2, XCircle } from 'lucide-vue-next';
 import ThinkingLoader from '../../../shared/components/ThinkingLoader.vue';
 import type { Examen, FilaTablaRespuestas } from '../../../shared/types';
+import BaseButton from '../../../shared/components/BaseButton.vue';
 
 interface Resultado {
     grado: string;
@@ -222,10 +223,9 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
 
                         <!-- Footer modal -->
                         <div class="px-5 py-3 border-t border-slate-300 dark:border-slate-700 flex justify-end">
-                            <button @click="cerrarModal"
-                                class="px-4 py-2 text-xs font-medium rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">
+                            <BaseButton variant="secondary" size="sm" @click="cerrarModal">
                                 Cerrar
-                            </button>
+                            </BaseButton>
                         </div>
                     </div>
                 </div>

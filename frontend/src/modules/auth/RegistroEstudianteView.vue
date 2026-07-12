@@ -2,8 +2,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { registroService, type RegistroEstudiantePayload } from '../../shared/services/api'
-import { Eye, EyeOff, AlertCircle, CheckCircle, GraduationCap, Loader2, ArrowRight, ArrowLeft, Sparkles } from 'lucide-vue-next'
+import { Eye, EyeOff, AlertCircle, CheckCircle, GraduationCap, ArrowRight, ArrowLeft, Sparkles } from 'lucide-vue-next'
 import ThemeToggle from '../../shared/components/ThemeToggle.vue'
+import BaseButton from '../../shared/components/BaseButton.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -129,10 +130,10 @@ async function registrar() {
               IMPORTANTE: Guarda este código. Lo usarás siempre para entrar al sistema.
             </p>
           </div>
-          <button @click="router.push('/login')" class="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold py-4 rounded-xl shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+          <BaseButton type="button" variant="primary" size="lg" block @click="router.push('/login')">
             Ir al Inicio de Sesión
             <ArrowRight class="w-5 h-5" />
-          </button>
+          </BaseButton>
         </div>
 
         <!-- Form Card -->
@@ -168,15 +169,17 @@ async function registrar() {
                 </div>
               </div>
 
-              <button
+              <BaseButton
+                type="button"
+                variant="primary"
+                size="lg"
+                block
+                :loading="validandoCodigo"
                 @click="validarCodigo"
-                :disabled="validandoCodigo"
-                class="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold py-4 rounded-xl shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                <Loader2 v-if="validandoCodigo" class="w-5 h-5 animate-spin" />
-                <span>Continuar Registro</span>
+                Continuar Registro
                 <ArrowRight v-if="!validandoCodigo" class="w-5 h-5" />
-              </button>
+              </BaseButton>
 
               <div class="pt-6 border-t border-slate-300 dark:border-slate-800 text-center">
                 <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">
@@ -251,18 +254,21 @@ async function registrar() {
               </div>
 
               <div class="flex flex-col sm:flex-row gap-3 pt-4">
-                <button @click="step = 'codigo'" class="w-full sm:w-1/3 py-3 text-sm font-bold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2">
-                  <ArrowLeft class="w-4 h-4" />
+                <BaseButton type="button" variant="secondary" size="md" class="w-full sm:w-1/3" @click="step = 'codigo'">
+                  <template #icon><ArrowLeft class="w-4 h-4" /></template>
                   Atrás
-                </button>
-                <button
+                </BaseButton>
+                <BaseButton
+                  type="button"
+                  variant="primary"
+                  size="md"
+                  class="w-full sm:flex-1"
+                  :loading="saving"
+                  :disabled="!!formError"
                   @click="registrar"
-                  :disabled="saving || !!formError"
-                  class="w-full sm:flex-1 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-sm rounded-xl shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
-                  <span>Finalizar Registro</span>
-                </button>
+                  Finalizar Registro
+                </BaseButton>
               </div>
             </div>
           </Transition>

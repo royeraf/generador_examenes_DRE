@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import {
-    Zap, AlertTriangle, Award, Loader2, Download,
+    Zap, AlertTriangle, Award, Download,
     ClipboardCheck, BookOpen, HelpCircle, Lightbulb,
     Check, LayoutGrid, Sparkles, GraduationCap, Target,
     MessageSquare, CheckCircle2, XCircle, X
 } from 'lucide-vue-next';
 import ThinkingLoader from '../../../shared/components/ThinkingLoader.vue';
 import type { Examen, FilaTablaRespuestas } from '../../../shared/types';
+import BaseButton from '../../../shared/components/BaseButton.vue';
 
 interface Resultado {
     grado: string;
@@ -127,12 +128,10 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                         <Link class="w-4 h-4" />
                         Vincular
                     </button> -->
-                    <button @click="emit('descargarExamenWord')" :disabled="descargandoWord"
-                        class="flex-1 py-2.5 bg-white/20 hover:bg-white/30 text-white text-sm font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 border border-white/40 disabled:opacity-50">
-                        <Loader2 v-if="descargandoWord" class="w-4 h-4 animate-spin" />
-                        <Download v-else class="w-4 h-4" />
+                    <BaseButton variant="primary" size="sm" class="flex-1" :loading="descargandoWord" @click="emit('descargarExamenWord')">
+                        <template #icon><Download class="w-3.5 h-3.5" /></template>
                         {{ descargandoWord ? 'Generando...' : 'Descargar Word' }}
-                    </button>
+                    </BaseButton>
                 </div>
             </div>
 
@@ -361,10 +360,9 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                         </div>
                     </div>
                     <div class="px-5 py-3 border-t border-slate-300 dark:border-slate-700 flex justify-end">
-                        <button @click="cerrarRetro"
-                            class="px-4 py-2 text-xs font-medium rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors">
+                        <BaseButton variant="secondary" size="sm" @click="cerrarRetro">
                             Cerrar
-                        </button>
+                        </BaseButton>
                     </div>
                 </div>
             </div>

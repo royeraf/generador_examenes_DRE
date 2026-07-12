@@ -17,6 +17,7 @@ import {
 
 import Checkbox from '../../shared/components/Checkbox.vue';
 import ComboBox from '../../shared/components/ComboBox.vue';
+import BaseButton from '../../shared/components/BaseButton.vue';
 import LectoSistemDesempenos from './components/LectoSistemDesempenos.vue';
 import LectoSistemResults from './components/LectoSistemResults.vue';
 import ExamPreviewModal from './components/ExamPreviewModal.vue';
@@ -564,7 +565,7 @@ onMounted(async () => {
         </div>
         <div v-else-if="fetchError" class="flex-1 flex flex-col items-center justify-center gap-3">
           <p class="text-red-400 text-sm text-center">{{ fetchError }}</p>
-          <button @click="fetchHistory()" class="text-xs px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors cursor-pointer">Reintentar</button>
+          <BaseButton variant="secondary" size="sm" @click="fetchHistory()">Reintentar</BaseButton>
         </div>
         <div v-else-if="history.length === 0" class="flex-1 flex flex-col items-center justify-center">
           <History class="w-10 h-10 text-slate-800 dark:text-white/20 mx-auto mb-4" />
@@ -574,7 +575,7 @@ onMounted(async () => {
         <div v-else class="flex-1 overflow-y-auto space-y-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <h3 class="text-slate-800 dark:text-white font-medium flex items-center gap-2">Exámenes Generados ({{ history.length }})</h3>
-            <button @click="confirmarLimpiarHistorial" class="text-xs text-red-400 hover:text-red-300 font-semibold px-3 py-1.5 rounded-xl bg-red-400/10 hover:bg-red-400/20 transition-all duration-150 cursor-pointer">Limpiar todo</button>
+            <BaseButton variant="destructive" size="sm" @click="confirmarLimpiarHistorial">Limpiar todo</BaseButton>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             <div v-for="(entry, index) in history" :key="entry.id" class="bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-300 dark:border-slate-700 p-4 flex flex-col gap-3 hover:shadow-md hover:border-slate-400 dark:hover:border-slate-600 transition-all duration-200">
@@ -586,11 +587,17 @@ onMounted(async () => {
                 <div>Grado: {{ entry.gradoLabel }}</div>
                 <div>Preguntas: {{ entry.resultado.total_preguntas }}</div>
               </div>
-              <div class="flex gap-1 mt-auto overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                <button @click="cargarExamen(index)" class="shrink-0 flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer transition-colors duration-150"><Eye class="w-3.5 h-3.5" />Ver</button>
-                <button @click="descargarWordHistorial(index)" class="shrink-0 flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer transition-colors duration-150"><FileDown class="w-3.5 h-3.5" />Word</button>
+              <div class="flex flex-wrap gap-1.5 mt-auto">
+                <BaseButton variant="secondary" size="xs" @click="cargarExamen(index)">
+                  <template #icon><Eye class="w-3.5 h-3.5" /></template>Ver
+                </BaseButton>
+                <BaseButton variant="secondary" size="xs" @click="descargarWordHistorial(index)">
+                  <template #icon><FileDown class="w-3.5 h-3.5" /></template>Word
+                </BaseButton>
                 <!-- <button @click="vincularDesdeHistorial(index)" class="shrink-0 flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600"><Link class="w-3.5 h-3.5" />Vincular</button> -->
-                <button @click="abrirAsignar(entry)" class="shrink-0 flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 cursor-pointer transition-colors duration-150"><Send class="w-3.5 h-3.5" />Asignar</button>
+                <BaseButton variant="secondary" size="xs" @click="abrirAsignar(entry)">
+                  <template #icon><Send class="w-3.5 h-3.5" /></template>Asignar
+                </BaseButton>
                 <button @click="confirmarEliminar(entry.id)" class="shrink-0 px-2 py-1.5 text-[10px] font-bold text-red-400 bg-red-400/10 rounded-lg hover:bg-red-400/20 cursor-pointer transition-colors duration-150"><Trash2 class="w-3.5 h-3.5"/></button>
               </div>
             </div>
@@ -626,7 +633,7 @@ onMounted(async () => {
                     <div class="flex items-center gap-2">
                       <input type="file" :id="'file-' + idx" class="hidden" :disabled="texto.uploadingFile" accept=".pdf,.doc,.docx" @change="(e) => handleFileUploadAt(idx, e)" />
                       <label :for="'file-' + idx" class="cursor-pointer text-xs flex items-center gap-1.5 px-3 py-1.5 bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-lg transition-colors" :class="{ 'opacity-50 pointer-events-none': texto.uploadingFile }"><CloudUpload class="w-3.5 h-3.5" /> Archivo</label>
-                      <button v-if="texto.filesMetadata && texto.filesMetadata.archivos.length > 0" @click="clearFilesAt(idx)" class="text-xs text-red-400 hover:text-red-300 ml-2">Eliminar archivo</button>
+                      <BaseButton v-if="texto.filesMetadata && texto.filesMetadata.archivos.length > 0" variant="destructive" size="sm" class="ml-2" @click="clearFilesAt(idx)">Eliminar archivo</BaseButton>
                       <button v-if="textosBase.length > 1" @click="removeTexto(idx)" class="text-slate-500 dark:text-slate-400 hover:text-red-400 ml-2"><Trash2 class="w-4 h-4" /></button>
                     </div>
                   </div>
@@ -641,10 +648,12 @@ onMounted(async () => {
                   </div>
                   <textarea v-model="texto.texto" class="w-full h-32 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl p-3 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all resize-none placeholder-slate-400" placeholder="Escribe o pega el texto base aquí..."></textarea>
                 </div>
-                <button v-if="textosBase.length < 4" @click="addTexto" class="w-full py-3 flex items-center justify-center gap-2 border border-dashed border-slate-300 dark:border-slate-500 rounded-xl text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white hover:border-teal-400 hover:bg-slate-100 dark:bg-slate-800/50 transition-all"><Plus class="w-4 h-4" /> Agregar otro texto</button>
+                <BaseButton v-if="textosBase.length < 4" variant="secondary" block @click="addTexto">
+                  <template #icon><Plus class="w-4 h-4" /></template>Agregar otro texto
+                </BaseButton>
               </div>
             </div>
-            <div class="p-5 border-t border-slate-300 dark:border-slate-600 text-right"><button @click="showTextosModal = false" class="px-5 py-2 bg-white text-black font-medium rounded-lg text-sm hover:bg-slate-200">Aceptar</button></div>
+            <div class="p-5 border-t border-slate-300 dark:border-slate-600 text-right"><BaseButton variant="primary" size="sm" @click="showTextosModal = false">Aceptar</BaseButton></div>
           </div>
         </div>
       </Transition>
@@ -690,7 +699,12 @@ onMounted(async () => {
                 <Checkbox v-model="asignarForm.mezclar_alternativas"><span class="text-sm text-slate-600 dark:text-slate-300">Mezclar alternativas</span></Checkbox>
               </div>
             </div>
-            <div class="p-5 border-t border-slate-300 dark:border-slate-600 flex justify-end gap-3"><button @click="asignarModal = null" class="px-4 py-2 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white">Cancelar</button><button @click="confirmarAsignar" :disabled="loadingAsignar || !codigoClaseIdLecto" class="px-5 py-2 bg-teal-500 hover:bg-teal-600 text-white text-sm font-medium rounded-lg disabled:opacity-50 flex items-center gap-2 transition-colors"><Loader2 v-if="loadingAsignar" class="w-4 h-4 animate-spin"/><Send v-else class="w-4 h-4"/> Asignar</button></div>
+            <div class="p-5 border-t border-slate-300 dark:border-slate-600 flex justify-end gap-3">
+              <BaseButton variant="secondary" size="sm" @click="asignarModal = null">Cancelar</BaseButton>
+              <BaseButton variant="primary" size="sm" :disabled="!codigoClaseIdLecto" :loading="loadingAsignar" @click="confirmarAsignar">
+                <template #icon><Send class="w-3.5 h-3.5" /></template>Asignar
+              </BaseButton>
+            </div>
           </div>
         </div>
       </Transition>

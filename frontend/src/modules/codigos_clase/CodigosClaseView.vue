@@ -5,6 +5,7 @@ import { codigosClaseService, organizacionService, type CodigoClase, type Codigo
 import type { Grado } from '../../shared/types'
 import Navbar from '../../shared/components/Navbar.vue'
 import EduBackground from '../../shared/components/EduBackground.vue'
+import BaseButton from '../../shared/components/BaseButton.vue'
 import { Plus, Copy, AlertCircle, Loader2, QrCode, X, Download, School } from 'lucide-vue-next'
 import Swal from 'sweetalert2'
 import QRCode from 'qrcode'
@@ -139,11 +140,12 @@ function descargarQR() {
         <h2 class="text-2xl font-black text-slate-800 dark:text-white">Mis Aulas</h2>
         <p class="text-sm text-slate-500 dark:text-slate-400">Gestiona tus aulas y códigos de acceso para estudiantes</p>
       </div>
-      <button @click="openCreate"
-        class="flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-600 hover:to-indigo-700 text-white font-bold text-sm rounded-2xl shadow-lg shadow-indigo-500/20 hover:-translate-y-0.5 transition-all active:scale-95 cursor-pointer">
-        <Plus class="w-5 h-5" /> 
+      <BaseButton class="hover:-translate-y-0.5" @click="openCreate">
+        <template #icon>
+          <Plus class="w-4 h-4" />
+        </template>
         <span>Nuevo Código</span>
-      </button>
+      </BaseButton>
     </div>
 
     <!-- Cargando -->
@@ -211,10 +213,12 @@ function descargarQR() {
           <div class="flex items-center justify-between pt-2">
             <span class="text-[10px] font-bold text-slate-400">{{ formatFecha(c.fecha_creacion) }}</span>
             <div class="flex items-center gap-2">
-              <button @click="abrirQR(c)" class="flex items-center gap-2 px-4 py-2 bg-teal-500/10 text-teal-600 dark:text-teal-400 font-bold text-xs rounded-xl hover:bg-teal-500 hover:text-white transition-all cursor-pointer">
-                <QrCode class="w-4 h-4" />
+              <BaseButton size="sm" variant="secondary" @click="abrirQR(c)">
+                <template #icon>
+                  <QrCode class="w-3.5 h-3.5" />
+                </template>
                 <span>Ver QR</span>
-              </button>
+              </BaseButton>
               <button @click="toggle(c)"
                 class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 cursor-pointer focus:outline-none"
                 :class="c.is_active ? 'bg-teal-500' : 'bg-slate-300 dark:bg-slate-600'">
@@ -348,11 +352,12 @@ function descargarQR() {
               </p>
 
               <!-- Botón descargar -->
-              <button @click="descargarQR" :disabled="!qrDataUrl"
-                class="self-start flex items-center gap-2 px-5 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-sm rounded-xl shadow transition-all hover:-translate-y-0.5 active:scale-95 disabled:opacity-40 cursor-pointer">
-                <Download class="w-4 h-4" />
+              <BaseButton class="self-start hover:-translate-y-0.5" :disabled="!qrDataUrl" @click="descargarQR">
+                <template #icon>
+                  <Download class="w-4 h-4" />
+                </template>
                 Descargar imagen
-              </button>
+              </BaseButton>
             </div>
 
             <!-- Separador vertical -->
@@ -431,14 +436,12 @@ function descargarQR() {
           </div>
 
           <div class="px-8 py-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-300 dark:border-slate-800 flex flex-col sm:flex-row gap-3">
-            <button @click="showModal = false" class="flex-1 px-6 py-4 text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-2xl transition-colors cursor-pointer">
+            <BaseButton size="lg" variant="secondary" class="flex-1" @click="showModal = false">
               Cancelar
-            </button>
-            <button @click="crear" :disabled="saving"
-              class="flex-1 flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-teal-500 to-indigo-600 text-white font-black text-sm rounded-2xl shadow-lg shadow-teal-500/20 active:scale-95 transition-all disabled:opacity-50 cursor-pointer">
-              <Loader2 v-if="saving" class="w-5 h-5 animate-spin" /> 
+            </BaseButton>
+            <BaseButton size="lg" class="flex-1" :loading="saving" :disabled="saving" @click="crear">
               <span>Crear Aula</span>
-            </button>
+            </BaseButton>
           </div>
         </div>
       </div>

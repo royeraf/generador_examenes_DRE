@@ -8,6 +8,7 @@ import {
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
 import UserBadge from '../../shared/components/UserBadge.vue';
+import BaseButton from '../../shared/components/BaseButton.vue';
 import logoDre from '../../assets/logo.png';
 
 const router = useRouter();
@@ -338,16 +339,17 @@ const onDragEnd = () => {
         <div v-if="hasManagement" class="space-y-2">
           <div class="flex items-center justify-between mb-4">
             <span class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Gestión</span>
-            <button
+            <BaseButton
+              type="button"
+              size="sm"
+              :variant="isReorganizing ? 'primary' : 'secondary'"
               @click="toggleReorganize"
-              class="text-xs font-bold px-2.5 py-1 rounded-lg border flex items-center gap-1 transition-all duration-200 cursor-pointer shadow-sm"
-              :class="isReorganizing
-                ? 'bg-teal-500 hover:bg-teal-600 text-white border-teal-500 dark:bg-teal-600 dark:hover:bg-teal-700 dark:border-teal-600'
-                : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-300 dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-slate-300 dark:border-slate-800'"
             >
-              <component :is="isReorganizing ? Check : SlidersHorizontal" class="w-3.5 h-3.5" />
+              <template #icon>
+                <component :is="isReorganizing ? Check : SlidersHorizontal" class="w-3.5 h-3.5" />
+              </template>
               {{ isReorganizing ? 'Guardar' : 'Reorganizar' }}
-            </button>
+            </BaseButton>
           </div>
 
           <div
