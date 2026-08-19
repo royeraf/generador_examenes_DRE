@@ -5,10 +5,11 @@ from typing import List, Optional
 from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, or_
+from sqlalchemy import select, update, func, or_
 from pydantic import BaseModel
 
 from app.core.database import get_db
+from app.core.db_retry import con_reintento
 from app.models.db_models import (
     AsignacionExamen, IntentoExamen, ProgresoEstudiante,
     ExamenLectura, ExamenMatematica,
@@ -235,58 +236,67 @@ async def iniciar_examen(
     if asig.institucion_educativa_id and asig.institucion_educativa_id != current_user.institucion_educativa_id:
         raise HTTPException(403, "No tienes acceso a este examen")
 
-    # Reanudar intento en progreso si existe (recarga de página)
-    existing_r = await db.execute(
-        select(IntentoExamen).where(
-            IntentoExamen.asignacion_id == asignacion_id,
-            IntentoExamen.estudiante_id == current_user.id,
-            IntentoExamen.estado == "en_progreso",
-        )
-    )
-    intento = existing_r.scalars().first()
+    # Capturados como valores planos: con_reintento() puede hacer db.rollback() entre
+    # reintentos, lo que expira los atributos ORM de todo lo cargado en esta sesión
+    # (current_user, asig). Volver a tocar esos atributos después (current_user.id,
+    # asig.tipo_examen, etc.) dispararía una carga perezosa fuera de un contexto
+    # async-safe (sqlalchemy.exc.MissingGreenlet), así que de aquí en adelante solo
+    # se usan estas variables planas, nunca los objetos ORM originales.
+    estudiante_id = current_user.id
+    asig_id = asig.id
+    asig_intentos_permitidos = asig.intentos_permitidos
+    asig_tipo_examen = asig.tipo_examen
+    asig_examen_id = asig.examen_id
+    asig_mezclar_preguntas = asig.mezclar_preguntas
+    asig_mezclar_alternativas = asig.mezclar_alternativas
+    asig_duracion_minutos = asig.duracion_minutos
 
-    if not intento:
-        # Solo contar intentos COMPLETADOS para verificar el límite
-        cnt_r = await db.execute(
-            select(func.count(IntentoExamen.id)).where(
+    async def _obtener_o_crear_intento():
+        # Bloquea (FOR UPDATE) todos los intentos de ESTE estudiante para ESTE examen.
+        # Al ser un rango acotado por (asignacion_id, estudiante_id) — prefijo del índice
+        # único uq_intento —, dos requests concurrentes del mismo estudiante (doble clic,
+        # reintento de red) quedan serializadas aquí sin bloquear a otros estudiantes que
+        # inician el mismo examen en paralelo. Cuando ambas colisionan en el mismo hueco
+        # (ninguna fila existe todavía) InnoDB puede resolverlo como deadlock (1213) o,
+        # bajo innodb_snapshot_isolation de MariaDB, como conflicto de snapshot (1020)
+        # en vez de una espera silenciosa — con_reintento() reintenta la transacción.
+        todos_r = await db.execute(
+            select(IntentoExamen).where(
                 IntentoExamen.asignacion_id == asignacion_id,
-                IntentoExamen.estudiante_id == current_user.id,
-                IntentoExamen.estado == "completado",
-            )
+                IntentoExamen.estudiante_id == estudiante_id,
+            ).with_for_update()
         )
-        num_completados = cnt_r.scalar() or 0
-        if num_completados >= asig.intentos_permitidos:
-            raise HTTPException(400, "Has agotado los intentos permitidos")
+        todos_intentos = todos_r.scalars().all()
+        intento = next((i for i in todos_intentos if i.estado == "en_progreso"), None)
 
-        # Contar todos los intentos para el número de secuencia
-        cnt_total_r = await db.execute(
-            select(func.count(IntentoExamen.id)).where(
-                IntentoExamen.asignacion_id == asignacion_id,
-                IntentoExamen.estudiante_id == current_user.id,
-            )
-        )
-        num_total = cnt_total_r.scalar() or 0
+        if not intento:
+            num_completados = sum(1 for i in todos_intentos if i.estado == "completado")
+            if num_completados >= asig_intentos_permitidos:
+                raise HTTPException(400, "Has agotado los intentos permitidos")
 
-        intento = IntentoExamen(
-            asignacion_id=asignacion_id,
-            estudiante_id=current_user.id,
-            numero_intento=num_total + 1,
-            estado="en_progreso",
-            fecha_inicio=datetime.now(timezone.utc),
-        )
-        db.add(intento)
-        await db.flush()
-        await db.refresh(intento)
+            intento = IntentoExamen(
+                asignacion_id=asignacion_id,
+                estudiante_id=estudiante_id,
+                numero_intento=len(todos_intentos) + 1,
+                estado="en_progreso",
+                fecha_inicio=datetime.now(timezone.utc),
+            )
+            db.add(intento)
+            await db.flush()
+            await db.refresh(intento)
+        return intento
+
+    intento = await con_reintento(db, _obtener_o_crear_intento)
 
     # Obtener preguntas desde la tabla normalizada
-    if asig.tipo_examen == "lectura":
-        ex_r = await db.execute(select(ExamenLectura).where(ExamenLectura.id == asig.examen_id))
+    if asig_tipo_examen == "lectura":
+        ex_r = await db.execute(select(ExamenLectura).where(ExamenLectura.id == asig_examen_id))
         examen = ex_r.scalars().first()
         if not examen:
             raise HTTPException(404, "Examen de lectura no encontrado")
         preguntas_r = await db.execute(
             select(PreguntaExamen)
-            .where(PreguntaExamen.examen_lectura_id == asig.examen_id)
+            .where(PreguntaExamen.examen_lectura_id == asig_examen_id)
             .order_by(PreguntaExamen.numero)
         )
         preguntas = preguntas_r.scalars().all()
@@ -298,21 +308,21 @@ async def iniciar_examen(
             "lecturas": lecturas,
             "preguntas": examen_service.mezclar_examen(
                 examen_service.preparar_preguntas(preguntas),
-                mezclar_preguntas=asig.mezclar_preguntas,
-                mezclar_alternativas=asig.mezclar_alternativas,
-                seed_base=f"{asig.id}:{intento.id}:lectura",
+                mezclar_preguntas=asig_mezclar_preguntas,
+                mezclar_alternativas=asig_mezclar_alternativas,
+                seed_base=f"{asig_id}:{intento.id}:lectura",
             ),
-            "duracion_minutos": asig.duracion_minutos,
+            "duracion_minutos": asig_duracion_minutos,
             "intento_id": intento.id,
         }
-    elif asig.tipo_examen == "matematica":
-        ex_r = await db.execute(select(ExamenMatematica).where(ExamenMatematica.id == asig.examen_id))
+    elif asig_tipo_examen == "matematica":
+        ex_r = await db.execute(select(ExamenMatematica).where(ExamenMatematica.id == asig_examen_id))
         examen = ex_r.scalars().first()
         if not examen:
             raise HTTPException(404, "Examen de matemática no encontrado")
         preguntas_r = await db.execute(
             select(PreguntaExamen)
-            .where(PreguntaExamen.examen_matematica_id == asig.examen_id)
+            .where(PreguntaExamen.examen_matematica_id == asig_examen_id)
             .order_by(PreguntaExamen.numero)
         )
         preguntas = preguntas_r.scalars().all()
@@ -323,11 +333,11 @@ async def iniciar_examen(
             "lecturas": [{"titulo": "", "texto": examen.situacion_problematica or ""}],
             "preguntas": examen_service.mezclar_examen(
                 examen_service.preparar_preguntas(preguntas),
-                mezclar_preguntas=asig.mezclar_preguntas,
-                mezclar_alternativas=asig.mezclar_alternativas,
-                seed_base=f"{asig.id}:{intento.id}:matematica",
+                mezclar_preguntas=asig_mezclar_preguntas,
+                mezclar_alternativas=asig_mezclar_alternativas,
+                seed_base=f"{asig_id}:{intento.id}:matematica",
             ),
-            "duracion_minutos": asig.duracion_minutos,
+            "duracion_minutos": asig_duracion_minutos,
             "intento_id": intento.id,
         }
     else:
@@ -369,13 +379,36 @@ async def finalizar_intento(
     current_user: Usuario = Depends(get_estudiante_user),
 ):
     """Finaliza el intento, califica y actualiza el progreso."""
-    result = await db.execute(select(IntentoExamen).where(IntentoExamen.id == intento_id))
-    intento = result.scalars().first()
-    if not intento or intento.estudiante_id != current_user.id:
-        raise HTTPException(404, "Intento no encontrado")
-    if intento.estado == "completado":
+    estudiante_id = current_user.id  # ver nota de MissingGreenlet en iniciar_examen
+
+    # Reclamo atómico: producción corre en tablas MyISAM, que ignoran SELECT ... FOR
+    # UPDATE y no tienen rollback real, así que un "leer estado, luego decidir" no
+    # protege nada ahí. Una única sentencia UPDATE sí es atómica en el servidor
+    # independientemente del motor — si esta llamada no logra pasar `rowcount == 1`,
+    # perdió la carrera contra otra finalización concurrente (o el intento no existe/
+    # no es suyo) y no debe tocar RespuestaIntento ni ProgresoEstudiante en absoluto,
+    # evitando así cualquier escritura duplicada/parcial no reversible.
+    claim = await db.execute(
+        update(IntentoExamen)
+        .where(
+            IntentoExamen.id == intento_id,
+            IntentoExamen.estudiante_id == estudiante_id,
+            IntentoExamen.estado != "completado",
+        )
+        .values(estado="completado", fecha_fin=datetime.now(timezone.utc))
+    )
+    if claim.rowcount == 0:
+        existe_r = await db.execute(
+            select(IntentoExamen.id).where(
+                IntentoExamen.id == intento_id, IntentoExamen.estudiante_id == estudiante_id
+            )
+        )
+        if not existe_r.scalar():
+            raise HTTPException(404, "Intento no encontrado")
         raise HTTPException(400, "Este intento ya fue completado")
 
+    result = await db.execute(select(IntentoExamen).where(IntentoExamen.id == intento_id))
+    intento = result.scalars().first()
     asig_r = await db.execute(select(AsignacionExamen).where(AsignacionExamen.id == intento.asignacion_id))
     asig = asig_r.scalars().first()
 

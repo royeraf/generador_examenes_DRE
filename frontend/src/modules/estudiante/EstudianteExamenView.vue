@@ -10,26 +10,14 @@ import {
 } from 'lucide-vue-next'
 import ThinkingLoader from '../../shared/components/ThinkingLoader.vue'
 import BaseButton from '../../shared/components/BaseButton.vue'
+import ResumenRespuestasModal from './components/ResumenRespuestasModal.vue'
 import { useTheme } from '../../shared/composables/useTheme'
+import type { Pregunta } from './types'
 
 const route = useRoute()
 const router = useRouter()
 const { isDark } = useTheme()
 const asignacionId = Number(route.params.id)
-
-interface Opcion {
-  letra: string
-  valor?: string
-  texto: string
-}
-
-interface Pregunta {
-  numero: number
-  enunciado: string
-  opciones: Opcion[]
-  nivel?: string
-  desempeno_codigo?: string
-}
 
 interface TextoLectura {
   titulo: string
@@ -80,6 +68,7 @@ const revision = ref<Revision | null>(null)
 const loadingRevision = ref(false)
 const intentoIdFinalizado = ref<number | null>(null)
 
+const mostrarResumen = ref(false)
 const mostrarModalRevision = ref(false)
 const preguntaRevisionActual = ref(0)
 const mostrarBottomSheet = ref(false)
@@ -291,6 +280,7 @@ function siguiente() {
 }
 
 async function _enviar() {
+  mostrarResumen.value = false
   if (timerInterval) clearInterval(timerInterval)
   if (!examen.value) return
   enviando.value = true
@@ -313,13 +303,17 @@ async function _enviar() {
 }
 
 function finalizar() {
-  if (!todasRespondidas.value) {
-    intentoEnvioIncompleto.value = true
-    const primera = sinResponder.value[0]
-    const idx = examen.value?.preguntas.findIndex(p => p.numero === primera) ?? 0
-    preguntaActual.value = idx
-    return
-  }
+  mostrarResumen.value = true
+}
+
+function irAPreguntaDesdeResumen(idx: number) {
+  mostrarResumen.value = false
+  preguntaActual.value = idx
+  intentoEnvioIncompleto.value = sinResponder.value.length > 0
+}
+
+function confirmarEnvio() {
+  if (!todasRespondidas.value) return
   _enviar()
 }
 
@@ -1130,6 +1124,16 @@ const nivelMensaje: Record<string, string> = {
           </footer>
         </section>
       </main>
+
+      <ResumenRespuestasModal
+        v-if="mostrarResumen"
+        :preguntas="examen.preguntas"
+        :respuestas="respuestas"
+        :enviando="enviando"
+        @cerrar="mostrarResumen = false"
+        @enviar="confirmarEnvio"
+        @ir-a-pregunta="irAPreguntaDesdeResumen"
+      />
     </div>
 
   </div>

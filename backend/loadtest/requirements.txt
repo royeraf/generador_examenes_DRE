@@ -1,0 +1,4 @@
+# Dependencias solo para pruebas de carga locales.
+# Instalar con: pip install -r loadtest/requirements.txt
+# NO se agrega a requirements.txt para no llevarlo a producción.
+locust==2.46.3

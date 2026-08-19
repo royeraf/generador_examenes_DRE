@@ -8,7 +8,8 @@ from datetime import datetime, timezone, timedelta
 from typing import Optional
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, update
+from sqlalchemy.exc import IntegrityError
 
 from app.models.db_models import (
     AsignacionExamen, IntentoExamen, ProgresoEstudiante,
@@ -215,56 +216,94 @@ class ExamenService:
         puntaje = round((correctas / total * 100) if total > 0 else 0, 2)
         nivel_logro = self.puntaje_a_nivel(puntaje)
 
-        intento.estado = "completado"
-        intento.fecha_fin = datetime.now(timezone.utc)
+        # estado/fecha_fin ya fueron reclamados atómicamente por el caller (ver
+        # finalizar_intento) antes de llegar aquí: a partir de ese punto este intento
+        # es exclusivo de esta llamada, así que estos campos son un UPDATE normal
+        # sin riesgo de carrera (nadie más puede estar calificando este mismo intento).
         intento.puntaje_total = puntaje
         intento.preguntas_correctas = correctas
         intento.preguntas_total = total
         intento.nivel_logro = nivel_logro
+        await db.flush()
 
         area = "comunicacion" if asig.tipo_examen == "lectura" else "matematica"
         from app.services.matricula_service import get_matricula_activa
         matricula = await get_matricula_activa(db, intento.estudiante_id)
         if not matricula:
             # Sin matrícula no se puede registrar progreso
-            await db.flush()
             return {
                 "puntaje_total": puntaje,
                 "preguntas_correctas": correctas,
                 "preguntas_total": total,
                 "nivel_logro": nivel_logro,
             }
-        progreso_r = await db.execute(
-            select(ProgresoEstudiante).where(
-                ProgresoEstudiante.matricula_id == matricula.id,
-                ProgresoEstudiante.area == area,
-            )
-        )
-        progreso = progreso_r.scalars().first()
-        if progreso:
-            n = progreso.total_examenes_completados
-            prom = (progreso.puntaje_promedio or 0) * n if n > 0 else 0
-            progreso.total_examenes_completados = n + 1
-            progreso.puntaje_promedio = (prom + puntaje) / (n + 1)
-            progreso.nivel_logro_actual = nivel_logro
-            progreso.ultima_actividad = datetime.now(timezone.utc)
-        else:
-            db.add(ProgresoEstudiante(
-                matricula_id=matricula.id,
-                area=area,
-                total_examenes_completados=1,
-                puntaje_promedio=puntaje,
-                nivel_logro_actual=nivel_logro,
-                ultima_actividad=datetime.now(timezone.utc),
-            ))
+        await self._upsert_progreso(db, matricula.id, area, puntaje, nivel_logro)
 
-        await db.flush()
         return {
             "puntaje_total": puntaje,
             "preguntas_correctas": correctas,
             "preguntas_total": total,
             "nivel_logro": nivel_logro,
         }
+
+    @staticmethod
+    async def _upsert_progreso(db: AsyncSession, matricula_id: int, area: str, puntaje: float, nivel_logro: str) -> None:
+        """Suma un examen más al progreso del área, a prueba de dos finalizaciones
+        concurrentes (de exámenes distintos) sobre la misma fila.
+
+        Producción corre en tablas MyISAM (sin FOR UPDATE ni rollback real), así que
+        esto NO usa lectura-en-Python-luego-escritura ni locks: primero intenta un
+        UPDATE de una sola sentencia con la fórmula del promedio calculada en SQL
+        (atómico en el servidor sin importar el motor), y solo si no existía la fila
+        (rowcount == 0) intenta el INSERT inicial. Si ese INSERT choca con otro
+        concurrente (UNIQUE KEY uq_progreso_matricula_area), el conflicto se aísla en
+        un SAVEPOINT (begin_nested) para no arrastrar en el rollback el resto de la
+        transacción (RespuestaIntento ya insertadas, IntentoExamen ya actualizado) —
+        y se reintenta el UPDATE, que esta vez sí encuentra la fila.
+        """
+        ahora = datetime.now(timezone.utc)
+        upd = await db.execute(
+            update(ProgresoEstudiante)
+            .where(ProgresoEstudiante.matricula_id == matricula_id, ProgresoEstudiante.area == area)
+            .values(
+                total_examenes_completados=ProgresoEstudiante.total_examenes_completados + 1,
+                puntaje_promedio=(
+                    (ProgresoEstudiante.puntaje_promedio * ProgresoEstudiante.total_examenes_completados + puntaje)
+                    / (ProgresoEstudiante.total_examenes_completados + 1)
+                ),
+                nivel_logro_actual=nivel_logro,
+                ultima_actividad=ahora,
+            )
+        )
+        if upd.rowcount:
+            return
+
+        try:
+            async with db.begin_nested():
+                db.add(ProgresoEstudiante(
+                    matricula_id=matricula_id,
+                    area=area,
+                    total_examenes_completados=1,
+                    puntaje_promedio=puntaje,
+                    nivel_logro_actual=nivel_logro,
+                    ultima_actividad=ahora,
+                ))
+                await db.flush()
+        except IntegrityError:
+            # Otra finalización concurrente ganó la creación de la fila; sumar ahí.
+            await db.execute(
+                update(ProgresoEstudiante)
+                .where(ProgresoEstudiante.matricula_id == matricula_id, ProgresoEstudiante.area == area)
+                .values(
+                    total_examenes_completados=ProgresoEstudiante.total_examenes_completados + 1,
+                    puntaje_promedio=(
+                        (ProgresoEstudiante.puntaje_promedio * ProgresoEstudiante.total_examenes_completados + puntaje)
+                        / (ProgresoEstudiante.total_examenes_completados + 1)
+                    ),
+                    nivel_logro_actual=nivel_logro,
+                    ultima_actividad=ahora,
+                )
+            )
 
     # ── Revisión de intento ────────────────────────────────────────────────────
 
