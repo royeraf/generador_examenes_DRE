@@ -190,6 +190,11 @@ router.beforeEach(async (to) => {
     return auth.homeRoute
   }
 
+  // El home general (HomeView) es para docentes/gestores; los estudiantes tienen su propio portal
+  if (to.path === '/' && auth.userRole === 'estudiante') {
+    return auth.homeRoute
+  }
+
   // Verificar roles requeridos
   const requiredRoles = to.meta.requiredRoles
   if (requiredRoles && requiredRoles.length > 0) {
