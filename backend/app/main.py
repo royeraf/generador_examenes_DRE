@@ -15,9 +15,9 @@ app = FastAPI(
     description="API para generar preguntas de evaluación usando IA (Gemini y ChatGPT). "
                 "Soporta módulos de Comunicación (LectoSistem) y Matemática (MatSistem).",
     version="1.0.0",
-    docs_url="/api/docs",
-    redoc_url="/api/redoc",
-    openapi_url="/api/openapi.json"
+    docs_url="/api/docs" if settings.debug else None,
+    redoc_url="/api/redoc" if settings.debug else None,
+    openapi_url="/api/openapi.json" if settings.debug else None
 )
 
 # CORS configuration
