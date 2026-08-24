@@ -272,7 +272,7 @@ const cerrarRetro = () => { modalRetro.value = null; };
                                                 </td>
                                                 <td class="py-3 px-4">
                                                     <span
-                                                        class="px-2.5 py-1 text-[10px] font-bold rounded-full inline-flex items-center gap-1"
+                                                        class="px-2.5 py-1 text-[10px] font-bold rounded-lg inline-flex items-center gap-1"
                                                         :class="getCapacidadBadgeClass((fila as any).capacidad || fila.nivel)">
                                                         <Target class="w-3 h-3" />
                                                         {{ (fila as any).capacidad || fila.nivel }}
