@@ -10,6 +10,7 @@ import {
 } from 'lucide-vue-next'
 import ThinkingLoader from '../../shared/components/ThinkingLoader.vue'
 import BaseButton from '../../shared/components/BaseButton.vue'
+import MathText from '../../shared/components/MathText.vue'
 import ResumenRespuestasModal from './components/ResumenRespuestasModal.vue'
 import { useTheme } from '../../shared/composables/useTheme'
 import type { Pregunta } from './types'
@@ -617,9 +618,8 @@ const nivelMensaje: Record<string, string> = {
 
                     <!-- Question Text -->
                     <div class="mb-5 sm:mb-8">
-                      <h3 class="text-sm sm:text-base md:text-lg font-bold text-slate-900 dark:text-white leading-relaxed">
-                        {{ activeRevisionPregunta.enunciado }}
-                      </h3>
+                      <MathText as="h3" class="text-sm sm:text-base md:text-lg font-bold text-slate-900 dark:text-white leading-relaxed"
+                        :text="activeRevisionPregunta.enunciado" />
                     </div>
 
                     <!-- Options Grid -->
@@ -643,7 +643,7 @@ const nivelMensaje: Record<string, string> = {
                           ">{{ opcion.letra }}</span>
                         
                         <div class="flex-1 leading-snug">
-                          <span class="block">{{ opcion.texto }}</span>
+                          <MathText as="span" class="block" :text="opcion.texto" />
                           <span v-if="opcion.letra === activeRevisionPregunta.respuesta_correcta" class="inline-block text-[9px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mt-1">
                             Respuesta Correcta
                           </span>
@@ -668,9 +668,8 @@ const nivelMensaje: Record<string, string> = {
                         </div>
                         <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800/80 px-2 py-0.5 rounded-md">Gemini AI</span>
                       </div>
-                      <p class="text-sm text-indigo-900/90 dark:text-indigo-200/90 leading-relaxed font-medium">
-                        {{ activeRevisionPregunta.retroalimentacion_ia }}
-                      </p>
+                      <MathText as="p" class="text-sm text-indigo-900/90 dark:text-indigo-200/90 leading-relaxed font-medium"
+                        :text="activeRevisionPregunta.retroalimentacion_ia" />
                     </div>
 
                   </div>
@@ -800,13 +799,11 @@ const nivelMensaje: Record<string, string> = {
             <!-- Reading Content (Scrollable) -->
             <div class="flex-1 overflow-y-auto p-6 text-slate-800 dark:text-slate-200 font-sans select-text">
               <div v-if="revision.lecturas && revision.lecturas.length" class="max-w-3xl mx-auto">
-                <h4 v-if="revision.lecturas[tabLecturaSheet]?.titulo" 
-                    class="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-3 text-center">
-                  {{ revision.lecturas[tabLecturaSheet]?.titulo }}
-                </h4>
-                <div class="text-sm sm:text-base leading-relaxed whitespace-pre-wrap font-medium break-words text-justify">
-                  {{ revision.lecturas[tabLecturaSheet]?.texto }}
-                </div>
+                <MathText v-if="revision.lecturas[tabLecturaSheet]?.titulo" as="h4"
+                    class="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-3 text-center"
+                    :text="revision.lecturas[tabLecturaSheet]?.titulo" />
+                <MathText as="div" class="text-sm sm:text-base leading-relaxed whitespace-pre-wrap font-medium break-words text-justify"
+                    :text="revision.lecturas[tabLecturaSheet]?.texto" />
               </div>
               <div v-else class="text-center py-10 text-slate-500 dark:text-slate-400 text-sm">
                 No hay lecturas asociadas a esta evaluación.
@@ -893,9 +890,8 @@ const nivelMensaje: Record<string, string> = {
                 </div>
                 <div class="min-w-0">
                   <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-0.5">Contexto de Lectura</span>
-                  <h3 :class="['font-bold text-sm truncate leading-snug transition-colors', lecturaAcordeonAbierto === 0 ? 'text-teal-600 dark:text-teal-400' : 'text-slate-700 dark:text-slate-200']">
-                  {{ lecturas[0]?.titulo || 'Texto Principal' }}
-                  </h3>
+                  <MathText as="h3" :class="['font-bold text-sm truncate leading-snug transition-colors', lecturaAcordeonAbierto === 0 ? 'text-teal-600 dark:text-teal-400' : 'text-slate-700 dark:text-slate-200']"
+                    :text="lecturas[0]?.titulo || 'Texto Principal'" />
                 </div>
               </div>
               <ChevronDown 
@@ -919,9 +915,7 @@ const nivelMensaje: Record<string, string> = {
                 v-show="lecturaAcordeonAbierto === 0"
                 class="flex-1 overflow-y-auto p-6 sm:p-10 font-serif text-base sm:text-lg leading-relaxed text-slate-700 dark:text-slate-200 custom-scrollbar selection:bg-teal-500/20 bg-white dark:bg-slate-900"
               >
-                <div class="max-w-2xl mx-auto whitespace-pre-wrap">
-                  {{ lecturas[0]?.texto }}
-                </div>
+                <MathText as="div" class="max-w-2xl mx-auto whitespace-pre-wrap" :text="lecturas[0]?.texto" />
               </div>
             </Transition>
           </template>
@@ -955,9 +949,8 @@ const nivelMensaje: Record<string, string> = {
                     </div>
                     <div class="min-w-0">
                       <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-0.5">Texto {{ i + 1 }}</span>
-                      <h3 :class="['font-bold text-sm truncate leading-snug transition-colors', lecturaAcordeonAbierto === i ? 'text-teal-600 dark:text-teal-400' : 'text-slate-700 dark:text-slate-200']">
-                        {{ t.titulo || `Lectura ${i + 1}` }}
-                      </h3>
+                      <MathText as="h3" :class="['font-bold text-sm truncate leading-snug transition-colors', lecturaAcordeonAbierto === i ? 'text-teal-600 dark:text-teal-400' : 'text-slate-700 dark:text-slate-200']"
+                        :text="t.titulo || `Lectura ${i + 1}`" />
                     </div>
                   </div>
                   <ChevronDown 
@@ -982,9 +975,7 @@ const nivelMensaje: Record<string, string> = {
                     class="overflow-y-auto p-6 sm:p-10 font-serif text-base sm:text-lg leading-relaxed text-slate-700 dark:text-slate-200 custom-scrollbar selection:bg-teal-500/20 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800/80"
                     :class="lecturas.length > 1 ? 'max-h-[300px] lg:max-h-none lg:flex-1' : 'flex-1'"
                   >
-                    <div class="max-w-2xl mx-auto whitespace-pre-wrap">
-                      {{ t.texto }}
-                    </div>
+                    <MathText as="div" class="max-w-2xl mx-auto whitespace-pre-wrap" :text="t.texto" />
                   </div>
                 </Transition>
               </div>
@@ -1049,9 +1040,8 @@ const nivelMensaje: Record<string, string> = {
                     <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Pregunta de Evaluación</span>
                   </div>
 
-                  <h3 class="text-sm sm:text-base md:text-lg font-bold text-slate-900 dark:text-white leading-relaxed mb-5 sm:mb-8">
-                    {{ preguntaVisible.enunciado }}
-                  </h3>
+                  <MathText as="h3" class="text-sm sm:text-base md:text-lg font-bold text-slate-900 dark:text-white leading-relaxed mb-5 sm:mb-8"
+                    :text="preguntaVisible.enunciado" />
 
                   <div class="space-y-2.5 sm:space-y-3">
                     <button
@@ -1073,7 +1063,7 @@ const nivelMensaje: Record<string, string> = {
                       ]">
                         {{ opcion.letra }}
                       </div>
-                      <span class="flex-1 text-sm sm:text-base font-medium sm:font-bold">{{ opcion.texto }}</span>
+                      <MathText as="span" class="flex-1 text-sm sm:text-base font-medium sm:font-bold" :text="opcion.texto" />
                       <div v-if="respuestas[preguntaVisible.numero] === (opcion.valor ?? opcion.letra)" class="w-5 h-5 rounded-full bg-indigo-500/20 flex items-center justify-center shrink-0">
                         <CheckCircle2 class="w-3.5 h-3.5 text-indigo-500" />
                       </div>

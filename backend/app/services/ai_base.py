@@ -3,6 +3,84 @@ from typing import Any, Optional, Type
 import json
 import re
 
+_VALID_JSON_TWO_CHAR_ESCAPES = set('"\\/')
+
+
+def repair_latex_backslash_escapes(text: str) -> str:
+    """Repara backslashes de comandos LaTeX mal escapados dentro de strings JSON.
+
+    Se usa SOLO como reintento cuando json.loads ya falló. En JSON, "\\f",
+    "\\n", "\\t", etc. son escapes válidos de un solo carácter (formfeed,
+    newline, tab...), pero el texto pedagógico nunca contiene esos
+    caracteres de control legítimamente. Si el modelo emite un comando LaTeX
+    como "\\frac" o "\\ne" sin doblar el backslash ("\\\\frac"), el parser
+    JSON lo consumiría en silencio como ese carácter de control seguido de
+    texto suelto. Como esta función solo corre tras un fallo de parseo, es
+    seguro asumir que cualquier backslash que no forme un escape JSON válido
+    de dos caracteres (\\", \\\\, \\/) ni una secuencia \\uXXXX completa es en
+    realidad el inicio de un comando LaTeX, y se duplica.
+    """
+    out = []
+    in_string = False
+    i = 0
+    n = len(text)
+    while i < n:
+        ch = text[i]
+        if ch == '"':
+            in_string = not in_string
+            out.append(ch)
+            i += 1
+            continue
+        if in_string and ch == '\\' and i + 1 < n:
+            nxt = text[i + 1]
+            if nxt in _VALID_JSON_TWO_CHAR_ESCAPES:
+                out.append(text[i:i + 2])
+                i += 2
+                continue
+            if nxt == 'u' and i + 5 < n and all(c in '0123456789abcdefABCDEF' for c in text[i + 2:i + 6]):
+                out.append(text[i:i + 6])
+                i += 6
+                continue
+            # \b \f \n \r \t u otro: se asume comando LaTeX mal escapado.
+            out.append('\\\\')
+            i += 1
+            continue
+        out.append(ch)
+        i += 1
+    return ''.join(out)
+
+
+_CONTROL_CHAR_LATEX_MAP = {
+    '\x0c': 'f',  # formfeed  -> \f  (ej: \frac mal escapado)
+    '\x08': 'b',  # backspace -> \b  (ej: \begin, \beta mal escapado)
+}
+
+
+def repair_stray_control_chars(value):
+    """Repara backspace/formfeed reales dentro de valores YA parseados.
+
+    A diferencia de repair_latex_backslash_escapes (que actúa sobre el texto
+    JSON crudo y solo se usa si json.loads falla), este caso NO lanza
+    JSONDecodeError: "\\f" y "\\b" son escapes JSON válidos de un solo
+    carácter (formfeed/backspace), así que un comando LaTeX mal escapado
+    como "\\frac" se parsea "con éxito" pero corrompido en silencio a
+    "<formfeed>rac". Esos caracteres de control nunca aparecen legítimamente
+    en texto de examen, así que reconstruimos el backslash literal. Opera
+    sobre el resultado ya parseado (dict/list/str) de forma recursiva, nunca
+    sobre el texto JSON crudo, por lo que no puede introducir JSON inválido.
+    """
+    if isinstance(value, str):
+        for control_char, letter in _CONTROL_CHAR_LATEX_MAP.items():
+            if control_char in value:
+                value = value.replace(control_char, '\\' + letter)
+        return value
+    if isinstance(value, dict):
+        return {k: repair_stray_control_chars(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [repair_stray_control_chars(v) for v in value]
+    return value
+
+
 class AIService(ABC):
     """Abstract base class for AI services."""
 
@@ -35,7 +113,13 @@ class AIService(ABC):
         """
         text = await self.generate_content(prompt)
         text = self.clean_json_response(text)
-        return json.loads(text)
+        try:
+            data = json.loads(text)
+        except json.JSONDecodeError:
+            # Reintento: puede haber comandos LaTeX (\frac, \times, \ne...)
+            # con el backslash sin doblar. Ver repair_latex_backslash_escapes.
+            data = json.loads(repair_latex_backslash_escapes(text))
+        return repair_stray_control_chars(data)
 
     def clean_json_response(self, response_text: str) -> str:
         """Helper to clean JSON code blocks and recover JSON from text.

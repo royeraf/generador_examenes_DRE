@@ -8,6 +8,7 @@ import EstudianteNavbar from './components/EstudianteNavbar.vue'
 import { isSidebarCollapsed } from './composables/useStudentLayout'
 import { BookOpen, Loader2, Clock, CheckCircle2, AlertCircle, X, BookText, Calculator, ArrowRight, Zap, Target, ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import BaseButton from '../../shared/components/BaseButton.vue'
+import MathText from '../../shared/components/MathText.vue'
 
 const router = useRouter()
 useTheme()
@@ -449,12 +450,10 @@ const nivelLabels: Record<string, string> = {
                           <p class="text-[10px] font-bold uppercase tracking-widest mb-2 opacity-50">Instrucciones</p>
                           <p class="text-sm leading-relaxed">{{ previewData.instrucciones }}</p>
                         </div>
-                        <h3 v-if="previewData.lecturas[previewTabActiva]?.titulo" class="text-xl font-bold mb-6">
-                          {{ previewData.lecturas[previewTabActiva]?.titulo }}
-                        </h3>
-                        <div class="text-base leading-loose whitespace-pre-wrap">
-                          {{ previewData.lecturas[previewTabActiva]?.texto || 'Sin texto disponible.' }}
-                        </div>
+                        <MathText v-if="previewData.lecturas[previewTabActiva]?.titulo" as="h3" class="text-xl font-bold mb-6"
+                          :text="previewData.lecturas[previewTabActiva]?.titulo" />
+                        <MathText as="div" class="text-base leading-loose whitespace-pre-wrap"
+                          :text="previewData.lecturas[previewTabActiva]?.texto || 'Sin texto disponible.'" />
                       </div>
                     </Transition>
                   </template>

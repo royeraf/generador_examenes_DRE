@@ -11,6 +11,7 @@ export default defineConfig({
           vue: ['vue', 'vue-router'],
           d3: ['d3'],
           xlsx: ['xlsx'],
+          katex: ['katex'],
           ui: ['lucide-vue-next', 'sweetalert2'],
           forms: ['vee-validate', '@vee-validate/rules', 'yup'],
         },

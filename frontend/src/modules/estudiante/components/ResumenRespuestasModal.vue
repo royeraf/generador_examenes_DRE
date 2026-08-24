@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { AlertCircle, CheckCircle2, X } from 'lucide-vue-next'
 import BaseButton from '../../../shared/components/BaseButton.vue'
+import MathText from '../../../shared/components/MathText.vue'
 import type { Pregunta } from '../types'
 
 const props = defineProps<{
@@ -120,9 +121,8 @@ function irAPrimeraSinMarcar() {
               <span class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center text-xs font-black shrink-0">
                 {{ fila.numero }}
               </span>
-              <span class="flex-1 min-w-0 text-sm text-slate-700 dark:text-slate-300 line-clamp-2">
-                {{ fila.enunciado }}
-              </span>
+              <MathText as="span" class="flex-1 min-w-0 text-sm text-slate-700 dark:text-slate-300 line-clamp-2"
+                :text="fila.enunciado" />
               <span v-if="fila.opcionMarcada"
                 class="shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 text-xs font-black">
                 {{ fila.opcionMarcada.letra }}

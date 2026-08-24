@@ -6,6 +6,7 @@ from docx import Document
 from docx.shared import Pt, Inches, Cm
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT
+from app.services.latex_word import add_latex_runs, set_cell_text, truncate_math_safe
 
 
 def generar_examen_word(data: dict) -> BytesIO:
@@ -59,14 +60,15 @@ def generar_examen_word(data: dict) -> BytesIO:
     instrucciones_heading.alignment = WD_ALIGN_PARAGRAPH.LEFT
     
     instrucciones_para = doc.add_paragraph()
-    instrucciones_para.add_run(examen.get("instrucciones", "Lee atentamente el texto y responde las preguntas."))
+    add_latex_runs(instrucciones_para, examen.get("instrucciones", "Lee atentamente el texto y responde las preguntas."))
     instrucciones_para.paragraph_format.space_after = Pt(12)
-    
-    # Lectura
-    lectura_heading = doc.add_heading("LECTURA", level=1)
-    
+
+    # Lectura / situación problemática (MatSistem usa "situacion_problematica" en vez de "lectura")
+    cuerpo_lectura = examen.get("lectura") or examen.get("situacion_problematica") or ""
+    lectura_heading = doc.add_heading("LECTURA" if examen.get("lectura") else "SITUACIÓN PROBLEMÁTICA", level=1)
+
     lectura_para = doc.add_paragraph()
-    lectura_para.add_run(examen.get("lectura", ""))
+    add_latex_runs(lectura_para, cuerpo_lectura)
     lectura_para.paragraph_format.first_line_indent = Cm(1)
     lectura_para.paragraph_format.space_after = Pt(18)
     lectura_para.paragraph_format.line_spacing = 1.5
@@ -84,11 +86,12 @@ def generar_examen_word(data: dict) -> BytesIO:
         pregunta_para = doc.add_paragraph()
         pregunta_run = pregunta_para.add_run(f"{numero}. ")
         pregunta_run.bold = True
-        
-        pregunta_para.add_run(f"[{nivel}] ")
-        pregunta_para.add_run(enunciado)
+
+        if nivel:
+            pregunta_para.add_run(f"[{nivel}] ")
+        add_latex_runs(pregunta_para, enunciado)
         pregunta_para.paragraph_format.space_before = Pt(12)
-        
+
         # Opciones
         opciones = pregunta.get("opciones", [])
         for opcion in opciones:
@@ -96,8 +99,9 @@ def generar_examen_word(data: dict) -> BytesIO:
             opcion_para.paragraph_format.left_indent = Cm(1)
             letra = opcion.get("letra", "")
             texto = opcion.get("texto", "")
-            opcion_para.add_run(f"    {letra}) {texto}")
-        
+            opcion_para.add_run(f"    {letra}) ")
+            add_latex_runs(opcion_para, texto)
+
         doc.add_paragraph()
     
     # Separador antes de la tabla de respuestas
@@ -126,18 +130,15 @@ def generar_examen_word(data: dict) -> BytesIO:
         # Datos
         for i, fila in enumerate(tabla_respuestas):
             row_cells = table.rows[i + 1].cells
-            row_cells[0].text = str(fila.get("pregunta", ""))
-            row_cells[0].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
-            
-            row_cells[1].text = fila.get("desempeno", "")[:50] + "..." if len(fila.get("desempeno", "")) > 50 else fila.get("desempeno", "")
-            
-            row_cells[2].text = fila.get("nivel", "")
-            row_cells[2].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
-            
-            row_cells[3].text = fila.get("respuesta_correcta", "")
-            row_cells[3].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
-            
-            row_cells[4].text = fila.get("justificacion", "")
+            set_cell_text(row_cells[0], str(fila.get("pregunta", "")), align=WD_ALIGN_PARAGRAPH.CENTER)
+            set_cell_text(row_cells[1], truncate_math_safe(fila.get("desempeno", ""), 50))
+            set_cell_text(row_cells[2], fila.get("nivel", ""), align=WD_ALIGN_PARAGRAPH.CENTER)
+            set_cell_text(
+                row_cells[3],
+                fila.get("respuesta_correcta") or fila.get("respuesta_esperada", ""),
+                align=WD_ALIGN_PARAGRAPH.CENTER,
+            )
+            set_cell_text(row_cells[4], fila.get("justificacion", ""))
     
     # Guardar en buffer
     buffer = BytesIO()

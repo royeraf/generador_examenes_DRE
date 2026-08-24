@@ -12,6 +12,7 @@
     "@vee-validate/rules": "^4.15.1",
     "axios": "^1.13.2",
     "d3": "^7.9.0",
+    "katex": "^0.18.4",
     "lucide-vue-next": "^0.556.0",
     "pinia": "^3.0.4",
     "qrcode": "^1.5.4",
@@ -28,6 +29,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.17",
     "@types/d3": "^7.4.3",
+    "@types/katex": "^0.16.8",
     "@types/node": "^24.10.1",
     "@types/qrcode": "^1.5.6",
     "@vitejs/plugin-vue": "^6.0.1",

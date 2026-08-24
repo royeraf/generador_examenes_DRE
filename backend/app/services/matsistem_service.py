@@ -17,6 +17,7 @@ from app.models.db_models import (
 from app.models.ai_schemas import RespuestaMat, RespuestaActividad
 from app.core.config import get_settings
 from app.services.ai_factory import ai_factory
+from app.services.prompt_fragments import NOTACION_MATEMATICA
 
 settings = get_settings()
 
@@ -24,23 +25,23 @@ settings = get_settings()
 # Descripciones de los 5 tipos de producto
 TIPOS_PRODUCTO = {
     1: {
-        "nombre": "Situación Integradora + 4 Preguntas Abiertas",
-        "descripcion": "Una situación problemática integradora seguida de 4 preguntas abiertas (una por capacidad), con espacio para que el estudiante desarrolle su solución.",
+        "nombre": "Situación Integradora + Preguntas Abiertas",
+        "descripcion": "Una situación problemática integradora seguida de preguntas abiertas (distribuidas entre las capacidades seleccionadas), con espacio para que el estudiante desarrolle su solución.",
         "formato_preguntas": "abiertas"
     },
     2: {
-        "nombre": "Situación Integradora + 4 Preguntas Cerradas (5 alternativas)",
-        "descripcion": "Una situación problemática integradora seguida de 4 preguntas de opción múltiple con 5 alternativas (A, B, C, D, E), una por capacidad.",
+        "nombre": "Situación Integradora + Preguntas Cerradas (5 alternativas)",
+        "descripcion": "Una situación problemática integradora seguida de preguntas de opción múltiple con 5 alternativas (A, B, C, D, E), distribuidas entre las capacidades seleccionadas.",
         "formato_preguntas": "cerradas_5"
     },
     3: {
-        "nombre": "4 Preguntas Cerradas Independientes por Criterio",
-        "descripcion": "Cuatro preguntas de opción múltiple independientes (sin situación integradora), una por cada capacidad/criterio. Cada pregunta tiene su propio contexto.",
+        "nombre": "Preguntas Cerradas Independientes por Criterio",
+        "descripcion": "Preguntas de opción múltiple independientes (sin situación integradora), distribuidas entre las capacidades/criterios seleccionados. Cada pregunta tiene su propio contexto.",
         "formato_preguntas": "cerradas_4_independientes"
     },
     4: {
-        "nombre": "4 Preguntas Abiertas Independientes por Criterio",
-        "descripcion": "Cuatro preguntas abiertas independientes, una por cada capacidad/criterio. Cada pregunta tiene su propio contexto y permite desarrollo.",
+        "nombre": "Preguntas Abiertas Independientes por Criterio",
+        "descripcion": "Preguntas abiertas independientes, distribuidas entre las capacidades/criterios seleccionados. Cada pregunta tiene su propio contexto y permite desarrollo.",
         "formato_preguntas": "abiertas_independientes"
     },
     5: {
@@ -73,10 +74,14 @@ class MatSistemService:
     def _build_json_format_by_tipo(self, tipo_producto: int, grado_nombre: str, competencia_nombre: str) -> str:
         """Devuelve el esquema JSON esperado según el tipo de producto."""
 
+        nota_repeticion = "" if tipo_producto == 5 else (
+            "\nEl ejemplo de abajo muestra solo UN objeto dentro de \"preguntas\" a modo ilustrativo: "
+            "debes repetir ese objeto (con \"numero\" incremental) hasta alcanzar el total exacto de preguntas indicado arriba.\n"
+        )
         base = f"""
 **FORMATO JSON OBLIGATORIO:**
 Responde ÚNICAMENTE con un JSON válido sin comentarios ni texto adicional:
-"""
+{nota_repeticion}"""
 
         if tipo_producto == 1:
             return base + f"""
@@ -343,7 +348,13 @@ Usa esta situación como base o adaptación para el problema.
         if tipo_producto == 5:
             nota_cantidad = "La actividad debe tener al menos una sub-actividad por cada capacidad seleccionada."
         else:
-            nota_cantidad = f"Genera exactamente **{cantidad} preguntas** (o hasta 4 si hay 4 capacidades con desempeños)."
+            num_capacidades = len(capacidades_desempenos)
+            nota_cantidad = (
+                f"Genera EXACTAMENTE {cantidad} preguntas en total, ni más ni menos (el arreglo \"preguntas\" del JSON debe tener {cantidad} elementos). "
+                f"Hay {num_capacidades} capacidad(es) evaluada(s): distribúyelas de forma equilibrada entre ellas. "
+                f"Si {cantidad} es mayor que {num_capacidades}, genera varias preguntas para algunas o todas las capacidades hasta completar el total. "
+                f"Si {cantidad} es menor que {num_capacidades}, prioriza cubrir la mayor cantidad de capacidades posible."
+            )
 
         prompt = f"""Eres un especialista pedagógico en Matemática del MINEDU (Perú), experto en diseño de instrumentos de evaluación por competencias.
 Diseña el siguiente instrumento para estudiantes de **{grado_nombre}**.
@@ -373,6 +384,8 @@ Construye un criterio formal para cada capacidad según el formato: [Habilidad] 
 {nota_cantidad}
 Cada pregunta o actividad debe vincularse a UNO de los desempeños listados.
 El contexto debe ser PERUANO, auténtico y motivador para la edad del estudiante.
+
+{NOTACION_MATEMATICA}
 
 {formato_json}
 """

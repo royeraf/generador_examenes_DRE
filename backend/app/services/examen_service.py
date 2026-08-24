@@ -18,6 +18,7 @@ from app.models.db_models import (
 )
 from app.models.usuario import Usuario
 from app.services.ai_factory import ai_factory
+from app.services.ai_base import repair_latex_backslash_escapes, repair_stray_control_chars
 
 
 class ExamenService:
@@ -159,7 +160,10 @@ class ExamenService:
             "- Si la respuesta es CORRECTA: felicita al estudiante y explica brevemente por qué esa opción es la correcta.\n"
             "- Si la respuesta es INCORRECTA: explica amablemente por qué la opción que eligió no es la correcta y por qué la respuesta correcta sí lo es. Usa un tono motivador.\n"
             "- Siempre que sea posible, haz referencia al texto de la lectura.\n"
-            "- Usa un lenguaje claro y adecuado para el nivel escolar.\n\n"
+            "- Usa un lenguaje claro y adecuado para el nivel escolar.\n"
+            "- Si mencionas alguna expresión matemática, escríbela en LaTeX entre $...$ "
+            "(por ejemplo $\\frac{3}{4}$, $x^2$, $12 \\cdot 8$). No uses $ como moneda; "
+            "usa 'S/'.\n\n"
             'Responde ÚNICAMENTE con un JSON válido con esta estructura:\n'
             '{\n  "retroalimentacion": [\n'
             '    {"numero": 1, "texto": "Explicación breve y motivadora..."},\n'
@@ -170,7 +174,13 @@ class ExamenService:
         try:
             response_text = await ai_service.generate_content(prompt)
             response_text = ai_service.clean_json_response(response_text)
-            data = json.loads(response_text)
+            try:
+                data = json.loads(response_text)
+            except json.JSONDecodeError:
+                # Reintento: puede haber comandos LaTeX (\frac, \times...) con
+                # el backslash sin doblar. Ver repair_latex_backslash_escapes.
+                data = json.loads(repair_latex_backslash_escapes(response_text))
+            data = repair_stray_control_chars(data)
             return {int(item["numero"]): item["texto"] for item in data.get("retroalimentacion", [])}
         except Exception as e:
             print(f"Error generando retroalimentación IA: {e}")

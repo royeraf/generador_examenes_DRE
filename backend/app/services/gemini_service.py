@@ -8,7 +8,7 @@ from typing import Optional, Type
 from app.core.config import get_settings
 from app.models.pregunta import Pregunta, TipoPregunta, OpcionMultiple
 from app.models.ai_schemas import RespuestaPreguntas
-from app.services.ai_base import AIService
+from app.services.ai_base import AIService, repair_latex_backslash_escapes, repair_stray_control_chars
 
 settings = get_settings()
 logger = logging.getLogger(__name__)
@@ -113,11 +113,17 @@ class GeminiService(AIService):
             max_output_tokens=8192,
             thinking_config=types.ThinkingConfig(thinking_budget=0),
         )
+        text = await self._generate(config, prompt)
         try:
-            text = await self._generate(config, prompt)
-            return json.loads(text)
-        except json.JSONDecodeError as e:
-            raise ValueError(f"Error al parsear la respuesta estructurada de Gemini: {e}")
+            data = json.loads(text)
+        except json.JSONDecodeError:
+            # Reintento: puede haber comandos LaTeX (\frac, \times, \ne...)
+            # con el backslash sin doblar. Ver repair_latex_backslash_escapes.
+            try:
+                data = json.loads(repair_latex_backslash_escapes(text))
+            except json.JSONDecodeError as e:
+                raise ValueError(f"Error al parsear la respuesta estructurada de Gemini: {e}")
+        return repair_stray_control_chars(data)
 
     def _build_prompt(
         self,

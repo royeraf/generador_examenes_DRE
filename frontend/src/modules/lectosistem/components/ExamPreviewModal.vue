@@ -9,6 +9,7 @@ import {
 import type { ExamenHistoryEntry, FilaTablaRespuestas } from '../../../shared/types';
 import { formatFechaHora } from '../../../shared/utils/dateUtils';
 import BaseButton from '../../../shared/components/BaseButton.vue';
+import MathText from '../../../shared/components/MathText.vue';
 
 const props = defineProps<{
     entry: ExamenHistoryEntry | null;
@@ -176,10 +177,9 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                                     </div>
                                     Lectura
                                 </h4>
-                                <p
-                                    class="text-slate-700 dark:text-slate-300 text-sm leading-7 whitespace-pre-line bg-white/50 dark:bg-black/20 p-4 rounded-lg">
-                                    {{ entry.resultado.examen.lectura }}
-                                </p>
+                                <MathText as="p"
+                                    class="text-slate-700 dark:text-slate-300 text-sm leading-7 whitespace-pre-line bg-white/50 dark:bg-black/20 p-4 rounded-lg"
+                                    :text="entry.resultado.examen.lectura" />
                             </div>
 
                             <!-- Preguntas -->
@@ -218,9 +218,8 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                                                 </button>
                                             </div>
 
-                                            <p class="text-slate-800 dark:text-slate-200 font-semibold mb-4">
-                                                {{ pregunta.enunciado }}
-                                            </p>
+                                            <MathText as="p" class="text-slate-800 dark:text-slate-200 font-semibold mb-4"
+                                                :text="pregunta.enunciado" />
 
                                             <div class="space-y-2">
                                                 <div v-for="opcion in pregunta.opciones" :key="opcion.letra"
@@ -233,7 +232,7 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                                                         :class="opcion.es_correcta ? 'bg-teal-500 text-white' : 'bg-gray-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'">
                                                         {{ opcion.letra }}
                                                     </span>
-                                                    <span class="flex-1">{{ opcion.texto }}</span>
+                                                    <MathText as="span" class="flex-1" :text="opcion.texto" />
                                                     <Check v-if="opcion.es_correcta" class="w-5 h-5 text-teal-500" />
                                                 </div>
                                             </div>
@@ -280,7 +279,7 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                                                     {{ fila.pregunta }}
                                                 </td>
                                                 <td class="py-3 px-4 text-slate-600 dark:text-slate-400 text-xs">
-                                                    {{ fila.desempeno }}
+                                                    <MathText :text="fila.desempeno" />
                                                 </td>
                                                 <td class="py-3 px-4">
                                                     <span
@@ -376,9 +375,8 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                                     Si respondió correctamente
                                 </span>
                             </div>
-                            <p class="text-sm text-emerald-800 dark:text-emerald-300 leading-relaxed">
-                                {{ modalRetro.retroalimentacion_correcta }}
-                            </p>
+                            <MathText as="p" class="text-sm text-emerald-800 dark:text-emerald-300 leading-relaxed"
+                                :text="modalRetro.retroalimentacion_correcta" />
                         </div>
 
                         <div v-if="modalRetro.retroalimentacion_incorrecta"
@@ -389,9 +387,8 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                                     Si respondió incorrectamente
                                 </span>
                             </div>
-                            <p class="text-sm text-rose-800 dark:text-rose-300 leading-relaxed">
-                                {{ modalRetro.retroalimentacion_incorrecta }}
-                            </p>
+                            <MathText as="p" class="text-sm text-rose-800 dark:text-rose-300 leading-relaxed"
+                                :text="modalRetro.retroalimentacion_incorrecta" />
                         </div>
 
                         <div v-if="modalRetro.justificacion"
@@ -399,9 +396,8 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                             <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                                 Justificación de la respuesta correcta
                             </span>
-                            <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                                {{ modalRetro.justificacion }}
-                            </p>
+                            <MathText as="p" class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed"
+                                :text="modalRetro.justificacion" />
                         </div>
                     </div>
 

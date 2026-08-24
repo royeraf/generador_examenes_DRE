@@ -9,6 +9,7 @@ import {
 import ThinkingLoader from '../../../shared/components/ThinkingLoader.vue';
 import type { Examen, FilaTablaRespuestas } from '../../../shared/types';
 import BaseButton from '../../../shared/components/BaseButton.vue';
+import MathText from '../../../shared/components/MathText.vue';
 
 interface Resultado {
     grado: string;
@@ -160,10 +161,9 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                         </div>
                         Lectura / Problema
                     </h4>
-                    <p
-                        class="text-slate-700 dark:text-slate-300 text-sm leading-7 whitespace-pre-line bg-white/50 dark:bg-black/20 p-3 sm:p-4 rounded-lg">
-                        {{ (resultado.examen as any).situacion_problematica || resultado.examen.lectura }}
-                    </p>
+                    <MathText as="p"
+                        class="text-slate-700 dark:text-slate-300 text-sm leading-7 whitespace-pre-line bg-white/50 dark:bg-black/20 p-3 sm:p-4 rounded-lg"
+                        :text="(resultado.examen as any).situacion_problematica || resultado.examen.lectura" />
                 </div>
 
                 <!-- Preguntas -->
@@ -200,7 +200,7 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                                     </button>
                                 </div>
 
-                                <p class="text-slate-800 dark:text-slate-200 font-semibold mb-4">{{ pregunta.enunciado }}</p>
+                                <MathText as="p" class="text-slate-800 dark:text-slate-200 font-semibold mb-4" :text="pregunta.enunciado" />
 
                                 <div class="space-y-2">
                                     <div v-for="opcion in pregunta.opciones" :key="opcion.letra"
@@ -213,7 +213,7 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                                             :class="opcion.es_correcta ? 'bg-teal-500 text-white' : 'bg-gray-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400'">
                                             {{ opcion.letra }}
                                         </span>
-                                        <span class="flex-1">{{ opcion.texto }}</span>
+                                        <MathText as="span" class="flex-1" :text="opcion.texto" />
                                         <Check v-if="opcion.es_correcta" class="w-5 h-5 text-teal-500" />
                                     </div>
                                 </div>
@@ -224,9 +224,8 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                                         <Lightbulb class="w-3.5 h-3.5" />
                                         Justificación
                                     </h5>
-                                    <p class="text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed">
-                                        {{ getJustificacion(pregunta.numero) }}
-                                    </p>
+                                    <MathText as="p" class="text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed"
+                                        :text="getJustificacion(pregunta.numero)" />
                                 </div>
                             </div>
                         </div>
@@ -274,8 +273,7 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                                     <td class="py-2.5 sm:py-3 px-3 sm:px-4 text-slate-800 dark:text-slate-200 font-bold">{{ fila.pregunta
                                     }}
                                     </td>
-                                    <td class="py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 text-xs">{{ fila.desempeno
-                                    }}</td>
+                                    <td class="py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 text-xs"><MathText :text="fila.desempeno" /></td>
                                     <td class="py-2.5 sm:py-3 px-3 sm:px-4">
                                         <span
                                             class="px-2.5 py-1 text-[10px] font-bold rounded-full inline-flex items-center gap-1"
@@ -291,7 +289,7 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                                         </span>
                                     </td>
                                     <td class="py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 text-xs italic">
-                                        {{ fila.justificacion || 'No disponible' }}
+                                        <MathText :text="fila.justificacion || 'No disponible'" />
                                     </td>
                                 </tr>
                             </tbody>
@@ -343,7 +341,7 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                                 <CheckCircle2 class="w-4 h-4 text-emerald-500 shrink-0" />
                                 <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">Si respondió correctamente</span>
                             </div>
-                            <p class="text-sm text-emerald-800 dark:text-emerald-300 leading-relaxed">{{ modalRetro.retroalimentacion_correcta }}</p>
+                            <MathText as="p" class="text-sm text-emerald-800 dark:text-emerald-300 leading-relaxed" :text="modalRetro.retroalimentacion_correcta" />
                         </div>
                         <div v-if="modalRetro.retroalimentacion_incorrecta"
                             class="rounded-xl border border-rose-200 dark:border-rose-800/50 bg-rose-50 dark:bg-rose-900/10 p-4 space-y-2">
@@ -351,12 +349,12 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                                 <XCircle class="w-4 h-4 text-rose-500 shrink-0" />
                                 <span class="text-xs font-semibold text-rose-700 dark:text-rose-400 uppercase tracking-wide">Si respondió incorrectamente</span>
                             </div>
-                            <p class="text-sm text-rose-800 dark:text-rose-300 leading-relaxed">{{ modalRetro.retroalimentacion_incorrecta }}</p>
+                            <MathText as="p" class="text-sm text-rose-800 dark:text-rose-300 leading-relaxed" :text="modalRetro.retroalimentacion_incorrecta" />
                         </div>
                         <div v-if="modalRetro.justificacion"
                             class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-4 space-y-2">
                             <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Justificación</span>
-                            <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{{ modalRetro.justificacion }}</p>
+                            <MathText as="p" class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed" :text="modalRetro.justificacion" />
                         </div>
                     </div>
                     <div class="px-5 py-3 border-t border-slate-300 dark:border-slate-700 flex justify-end">

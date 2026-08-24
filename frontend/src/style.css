@@ -17,6 +17,15 @@ html.dark textarea::placeholder {
   color: rgb(100 116 139); /* slate-500 */
 }
 
+/* ====== KaTeX × Tailwind v4 preflight ====== */
+/* El preflight de Tailwind aplica box-sizing:border-box a *, pero KaTeX
+   calcula el layout de fórmulas (fracciones, raíces, subrayados) asumiendo
+   el content-box por defecto del navegador. Sin esto, bordes/paddings
+   internos de KaTeX se miden mal y las fórmulas se ven desalineadas. */
+.katex, .katex * {
+  box-sizing: content-box;
+}
+
 /* ====== LECTOSISTEM - TEMA EDUCATIVO ====== */
 
 :root {

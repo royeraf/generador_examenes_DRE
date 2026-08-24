@@ -11,6 +11,7 @@ from app.models.db_models import Grado, Capacidad, Desempeno
 from app.models.ai_schemas import RespuestaLecto
 from app.core.config import get_settings
 from app.services.ai_factory import ai_factory
+from app.services.prompt_fragments import NOTACION_MATEMATICA_BREVE
 
 settings = get_settings()
 
@@ -117,7 +118,9 @@ Tu misión es crear un instrumento de evaluación de alta calidad para estudiant
    - Nivel de Dificultad: **{nivel_logro.upper()}**.
    - Tipo: Opción Múltiple con 4 alternativas (A, B, C, D).
    - Las alternativas deben ser plausibles. La respuesta correcta debe ser INEQUÍVOCA.
-   
+
+{NOTACION_MATEMATICA_BREVE}
+
 **FORMATO DE SALIDA (JSON ESTRICTO):**
 Responde ÚNICAMENTE con un JSON válido que siga esta estructura exacta, sin comentarios ni texto adicional:
 
@@ -430,6 +433,8 @@ El examen debe presentar:
 4. La 'lectura completa' o 'un fragmento de la lectura' que utilizarás para que los estudiantes respondan las preguntas. SI SE ESPECIFICÓ UN FORMATO DISCONTINUO O MIXTO, REPRESENTA LOS ELEMENTOS VISUALES (TABLAS, GRÁFICOS) USANDO MARKDOWN O DESCRIBIÉNDOLOS CLARAMENTE.
 5. Las preguntas con esquema de opción múltiple (4 alternativas A, B, C, D siendo una sola la correcta, en orden aleatorio)
 6. Al final una 'tabla' indicando: los desempeños utilizados, número de pregunta, nivel (LITERAL/INFERENCIAL/CRÍTICO), alternativa correcta y una justificación breve indicando por qué es correcta. EN LA TABLA EL DESEMPEÑO DEBE TENER EL FORMATO EXACTO: "(CÓDIGO) DESCRIPCIÓN", por ejemplo: "(01) Obtiene información explícita...".
+
+{NOTACION_MATEMATICA_BREVE}
 
 IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
 {{

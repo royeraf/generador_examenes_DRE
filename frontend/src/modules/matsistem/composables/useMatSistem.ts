@@ -23,10 +23,10 @@ export interface TipoProductoOption {
 export { NIVELES_DIFICULTAD };
 
 export const TIPOS_PRODUCTO: TipoProductoOption[] = [
-  { id: 1, nombre: 'Situación + Preguntas Abiertas', descripcion: 'Situación integradora con 4 preguntas abiertas', icono: 'PenLine' },
-  { id: 2, nombre: 'Situación + Alternativas (5)', descripcion: 'Situación integradora con 4 preguntas de 5 alternativas', icono: 'ListChecks' },
-  { id: 3, nombre: 'Cerradas Independientes', descripcion: '4 preguntas cerradas independientes por criterio', icono: 'CheckSquare' },
-  { id: 4, nombre: 'Abiertas Independientes', descripcion: '4 preguntas abiertas independientes por criterio', icono: 'FileText' },
+  { id: 1, nombre: 'Situación + Preguntas Abiertas', descripcion: 'Situación integradora con preguntas abiertas', icono: 'PenLine' },
+  { id: 2, nombre: 'Situación + Alternativas (5)', descripcion: 'Situación integradora con preguntas de 5 alternativas', icono: 'ListChecks' },
+  { id: 3, nombre: 'Cerradas Independientes', descripcion: 'Preguntas cerradas independientes por criterio', icono: 'CheckSquare' },
+  { id: 4, nombre: 'Abiertas Independientes', descripcion: 'Preguntas abiertas independientes por criterio', icono: 'FileText' },
   { id: 5, nombre: 'Actividad de Aprendizaje', descripcion: 'Sesión completa INICIO/DESARROLLO/CIERRE', icono: 'BookOpen' }
 ];
 

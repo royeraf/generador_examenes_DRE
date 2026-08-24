@@ -4,6 +4,7 @@ import { Bot, AlertTriangle, Download, Loader2, Sparkles, MessageSquare, X, Chec
 import ThinkingLoader from '../../../shared/components/ThinkingLoader.vue';
 import type { Examen, FilaTablaRespuestas } from '../../../shared/types';
 import BaseButton from '../../../shared/components/BaseButton.vue';
+import MathText from '../../../shared/components/MathText.vue';
 
 interface Resultado {
     grado: string;
@@ -96,8 +97,8 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
                 <div v-if="resultado.lecturas && resultado.lecturas.length" class="space-y-6">
                     <div v-for="(lectura, idx) in resultado.lecturas" :key="idx"
                         class="bg-slate-50 dark:bg-slate-950 rounded-2xl p-5 border border-slate-300 dark:border-slate-700">
-                        <h3 class="text-sm font-bold text-slate-800 dark:text-white mb-3">{{ lectura.titulo }}</h3>
-                        <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-serif">{{ lectura.texto }}</p>
+                        <MathText as="h3" class="text-sm font-bold text-slate-800 dark:text-white mb-3" :text="lectura.titulo" />
+                        <MathText as="p" class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-serif" :text="lectura.texto" />
                     </div>
                 </div>
 
@@ -108,7 +109,7 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
                         <!-- Encabezado pregunta -->
                         <div class="flex items-start justify-between gap-3">
                             <h4 class="text-sm font-medium text-slate-800 dark:text-white leading-relaxed flex-1">
-                                <span class="text-slate-500 font-bold">{{ pIdx + 1 }}.</span> {{ pregunta.enunciado }}
+                                <span class="text-slate-500 font-bold">{{ pIdx + 1 }}.</span> <MathText :text="pregunta.enunciado" />
                             </h4>
                             <div class="flex items-center gap-2 shrink-0">
                                 <span class="text-[9px] font-bold uppercase px-2 py-1 rounded bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400">
@@ -130,16 +131,15 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
                                 <span class="font-bold w-5" :class="alt.es_correcta ? 'text-emerald-500' : 'text-slate-500'">
                                     {{ String.fromCharCode(65 + aIdx) }})
                                 </span>
-                                <span :class="alt.es_correcta ? 'text-emerald-500' : 'text-slate-600 dark:text-slate-300'">
-                                    {{ alt.texto }}
-                                </span>
+                                <MathText as="span" :class="alt.es_correcta ? 'text-emerald-500' : 'text-slate-600 dark:text-slate-300'"
+                                    :text="alt.texto" />
                             </div>
                         </div>
 
                         <!-- Justificación -->
                         <div v-if="getTablaRow(pregunta.numero)?.justificacion"
                             class="p-3 bg-slate-100 dark:bg-slate-800/50 rounded-xl text-xs text-slate-500 dark:text-slate-400">
-                            <strong>Justificación:</strong> {{ getTablaRow(pregunta.numero)?.justificacion }}
+                            <strong>Justificación:</strong> <MathText :text="getTablaRow(pregunta.numero)?.justificacion" />
                         </div>
                     </div>
                 </div>
@@ -190,9 +190,8 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
                                         Si respondió correctamente
                                     </span>
                                 </div>
-                                <p class="text-sm text-emerald-800 dark:text-emerald-300 leading-relaxed">
-                                    {{ modalPregunta.retroalimentacion_correcta }}
-                                </p>
+                                <MathText as="p" class="text-sm text-emerald-800 dark:text-emerald-300 leading-relaxed"
+                                    :text="modalPregunta.retroalimentacion_correcta" />
                             </div>
 
                             <!-- Si respondió incorrectamente -->
@@ -204,9 +203,8 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
                                         Si respondió incorrectamente
                                     </span>
                                 </div>
-                                <p class="text-sm text-rose-800 dark:text-rose-300 leading-relaxed">
-                                    {{ modalPregunta.retroalimentacion_incorrecta }}
-                                </p>
+                                <MathText as="p" class="text-sm text-rose-800 dark:text-rose-300 leading-relaxed"
+                                    :text="modalPregunta.retroalimentacion_incorrecta" />
                             </div>
 
                             <!-- Justificación (si existe) -->
@@ -215,9 +213,8 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
                                 <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                                     Justificación de la respuesta correcta
                                 </span>
-                                <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                                    {{ modalPregunta.justificacion }}
-                                </p>
+                                <MathText as="p" class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed"
+                                    :text="modalPregunta.justificacion" />
                             </div>
                         </div>
 
