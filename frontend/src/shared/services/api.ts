@@ -8,7 +8,8 @@ import type {
   Capacidad,
   Docente,
   Provincia,
-  Distrito
+  Distrito,
+  FilesMetadata
 } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:8000/api');
@@ -73,12 +74,9 @@ export const desempenosService = {
   /**
    * Sube uno o más archivos PDF/Word y extrae el texto
    */
-  async uploadTextoBase(files: File[]): Promise<{ 
-    texto: string; 
-    archivos: { filename: string; palabras: number; caracteres: number }[];
+  async uploadTextoBase(files: File[]): Promise<FilesMetadata & {
+    texto: string;
     total_archivos: number;
-    total_palabras: number;
-    total_caracteres: number;
   }> {
     const formData = new FormData();
     files.forEach((file) => {

@@ -1,8 +1,9 @@
 import { ref, shallowRef, watch, computed } from 'vue';
-import type { Examen, DesempenoItem, Grado, NivelLogro } from '../../../shared/types';
+import type { Examen, DesempenoItem, Grado, NivelLogro, FilesMetadata } from '../../../shared/types';
 import desempenosService from '../../../shared/services/api';
 import { NIVELES_DIFICULTAD } from '../../../shared/constants/niveles';
 import { useBaseExam } from '../../../shared/composables/useBaseExam';
+import { validateFiles, parseUploadError, formatPalabras } from '../../../shared/utils/uploadFeedback';
 export type { NivelDificultad } from '../../../shared/constants/niveles';
 export type { NivelDificultadOption } from '../../../shared/constants/niveles';
 
@@ -12,7 +13,16 @@ export interface TextoBaseItem {
   texto: string;
   uploadingFile: boolean;
   uploadError: string | null;
-  filesMetadata: { archivos: { filename: string; palabras: number; caracteres: number }[]; total_palabras: number; total_caracteres: number } | null;
+  filesMetadata: FilesMetadata | null;
+}
+
+export type TextosBaseTone = 'uploading' | 'error' | 'empty' | 'partial' | 'ready';
+
+export interface TextosBaseStatus {
+  tone: TextosBaseTone;
+  label: string;
+  tooltip: string;
+  count: { filled: number; total: number };
 }
 
 const TEXTOS_STORAGE_KEY = 'lectosistem_textos_base';
@@ -219,25 +229,26 @@ export function useLectoSistem() {
     const files = input.files;
     if (!files || files.length === 0) return;
     const fileArray: File[] = Array.from(files);
-    for (const file of fileArray) {
-      const extension = file.name.split('.').pop()?.toLowerCase();
-      if (!['pdf', 'docx', 'doc'].includes(extension || '')) {
-        item.uploadError = `Archivo "${file.name}" no soportado. Solo PDF o Word.`;
-        input.value = '';
-        return;
-      }
+    const validationError = validateFiles(fileArray);
+    if (validationError) {
+      item.uploadError = validationError;
+      input.value = '';
+      return;
     }
     item.uploadingFile = true;
     item.uploadError = null;
     try {
       const result = await desempenosService.uploadTextoBase(fileArray);
       item.texto = result.texto;
-      item.filesMetadata = { archivos: result.archivos, total_palabras: result.total_palabras, total_caracteres: result.total_caracteres };
+      item.filesMetadata = {
+        archivos: result.archivos,
+        total_palabras: result.total_palabras,
+        total_caracteres: result.total_caracteres,
+        advertencias: result.advertencias
+      };
+      input.value = '';
     } catch (e: any) {
-      const detail = e.response?.data?.detail;
-      item.uploadError = typeof detail === 'string'
-        ? detail
-        : detail?.mensaje || 'Error al procesar los archivos';
+      item.uploadError = parseUploadError(e);
       item.texto = '';
       input.value = '';
       console.error('Error al subir archivo de texto base:', e);
@@ -254,6 +265,65 @@ export function useLectoSistem() {
     item.filesMetadata = null;
   };
 
+  const textosBaseStatus = computed<TextosBaseStatus>(() => {
+    const items = textosBase.value;
+    const conTexto = items.filter(t => t.texto.trim().length > 0);
+    const conArchivo = items.filter(t => t.filesMetadata && t.filesMetadata.archivos.length > 0);
+    const count = { filled: conTexto.length, total: items.length };
+
+    if (items.some(t => t.uploadingFile)) {
+      return { tone: 'uploading', label: 'Procesando...', tooltip: 'Extrayendo texto del archivo, espera un momento.', count };
+    }
+
+    const errores = items
+      .map((t, i) => (t.uploadError ? `Texto ${i + 1}: ${t.uploadError}` : null))
+      .filter((m): m is string => !!m);
+    if (errores.length > 0) {
+      return { tone: 'error', label: 'Error al subir', tooltip: errores.join(' · '), count };
+    }
+
+    if (conTexto.length === 0) {
+      return {
+        tone: 'empty',
+        label: 'Sin texto base',
+        tooltip: 'Sube un PDF/Word o escribe el texto en "Textos Base".',
+        count
+      };
+    }
+
+    const archivosResumen = conArchivo
+      .flatMap(t => t.filesMetadata!.archivos.map(a => `${a.filename} (${formatPalabras(a.palabras)})`))
+      .join(' · ');
+
+    if (conTexto.length < items.length) {
+      return {
+        tone: 'partial',
+        label: 'con contenido',
+        tooltip: archivosResumen || 'Algunos textos aún no tienen contenido.',
+        count
+      };
+    }
+
+    if (conArchivo.length > 0) {
+      const totalPalabras = conArchivo.reduce((sum, t) => sum + (t.filesMetadata?.total_palabras || 0), 0);
+      return {
+        tone: 'ready',
+        label: conArchivo.length === 1
+          ? `1 archivo · ${formatPalabras(totalPalabras)}`
+          : `${conArchivo.length} archivos · ${formatPalabras(totalPalabras)}`,
+        tooltip: archivosResumen,
+        count
+      };
+    }
+
+    return {
+      tone: 'ready',
+      label: conTexto.length === 1 ? 'texto listo' : 'textos listos',
+      tooltip: 'Contenido escrito manualmente.',
+      count
+    };
+  });
+
   const generarPreguntas = async () => {
     if (!selectedGradoId.value) {
       error.value = 'Por favor, selecciona un grado';
@@ -261,6 +331,10 @@ export function useLectoSistem() {
     }
     if (selectedDesempenoIds.value.length === 0) {
       error.value = 'Por favor, selecciona al menos un desempeño';
+      return;
+    }
+    if (useTextoBase.value && !textosBase.value.some(t => t.texto.trim())) {
+      error.value = 'Activaste "Usar Textos Base" pero no cargaste ningún texto. Sube un archivo, escribe el texto o desactiva la opción.';
       return;
     }
     loading.value = true;
@@ -329,6 +403,7 @@ export function useLectoSistem() {
     totalBreakdown,
     useTextoBase,
     textosBase,
+    textosBaseStatus,
     addTexto,
     removeTexto,
     clearTextos,

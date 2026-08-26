@@ -243,3 +243,24 @@ export interface Stats {
   'satisfactorio': number;
   'destacado': number;
 }
+
+// Feedback de subida de archivos (textos/problemas base en PDF/Word)
+export interface ArchivoMetadata {
+  filename: string;
+  palabras: number;
+  caracteres: number;
+  size_kb?: number;
+  extension?: string;
+}
+
+export interface UploadAdvertencia {
+  archivo: string;
+  error: string;
+}
+
+export interface FilesMetadata {
+  archivos: ArchivoMetadata[];
+  total_palabras: number;
+  total_caracteres: number;
+  advertencias?: UploadAdvertencia[];
+}

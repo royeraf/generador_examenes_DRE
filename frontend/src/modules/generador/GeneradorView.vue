@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ref, shallowRef, onMounted, watch, computed } from 'vue';
-import type { Grado, NivelLogro, DesempenoItem, Examen } from '../../shared/types';
+import type { Grado, NivelLogro, DesempenoItem, Examen, FilesMetadata } from '../../shared/types';
 import type { NivelDificultad } from '../../shared/constants/niveles';
 import desempenosService from '../../shared/services/api';
+import { validateFiles, parseUploadError } from '../../shared/utils/uploadFeedback';
 import ComboBox from '../../shared/components/ComboBox.vue';
+import UploadStatus from '../../shared/components/UploadStatus.vue';
 
 import Sistematizador from './components/Sistematizador.vue';
 import { useTheme } from '../../shared/composables/useTheme';
@@ -16,7 +18,6 @@ import {
   Zap,
   Check,
   AlertTriangle,
-  Loader2,
   HelpCircle,
   Download,
   LayoutGrid,
@@ -64,7 +65,7 @@ const cantidadPreguntas = shallowRef(3);
 const textoBase = shallowRef('');
 const useTextoBase = shallowRef(false);
 const selectedFiles = ref<File[]>([]);
-const filesMetadata = ref<{ archivos: { filename: string; palabras: number; caracteres: number }[]; total_palabras: number; total_caracteres: number } | null>(null);
+const filesMetadata = ref<FilesMetadata | null>(null);
 const uploadingFile = shallowRef(false);
 const uploadError = shallowRef<string | null>(null);
 
@@ -185,14 +186,12 @@ const handleFileUpload = async (event: Event) => {
     return;
   }
   const fileArray: File[] = Array.from(files);
-  for (const file of fileArray) {
-    const extension = file.name.split('.').pop()?.toLowerCase();
-    if (!['pdf', 'docx', 'doc'].includes(extension || '')) {
-      uploadError.value = `Archivo "${file.name}" no soportado. Solo PDF o Word.`;
-      input.value = '';
-      selectedFiles.value = [];
-      return;
-    }
+  const validationError = validateFiles(fileArray);
+  if (validationError) {
+    uploadError.value = validationError;
+    input.value = '';
+    selectedFiles.value = [];
+    return;
   }
   selectedFiles.value = fileArray;
   uploadingFile.value = true;
@@ -203,10 +202,12 @@ const handleFileUpload = async (event: Event) => {
     filesMetadata.value = {
       archivos: result.archivos,
       total_palabras: result.total_palabras,
-      total_caracteres: result.total_caracteres
+      total_caracteres: result.total_caracteres,
+      advertencias: result.advertencias
     };
+    input.value = '';
   } catch (e: any) {
-    uploadError.value = e.response?.data?.detail || 'Error al procesar los archivos';
+    uploadError.value = parseUploadError(e);
     selectedFiles.value = [];
     textoBase.value = '';
     input.value = '';
@@ -550,36 +551,20 @@ const getNivelBadgeClass = (nivel: string): string => {
                 </div>
               </div>
 
-              <div v-if="uploadingFile"
-                class="flex items-center justify-center gap-2 py-4 bg-teal-50 dark:bg-slate-900 rounded-xl">
-                <Loader2 class="w-5 h-5 text-teal-600 animate-spin" />
-                <span class="text-teal-600 dark:text-teal-400 text-sm font-medium">Procesando...</span>
-              </div>
+              <UploadStatus
+                :uploading="uploadingFile"
+                :error="uploadError"
+                :metadata="filesMetadata"
+                :has-text="true"
+                accent="teal"
+              />
 
-              <div v-if="selectedFiles.length > 0 && !uploadingFile && filesMetadata" class="space-y-2">
-                <div v-for="(archivo, index) in filesMetadata.archivos" :key="index"
-                  class="flex items-center gap-2 p-3 bg-gradient-to-r from-teal-50 to-emerald-50 dark:bg-emerald-900/20 border-2 border-teal-200 dark:border-emerald-800 rounded-xl text-xs">
-                  <FileText class="w-5 h-5 text-teal-600 dark:text-emerald-400" />
-                  <span class="flex-1 truncate text-slate-700 dark:text-slate-200 font-medium">{{ archivo.filename
-                  }}</span>
-                  <span class="text-teal-600 font-bold bg-teal-100 px-2 py-0.5 rounded-full">{{ archivo.palabras
-                  }}p</span>
-                </div>
-                <BaseButton size="sm" variant="destructive" @click="clearFiles">
-                  <template #icon>
-                    <X class="w-3.5 h-3.5" />
-                  </template>
-                  Quitar archivo
-                </BaseButton>
-              </div>
-
-              <div v-if="uploadError"
-                class="p-3 bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-xl">
-                <p class="text-red-600 dark:text-red-400 text-xs flex items-center gap-1 font-medium">
-                  <AlertTriangle class="w-4 h-4" />
-                  {{ uploadError }}
-                </p>
-              </div>
+              <BaseButton v-if="selectedFiles.length > 0 && !uploadingFile && filesMetadata" size="sm" variant="destructive" @click="clearFiles">
+                <template #icon>
+                  <X class="w-3.5 h-3.5" />
+                </template>
+                Quitar archivo
+              </BaseButton>
             </div>
 
             <p v-else class="text-slate-400 dark:text-slate-500 text-xs mt-2 flex items-center gap-1">

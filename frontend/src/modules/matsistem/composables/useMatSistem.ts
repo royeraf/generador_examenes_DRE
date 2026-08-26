@@ -1,5 +1,5 @@
 import { ref, shallowRef, watch, computed } from 'vue';
-import type { Examen } from '../../../shared/types';
+import type { Examen, FilesMetadata } from '../../../shared/types';
 import type {
   GradoMatematica,
   CompetenciaMatematica,
@@ -10,6 +10,7 @@ import type {
 import desempenosService, { matematicaService } from '../../../shared/services/api';
 import { NIVELES_DIFICULTAD } from '../../../shared/constants/niveles';
 import { useBaseExam } from '../../../shared/composables/useBaseExam';
+import { validateFiles, parseUploadError } from '../../../shared/utils/uploadFeedback';
 export type { NivelDificultad } from '../../../shared/constants/niveles';
 export type { NivelDificultadOption } from '../../../shared/constants/niveles';
 
@@ -60,7 +61,7 @@ export function useMatSistem() {
   const contenidoTematico = shallowRef('');
   const tipoProducto = shallowRef(2);
   const selectedFiles = ref<File[]>([]);
-  const filesMetadata = ref<{ archivos: { filename: string; palabras: number; caracteres: number }[]; total_palabras: number; total_caracteres: number } | null>(null);
+  const filesMetadata = ref<FilesMetadata | null>(null);
   const uploadingFile = shallowRef(false);
   const uploadError = shallowRef<string | null>(null);
 
@@ -203,14 +204,12 @@ export function useMatSistem() {
       return;
     }
     const fileArray: File[] = Array.from(files);
-    for (const file of fileArray) {
-      const extension = file.name.split('.').pop()?.toLowerCase();
-      if (!['pdf', 'docx', 'doc'].includes(extension || '')) {
-        uploadError.value = `Archivo "${file.name}" no soportado. Solo PDF o Word.`;
-        input.value = '';
-        selectedFiles.value = [];
-        return;
-      }
+    const validationError = validateFiles(fileArray);
+    if (validationError) {
+      uploadError.value = validationError;
+      input.value = '';
+      selectedFiles.value = [];
+      return;
     }
     selectedFiles.value = fileArray;
     uploadingFile.value = true;
@@ -221,10 +220,12 @@ export function useMatSistem() {
       filesMetadata.value = {
         archivos: result.archivos,
         total_palabras: result.total_palabras,
-        total_caracteres: result.total_caracteres
+        total_caracteres: result.total_caracteres,
+        advertencias: result.advertencias
       };
+      input.value = '';
     } catch (e: any) {
-      uploadError.value = e.response?.data?.detail || 'Error al procesar los archivos';
+      uploadError.value = parseUploadError(e);
       selectedFiles.value = [];
       textoBase.value = '';
       input.value = '';

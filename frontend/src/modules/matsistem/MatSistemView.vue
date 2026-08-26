@@ -10,7 +10,7 @@ import { construirFechaISO, formatFechaHora } from '../../shared/utils/dateUtils
 import type { AsignacionPayload, CodigoClase } from '../../shared/services/api';
 import {
   Brain, Sparkles, LayoutGrid, History, Trash2,
-  GraduationCap, FileText, Loader2, X,
+  GraduationCap, Loader2, X,
   CloudUpload, Target, Calculator, RefreshCw, Shapes, BarChart3, BookOpen, Hash,
   Eye, FileDown, Send, PanelLeft,
 } from 'lucide-vue-next';
@@ -18,6 +18,7 @@ import {
 import Checkbox from '../../shared/components/Checkbox.vue';
 import ComboBox from '../../shared/components/ComboBox.vue';
 import BaseButton from '../../shared/components/BaseButton.vue';
+import UploadStatus from '../../shared/components/UploadStatus.vue';
 import MatSistemDesempenos from './components/MatSistemDesempenos.vue';
 import MatSistemResults from './components/MatSistemResults.vue';
 import MatSistemExamPreviewModal from './components/MatSistemExamPreviewModal.vue';
@@ -40,6 +41,7 @@ const {
   selectedFiles,
   filesMetadata,
   uploadingFile,
+  uploadError,
   loading,
   loadingDesempenos,
   loadingGrados,
@@ -514,22 +516,18 @@ onMounted(async () => {
                         </div>
                     </div>
 
-                    <div v-if="uploadingFile"
-                        class="flex items-center justify-center gap-2 py-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl">
-                        <Loader2 class="w-4 h-4 text-indigo-600 animate-spin" />
-                        <span class="text-indigo-600 dark:text-indigo-400 text-xs font-medium">Procesando...</span>
-                    </div>
+                    <UploadStatus
+                      :uploading="uploadingFile"
+                      :error="uploadError"
+                      :metadata="filesMetadata"
+                      :has-text="true"
+                      accent="indigo"
+                      compact
+                    />
 
-                    <div v-if="selectedFiles.length > 0 && !uploadingFile && filesMetadata" class="space-y-2">
-                        <div v-for="(archivo, index) in filesMetadata.archivos" :key="index"
-                            class="flex items-center gap-2 p-2 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-xl text-xs">
-                            <FileText class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
-                            <span class="flex-1 truncate text-slate-700 dark:text-slate-200 font-medium">{{ archivo.filename }}</span>
-                        </div>
-                        <BaseButton variant="destructive" size="sm" @click="clearFiles">
-                            <template #icon><X class="w-3.5 h-3.5" /></template>Quitar archivos
-                        </BaseButton>
-                    </div>
+                    <BaseButton v-if="selectedFiles.length > 0 && !uploadingFile && filesMetadata" variant="destructive" size="sm" @click="clearFiles">
+                        <template #icon><X class="w-3.5 h-3.5" /></template>Quitar archivos
+                    </BaseButton>
                 </div>
               </div>
             </div>
