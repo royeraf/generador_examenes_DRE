@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref, shallowRef, onMounted, watch, computed } from 'vue';
-import type { Grado, NivelLogro, DesempenoItem, Examen, FilesMetadata } from '../../shared/types';
+import type { Grado, NivelLogro, DesempenoItem, Examen } from '../../shared/types';
 import type { NivelDificultad } from '../../shared/constants/niveles';
 import desempenosService from '../../shared/services/api';
-import { validateFiles, parseUploadError } from '../../shared/utils/uploadFeedback';
+import { useTextoBaseUpload } from '../../shared/composables/useTextoBaseUpload';
 import ComboBox from '../../shared/components/ComboBox.vue';
 import UploadStatus from '../../shared/components/UploadStatus.vue';
+import TextoBaseModal from '../../shared/components/TextoBaseModal.vue';
+import FileTypeIcon from '../../shared/components/FileTypeIcon.vue';
 
 import Sistematizador from './components/Sistematizador.vue';
 import { useTheme } from '../../shared/composables/useTheme';
@@ -62,12 +64,19 @@ const selectedDesempenoIds = ref<number[]>([]);
 const selectedNivelLogro = shallowRef<string>('en_proceso');
 const selectedNivelDificultad = shallowRef<NivelDificultad>('intermedio');
 const cantidadPreguntas = shallowRef(3);
-const textoBase = shallowRef('');
 const useTextoBase = shallowRef(false);
-const selectedFiles = ref<File[]>([]);
-const filesMetadata = ref<FilesMetadata | null>(null);
-const uploadingFile = shallowRef(false);
-const uploadError = shallowRef<string | null>(null);
+const showTextoBaseModal = shallowRef(false);
+const {
+  filesMetadata,
+  uploadingFile,
+  uploadError,
+  textoBase,
+  hasContent: textoBaseHasContent,
+  resumen: textoBaseResumen,
+  addFiles: addTextoBaseFiles,
+  removeFileAt: removeTextoBaseFileAt,
+  clear: clearTextoBase,
+} = useTextoBaseUpload();
 
 const loadingGrados = shallowRef(true);
 const loading = shallowRef(false);
@@ -123,6 +132,10 @@ const gradoOptions = computed(() => {
 
 
 
+watch(useTextoBase, (activo) => {
+  if (!activo) showTextoBaseModal.value = false;
+});
+
 watch(selectedGradoId, async (newGradoId) => {
   if (!newGradoId) {
     desempenos.value = [];
@@ -176,51 +189,8 @@ const deselectAllCapacidad = (tipo: string) => {
   selectedDesempenoIds.value = selectedDesempenoIds.value.filter(id => !ids.includes(id));
 };
 
-const handleFileUpload = async (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  const files = input.files;
-  if (!files || files.length === 0) {
-    selectedFiles.value = [];
-    filesMetadata.value = null;
-    textoBase.value = '';
-    return;
-  }
-  const fileArray: File[] = Array.from(files);
-  const validationError = validateFiles(fileArray);
-  if (validationError) {
-    uploadError.value = validationError;
-    input.value = '';
-    selectedFiles.value = [];
-    return;
-  }
-  selectedFiles.value = fileArray;
-  uploadingFile.value = true;
-  uploadError.value = null;
-  try {
-    const result = await desempenosService.uploadTextoBase(fileArray);
-    textoBase.value = result.texto;
-    filesMetadata.value = {
-      archivos: result.archivos,
-      total_palabras: result.total_palabras,
-      total_caracteres: result.total_caracteres,
-      advertencias: result.advertencias
-    };
-    input.value = '';
-  } catch (e: any) {
-    uploadError.value = parseUploadError(e);
-    selectedFiles.value = [];
-    textoBase.value = '';
-    input.value = '';
-  } finally {
-    uploadingFile.value = false;
-  }
-};
-
-const clearFiles = () => {
-  selectedFiles.value = [];
-  filesMetadata.value = null;
-  textoBase.value = '';
-  uploadError.value = null;
+const closeTextoBaseModal = () => {
+  showTextoBaseModal.value = false;
 };
 
 const generarPreguntas = async () => {
@@ -538,33 +508,40 @@ const getNivelBadgeClass = (nivel: string): string => {
               </div>
             </Checkbox>
 
-            <div v-if="useTextoBase" class="space-y-2">
-              <div v-if="selectedFiles.length === 0 && !uploadingFile" class="relative">
-                <input type="file" accept=".pdf,.docx,.doc" multiple @change="handleFileUpload"
-                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                <div
-                  class="flex items-center justify-center py-4 px-3 bg-gradient-to-br from-sky-50 to-teal-50 dark:bg-slate-900 border-2 border-dashed border-sky-300 dark:border-slate-600 rounded-xl hover:border-teal-400 hover:bg-teal-50 transition-all duration-300">
-                  <div class="text-center">
-                    <CloudUpload class="w-6 h-6 text-teal-500 mx-auto mb-1" />
-                    <span class="text-teal-600 dark:text-slate-400 text-xs font-medium flex items-center gap-1"><FileText class="w-3 h-3" /> PDF o Word</span>
-                  </div>
+            <div v-if="useTextoBase">
+              <!-- Procesando / error -->
+              <UploadStatus v-if="uploadingFile || uploadError"
+                :uploading="uploadingFile" :error="uploadError" compact />
+
+              <!-- Con contenido: resumen compacto -->
+              <div v-else-if="textoBaseHasContent"
+                class="flex items-center gap-2 rounded-xl border border-teal-200 dark:border-teal-800 bg-teal-50 dark:bg-teal-900/20 pl-2 pr-1.5 py-1.5">
+                <FileTypeIcon v-if="filesMetadata?.archivos?.length" :filename="filesMetadata?.archivos[0]?.filename"
+                  :extension="filesMetadata?.archivos[0]?.extension" size="md" />
+                <div v-else class="w-9 h-9 rounded-lg bg-teal-500/10 text-teal-500 dark:text-teal-400 flex items-center justify-center shrink-0">
+                  <FileText class="w-4 h-4" />
                 </div>
+                <span class="flex-1 min-w-0 truncate text-xs font-medium text-teal-700 dark:text-teal-300">
+                  {{ textoBaseResumen.label }}
+                </span>
+                <button type="button" @click="showTextoBaseModal = true"
+                  class="shrink-0 text-[11px] font-bold px-2 py-1.5 rounded-lg text-teal-700 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-teal-800/40 transition-colors cursor-pointer">
+                  Editar
+                </button>
+                <button type="button" @click="clearTextoBase" aria-label="Quitar texto base"
+                  class="shrink-0 p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer">
+                  <X class="w-3.5 h-3.5" />
+                </button>
               </div>
 
-              <UploadStatus
-                :uploading="uploadingFile"
-                :error="uploadError"
-                :metadata="filesMetadata"
-                :has-text="true"
-                accent="teal"
-              />
-
-              <BaseButton v-if="selectedFiles.length > 0 && !uploadingFile && filesMetadata" size="sm" variant="destructive" @click="clearFiles">
-                <template #icon>
-                  <X class="w-3.5 h-3.5" />
-                </template>
-                Quitar archivo
-              </BaseButton>
+              <!-- Vacío: abrir modal -->
+              <button v-else type="button" @click="showTextoBaseModal = true"
+                class="w-full flex items-center justify-center gap-2 py-3.5 px-3 bg-gradient-to-br from-sky-50 to-teal-50 dark:bg-slate-900 border-2 border-dashed border-sky-300 dark:border-slate-600 rounded-xl hover:border-teal-400 hover:bg-teal-50 dark:hover:border-teal-600 transition-all duration-300 cursor-pointer">
+                <CloudUpload class="w-5 h-5 text-teal-500 shrink-0" />
+                <span class="text-teal-600 dark:text-slate-400 text-xs font-semibold flex items-center gap-1">
+                  Subir PDF o Word
+                </span>
+              </button>
             </div>
 
             <p v-else class="text-slate-400 dark:text-slate-500 text-xs mt-2 flex items-center gap-1">
@@ -572,6 +549,18 @@ const getNivelBadgeClass = (nivel: string): string => {
             </p>
           </div>
         </div>
+
+        <TextoBaseModal
+          :open="showTextoBaseModal"
+          :uploading="uploadingFile"
+          :error="uploadError"
+          :metadata="filesMetadata"
+          v-model="textoBase"
+          @close="closeTextoBaseModal"
+          @files="addTextoBaseFiles"
+          @remove="removeTextoBaseFileAt"
+          @clear="clearTextoBase"
+        />
 
         <!-- Main Content -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">

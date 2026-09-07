@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Loader2, AlertTriangle, Check, FileQuestion } from 'lucide-vue-next';
+import { Loader2, AlertTriangle, FileQuestion, X } from 'lucide-vue-next';
 import type { FilesMetadata } from '../types';
-import { formatPalabras } from '../utils/uploadFeedback';
+import { formatPalabras, formatFileSize, MAX_UPLOAD_FILES, MAX_UPLOAD_MB } from '../utils/uploadFeedback';
+import FileTypeIcon from './FileTypeIcon.vue';
 
 const props = withDefaults(defineProps<{
   uploading?: boolean;
@@ -11,6 +12,7 @@ const props = withDefaults(defineProps<{
   hasText?: boolean;
   accent?: 'teal' | 'indigo';
   compact?: boolean;
+  removable?: boolean;
 }>(), {
   uploading: false,
   error: null,
@@ -18,7 +20,12 @@ const props = withDefaults(defineProps<{
   hasText: false,
   accent: 'teal',
   compact: false,
+  removable: false,
 });
+
+const emit = defineEmits<{
+  remove: [index: number];
+}>();
 
 const accentClasses = computed(() => props.accent === 'indigo'
   ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20'
@@ -40,11 +47,15 @@ const showEmpty = computed(() =>
 
     <div v-if="metadata && metadata.archivos.length > 0" class="flex flex-wrap gap-2">
       <div v-for="(archivo, idx) in metadata.archivos" :key="idx"
-        class="flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-600 dark:text-emerald-400">
-        <Check class="w-3.5 h-3.5 shrink-0" />
+        class="flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 pl-1.5 pr-3 py-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+        <FileTypeIcon :filename="archivo.filename" :extension="archivo.extension" />
         <span class="truncate max-w-[12rem] font-medium">{{ archivo.filename }}</span>
         <span class="text-emerald-500/80 dark:text-emerald-400/80">· {{ formatPalabras(archivo.palabras) }}</span>
-        <span v-if="archivo.size_kb" class="text-emerald-500/80 dark:text-emerald-400/80">· {{ archivo.size_kb }} KB</span>
+        <span v-if="archivo.size_kb" class="text-emerald-500/80 dark:text-emerald-400/80">· {{ formatFileSize(archivo.size_kb) }}</span>
+        <button v-if="removable" type="button" @click="emit('remove', idx)"
+          class="ml-1 rounded-full p-0.5 hover:bg-emerald-500/20 transition-colors cursor-pointer" :aria-label="`Quitar ${archivo.filename}`">
+          <X class="w-3 h-3" />
+        </button>
       </div>
       <div v-if="metadata.archivos.length > 1" class="w-full text-[11px] text-slate-500 dark:text-slate-400">
         Total: {{ formatPalabras(metadata.total_palabras) }}
@@ -60,7 +71,8 @@ const showEmpty = computed(() =>
     </div>
 
     <div v-if="showEmpty" class="flex items-center gap-2 text-[11px] text-slate-400 dark:text-slate-500">
-      <FileQuestion class="w-3.5 h-3.5 shrink-0" /> Sin contenido — sube un PDF/Word o escribe el texto
+      <FileQuestion class="w-3.5 h-3.5 shrink-0" /> Sin contenido — sube hasta {{ MAX_UPLOAD_FILES }} PDF/Word (máx.
+      {{ MAX_UPLOAD_MB }} MB c/u) o escribe el texto
     </div>
   </div>
 </template>

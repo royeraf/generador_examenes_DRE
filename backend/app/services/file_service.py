@@ -45,7 +45,7 @@ class FileExtractionService:
         r"<\s*script",
         r"javascript\s*:",
         r"vbscript\s*:",
-        r"on\w+\s*=",
+        r"\bon\w+\s*=",
         r"<\s*object\b",
         r"<\s*embed\b",
         r"<\s*iframe\b",

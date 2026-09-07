@@ -60,3 +60,36 @@ export function parseUploadError(e: unknown): string {
 export function formatPalabras(n: number): string {
   return `${n.toLocaleString('es-PE')} ${n === 1 ? 'palabra' : 'palabras'}`;
 }
+
+/** Atributo `accept` para inputs de archivo, derivado de ALLOWED_UPLOAD_EXT. */
+export const ACCEPT_UPLOAD = ALLOWED_UPLOAD_EXT.map((ext) => `.${ext}`).join(',');
+
+export type FileKind = 'pdf' | 'word' | 'unknown';
+
+export const FILE_KIND_LABEL: Record<FileKind, string> = {
+  pdf: 'PDF',
+  word: 'Word',
+  unknown: 'Archivo',
+};
+
+/** Determina el tipo de archivo (para icono/etiqueta) a partir de su nombre o extensión. */
+export function getFileKind(nameOrExt: string): FileKind {
+  const raw = nameOrExt.includes('.') ? nameOrExt.split('.').pop() ?? '' : nameOrExt;
+  const ext = raw.toLowerCase().trim();
+  if (ext === 'pdf') return 'pdf';
+  if (ext === 'doc' || ext === 'docx') return 'word';
+  return 'unknown';
+}
+
+/** Formatea un tamaño en KB a KB o MB según corresponda. */
+export function formatFileSize(kb?: number): string {
+  if (!kb && kb !== 0) return '';
+  if (kb < 1024) return `${Math.round(kb)} KB`;
+  return `${(kb / 1024).toFixed(1)} MB`;
+}
+
+/** Cuenta palabras de un texto libre (para el textarea de texto base). */
+export function countWords(text: string): number {
+  const trimmed = text.trim();
+  return trimmed === '' ? 0 : trimmed.split(/\s+/).length;
+}
