@@ -43,13 +43,16 @@ def generar_examen_word(data: dict) -> BytesIO:
     
     doc.add_paragraph()
     
-    # Sección de datos del estudiante
+    # Sección de datos del estudiante: texto fijo, no proviene de la IA.
+    # generar_examen_word() es compartida por LectoSistem, MatSistem y Generador
+    # (los tres pasan por POST /lectosistem/descargar-word), así que este bloque
+    # se agrega siempre en el Word exportado, sin importar el módulo de origen.
     datos_table = doc.add_table(rows=1, cols=2)
     datos_table.alignment = WD_TABLE_ALIGNMENT.CENTER
-    
+
     cell1 = datos_table.rows[0].cells[0]
     cell1.text = "Apellidos y Nombres: _______________________________________"
-    
+
     cell2 = datos_table.rows[0].cells[1]
     cell2.text = "Fecha: _______________________________________"
     

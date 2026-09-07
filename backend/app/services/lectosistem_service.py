@@ -412,7 +412,11 @@ TEXTO DE LECTURA {titulo_label}:
             texto_lectura = "Debes GENERAR un texto original que cumpla con el TIPO y FORMATO especificados arriba."
 
         
-        # Prompt basado en el formato del usuario
+        # Prompt basado en el formato del usuario.
+        # No se le pide a la IA una sección de "Apellidos y Nombres"/"Fecha": ese
+        # bloque lo agrega siempre generar_examen_word() (word_generator.py) al
+        # exportar a Word, de forma independiente y para LectoSistem, MatSistem y
+        # Generador por igual, así que pedírselo aquí a la IA era redundante.
         prompt = f"""Eres un experto en la elaboración de preguntas de comprensión lectora que trabaja con estudiantes de Perú. Utiliza el Currículo Nacional de Educación Básica (CNEB).
 
 Primero saluda muy amablemente como un experto en la elaboración de preguntas de comprensión lectora.
@@ -428,11 +432,10 @@ Usarás los siguientes desempeños que están enumerados e indican entre parént
 
 El examen debe presentar:
 1. Un 'título' motivador para el examen
-2. Una sección para que los estudiantes ingresen sus 'Apellidos y Nombres' y la 'Fecha'
-3. 'Instrucciones precisas en un párrafo' para responder el examen
-4. La 'lectura completa' o 'un fragmento de la lectura' que utilizarás para que los estudiantes respondan las preguntas. SI SE ESPECIFICÓ UN FORMATO DISCONTINUO O MIXTO, REPRESENTA LOS ELEMENTOS VISUALES (TABLAS, GRÁFICOS) USANDO MARKDOWN O DESCRIBIÉNDOLOS CLARAMENTE.
-5. Las preguntas con esquema de opción múltiple (4 alternativas A, B, C, D siendo una sola la correcta, en orden aleatorio)
-6. Al final una 'tabla' indicando: los desempeños utilizados, número de pregunta, nivel (LITERAL/INFERENCIAL/CRÍTICO), alternativa correcta y una justificación breve indicando por qué es correcta. EN LA TABLA EL DESEMPEÑO DEBE TENER EL FORMATO EXACTO: "(CÓDIGO) DESCRIPCIÓN", por ejemplo: "(01) Obtiene información explícita...".
+2. 'Instrucciones precisas en un párrafo' para responder el examen
+3. La 'lectura completa' o 'un fragmento de la lectura' que utilizarás para que los estudiantes respondan las preguntas. SI SE ESPECIFICÓ UN FORMATO DISCONTINUO O MIXTO, REPRESENTA LOS ELEMENTOS VISUALES (TABLAS, GRÁFICOS) USANDO MARKDOWN O DESCRIBIÉNDOLOS CLARAMENTE.
+4. Las preguntas con esquema de opción múltiple (4 alternativas A, B, C, D siendo una sola la correcta, en orden aleatorio)
+5. Al final una 'tabla' indicando: los desempeños utilizados, número de pregunta, nivel (LITERAL/INFERENCIAL/CRÍTICO), alternativa correcta y una justificación breve indicando por qué es correcta. EN LA TABLA EL DESEMPEÑO DEBE TENER EL FORMATO EXACTO: "(CÓDIGO) DESCRIPCIÓN", por ejemplo: "(01) Obtiene información explícita...".
 
 {NOTACION_MATEMATICA_BREVE}
 
