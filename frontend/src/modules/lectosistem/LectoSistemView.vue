@@ -510,10 +510,14 @@ onMounted(async () => {
                   <span class="text-xs font-medium">Usar Textos Base</span>
                 </Checkbox>
                 <Tooltip v-if="useTextoBase" :text="textosBaseStatus.tooltip" class="block">
-                  <button @click="showTextosModal = true" class="w-full px-2.5 py-1.5 rounded-full border text-[10px] font-medium transition-colors cursor-pointer flex items-center gap-1.5" :class="textosBadgeClass">
-                    <span class="shrink-0 rounded-full bg-white/70 dark:bg-black/25 px-1.5 py-0.5 text-[10px] font-black leading-none">{{ textosBaseStatus.count.filled }}/{{ textosBaseStatus.count.total }}</span>
-                    <component :is="textosBadgeIcon" class="w-3 h-3 shrink-0" :class="{ 'animate-spin': textosBaseStatus.tone === 'uploading' }" />
-                    <span class="truncate">{{ textosBaseStatus.label }}</span>
+                  <button @click="showTextosModal = true"
+                    class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition-colors cursor-pointer"
+                    :class="textosBadgeClass">
+                    <span class="shrink-0 w-7 h-7 rounded-lg bg-white/60 dark:bg-black/25 flex items-center justify-center">
+                      <component :is="textosBadgeIcon" class="w-3.5 h-3.5" :class="{ 'animate-spin': textosBaseStatus.tone === 'uploading' }" />
+                    </span>
+                    <span class="flex-1 min-w-0 text-left text-xs font-semibold truncate">{{ textosBaseStatus.label }}</span>
+                    <span class="shrink-0 rounded-full bg-white/70 dark:bg-black/25 px-2 py-1 text-[11px] font-black leading-none">{{ textosBaseStatus.count.filled }}/{{ textosBaseStatus.count.total }}</span>
                   </button>
                 </Tooltip>
               </div>
