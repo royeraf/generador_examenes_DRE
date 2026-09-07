@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import {
-    X, Award, Clock, GraduationCap, FileText, Link, Trash2,
+    X, Clock, GraduationCap, FileText, Link, Trash2,
     ClipboardCheck, BookOpen, HelpCircle,
     Check, LayoutGrid, Sparkles, Target, Download,
     MessageSquare, CheckCircle2, XCircle
@@ -62,42 +62,15 @@ const cerrarRetro = () => { modalRetro.value = null; };
                     class="relative w-full max-w-4xl max-h-[90vh] bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-700 flex flex-col overflow-hidden">
 
                     <!-- Header -->
-                    <div class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 px-5 py-4 flex-shrink-0">
-                        <div class="flex items-center justify-between gap-3">
-                            <div class="flex items-center gap-3 min-w-0 flex-1">
-                                <div
-                                    class="w-11 h-11 bg-white/20 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
-                                    <Award class="w-6 h-6 text-white" />
-                                </div>
-                                <div class="min-w-0 flex-1">
-                                    <h2 class="text-lg font-bold text-white truncate">
-                                        {{ entry?.resultado.examen.titulo || 'Cargando examen...' }}
-                                    </h2>
-                                    <div v-if="entry" class="flex items-center gap-3 text-xs text-indigo-100 mt-0.5">
-                                        <span class="flex items-center gap-1">
-                                            <GraduationCap class="w-3 h-3" />
-                                            {{ entry.gradoLabel }}
-                                        </span>
-                                        <span class="flex items-center gap-1">
-                                            <FileText class="w-3 h-3" />
-                                            {{ entry.resultado.total_preguntas }} preguntas
-                                        </span>
-                                        <span class="flex items-center gap-1">
-                                            <Clock class="w-3 h-3" />
-                                            {{ formatFechaHora(entry.fechaCreacion) }}
-                                        </span>
-                                    </div>
-                                    <div v-else class="flex gap-4 mt-2">
-                                        <div class="h-3 w-20 bg-white/20 rounded animate-pulse"></div>
-                                        <div class="h-3 w-20 bg-white/20 rounded animate-pulse"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <button @click="emit('close')"
-                                class="w-9 h-9 bg-white/20 hover:bg-white/30 rounded-xl flex items-center justify-center text-white transition-colors flex-shrink-0">
-                                <X class="w-5 h-5" />
-                            </button>
-                        </div>
+                    <div
+                        class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between gap-3 flex-shrink-0">
+                        <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate">
+                            {{ entry?.resultado.examen.titulo || 'Cargando examen...' }}
+                        </h2>
+                        <button @click="emit('close')"
+                            class="w-9 h-9 rounded-xl flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors flex-shrink-0">
+                            <X class="w-5 h-5" />
+                        </button>
                     </div>
 
                     <!-- Scrollable Body -->
@@ -105,6 +78,8 @@ const cerrarRetro = () => { modalRetro.value = null; };
                         <template v-if="isLoading">
                             <!-- Skeleton Body -->
                             <div class="space-y-6">
+                                <!-- Resumen Skeleton -->
+                                <div class="h-11 w-full max-w-sm bg-gray-100 dark:bg-slate-700/50 rounded-xl animate-pulse"></div>
                                 <!-- Instructions Skeleton -->
                                 <div class="bg-gray-100 dark:bg-slate-700/50 rounded-xl p-4 animate-pulse">
                                     <div class="h-4 w-32 bg-gray-200 dark:bg-slate-600 rounded mb-3"></div>
@@ -145,6 +120,23 @@ const cerrarRetro = () => { modalRetro.value = null; };
                         </template>
 
                         <template v-else-if="entry">
+                            <!-- Resumen del examen -->
+                            <div
+                                class="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/50 rounded-xl px-4 py-3 border border-slate-200 dark:border-slate-800">
+                                <span class="flex items-center gap-1.5 font-semibold text-slate-700 dark:text-slate-200">
+                                    <GraduationCap class="w-3.5 h-3.5 text-indigo-500" />
+                                    {{ entry.gradoLabel }}
+                                </span>
+                                <span class="flex items-center gap-1.5">
+                                    <FileText class="w-3.5 h-3.5 text-indigo-500" />
+                                    {{ entry.resultado.total_preguntas }} preguntas
+                                </span>
+                                <span class="flex items-center gap-1.5">
+                                    <Clock class="w-3.5 h-3.5 text-indigo-500" />
+                                    {{ formatFechaHora(entry.fechaCreacion) }}
+                                </span>
+                            </div>
+
                             <!-- Instrucciones -->
                             <div
                                 class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/40 dark:to-slate-900 rounded-xl p-4 border-2 border-indigo-100 dark:border-indigo-800">
