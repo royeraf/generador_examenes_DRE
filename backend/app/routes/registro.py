@@ -169,23 +169,6 @@ async def _get_or_create_aula(
     return aula
 
 
-async def _siguiente_codigo_estudiante(db: AsyncSession) -> str:
-    result = await db.execute(
-        select(func.max(Estudiante.codigo_estudiante)).where(
-            Estudiante.codigo_estudiante.isnot(None)
-        )
-    )
-    ultimo = result.scalar()
-    if ultimo:
-        try:
-            numero = int(ultimo[3:]) + 1
-        except ValueError:
-            numero = 1
-    else:
-        numero = 1
-    return f"EST{numero:04d}"
-
-
 # ─── Endpoints de Códigos de Clase ───────────────────────────────────────────
 
 @router.get("/codigos-clase", response_model=List[CodigoClaseResponse])
@@ -370,8 +353,9 @@ async def registrar_estudiante(
     if (count_result.scalar() or 0) >= cc.max_estudiantes:
         raise HTTPException(400, "El código de clase ha alcanzado el máximo de estudiantes")
 
-    codigo_estudiante = await _siguiente_codigo_estudiante(db)
-
+    # No se precalcula el código aquí: crear_estudiante() ya lo autogenera
+    # (vía estudiante_service._generar_codigo(), que sí filtra por prefijo
+    # "EST%") cuando no se le pasa codigo_estudiante explícito.
     estudiante = await estudiante_service.crear_estudiante(
         db,
         dni=data.dni,
@@ -380,7 +364,6 @@ async def registrar_estudiante(
         password=data.password,
         institucion_educativa_id=cc.institucion_educativa_id,
         creado_por_id=cc.creado_por_id,
-        codigo_estudiante=codigo_estudiante,
         grado_id=cc.grado_id,
         seccion=cc.seccion,
         año_escolar=cc.año_escolar,
@@ -394,7 +377,7 @@ async def registrar_estudiante(
 
     return RegistroEstudianteResponse(
         id=estudiante.id,
-        codigo_estudiante=codigo_estudiante,
+        codigo_estudiante=estudiante.codigo_estudiante,
         nombres=estudiante.nombres,
         apellidos=estudiante.apellidos,
         grado=matricula.grado.nombre if matricula.grado else None,
@@ -451,7 +434,6 @@ async def registrar_estudiante_directo(
         if existing.scalars().first():
             raise HTTPException(400, "DNI ya registrado en el sistema")
 
-    codigo_estudiante = await _siguiente_codigo_estudiante(db)
     año_escolar = data.año_escolar or datetime.now().year
 
     await _get_or_create_aula(
@@ -463,6 +445,9 @@ async def registrar_estudiante_directo(
         creado_por_id=current_user.id,
     )
 
+    # No se precalcula el código aquí: crear_estudiante() ya lo autogenera
+    # (vía estudiante_service._generar_codigo(), que sí filtra por prefijo
+    # "EST%") cuando no se le pasa codigo_estudiante explícito.
     estudiante = await estudiante_service.crear_estudiante(
         db,
         dni=data.dni,
@@ -471,7 +456,6 @@ async def registrar_estudiante_directo(
         password=data.password,
         institucion_educativa_id=current_user.institucion_educativa_id,
         creado_por_id=current_user.id,
-        codigo_estudiante=codigo_estudiante,
         grado_id=data.grado_id,
         seccion=data.seccion,
         año_escolar=año_escolar,
@@ -488,7 +472,7 @@ async def registrar_estudiante_directo(
 
     return RegistroEstudianteResponse(
         id=estudiante.id,
-        codigo_estudiante=codigo_estudiante,
+        codigo_estudiante=estudiante.codigo_estudiante,
         nombres=estudiante.nombres,
         apellidos=estudiante.apellidos,
         grado=matricula.grado.nombre if matricula.grado else None,
@@ -671,7 +655,7 @@ async def actualizar_estudiante(
     if data.password:
         from app.core.security import get_password_hash as _hash
         if not estudiante.codigo_estudiante:
-            estudiante.codigo_estudiante = await _siguiente_codigo_estudiante(db)
+            estudiante.codigo_estudiante = await estudiante_service._generar_codigo(db)
         estudiante.password_hash = _hash(data.password)
         estudiante.is_active = True
 
