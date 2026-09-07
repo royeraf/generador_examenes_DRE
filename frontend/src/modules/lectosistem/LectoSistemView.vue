@@ -274,6 +274,11 @@ async function confirmarEliminar(id: string) {
   }
 }
 
+function clampBreakdownValue(value: number): number {
+  if (Number.isNaN(value)) return 0;
+  return Math.min(Number(cantidadPreguntas.value), Math.max(0, Math.round(value)));
+}
+
 async function onGenerarPreguntas() {
   if (!isDesktop.value) {
     mobileTab.value = 'results';
@@ -527,16 +532,20 @@ onMounted(async () => {
               </div>
 
               <div class="grid grid-cols-3 gap-2">
-                 <div v-for="({ label, val, dec, inc }) in [
-                  { label: 'Literal', val: cantidadLiteral, dec: () => cantidadLiteral = Math.max(0, cantidadLiteral - 1), inc: () => cantidadLiteral = Math.min(cantidadPreguntas, cantidadLiteral + 1) },
-                  { label: 'Inferencial', val: cantidadInferencial, dec: () => cantidadInferencial = Math.max(0, cantidadInferencial - 1), inc: () => cantidadInferencial = Math.min(cantidadPreguntas, cantidadInferencial + 1) },
-                  { label: 'Crítico', val: cantidadCritico, dec: () => cantidadCritico = Math.max(0, cantidadCritico - 1), inc: () => cantidadCritico = Math.min(cantidadPreguntas, cantidadCritico + 1) },
+                 <div v-for="({ label, val, dec, inc, set }) in [
+                  { label: 'Literal', val: cantidadLiteral, dec: () => cantidadLiteral = Math.max(0, cantidadLiteral - 1), inc: () => cantidadLiteral = Math.min(cantidadPreguntas, cantidadLiteral + 1), set: (v: number) => cantidadLiteral = v },
+                  { label: 'Inferencial', val: cantidadInferencial, dec: () => cantidadInferencial = Math.max(0, cantidadInferencial - 1), inc: () => cantidadInferencial = Math.min(cantidadPreguntas, cantidadInferencial + 1), set: (v: number) => cantidadInferencial = v },
+                  { label: 'Crítico', val: cantidadCritico, dec: () => cantidadCritico = Math.max(0, cantidadCritico - 1), inc: () => cantidadCritico = Math.min(cantidadPreguntas, cantidadCritico + 1), set: (v: number) => cantidadCritico = v },
                 ]" :key="label" class="bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-300 dark:border-slate-700 flex flex-col items-center overflow-hidden p-1.5">
                    <span class="text-[10px] font-medium text-slate-500 dark:text-slate-400 mb-1.5">{{ label }}</span>
-                   <div class="flex items-center w-full justify-between">
-                     <button @click="dec()" class="w-5 h-5 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800/50 rounded-md hover:bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 cursor-pointer">-</button>
-                     <span class="text-xs font-bold text-slate-800 dark:text-white">{{ val }}</span>
-                     <button @click="inc()" class="w-5 h-5 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800/50 rounded-md hover:bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 cursor-pointer">+</button>
+                   <div class="flex items-center w-full justify-between gap-1">
+                     <button @click="dec()" class="w-5 h-5 shrink-0 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800/50 rounded-md hover:bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 cursor-pointer">-</button>
+                     <input type="number" inputmode="numeric" min="0" :max="cantidadPreguntas" :value="val"
+                       @change="set(clampBreakdownValue(($event.target as HTMLInputElement).valueAsNumber))"
+                       @keydown.enter="($event.target as HTMLInputElement).blur()"
+                       @focus="($event.target as HTMLInputElement).select()"
+                       class="w-9 min-w-0 text-center text-xs font-bold text-slate-800 dark:text-white bg-transparent border border-transparent hover:border-slate-300 dark:hover:border-slate-600 focus:border-teal-500 rounded-md outline-none focus:ring-1 focus:ring-teal-500/40 py-0.5 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                     <button @click="inc()" class="w-5 h-5 shrink-0 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white bg-slate-100 dark:bg-slate-800/50 rounded-md hover:bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 cursor-pointer">+</button>
                    </div>
                  </div>
               </div>
