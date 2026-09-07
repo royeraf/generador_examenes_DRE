@@ -1,12 +1,42 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
 
-defineProps<{
+const props = defineProps<{
     text?: string;
     variant?: 'blue' | 'teal' | 'indigo' | 'purple' | 'rainbow';
 }>();
 
 type PatternType = 'stream' | 'pulse-out' | 'scan' | 'converge';
+
+const displayedText = ref('');
+const fullText = computed(() => props.text || 'Generando');
+let typewriterTimer: ReturnType<typeof setInterval> | null = null;
+
+const startTypingAnimation = () => {
+    if (typewriterTimer) clearInterval(typewriterTimer);
+
+    displayedText.value = '';
+    let currentIndex = 0;
+
+    typewriterTimer = setInterval(() => {
+        if (currentIndex >= fullText.value.length) {
+            if (typewriterTimer) clearInterval(typewriterTimer);
+            typewriterTimer = null;
+            return;
+        }
+
+        displayedText.value += fullText.value[currentIndex]!;
+        currentIndex++;
+    }, 70);
+};
+
+watch(
+    () => props.text,
+    () => {
+        startTypingAnimation();
+    },
+    { immediate: true }
+);
 
 // All cells in a 3x3 grid
 const allCells = [
@@ -91,7 +121,7 @@ const cellColors = [
         </svg>
 
         <div class="pill" :class="variant || 'teal'">
-            <!-- Spark icon -->
+            <!-- Spark icon 
             <div class="spark-icon">
                 <svg viewBox="0 0 24 24" fill="none" class="w-[14px] h-[14px]">
                     <path
@@ -99,7 +129,7 @@ const cellColors = [
                         fill="currentColor" />
                 </svg>
             </div>
-
+-->
             <!-- 3x3 Grid with crossfade -->
             <div class="grid-container" :class="variant || 'rainbow'">
                 <!-- Stream pattern (always rendered, crossfade via opacity) -->
@@ -160,7 +190,7 @@ const cellColors = [
             </div>
 
             <!-- Text with cursor -->
-            <span class="label text-slate-600 dark:text-slate-300">{{ text || 'Generando' }}<span
+            <span class="label text-slate-600 dark:text-slate-300">{{ displayedText }}<span
                     class="cursor" /></span>
         </div>
     </div>
