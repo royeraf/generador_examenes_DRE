@@ -11,17 +11,17 @@ import type { AsignacionPayload, CodigoClase } from '../../shared/services/api';
 import {
   Sparkles, LayoutGrid, History, Trash2,
   GraduationCap, FileText, Loader2, X,
-  CloudUpload, Plus, Check, Hash, Target,
-  Eye, FileDown, Send, PanelLeft, AlertTriangle,
+  CloudUpload, Plus, Hash, Target,
+  Eye, FileDown, Send, PanelLeft, BookOpen
 } from 'lucide-vue-next';
 
 import Checkbox from '../../shared/components/Checkbox.vue';
 import ComboBox from '../../shared/components/ComboBox.vue';
 import BaseButton from '../../shared/components/BaseButton.vue';
-import Tooltip from '../../shared/components/Tooltip.vue';
 import UploadStatus from '../../shared/components/UploadStatus.vue';
 import LectoSistemDesempenos from './components/LectoSistemDesempenos.vue';
 import LectoSistemResults from './components/LectoSistemResults.vue';
+import LectoSistemTextoDropzone from './components/LectoSistemTextoDropzone.vue';
 import ExamPreviewModal from './components/ExamPreviewModal.vue';
 import Navbar from '../../shared/components/Navbar.vue';
 import type { ExamenHistoryEntry } from '../../shared/types';
@@ -41,6 +41,7 @@ const {
   addTexto,
   removeTexto,
   handleFileUploadAt,
+  uploadFilesAt,
   clearFilesAt,
   loading,
   loadingDesempenos,
@@ -81,22 +82,6 @@ const {
   loadingDelete,
 } = useExamHistory();
 
-const TEXTOS_BADGE_CLASSES: Record<typeof textosBaseStatus.value.tone, string> = {
-  uploading: 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20',
-  error: 'bg-red-500/10 text-red-500 dark:text-red-400 border-red-500/20',
-  empty: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
-  partial: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
-  ready: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
-};
-const textosBadgeClass = computed(() => TEXTOS_BADGE_CLASSES[textosBaseStatus.value.tone]);
-const TEXTOS_BADGE_ICONS: Record<typeof textosBaseStatus.value.tone, typeof Loader2> = {
-  uploading: Loader2,
-  error: AlertTriangle,
-  empty: AlertTriangle,
-  partial: AlertTriangle,
-  ready: Check,
-};
-const textosBadgeIcon = computed(() => TEXTOS_BADGE_ICONS[textosBaseStatus.value.tone]);
 
 // // Provide for Sistematizador linkage
 // const examForSistematizador = shallowRef<{ tablaRespuestas: FilaTablaRespuestas[]; gradoId: number | null } | null>(null);
@@ -469,6 +454,13 @@ onMounted(async () => {
                 </span>
               </div>
             </template>
+            <div class="w-8 h-px bg-slate-200 dark:bg-slate-700 shrink-0" />
+            <div class="flex flex-col items-center gap-1 shrink-0" :title="useTextoBase ? 'Lectura: Textos propios' : 'Lectura: Generada por IA'">
+              <component :is="useTextoBase ? FileText : Sparkles" class="w-3.5 h-3.5 text-teal-500" />
+              <span class="text-[9px] text-slate-600 dark:text-slate-300 text-center leading-tight">
+                {{ useTextoBase ? 'Propio' : 'IA' }}
+              </span>
+            </div>
             <template v-if="selectedDesempenosCount > 0">
               <div class="w-8 h-px bg-slate-200 dark:bg-slate-700 shrink-0" />
               <div class="flex flex-col items-center gap-1 shrink-0">
@@ -505,21 +497,57 @@ onMounted(async () => {
                 <option v-for="opt in formatoTextualOptions" :key="opt.id" :value="opt.id">{{ opt.label }}</option>
               </select>
               
-              <div class="space-y-2 pt-2">
-                <Checkbox v-model="useTextoBase" class="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-                  <span class="text-xs font-medium">Usar Textos Base</span>
-                </Checkbox>
-                <Tooltip v-if="useTextoBase" :text="textosBaseStatus.tooltip" class="block">
-                  <button @click="showTextosModal = true"
-                    class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition-colors cursor-pointer"
-                    :class="textosBadgeClass">
-                    <span class="shrink-0 w-7 h-7 rounded-lg bg-white/60 dark:bg-black/25 flex items-center justify-center">
-                      <component :is="textosBadgeIcon" class="w-3.5 h-3.5" :class="{ 'animate-spin': textosBaseStatus.tone === 'uploading' }" />
-                    </span>
-                    <span class="flex-1 min-w-0 text-left text-xs font-semibold truncate">{{ textosBaseStatus.label }}</span>
-                    <span class="shrink-0 rounded-full bg-white/70 dark:bg-black/25 px-2 py-1 text-[11px] font-black leading-none">{{ textosBaseStatus.count.filled }}/{{ textosBaseStatus.count.total }}</span>
+              <!-- Selector de Origen de la Lectura -->
+              <div class="space-y-2.5 pt-2">
+                <label class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                  <BookOpen class="w-3.5 h-3.5"/> Origen de la lectura
+                </label>
+
+                <!-- Selector Segmentado de 2 opciones -->
+                <div class="flex p-1 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-300 dark:border-slate-700">
+                  <button
+                    type="button"
+                    @click="useTextoBase = false"
+                    class="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-bold transition-all cursor-pointer"
+                    :class="!useTextoBase
+                      ? 'bg-teal-500 dark:bg-teal-600 text-white shadow-sm dark:shadow-none'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"
+                  >
+                    <Sparkles class="w-3.5 h-3.5 shrink-0" />
+                    <span>Generar con IA</span>
                   </button>
-                </Tooltip>
+                  <button
+                    type="button"
+                    @click="useTextoBase = true"
+                    class="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-bold transition-all cursor-pointer"
+                    :class="useTextoBase
+                      ? 'bg-teal-500 dark:bg-teal-600 text-white shadow-sm dark:shadow-none'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"
+                  >
+                    <FileText class="w-3.5 h-3.5 shrink-0" />
+                    <span>Usar mis textos</span>
+                  </button>
+                </div>
+
+                <!-- Panel informativo: Modo Generar con IA -->
+                <div v-if="!useTextoBase" class="p-3 bg-teal-50/70 dark:bg-teal-950/30 border border-teal-200/80 dark:border-teal-800/50 rounded-xl flex items-start gap-2.5">
+                  <Sparkles class="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0 mt-0.5" />
+                  <p class="text-xs text-teal-800 dark:text-teal-300 leading-relaxed font-medium">
+                    La IA redactará una lectura inédita adaptada al tipo y formato textual seleccionados arriba.
+                  </p>
+                </div>
+
+                <!-- Panel interactivo: Modo Usar mis textos (Dropzone sugerente) -->
+                <div v-else>
+                  <LectoSistemTextoDropzone
+                    :textos-base="textosBase"
+                    :status="textosBaseStatus"
+                    @upload-files="(files, idx) => uploadFilesAt(idx ?? 0, files)"
+                    @open-modal="showTextosModal = true"
+                    @clear-files="(idx) => clearFilesAt(idx)"
+                    @add-texto="addTexto"
+                  />
+                </div>
               </div>
             </div>
 

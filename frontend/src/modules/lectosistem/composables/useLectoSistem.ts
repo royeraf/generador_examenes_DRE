@@ -222,23 +222,18 @@ export function useLectoSistem() {
     selectedDesempenoIds.value = selectedDesempenoIds.value.filter(id => !ids.includes(id));
   };
 
-  const handleFileUploadAt = async (idx: number, event: Event) => {
+  const uploadFilesAt = async (idx: number, files: File[]) => {
     const item = textosBase.value[idx];
-    if (!item) return;
-    const input = event.target as HTMLInputElement;
-    const files = input.files;
-    if (!files || files.length === 0) return;
-    const fileArray: File[] = Array.from(files);
-    const validationError = validateFiles(fileArray);
+    if (!item || files.length === 0) return;
+    const validationError = validateFiles(files);
     if (validationError) {
       item.uploadError = validationError;
-      input.value = '';
       return;
     }
     item.uploadingFile = true;
     item.uploadError = null;
     try {
-      const result = await desempenosService.uploadTextoBase(fileArray);
+      const result = await desempenosService.uploadTextoBase(files);
       item.texto = result.texto;
       item.filesMetadata = {
         archivos: result.archivos,
@@ -246,15 +241,22 @@ export function useLectoSistem() {
         total_caracteres: result.total_caracteres,
         advertencias: result.advertencias
       };
-      input.value = '';
     } catch (e: any) {
       item.uploadError = parseUploadError(e);
       item.texto = '';
-      input.value = '';
       console.error('Error al subir archivo de texto base:', e);
     } finally {
       item.uploadingFile = false;
     }
+  };
+
+  const handleFileUploadAt = async (idx: number, event: Event) => {
+    const input = event.target as HTMLInputElement;
+    const files = input.files ? Array.from(input.files) : [];
+    if (files.length > 0) {
+      await uploadFilesAt(idx, files);
+    }
+    input.value = '';
   };
 
   const clearFilesAt = (idx: number) => {
@@ -334,7 +336,7 @@ export function useLectoSistem() {
       return;
     }
     if (useTextoBase.value && !textosBase.value.some(t => t.texto.trim())) {
-      error.value = 'Activaste "Usar Textos Base" pero no cargaste ningún texto. Sube un archivo, escribe el texto o desactiva la opción.';
+      error.value = 'Seleccionaste "Usar mis textos" pero aún no has cargado ninguna lectura. Sube un archivo o escribe el texto, o cambia a "Generar con IA".';
       return;
     }
     loading.value = true;
@@ -408,6 +410,7 @@ export function useLectoSistem() {
     removeTexto,
     clearTextos,
     handleFileUploadAt,
+    uploadFilesAt,
     clearFilesAt,
     selectedTipoTextual,
     selectedFormatoTextual,

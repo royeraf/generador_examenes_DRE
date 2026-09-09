@@ -51,7 +51,7 @@ const getCapacidadLabel = (tipo: string): string => {
         <div class="h-14 px-3 border-b border-slate-300 dark:border-slate-700 flex items-center shrink-0" :class="collapsed ? 'justify-center' : 'justify-between'">
             <div v-show="!collapsed" class="flex items-center gap-2 min-w-0">
                 <h2 class="text-sm font-medium text-slate-800 dark:text-white flex items-center gap-2 pl-1"><Target class="w-4 h-4 text-slate-500 dark:text-slate-400 shrink-0"/> Desempeños</h2>
-                <span v-if="selectedDesempenosCount > 0" class="shrink-0 px-2 py-0.5 rounded text-[10px] bg-slate-200 dark:bg-slate-700/50 text-slate-800 dark:text-white font-medium">
+                <span v-if="selectedDesempenosCount > 0" class="shrink-0 px-2 py-0.5 rounded-full text-[10px] bg-red-500 dark:bg-red-600 text-white font-bold shadow-sm">
                     {{ selectedDesempenosCount }}
                 </span>
             </div>
