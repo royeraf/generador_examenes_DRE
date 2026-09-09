@@ -41,7 +41,6 @@ const {
   addTexto,
   removeTexto,
   handleFileUploadAt,
-  uploadFilesAt,
   clearFilesAt,
   loading,
   loadingDesempenos,
@@ -542,10 +541,7 @@ onMounted(async () => {
                   <LectoSistemTextoDropzone
                     :textos-base="textosBase"
                     :status="textosBaseStatus"
-                    @upload-files="(files, idx) => uploadFilesAt(idx ?? 0, files)"
                     @open-modal="showTextosModal = true"
-                    @clear-files="(idx) => clearFilesAt(idx)"
-                    @add-texto="addTexto"
                   />
                 </div>
               </div>
