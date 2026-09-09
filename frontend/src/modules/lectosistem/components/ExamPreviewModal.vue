@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import {
-    X, Clock, GraduationCap, FileText, Link, Trash2,
+    X, Clock, GraduationCap, FileText, Trash2,
     ClipboardCheck, BookOpen, HelpCircle, FileSearch, Lightbulb,
     Check, LayoutGrid, Sparkles, Download,
     MessageSquare, CheckCircle2, XCircle
@@ -20,7 +20,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     (e: 'close'): void;
-    (e: 'vincular'): void;
     (e: 'eliminar'): void;
     (e: 'descargar-word'): void;
 }>();
@@ -317,12 +316,8 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                                 <template #icon><Download class="w-3.5 h-3.5" /></template>
                                 {{ downloadingWord ? 'Descargando...' : 'Word' }}
                             </BaseButton>
-                            <BaseButton variant="secondary" size="sm" @click="emit('close')">
+                            <BaseButton variant="primary" size="sm" @click="emit('close')">
                                 Cerrar
-                            </BaseButton>
-                            <BaseButton variant="primary" size="sm" @click="emit('vincular')">
-                                <template #icon><Link class="w-3.5 h-3.5" /></template>
-                                Vincular Sistematizador
                             </BaseButton>
                         </div>
                     </div>
