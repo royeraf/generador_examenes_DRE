@@ -73,7 +73,7 @@ const cerrarRetro = () => { modalRetro.value = null; };
                     </div>
 
                     <!-- Scrollable Body -->
-                    <div class="flex-1 overflow-y-auto p-5 space-y-6">
+                    <div class="flex-1 min-h-0 overflow-y-auto p-5 pb-8 space-y-6">
                         <template v-if="isLoading">
                             <!-- Skeleton Body -->
                             <div class="space-y-6">

@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import {
-    Zap, AlertTriangle, Award,
+    Zap, AlertTriangle, Award, Table,
     ClipboardCheck, BookOpen, HelpCircle, Lightbulb,
-    Check, LayoutGrid, Sparkles, GraduationCap, Target,
+    Check, Sparkles, GraduationCap, Target,
     MessageSquare, CheckCircle2, XCircle, X
 } from 'lucide-vue-next';
 import ThinkingLoader from '../../../shared/components/ThinkingLoader.vue';
+import MatSistemTablaModal from './MatSistemTablaModal.vue';
 import type { Examen, FilaTablaRespuestas } from '../../../shared/types';
 import BaseButton from '../../../shared/components/BaseButton.vue';
 import MathText from '../../../shared/components/MathText.vue';
@@ -43,6 +44,8 @@ const tieneRetro = (n: number) => {
 const modalRetro = ref<FilaTablaRespuestas | null>(null);
 const abrirRetro = (n: number) => { modalRetro.value = getTablaRow(n) ?? null; };
 const cerrarRetro = () => { modalRetro.value = null; };
+
+const showTablaModal = ref(false);
 
 const getCapacidadBadgeClass = (capacidad?: string): string => {
     if (!capacidad) return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
@@ -109,7 +112,8 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
             <!-- Results Header -->
             <div
                 class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 sm:px-5 py-3 sm:py-4 flex-shrink-0">
-                <div class="flex items-center gap-3 mb-3">
+                <div class="flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3 min-w-0">
                     <div
                         class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
                         <Award class="w-5 h-5 sm:w-6 sm:h-6 text-white" />
@@ -122,11 +126,15 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                             {{ resultado.total_preguntas }} preguntas · {{ resultado.examen.grado }}
                         </span>
                     </div>
+                    </div>
+                    <BaseButton variant="secondary" size="sm" class="shrink-0" @click="showTablaModal = true">
+                        <template #icon><Table class="w-3.5 h-3.5" /></template>Matriz de respuestas
+                    </BaseButton>
                 </div>
             </div>
 
             <!-- Scrollable Content -->
-            <div class="flex-1 overflow-y-auto p-4 space-y-4">
+            <div class="flex-1 min-h-0 overflow-y-auto p-4 pb-6 space-y-4">
 
                 <!-- Instrucciones -->
                 <div
@@ -221,70 +229,6 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                     </div>
                 </div>
 
-                <!-- Answer Table -->
-                <div class="bg-white dark:bg-slate-800 rounded-xl p-3 sm:p-5 border-2 border-sky-100 dark:border-slate-700">
-                    <h4 class="text-sm font-bold text-slate-800 dark:text-white mb-3 sm:mb-4 flex items-center gap-2">
-                        <div
-                            class="w-8 h-8 bg-gradient-to-br from-sky-400 to-blue-500 rounded-lg flex items-center justify-center">
-                            <LayoutGrid class="w-4 h-4 text-white" />
-                        </div>
-                        Tabla de Respuestas
-                    </h4>
-                    <div class="overflow-x-auto rounded-xl border-2 border-gray-100 dark:border-slate-700 -webkit-overflow-scrolling-touch">
-                        <table class="w-full text-sm min-w-[540px]">
-                            <thead>
-                                <tr
-                                    class="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-900 dark:to-slate-950 border-b-2 border-gray-200 dark:border-slate-700">
-                                    <th
-                                        class="text-left py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
-                                        #</th>
-                                    <th
-                                        class="text-left py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
-                                        Desempeño
-                                    </th>
-                                    <th
-                                        class="text-left py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
-                                        Capacidad
-                                    </th>
-                                    <th
-                                        class="text-center py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
-                                        Rpta.
-                                    </th>
-                                    <th
-                                        class="text-left py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 font-bold text-xs">
-                                        Justificación
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
-                                <tr v-for="fila in resultado.examen.tabla_respuestas" :key="fila.pregunta"
-                                    class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
-                                    <td class="py-2.5 sm:py-3 px-3 sm:px-4 text-slate-800 dark:text-slate-200 font-bold">{{ fila.pregunta
-                                    }}
-                                    </td>
-                                    <td class="py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 text-xs"><MathText :text="fila.desempeno" /></td>
-                                    <td class="py-2.5 sm:py-3 px-3 sm:px-4">
-                                        <span
-                                            class="px-2.5 py-1 text-[10px] font-bold rounded-lg inline-flex items-center"
-                                            :class="getCapacidadBadgeClass((fila as any).capacidad || fila.nivel)">
-                                            {{ (fila as any).capacidad || fila.nivel }}
-                                        </span>
-                                    </td>
-                                    <td class="py-2.5 sm:py-3 px-3 sm:px-4 text-center">
-                                        <span
-                                            class="w-8 h-8 bg-gradient-to-br from-teal-400 to-teal-600 text-white rounded-lg inline-flex items-center justify-center font-bold text-sm shadow-lg shadow-teal-500/20">
-                                            {{ fila.respuesta_correcta }}
-                                        </span>
-                                    </td>
-                                    <td class="py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 text-xs italic">
-                                        <MathText :text="fila.justificacion || 'No disponible'" />
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
                 <p
                     class="text-center text-xs text-slate-500 dark:text-slate-400 bg-gradient-to-r from-teal-50 to-amber-50 dark:from-slate-900 dark:to-slate-800 p-3 rounded-xl flex items-center justify-center gap-2">
                     <Sparkles class="w-4 h-4 text-amber-500" /> Examen generado con IA - <strong>Revisar antes de usar
@@ -297,6 +241,9 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
 
         </div>
     </div>
+
+    <!-- Modal: Tabla de Respuestas -->
+    <MatSistemTablaModal :open="showTablaModal" :resultado="resultado" @close="showTablaModal = false" />
 
     <Teleport to="body">
         <Transition name="retro">
