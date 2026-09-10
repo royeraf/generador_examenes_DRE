@@ -32,6 +32,9 @@ python-docx
 filetype
 pandas
 openpyxl
+# OCR para PDFs escaneados (requiere binario del sistema: tesseract-ocr + tesseract-ocr-spa)
+pytesseract
+Pillow
 
 # HTTP
 requests

@@ -1,6 +1,8 @@
 """
 Servicio para extraer texto de archivos PDF y Word.
 Incluye validaciones de seguridad multicapa para prevenir archivos maliciosos.
+Los PDF escaneados (solo imágenes) se procesan con OCR (Tesseract, spa+eng).
+Requiere en el servidor: binario `tesseract-ocr` + datos `spa`, y `pytesseract`.
 """
 import fitz  # PyMuPDF
 from docx import Document
@@ -22,22 +24,35 @@ class FileExtractionService:
     MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024
     ALLOWED_EXTENSIONS = {"pdf", "docx", "doc"}
 
+    # ── OCR (fallback para PDFs escaneados / sin texto embebido) ──────────────
+    # Si una página aporta menos caracteres que este umbral, se asume que es
+    # una imagen escaneada y se procesa con Tesseract vía pytesseract.
+    OCR_MIN_CHARS_PER_PAGE = 20
+    # Límite de páginas a procesar con OCR por archivo (protege CPU/tiempo).
+    OCR_MAX_PAGES = 10
+    # Zoom de renderizado (72 dpi base × 3 ≈ 216 dpi, suficiente para OCR).
+    OCR_ZOOM = 3.0
+    # Español primero (lecturas de aula), inglés como respaldo.
+    OCR_LANG = "spa+eng"
+
     MAGIC_BYTES: dict[str, list[bytes]] = {
         "pdf":  [b"%PDF"],
         "docx": [b"PK\x03\x04"],
         "doc":  [b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1"],
     }
 
+    # NOTA: los patrones cortos (/JS, /AA, eval(...)) se excluyen a propósito:
+    # colisionan por azar con bytes de fotos comprimidas y rechazan PDFs
+    # legítimos (p. ej. CamScanner). Los vectores principales siguen cubiertos.
+    # Follow-up: reemplazar este regex crudo por análisis estructural con
+    # PyMuPDF (revisar acciones reales a nivel de objeto, no de bytes).
     PDF_DANGEROUS_PATTERNS = [
         rb"/JavaScript",
-        rb"/JS\b",
-        rb"/AA\b",
         rb"/OpenAction",
         rb"/Launch",
         rb"/EmbeddedFile",
         rb"/RichMedia",
         rb"/XFA",
-        rb"eval\s*\(",
         rb"<script",
     ]
 
@@ -165,14 +180,114 @@ class FileExtractionService:
 
     # ── Extracción de texto ────────────────────────────────────────────────────
 
-    def _extract_text_from_pdf(self, content: bytes) -> str:
+    def _ocr_pdf_pages(self, doc, page_numbers: list[int]) -> Tuple[list, int]:
+        """Aplica OCR (Tesseract) a las páginas indicadas.
+
+        Retorna (textos_por_pagina, n_paginas_ok) manteniendo el orden de
+        `page_numbers`. Los imports son diferidos para que el servicio siga
+        funcionando aunque las dependencias de OCR no estén instaladas.
+        """
+        try:
+            from PIL import Image
+            import pytesseract
+            pytesseract.get_tesseract_version()
+        except ImportError:
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "El PDF parece ser una imagen escaneada y el servidor no tiene "
+                    "habilitado el reconocimiento de texto (OCR). "
+                    "Pruebe con un PDF con texto seleccionable o un Word."
+                ),
+            )
+        except Exception:
+            logger.error("Binario de Tesseract no disponible para OCR")
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "El PDF parece ser una imagen escaneada y el OCR no está "
+                    "disponible en este momento. Intente más tarde o use un "
+                    "PDF con texto seleccionable."
+                ),
+            )
+
+        matrix = fitz.Matrix(self.OCR_ZOOM, self.OCR_ZOOM)
+        ocr_texts: list = []
+        for page_num in page_numbers:
+            try:
+                pix = doc[page_num].get_pixmap(matrix=matrix)
+                img = Image.open(io.BytesIO(pix.tobytes("png")))
+                page_text = pytesseract.image_to_string(img, lang=self.OCR_LANG).strip()
+            except Exception as e:
+                logger.warning("OCR falló en página %s: %s", page_num + 1, e)
+                page_text = ""
+            ocr_texts.append(page_text)
+        ok_pages = sum(1 for t in ocr_texts if t)
+        return ocr_texts, ok_pages
+
+    def _extract_text_from_pdf(self, content: bytes) -> Tuple[str, dict]:
+        """Extrae texto embebido y aplica OCR por página cuando falta texto.
+
+        Retorna (texto, info_ocr) donde info_ocr incluye `ocr_aplicado` y,
+        de ser el caso, `ocr_paginas` y `ocr_paginas_omitidas`.
+        """
         try:
             doc = fitz.open(stream=content, filetype="pdf")
-            text_parts = [page.get_text() for page in doc if page.get_text().strip()]
-            doc.close()
-            return "\n".join(text_parts)
         except Exception as e:
             raise HTTPException(400, f"Error al procesar PDF: {e}")
+        try:
+            page_texts: dict[int, str] = {}
+            scanned_pages: list[int] = []
+            for i, page in enumerate(doc):
+                try:
+                    t = page.get_text().strip()
+                except Exception:
+                    t = ""
+                if len(t) >= self.OCR_MIN_CHARS_PER_PAGE:
+                    page_texts[i] = t
+                else:
+                    scanned_pages.append(i)
+
+            ocr_info: dict = {"ocr_aplicado": False}
+            if scanned_pages:
+                to_ocr = scanned_pages[: self.OCR_MAX_PAGES]
+                omitted = len(scanned_pages) - len(to_ocr)
+                logger.info(
+                    "PDF con %s página(s) escaneada(s), aplicando OCR a %s",
+                    len(scanned_pages), len(to_ocr),
+                )
+                ocr_texts, ok_pages = self._ocr_pdf_pages(doc, to_ocr)
+                for page_num, ocr_text in zip(to_ocr, ocr_texts):
+                    if ocr_text:
+                        page_texts[page_num] = ocr_text
+                if ok_pages > 0:
+                    ocr_info = {
+                        "ocr_aplicado": True,
+                        "ocr_paginas": ok_pages,
+                        "ocr_idioma": self.OCR_LANG,
+                    }
+                    if omitted:
+                        ocr_info["ocr_paginas_omitidas"] = omitted
+                elif not page_texts:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=(
+                            "No se pudo extraer texto del PDF, ni siquiera con "
+                            "reconocimiento óptico (OCR). Verifique que las imágenes "
+                            "sean legibles (buena resolución, sin fotos borrosas)."
+                        ),
+                    )
+                # Si el OCR no rescató nada pero hay algo de texto embebido,
+                # se continúa con ese texto (el pipeline valida el mínimo).
+
+            ordered = [page_texts[i] for i in sorted(page_texts)]
+            return "\n".join(ordered), ocr_info
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(400, f"Error al procesar PDF: {e}")
+        finally:
+            doc.close()
 
     def _extract_text_from_docx(self, content: bytes) -> str:
         try:
@@ -187,12 +302,15 @@ class FileExtractionService:
         except Exception as e:
             raise HTTPException(400, f"Error al procesar Word: {e}")
 
-    def _validate_scan_and_extract(self, content: bytes, extension: str) -> str:
+    def _validate_scan_and_extract(self, content: bytes, extension: str) -> Tuple[str, dict]:
         """Trabajo CPU-bound (magic bytes, escaneo de amenazas, extracción de texto).
 
         Se ejecuta en threadpool porque bloquearía el event loop si corriera
         directamente dentro de la ruta async (archivos grandes/lentos frenan
         a todos los usuarios conectados al mismo worker).
+
+        Retorna (texto, info_extra) donde info_extra trae datos de OCR
+        cuando aplicó (solo PDF).
         """
         self._validate_magic_bytes(content, extension)
 
@@ -203,7 +321,7 @@ class FileExtractionService:
 
         if extension == "pdf":
             return self._extract_text_from_pdf(content)
-        return self._extract_text_from_docx(content)
+        return self._extract_text_from_docx(content), {}
 
     # ── Pipeline público ───────────────────────────────────────────────────────
 
@@ -240,15 +358,16 @@ class FileExtractionService:
                 ),
             )
 
-        text = await run_in_threadpool(self._validate_scan_and_extract, content, extension)
+        text, extra = await run_in_threadpool(self._validate_scan_and_extract, content, extension)
 
         text = text.strip()
         if not text:
             raise HTTPException(
                 status_code=400,
                 detail=(
-                    "No se pudo extraer texto del archivo. "
-                    "Verifique que el archivo contenga texto legible (no sea una imagen escaneada)."
+                    "No se pudo extraer texto del archivo, ni siquiera con "
+                    "reconocimiento óptico (OCR). Verifique que el contenido "
+                    "sea legible."
                 ),
             )
 
@@ -261,11 +380,17 @@ class FileExtractionService:
             "caracteres": len(text),
             "palabras": len(text.split()),
             "lineas": text.count("\n") + 1,
+            "ocr_aplicado": bool(extra.get("ocr_aplicado", False)),
         }
+        if extra.get("ocr_aplicado"):
+            metadata["ocr_paginas"] = extra.get("ocr_paginas", 0)
+            if extra.get("ocr_paginas_omitidas"):
+                metadata["ocr_paginas_omitidas"] = extra["ocr_paginas_omitidas"]
 
         logger.info(
-            "Archivo procesado correctamente: %s (%s KB, %s palabras)",
+            "Archivo procesado correctamente: %s (%s KB, %s palabras, ocr=%s)",
             safe_filename, metadata["size_kb"], metadata["palabras"],
+            metadata["ocr_aplicado"],
         )
 
         return text, metadata

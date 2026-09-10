@@ -212,6 +212,8 @@ async def upload_texto_base(files: list[UploadFile] = File(...)):
     - Tamaño máximo por archivo: 10 MB
     - Verificación de firma real del archivo (magic bytes)
     - Detección de JavaScript, macros y scripts maliciosos
+    - OCR automático (Tesseract spa+eng) para PDFs escaneados sin texto
+      (máx. 10 páginas por archivo; la metadata indica `ocr_aplicado`)
 
     Returns:
         - texto: Texto combinado extraído de todos los archivos
