@@ -136,8 +136,8 @@ const cerrarRetro = () => { modalRetro.value = null; };
                                 </span>
                             </div>
 
-                            <!-- Instrucciones -->
-                            <div
+                            <!-- Instrucciones (solo si hay contenido) -->
+                            <div v-if="entry.resultado.examen.instrucciones?.trim()"
                                 class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/40 dark:to-slate-900 rounded-xl p-4 border-2 border-indigo-100 dark:border-indigo-800">
                                 <p class="text-slate-700 dark:text-slate-300 text-sm">
                                     <strong class="text-indigo-700 dark:text-indigo-400 flex items-center gap-2 mb-2">

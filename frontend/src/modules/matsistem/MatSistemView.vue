@@ -320,14 +320,6 @@ const COMP_ICONS: Record<number, typeof Calculator> = {
     3: Shapes,
     4: BarChart3
 };
-const COMP_VISUAL: Record<number, { shortName: string; badge: string }> = {
-    1: { shortName: 'Cantidad', badge: 'bg-teal-500' },
-    2: { shortName: 'Regularidad', badge: 'bg-amber-500' },
-    3: { shortName: 'Forma y loc.', badge: 'bg-violet-500' },
-    4: { shortName: 'Gestión datos', badge: 'bg-rose-500' }
-};
-const DEFAULT_COMP_VISUAL = COMP_VISUAL[1]!;
-const getCompVisual = (codigo: number) => COMP_VISUAL[codigo] ?? DEFAULT_COMP_VISUAL;
 
 // Resizing logic
 const isDesktop = ref(window.innerWidth >= 1024);
@@ -490,18 +482,16 @@ onMounted(async () => {
 
             <div class="space-y-3">
               <label class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2"><Target class="w-3.5 h-3.5"/> Competencia</label>
-              <div class="grid grid-cols-2 gap-2">
+              <div class="grid grid-cols-1 gap-2">
                 <button
                     v-for="comp in competencias"
                     :key="comp.id"
                     @click="selectedCompetenciaId = comp.id"
-                    class="p-2 rounded-xl border transition-all text-left flex flex-col gap-1 cursor-pointer"
+                    class="p-2.5 rounded-xl border transition-all text-left flex items-center gap-2.5 cursor-pointer"
                     :class="selectedCompetenciaId === comp.id ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10' : 'border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 hover:border-slate-300'">
-                    <div class="flex items-center gap-1.5">
-                        <component :is="COMP_ICONS[comp.codigo]" class="w-3.5 h-3.5" :class="selectedCompetenciaId === comp.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500'" />
-                        <span class="text-[10px] font-bold" :class="selectedCompetenciaId === comp.id ? 'text-indigo-700 dark:text-indigo-300' : 'text-slate-600 dark:text-slate-400'">C{{ comp.codigo }}</span>
-                    </div>
-                    <span class="text-[10px] font-medium leading-tight" :class="selectedCompetenciaId === comp.id ? 'text-indigo-800 dark:text-indigo-200' : 'text-slate-500 dark:text-slate-400'">{{ getCompVisual(comp.codigo).shortName }}</span>
+                    <component :is="COMP_ICONS[comp.codigo]" class="w-4 h-4 shrink-0" :class="selectedCompetenciaId === comp.id ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500'" />
+                    <span class="text-[10px] font-bold shrink-0" :class="selectedCompetenciaId === comp.id ? 'text-indigo-700 dark:text-indigo-300' : 'text-slate-600 dark:text-slate-400'">C{{ comp.codigo }}</span>
+                    <span class="text-xs font-medium leading-snug" :class="selectedCompetenciaId === comp.id ? 'text-indigo-800 dark:text-indigo-200' : 'text-slate-500 dark:text-slate-400'">{{ comp.nombre }}</span>
                 </button>
               </div>
             </div>
