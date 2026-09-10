@@ -19,6 +19,8 @@ import Checkbox from '../../shared/components/Checkbox.vue';
 import ComboBox from '../../shared/components/ComboBox.vue';
 import BaseButton from '../../shared/components/BaseButton.vue';
 import UploadStatus from '../../shared/components/UploadStatus.vue';
+import FilePreviewModal from '../../shared/components/FilePreviewModal.vue';
+import { useFilePreview } from '../../shared/composables/useFilePreview';
 import LectoSistemDesempenos from './components/LectoSistemDesempenos.vue';
 import LectoSistemResults from './components/LectoSistemResults.vue';
 import LectoSistemTextoDropzone from './components/LectoSistemTextoDropzone.vue';
@@ -42,6 +44,7 @@ const {
   removeTexto,
   handleFileUploadAt,
   clearFilesAt,
+  getSourceFiles,
   loading,
   loadingDesempenos,
   loadingGrados,
@@ -88,7 +91,18 @@ const {
 
 
 const previewEntry = shallowRef<ExamenHistoryEntry | null>(null);
-const loadingPreview = shallowRef<string | null>(null);
+const { previewFile, previewUrl, isPreviewOpen, openPreview, closePreview } = useFilePreview();
+
+function openTextoPreview(textoIdx: number, fileIdx: number) {
+  const texto = textosBase.value[textoIdx];
+  const file = texto ? getSourceFiles(texto.id)?.[fileIdx] : null;
+  if (file) openPreview(file);
+}
+
+function openTextoPreviewById(textoId: number, fileIdx: number) {
+  const textoIdx = textosBase.value.findIndex((t) => t.id === textoId);
+  if (textoIdx >= 0) openTextoPreview(textoIdx, fileIdx);
+}const loadingPreview = shallowRef<string | null>(null);
 // const loadingLink = shallowRef<string | null>(null);
 const loadingWordDownload = shallowRef<string | null>(null);
 const downloadingPreviewWord = ref(false);
@@ -541,7 +555,9 @@ onMounted(async () => {
                   <LectoSistemTextoDropzone
                     :textos-base="textosBase"
                     :status="textosBaseStatus"
+                    :get-preview-files="getSourceFiles"
                     @open-modal="showTextosModal = true"
+                    @preview="openTextoPreviewById"
                   />
                 </div>
               </div>
@@ -677,6 +693,7 @@ onMounted(async () => {
 
     <!-- Modals go here (unchanged logic) -->
     <ExamPreviewModal :entry="previewEntry" :loading-delete="loadingDelete === previewEntry?.id" :is-loading="!!loadingPreview" :downloading-word="downloadingPreviewWord" @close="previewEntry = null" @eliminar="onPreviewEliminar" @descargar-word="descargarWordDesdePreview" />
+    <FilePreviewModal :open="isPreviewOpen" :file="previewFile" :url="previewUrl" @close="closePreview" />
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showTextosModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -689,9 +706,9 @@ onMounted(async () => {
             <div class="flex-1 overflow-y-auto p-5">
               <div class="space-y-4">
                 <div v-for="(texto, idx) in textosBase" :key="idx" class="bg-slate-50 dark:bg-slate-950 rounded-xl p-4 border border-slate-300 dark:border-slate-700">
-                  <div class="flex justify-between items-center mb-3">
+                  <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
                     <h4 class="text-sm font-medium text-slate-800 dark:text-white">Texto {{ idx + 1 }}</h4>
-                    <div class="flex items-center gap-2">
+                    <div class="flex flex-wrap items-center gap-2">
                       <input type="file" :id="'file-' + idx" class="hidden" :disabled="texto.uploadingFile" accept=".pdf,.doc,.docx" multiple @change="(e) => handleFileUploadAt(idx, e)" />
                       <label :for="'file-' + idx" class="cursor-pointer text-xs flex items-center gap-1.5 px-3 py-1.5 bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-lg transition-colors" :class="{ 'opacity-50 pointer-events-none': texto.uploadingFile }"><CloudUpload class="w-3.5 h-3.5" /> Archivo</label>
                       <BaseButton v-if="texto.filesMetadata && texto.filesMetadata.archivos.length > 0" variant="destructive" size="sm" class="ml-2" @click="clearFilesAt(idx)">Eliminar archivo</BaseButton>
@@ -704,7 +721,9 @@ onMounted(async () => {
                     :error="texto.uploadError"
                     :metadata="texto.filesMetadata"
                     :has-text="!!texto.texto.trim()"
+                    :preview-files="getSourceFiles(texto.id)"
                     accent="teal"
+                    @preview="(fi) => openTextoPreview(idx, fi)"
                   />
                   <textarea v-model="texto.texto" class="w-full h-32 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl p-3 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all resize-none placeholder-slate-400" placeholder="Escribe o pega el texto base aquí..."></textarea>
                 </div>

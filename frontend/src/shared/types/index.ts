@@ -251,6 +251,9 @@ export interface ArchivoMetadata {
   caracteres: number;
   size_kb?: number;
   extension?: string;
+  ocr_aplicado?: boolean;
+  ocr_paginas?: number;
+  total_paginas?: number;
 }
 
 export interface UploadAdvertencia {

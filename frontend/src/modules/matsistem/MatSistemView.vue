@@ -19,6 +19,8 @@ import Checkbox from '../../shared/components/Checkbox.vue';
 import ComboBox from '../../shared/components/ComboBox.vue';
 import BaseButton from '../../shared/components/BaseButton.vue';
 import UploadStatus from '../../shared/components/UploadStatus.vue';
+import FilePreviewModal from '../../shared/components/FilePreviewModal.vue';
+import { useFilePreview } from '../../shared/composables/useFilePreview';
 import MatSistemDesempenos from './components/MatSistemDesempenos.vue';
 import MatSistemResults from './components/MatSistemResults.vue';
 import MatSistemExamPreviewModal from './components/MatSistemExamPreviewModal.vue';
@@ -64,6 +66,13 @@ const {
   generarPreguntas,
   descargarExamenWord
 } = useMatSistem();
+
+const { previewFile, previewUrl, isPreviewOpen, openPreview, closePreview } = useFilePreview();
+
+function openUploadedPreview(fileIdx: number) {
+  const file = selectedFiles.value[fileIdx];
+  if (file) openPreview(file);
+}
 
 const {
   history,
@@ -521,8 +530,10 @@ onMounted(async () => {
                       :error="uploadError"
                       :metadata="filesMetadata"
                       :has-text="true"
+                      :preview-files="selectedFiles"
                       accent="indigo"
                       compact
+                      @preview="openUploadedPreview"
                     />
 
                     <BaseButton v-if="selectedFiles.length > 0 && !uploadingFile && filesMetadata" variant="destructive" size="sm" @click="clearFiles">
@@ -640,6 +651,7 @@ onMounted(async () => {
 
     <!-- Modals go here -->
     <MatSistemExamPreviewModal :entry="previewEntry" :loading-delete="loadingDelete === previewEntry?.id" :is-loading="!!loadingPreview" :downloading-word="downloadingPreviewWord" @close="previewEntry = null" @eliminar="onPreviewEliminar" @descargar-word="descargarWordDesdePreview" />
+    <FilePreviewModal :open="isPreviewOpen" :file="previewFile" :url="previewUrl" @close="closePreview" />
     
     <!-- Asignar Examen Modal -->
     <Teleport to="body">

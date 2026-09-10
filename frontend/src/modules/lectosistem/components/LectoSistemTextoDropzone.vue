@@ -5,7 +5,8 @@ import {
   FileCheck,
   Loader2,
   AlertTriangle,
-  ExternalLink
+  ExternalLink,
+  Eye
 } from 'lucide-vue-next';
 import type { TextoBaseItem, TextosBaseStatus } from '../composables/useLectoSistem';
 import { formatPalabras } from '../../../shared/utils/uploadFeedback';
@@ -13,10 +14,13 @@ import { formatPalabras } from '../../../shared/utils/uploadFeedback';
 const props = defineProps<{
   textosBase: TextoBaseItem[];
   status: TextosBaseStatus;
+  /** Archivos originales en memoria por id de texto (solo sesión). */
+  getPreviewFiles?: ((id: number) => (File | null)[] | null) | null;
 }>();
 
 const emit = defineEmits<{
   (e: 'openModal'): void;
+  (e: 'preview', textoId: number, fileIdx: number): void;
 }>();
 
 const isUploading = computed(() => props.textosBase.some(t => t.uploadingFile));
@@ -33,6 +37,12 @@ const filledItems = computed(() =>
 const hasContent = computed(() => filledItems.value.length > 0);
 
 const primaryItem = computed(() => filledItems.value[0] ?? props.textosBase[0] ?? null);
+
+const primaryPreviewFiles = computed(() => {
+  const item = primaryItem.value;
+  if (!item || !props.getPreviewFiles) return null;
+  return props.getPreviewFiles(item.id);
+});
 
 const primaryFilename = computed(() => {
   const meta = primaryItem.value?.filesMetadata;
@@ -121,6 +131,11 @@ const wordsSummary = computed(() => formatPalabras(totalWords.value));
 
       <!-- Resumen: badge de conteo e indicador de apertura -->
       <div class="flex items-center gap-1.5 shrink-0">
+        <button v-if="primaryItem && primaryPreviewFiles?.[0]" type="button" @click.stop="emit('preview', primaryItem.id, 0)"
+          class="w-7 h-7 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 transition-colors cursor-pointer"
+          :aria-label="`Vista previa de ${primaryFilename}`" title="Vista previa del archivo">
+          <Eye class="w-4 h-4" />
+        </button>
         <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
           {{ props.status.count.filled }}/{{ props.status.count.total }}
         </span>

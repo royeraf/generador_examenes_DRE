@@ -248,7 +248,7 @@ class FileExtractionService:
                 else:
                     scanned_pages.append(i)
 
-            ocr_info: dict = {"ocr_aplicado": False}
+            ocr_info: dict = {"ocr_aplicado": False, "total_paginas": len(doc)}
             if scanned_pages:
                 to_ocr = scanned_pages[: self.OCR_MAX_PAGES]
                 omitted = len(scanned_pages) - len(to_ocr)
@@ -386,6 +386,8 @@ class FileExtractionService:
             metadata["ocr_paginas"] = extra.get("ocr_paginas", 0)
             if extra.get("ocr_paginas_omitidas"):
                 metadata["ocr_paginas_omitidas"] = extra["ocr_paginas_omitidas"]
+        if extra.get("total_paginas"):
+            metadata["total_paginas"] = extra["total_paginas"]
 
         logger.info(
             "Archivo procesado correctamente: %s (%s KB, %s palabras, ocr=%s)",

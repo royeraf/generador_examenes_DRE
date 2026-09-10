@@ -7,6 +7,8 @@ import { useTextoBaseUpload } from '../../shared/composables/useTextoBaseUpload'
 import ComboBox from '../../shared/components/ComboBox.vue';
 import UploadStatus from '../../shared/components/UploadStatus.vue';
 import TextoBaseModal from '../../shared/components/TextoBaseModal.vue';
+import FilePreviewModal from '../../shared/components/FilePreviewModal.vue';
+import { useFilePreview } from '../../shared/composables/useFilePreview';
 import FileTypeIcon from '../../shared/components/FileTypeIcon.vue';
 
 import Sistematizador from './components/Sistematizador.vue';
@@ -67,6 +69,7 @@ const cantidadPreguntas = shallowRef(3);
 const useTextoBase = shallowRef(false);
 const showTextoBaseModal = shallowRef(false);
 const {
+  selectedFiles: textoBaseFiles,
   filesMetadata,
   uploadingFile,
   uploadError,
@@ -77,6 +80,13 @@ const {
   removeFileAt: removeTextoBaseFileAt,
   clear: clearTextoBase,
 } = useTextoBaseUpload();
+
+const { previewFile, previewUrl, isPreviewOpen, openPreview, closePreview } = useFilePreview();
+
+function openTextoBasePreview(fileIdx: number) {
+  const file = textoBaseFiles.value[fileIdx];
+  if (file) openPreview(file);
+}
 
 const loadingGrados = shallowRef(true);
 const loading = shallowRef(false);
@@ -524,6 +534,11 @@ const getNivelBadgeClass = (nivel: string): string => {
                 <span class="flex-1 min-w-0 truncate text-xs font-medium text-teal-700 dark:text-teal-300">
                   {{ textoBaseResumen.label }}
                 </span>
+                <button v-if="textoBaseFiles.length > 0" type="button" @click="openTextoBasePreview(0)"
+                  aria-label="Vista previa del archivo" title="Vista previa del archivo"
+                  class="shrink-0 p-1.5 rounded-lg text-teal-700 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-teal-800/40 transition-colors cursor-pointer">
+                  <Eye class="w-3.5 h-3.5" />
+                </button>
                 <button type="button" @click="showTextoBaseModal = true"
                   class="shrink-0 text-[11px] font-bold px-2 py-1.5 rounded-lg text-teal-700 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-teal-800/40 transition-colors cursor-pointer">
                   Editar
@@ -555,12 +570,15 @@ const getNivelBadgeClass = (nivel: string): string => {
           :uploading="uploadingFile"
           :error="uploadError"
           :metadata="filesMetadata"
+          :preview-files="textoBaseFiles"
           v-model="textoBase"
           @close="closeTextoBaseModal"
           @files="addTextoBaseFiles"
           @remove="removeTextoBaseFileAt"
+          @preview="openTextoBasePreview"
           @clear="clearTextoBase"
         />
+        <FilePreviewModal :open="isPreviewOpen" :file="previewFile" :url="previewUrl" @close="closePreview" />
 
         <!-- Main Content -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">

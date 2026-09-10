@@ -12,10 +12,12 @@ const props = withDefaults(defineProps<{
   error?: string | null;
   metadata?: FilesMetadata | null;
   modelValue: string;
+  previewFiles?: (File | null)[] | null;
 }>(), {
   uploading: false,
   error: null,
   metadata: null,
+  previewFiles: null,
 });
 
 const emit = defineEmits<{
@@ -23,6 +25,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: string];
   files: [files: File[]];
   remove: [index: number];
+  preview: [index: number];
   clear: [];
 }>();
 
@@ -123,7 +126,7 @@ onUnmounted(() => window.removeEventListener('keydown', onEscape));
             </div>
 
             <UploadStatus :uploading="uploading" :error="error" :metadata="metadata" :has-text="modelValue.trim() !== ''"
-              accent="teal" removable @remove="(idx) => emit('remove', idx)" />
+              accent="teal" removable :preview-files="previewFiles" @remove="(idx) => emit('remove', idx)" @preview="(idx) => emit('preview', idx)" />
 
             <!-- Texto -->
             <div class="space-y-1.5">

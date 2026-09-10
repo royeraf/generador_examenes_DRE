@@ -111,9 +111,26 @@ export function useLectoSistem() {
 
   const addTexto = () => { if (textosBase.value.length < 4) textosBase.value.push(_makeTexto()); };
   const removeTexto = (idx: number) => {
-    if (textosBase.value.length > 1) textosBase.value.splice(idx, 1);
+    if (textosBase.value.length > 1) {
+      const removed = textosBase.value[idx];
+      if (removed) sourceFilesMap.value.delete(removed.id);
+      textosBase.value.splice(idx, 1);
+    }
   };
-  const clearTextos = () => { _nextTextoId = 1; textosBase.value = [_makeTexto()]; };
+  const clearTextos = () => { _nextTextoId = 1; textosBase.value = [_makeTexto()]; sourceFilesMap.value.clear(); };
+
+  /**
+   * Archivos originales en memoria por id de texto (solo sesión actual).
+   * Permite la vista previa sin re-subir. No se persiste a localStorage:
+   * tras recargar, la vista previa no está disponible (el texto sí).
+   * shallowRef + Map: los File no se vuelven reactivos (createObjectURL seguro).
+   */
+  const sourceFilesMap = shallowRef<Map<number, File[]>>(new Map());
+
+  const getSourceFiles = (id: number): (File | null)[] | null => {
+    const files = sourceFilesMap.value.get(id);
+    return files && files.length > 0 ? files : null;
+  };
 
   const resultado = ref<{
     grado: string;
@@ -241,9 +258,11 @@ export function useLectoSistem() {
         total_caracteres: result.total_caracteres,
         advertencias: result.advertencias
       };
+      sourceFilesMap.value.set(item.id, files);
     } catch (e: any) {
       item.uploadError = parseUploadError(e);
       item.texto = '';
+      sourceFilesMap.value.delete(item.id);
       console.error('Error al subir archivo de texto base:', e);
     } finally {
       item.uploadingFile = false;
@@ -265,6 +284,7 @@ export function useLectoSistem() {
     item.texto = '';
     item.uploadError = null;
     item.filesMetadata = null;
+    sourceFilesMap.value.delete(item.id);
   };
 
   const textosBaseStatus = computed<TextosBaseStatus>(() => {
@@ -412,6 +432,7 @@ export function useLectoSistem() {
     handleFileUploadAt,
     uploadFilesAt,
     clearFilesAt,
+    getSourceFiles,
     selectedTipoTextual,
     selectedFormatoTextual,
     tipoTextualOptions,

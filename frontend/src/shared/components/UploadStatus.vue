@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Loader2, AlertTriangle, FileQuestion, X } from 'lucide-vue-next';
+import { Loader2, AlertTriangle, FileQuestion, X, Eye } from 'lucide-vue-next';
 import type { FilesMetadata } from '../types';
 import { formatPalabras, formatFileSize, MAX_UPLOAD_FILES, MAX_UPLOAD_MB } from '../utils/uploadFeedback';
 import FileTypeIcon from './FileTypeIcon.vue';
@@ -13,6 +13,9 @@ const props = withDefaults(defineProps<{
   accent?: 'teal' | 'indigo';
   compact?: boolean;
   removable?: boolean;
+  /** Archivos originales en memoria, en el mismo orden que `metadata.archivos`.
+   * Si hay File para un índice, se muestra el botón de vista previa. */
+  previewFiles?: (File | null)[] | null;
 }>(), {
   uploading: false,
   error: null,
@@ -21,10 +24,12 @@ const props = withDefaults(defineProps<{
   accent: 'teal',
   compact: false,
   removable: false,
+  previewFiles: null,
 });
 
 const emit = defineEmits<{
   remove: [index: number];
+  preview: [index: number];
 }>();
 
 const accentClasses = computed(() => props.accent === 'indigo'
@@ -47,13 +52,17 @@ const showEmpty = computed(() =>
 
     <div v-if="metadata && metadata.archivos.length > 0" class="flex flex-wrap gap-2">
       <div v-for="(archivo, idx) in metadata.archivos" :key="idx"
-        class="flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 pl-1.5 pr-3 py-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+        class="flex min-w-0 max-w-full items-center gap-1.5 sm:gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 pl-1.5 pr-2 sm:pr-3 py-1.5 text-xs text-emerald-600 dark:text-emerald-400">
         <FileTypeIcon :filename="archivo.filename" :extension="archivo.extension" />
-        <span class="truncate max-w-[12rem] font-medium">{{ archivo.filename }}</span>
-        <span class="text-emerald-500/80 dark:text-emerald-400/80">· {{ formatPalabras(archivo.palabras) }}</span>
-        <span v-if="archivo.size_kb" class="text-emerald-500/80 dark:text-emerald-400/80">· {{ formatFileSize(archivo.size_kb) }}</span>
+        <span class="truncate max-w-[8rem] sm:max-w-[12rem] font-medium">{{ archivo.filename }}</span>
+        <span class="text-emerald-500/80 dark:text-emerald-400/80 whitespace-nowrap">· {{ formatPalabras(archivo.palabras) }}</span>
+        <span v-if="archivo.size_kb" class="hidden sm:inline text-emerald-500/80 dark:text-emerald-400/80 whitespace-nowrap">· {{ formatFileSize(archivo.size_kb) }}</span>
+        <button v-if="previewFiles?.[idx]" type="button" @click="emit('preview', idx)"
+          class="ml-1 rounded-full p-1.5 hover:bg-emerald-500/20 transition-colors cursor-pointer shrink-0" :aria-label="`Vista previa de ${archivo.filename}`" :title="`Vista previa de ${archivo.filename}`">
+          <Eye class="w-3.5 h-3.5" />
+        </button>
         <button v-if="removable" type="button" @click="emit('remove', idx)"
-          class="ml-1 rounded-full p-0.5 hover:bg-emerald-500/20 transition-colors cursor-pointer" :aria-label="`Quitar ${archivo.filename}`">
+          class="ml-1 rounded-full p-1.5 hover:bg-emerald-500/20 transition-colors cursor-pointer shrink-0" :aria-label="`Quitar ${archivo.filename}`">
           <X class="w-3 h-3" />
         </button>
       </div>
