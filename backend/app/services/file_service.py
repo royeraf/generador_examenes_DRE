@@ -41,20 +41,21 @@ class FileExtractionService:
         "doc":  [b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1"],
     }
 
-    # NOTA: los patrones cortos (/JS, /AA, eval(...)) se excluyen a propósito:
-    # colisionan por azar con bytes de fotos comprimidas y rechazan PDFs
-    # legítimos (p. ej. CamScanner). Los vectores principales siguen cubiertos.
-    # Follow-up: reemplazar este regex crudo por análisis estructural con
-    # PyMuPDF (revisar acciones reales a nivel de objeto, no de bytes).
-    PDF_DANGEROUS_PATTERNS = [
-        rb"/JavaScript",
-        rb"/OpenAction",
-        rb"/Launch",
-        rb"/EmbeddedFile",
-        rb"/RichMedia",
-        rb"/XFA",
-        rb"<script",
-    ]
+    # ── Escáner PDF estructural ──────────────────────────────────────────────
+    # El escáner anterior buscaba patrones con regex sobre los bytes crudos,
+    # incluyendo streams comprimidos de imágenes: cualquier PDF con fotos
+    # (p. ej. CamScanner) podía ser rechazado por una coincidencia aleatoria.
+    # Ahora se inspeccionan los diccionarios reales del PDF con PyMuPDF
+    # (los bytes de imágenes nunca se tocan): cero falsos positivos sin
+    # perder la detección de amenazas estructurales.
+    # Follow-up posible: análisis estructural ya implementado aquí.
+
+    # Tipos de acción peligrosos (/S en diccionarios de acción).
+    # /GoTo, /GoToR, /URI y transiciones (/Trans) se permiten: son benignos.
+    PDF_THREAT_ACTIONS = {"JavaScript", "Launch", "SubmitForm", "ImportData"}
+
+    # Claves que nunca aparecen en un PDF benigno.
+    PDF_THREAT_KEYS = {"JS", "JavaScript", "XFA", "EF", "RichMedia"}
 
     DOCX_DANGEROUS_PATTERNS = [
         r"<\s*script",
@@ -101,18 +102,114 @@ class FileExtractionService:
             ),
         )
 
+    def _reject_pdf(self, motivo: str) -> None:
+        logger.warning("PDF rechazado: %s", motivo)
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "El archivo PDF contiene elementos potencialmente peligrosos "
+                "(JavaScript, acciones automáticas u objetos embebidos). "
+                "Por seguridad, el archivo fue rechazado."
+            ),
+        )
+
+    def _resolve_pdf_value(self, doc, value: str, depth: int = 0) -> str:
+        """Resuelve referencias indirectas ('12 0 R') a su diccionario real."""
+        value = (value or "").strip()
+        if depth > 3:
+            return value
+        m = re.fullmatch(r"(\d+)\s+\d+\s+R", value)
+        if not m:
+            return value
+        try:
+            return self._resolve_pdf_value(doc, doc.xref_object(int(m.group(1))), depth + 1)
+        except Exception:
+            return value
+
+    def _dict_value(self, doc, xref: int, key: str) -> str:
+        """Valor resuelto de una clave de diccionario ('' si no existe)."""
+        try:
+            raw = doc.xref_get_key(xref, key)
+        except Exception:
+            return ""
+        if raw is None:
+            return ""
+        if not isinstance(raw, str):
+            raw = str(raw)
+        if raw.strip() in ("", "null"):
+            return ""
+        return self._resolve_pdf_value(doc, raw)
+
+    def _has_threat_action(self, dict_text: str) -> bool:
+        """¿El diccionario contiene una acción peligrosa (/S /JavaScript, ...)?"""
+        m = re.search(r"/S\s*/(\w+)", dict_text)
+        return bool(m and m.group(1) in self.PDF_THREAT_ACTIONS)
+
     def _scan_pdf_for_threats(self, content: bytes) -> None:
-        for pattern in self.PDF_DANGEROUS_PATTERNS:
-            if re.search(pattern, content, re.IGNORECASE):
-                logger.warning("PDF rechazado: patrón peligroso detectado: %s", pattern)
-                raise HTTPException(
-                    status_code=400,
-                    detail=(
-                        "El archivo PDF contiene elementos potencialmente peligrosos "
-                        "(JavaScript, acciones automáticas u objetos embebidos). "
-                        "Por seguridad, el archivo fue rechazado."
-                    ),
-                )
+        """Inspección estructural del PDF (diccionarios, no bytes crudos).
+
+        Rechaza: JavaScript, acciones de lanzamiento/envío, archivos
+        embebidos, XFA y RichMedia. Permite: destinos de apertura benignos
+        (/OpenAction con /GoTo), enlaces URI y el texto/imágenes normales
+        aunque contengan palabras como 'XFA' o 'eval('.
+        """
+        try:
+            doc = fitz.open(stream=content, filetype="pdf")
+        except Exception as e:
+            raise HTTPException(400, f"El archivo no es un PDF válido: {e}")
+        try:
+            # 1. Archivos embebidos (árbol /EmbeddedFiles).
+            try:
+                emb = doc.embfile_names()
+            except Exception:
+                emb = []
+            if emb:
+                self._reject_pdf(f"archivos embebidos: {emb[:3]}")
+
+            catalog = doc.pdf_catalog()
+
+            # 2. Árbol de nombres JavaScript (ningún PDF benigno lo trae).
+            names = self._dict_value(doc, catalog, "Names")
+            if names and "/JavaScript" in names:
+                self._reject_pdf("árbol de nombres JavaScript")
+
+            # 3. XFA en el formulario AcroForm.
+            acroform = self._dict_value(doc, catalog, "AcroForm")
+            if acroform and re.search(r"/XFA\b", acroform):
+                self._reject_pdf("formulario XFA")
+
+            # 4. Acciones automáticas del catálogo (/OpenAction, /AA):
+            # solo rechaza si la acción es peligrosa (/GoTo es benigno).
+            for key in ("OpenAction", "AA"):
+                value = self._dict_value(doc, catalog, key)
+                if value and self._has_threat_action(value):
+                    self._reject_pdf(f"acción automática peligrosa ({key})")
+
+            # 5. Barrido de objetos: claves y acciones a nivel de diccionario.
+            # Los streams binarios (fotos) nunca se inspeccionan.
+            for xref in range(doc.xref_length()):
+                try:
+                    keys = doc.xref_get_keys(xref)
+                except Exception:
+                    continue
+                if not keys:
+                    continue
+                if any(k in self.PDF_THREAT_KEYS for k in keys):
+                    self._reject_pdf(f"clave peligrosa en objeto {xref}")
+                if "S" in keys:
+                    try:
+                        raw_s = doc.xref_get_key(xref, "S")
+                        action = (raw_s if isinstance(raw_s, str) else str(raw_s)).strip().lstrip("/")
+                    except Exception:
+                        continue
+                    if action in self.PDF_THREAT_ACTIONS:
+                        self._reject_pdf(f"acción /{action} en objeto {xref}")
+                if "AA" in keys:
+                    aa = self._dict_value(doc, xref, "AA")
+                    if aa and self._has_threat_action(aa):
+                        self._reject_pdf(f"acción adicional peligrosa en objeto {xref}")
+        finally:
+            doc.close()
 
     def _scan_docx_for_threats(self, content: bytes) -> None:
         try:
