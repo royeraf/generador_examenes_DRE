@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import {
-    Zap, AlertTriangle, Award, Download,
+    Zap, AlertTriangle, Award,
     ClipboardCheck, BookOpen, HelpCircle, Lightbulb,
     Check, LayoutGrid, Sparkles, GraduationCap, Target,
     MessageSquare, CheckCircle2, XCircle, X
@@ -106,33 +106,22 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
         <div v-if="resultado && !loading && showResults"
             class="h-[500px] sm:h-[580px] lg:h-[650px] bg-white dark:bg-slate-800 rounded-2xl border-2 border-amber-200 dark:border-slate-700 shadow-xl flex flex-col overflow-hidden">
 
-            <!-- Results Header - Celebratorio -->
+            <!-- Results Header -->
             <div
-                class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 px-4 sm:px-5 py-3 sm:py-4 flex-shrink-0">
+                class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 sm:px-5 py-3 sm:py-4 flex-shrink-0">
                 <div class="flex items-center gap-3 mb-3">
                     <div
-                        class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
+                        class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
                         <Award class="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
                     <div class="min-w-0 flex-1">
-                        <h2 class="text-base sm:text-lg font-bold text-white truncate">
+                        <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate">
                             {{ resultado.examen.titulo }}
                         </h2>
-                        <span class="text-[10px] sm:text-xs text-indigo-100 font-medium block">
+                        <span class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium block">
                             {{ resultado.total_preguntas }} preguntas · {{ resultado.examen.grado }}
                         </span>
                     </div>
-                </div>
-                <div class="flex gap-2">
-                    <!-- <button @click="emit('vincularSistematizador')"
-                        class="flex-1 py-2.5 bg-white/90 hover:bg-white text-indigo-600 text-sm font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md">
-                        <Link class="w-4 h-4" />
-                        Vincular
-                    </button> -->
-                    <BaseButton variant="primary" size="sm" class="flex-1" :loading="descargandoWord" @click="emit('descargarExamenWord')">
-                        <template #icon><Download class="w-3.5 h-3.5" /></template>
-                        {{ descargandoWord ? 'Generando...' : 'Descargar Word' }}
-                    </BaseButton>
                 </div>
             </div>
 
@@ -276,9 +265,8 @@ const getCapacidadBadgeClass = (capacidad?: string): string => {
                                     <td class="py-2.5 sm:py-3 px-3 sm:px-4 text-slate-600 dark:text-slate-400 text-xs"><MathText :text="fila.desempeno" /></td>
                                     <td class="py-2.5 sm:py-3 px-3 sm:px-4">
                                         <span
-                                            class="px-2.5 py-1 text-[10px] font-bold rounded-lg inline-flex items-center gap-1"
+                                            class="px-2.5 py-1 text-[10px] font-bold rounded-lg inline-flex items-center"
                                             :class="getCapacidadBadgeClass((fila as any).capacidad || fila.nivel)">
-                                            <Target class="w-3 h-3" />
                                             {{ (fila as any).capacidad || fila.nivel }}
                                         </span>
                                     </td>
