@@ -2,7 +2,7 @@
 import { shallowRef } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
-import { LogIn, User, Lock, AlertCircle, Eye, EyeOff, Sparkles } from 'lucide-vue-next';
+import { LogIn, User, Lock, AlertCircle, Eye, EyeOff } from 'lucide-vue-next';
 import { useForm, useField } from 'vee-validate';
 import * as yup from 'yup';
 import logoDre from '../../assets/logo.png';
@@ -88,16 +88,9 @@ const onSubmit = handleSubmit(async (formValues) => {
 
             <!-- Content -->
             <div class="relative z-10 max-w-2xl">
-                <div class="inline-flex items-center gap-2 px-3 py-1 bg-teal-500/10 border border-teal-500/20 rounded-full mb-6">
-                    <Sparkles class="w-3.5 h-3.5 text-teal-400" />
-                    <span class="text-[10px] font-bold text-teal-400 uppercase tracking-widest">Plataforma Inteligente</span>
-                </div>
-                <h1 class="text-5xl xl:text-7xl font-bold text-white leading-[1.1] tracking-tight mb-8">
-                    <span class="block text-2xl xl:text-3xl text-teal-400 font-black tracking-[0.3em] mb-4 uppercase">SIEVA</span>
-                </h1>
-                <p class="text-lg text-white/50 leading-relaxed max-w-lg mb-10">Sistema Integrado de Evaluación de Aula</p>
-                <p class="text-lg text-white/50 leading-relaxed max-w-lg mb-10">
-                    Genera evaluaciones precisas, gestiona el progreso de tus estudiantes y toma decisiones basadas en datos.
+                <h1 class="text-2xl xl:text-3xl text-teal-400 font-black tracking-[0.3em] mb-4 uppercase">SIEVA</h1>
+                <p class="text-lg text-white/60 leading-relaxed max-w-lg">
+                    Sistema Integrado de Evaluación de Aula de la DRE Huánuco. Un solo espacio para enseñar, aprender y crecer juntos.
                 </p>
             </div>
 
@@ -107,8 +100,8 @@ const onSubmit = handleSubmit(async (formValues) => {
             </div>
 
             <!-- Floating Illustration -->
-            <div class="absolute right-[-5%] top-[25%] w-[450px] opacity-20 pointer-events-none grayscale contrast-125">
-                <img :src="teachingSvg" alt="Visual" class="w-full h-full object-contain" />
+            <div class="absolute right-[-5%] top-[25%] w-[450px] opacity-30 pointer-events-none">
+                <img :src="teachingSvg" alt="" aria-hidden="true" class="w-full h-full object-contain animate-float" />
             </div>
         </div>
 
@@ -129,7 +122,7 @@ const onSubmit = handleSubmit(async (formValues) => {
             </div>
 
             <!-- Form Container -->
-            <div class="flex-1 flex flex-col justify-start pt-16 sm:pt-24 lg:pt-20 xl:pt-32 px-6 sm:px-12 md:px-20 lg:px-16 xl:px-24 pb-12 relative">
+            <div class="flex-1 flex flex-col justify-center px-6 sm:px-12 md:px-20 lg:px-16 xl:px-24 py-12 relative">
                 
                 <!-- Background Accents (Mobile) -->
                 <div class="lg:hidden absolute inset-0 pointer-events-none">
@@ -146,7 +139,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                     </div>
 
                     <!-- Error Alert -->
-                    <div class="min-h-14 mb-6">
+                    <div class="min-h-[76px] mb-4">
                         <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="transform -translate-y-2 opacity-0" enter-to-class="transform translate-y-0 opacity-100">
                             <div v-if="error" class="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-2xl text-red-600 dark:text-red-400 text-sm font-bold animate-shake">
                                 <AlertCircle class="w-5 h-5 shrink-0" />
@@ -158,17 +151,20 @@ const onSubmit = handleSubmit(async (formValues) => {
 
 
                     <!-- Form -->
-                    <form @submit="onSubmit" class="space-y-6" autocomplete="off">
+                    <form @submit="onSubmit" class="space-y-6" autocomplete="on" novalidate>
                         <!-- Fields -->
                         <div class="space-y-2">
-                            <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">DNI o Código</label>
+                            <label for="login-identifier" class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5 ml-1">DNI o Código</label>
                             <div class="relative group">
-                                <User class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-teal-500 transition-colors" />
+                                <User class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-teal-500 transition-colors pointer-events-none" />
                                 <input 
+                                    id="login-identifier"
                                     v-model="identifierValue"
                                     type="text" 
+                                    autocomplete="username"
                                     placeholder="DNI o Código"
-                                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-4 pl-12 pr-4 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all uppercase placeholder:normal-case"
+                                    :disabled="loading"
+                                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-4 pl-12 pr-4 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all uppercase placeholder:normal-case disabled:opacity-60 disabled:cursor-not-allowed"
                                     :class="{'border-red-500/50': identifierError}"
                                 />
                             </div>
@@ -178,17 +174,20 @@ const onSubmit = handleSubmit(async (formValues) => {
                         </div>
 
                         <div class="space-y-2">
-                            <label class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Contraseña</label>
+                            <label for="login-password" class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5 ml-1">Contraseña</label>
                             <div class="relative group">
-                                <Lock class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-teal-500 transition-colors" />
+                                <Lock class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-teal-500 transition-colors pointer-events-none" />
                                 <input 
+                                    id="login-password"
                                     v-model="passwordValue"
                                     :type="passwordFieldType" 
+                                    autocomplete="current-password"
                                     placeholder="••••••••"
-                                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-4 pl-12 pr-12 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all"
+                                    :disabled="loading"
+                                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-4 pl-12 pr-12 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                                     :class="{'border-red-500/50': passwordError}"
                                 />
-                                <button type="button" @click="passwordFieldType = passwordFieldType === 'password' ? 'text' : 'password'" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors">
+                                <button type="button" @click="passwordFieldType = passwordFieldType === 'password' ? 'text' : 'password'" :aria-label="passwordFieldType === 'password' ? 'Mostrar contraseña' : 'Ocultar contraseña'" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors cursor-pointer">
                                     <Eye v-if="passwordFieldType === 'password'" class="w-5 h-5" />
                                     <EyeOff v-else class="w-5 h-5" />
                                 </button>
@@ -200,15 +199,15 @@ const onSubmit = handleSubmit(async (formValues) => {
 
                         <!-- Action Button -->
                         <BaseButton type="submit" variant="primary" size="lg" block :loading="loading">
+                            <template #icon><LogIn class="w-5 h-5" /></template>
                             Acceder al Sistema
-                            <LogIn v-if="!loading" class="w-5 h-5" />
                         </BaseButton>
 
 
                     </form>
 
                     <!-- Student Registration Link -->
-                    <div class="mt-10 pt-8 border-t border-slate-300 dark:border-slate-900 text-center">
+                    <div class="mt-10 pt-8 border-t border-slate-200 dark:border-slate-800 text-center">
                         <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">
                             ¿Eres estudiante y no tienes cuenta?
                         </p>
