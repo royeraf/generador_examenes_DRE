@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, Request
+from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
@@ -199,6 +200,17 @@ async def listar_capacidades(db: AsyncSession = Depends(get_db)):
         }
         for c in capacidades
     ]
+
+
+@router.get("/ocr-status")
+async def ocr_status():
+    """
+    Diagnóstico del OCR para PDFs escaneados.
+
+    Devuelve si Tesseract está disponible en el servidor y qué idiomas
+    tiene instalados. Útil para verificar el entorno sin subir archivos.
+    """
+    return await run_in_threadpool(file_extraction_service.tesseract_info)
 
 
 @router.post("/upload-texto")

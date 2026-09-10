@@ -277,12 +277,57 @@ class FileExtractionService:
 
     # ── Extracción de texto ────────────────────────────────────────────────────
 
-    def _ocr_pdf_pages(self, doc, page_numbers: list[int]) -> Tuple[list, int]:
+    def tesseract_info(self) -> dict:
+        """Diagnóstico del OCR (para el endpoint GET /ocr-status).
+
+        Permite verificar desde el navegador si el servidor tiene el binario
+        de Tesseract y qué idiomas están instalados, sin subir archivos.
+        """
+        try:
+            import pytesseract
+        except ImportError:
+            return {
+                "disponible": False,
+                "pytesseract": False,
+                "detalle": "Falta la librería pytesseract en el servidor.",
+            }
+        try:
+            version = str(pytesseract.get_tesseract_version())
+            idiomas = sorted(pytesseract.get_languages())
+            return {
+                "disponible": True,
+                "pytesseract": True,
+                "version": version,
+                "idiomas": idiomas,
+            }
+        except Exception as e:
+            return {
+                "disponible": False,
+                "pytesseract": True,
+                "detalle": f"Binario tesseract no responde: {e}",
+            }
+
+    def _elegir_idioma_ocr(self, pytesseract_module) -> str:
+        """Elige el mejor idioma disponible (prefiere spa+eng, tolera faltantes)."""
+        try:
+            disponibles = set(pytesseract_module.get_languages())
+        except Exception:
+            disponibles = set()
+        if "spa" in disponibles and "eng" in disponibles:
+            return "spa+eng"
+        if "spa" in disponibles:
+            return "spa"
+        if "eng" in disponibles:
+            return "eng"
+        resto = sorted(l for l in disponibles if l != "osd")
+        return "+".join(resto) if resto else self.OCR_LANG
+
+    def _ocr_pdf_pages(self, doc, page_numbers: list[int]) -> Tuple[list, int, str]:
         """Aplica OCR (Tesseract) a las páginas indicadas.
 
-        Retorna (textos_por_pagina, n_paginas_ok) manteniendo el orden de
-        `page_numbers`. Los imports son diferidos para que el servicio siga
-        funcionando aunque las dependencias de OCR no estén instaladas.
+        Retorna (textos_por_pagina, n_paginas_ok, idioma_usado) manteniendo el
+        orden de `page_numbers`. Los imports son diferidos para que el servicio
+        siga funcionando aunque las dependencias de OCR no estén instaladas.
         """
         try:
             from PIL import Image
@@ -309,18 +354,20 @@ class FileExtractionService:
             )
 
         matrix = fitz.Matrix(self.OCR_ZOOM, self.OCR_ZOOM)
+        lang = self._elegir_idioma_ocr(pytesseract)
+        logger.info("OCR con idioma: %s", lang)
         ocr_texts: list = []
         for page_num in page_numbers:
             try:
                 pix = doc[page_num].get_pixmap(matrix=matrix)
                 img = Image.open(io.BytesIO(pix.tobytes("png")))
-                page_text = pytesseract.image_to_string(img, lang=self.OCR_LANG).strip()
+                page_text = pytesseract.image_to_string(img, lang=lang).strip()
             except Exception as e:
                 logger.warning("OCR falló en página %s: %s", page_num + 1, e)
                 page_text = ""
             ocr_texts.append(page_text)
         ok_pages = sum(1 for t in ocr_texts if t)
-        return ocr_texts, ok_pages
+        return ocr_texts, ok_pages, lang
 
     def _extract_text_from_pdf(self, content: bytes) -> Tuple[str, dict]:
         """Extrae texto embebido y aplica OCR por página cuando falta texto.
@@ -353,7 +400,7 @@ class FileExtractionService:
                     "PDF con %s página(s) escaneada(s), aplicando OCR a %s",
                     len(scanned_pages), len(to_ocr),
                 )
-                ocr_texts, ok_pages = self._ocr_pdf_pages(doc, to_ocr)
+                ocr_texts, ok_pages, lang_usado = self._ocr_pdf_pages(doc, to_ocr)
                 for page_num, ocr_text in zip(to_ocr, ocr_texts):
                     if ocr_text:
                         page_texts[page_num] = ocr_text
@@ -361,7 +408,7 @@ class FileExtractionService:
                     ocr_info = {
                         "ocr_aplicado": True,
                         "ocr_paginas": ok_pages,
-                        "ocr_idioma": self.OCR_LANG,
+                        "ocr_idioma": lang_usado,
                     }
                     if omitted:
                         ocr_info["ocr_paginas_omitidas"] = omitted
@@ -481,6 +528,7 @@ class FileExtractionService:
         }
         if extra.get("ocr_aplicado"):
             metadata["ocr_paginas"] = extra.get("ocr_paginas", 0)
+            metadata["ocr_idioma"] = extra.get("ocr_idioma", "")
             if extra.get("ocr_paginas_omitidas"):
                 metadata["ocr_paginas_omitidas"] = extra["ocr_paginas_omitidas"]
         if extra.get("total_paginas"):
