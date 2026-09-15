@@ -42,6 +42,54 @@ const getCapacidadLabel = (tipo: string): string => {
     };
     return labels[tipo] || tipo;
 };
+
+interface CapColor {
+    bg: string;
+    bgActive: string;
+    text: string;
+    border: string;
+    ring: string;
+    bgSelected: string;
+    checkboxClass: string;
+}
+
+const CAP_COLORS: Record<string, CapColor> = {
+    literal: {
+        bg: 'bg-teal-50 dark:bg-teal-900/15',
+        bgActive: 'bg-teal-500 dark:bg-teal-600',
+        text: 'text-teal-600 dark:text-teal-400',
+        border: 'border-teal-200 dark:border-teal-800',
+        ring: 'ring-teal-300 dark:ring-teal-700',
+        bgSelected: 'bg-teal-50 dark:bg-teal-900/20',
+        checkboxClass: 'checked:bg-teal-600 checked:border-teal-600 dark:checked:bg-teal-500 dark:checked:border-teal-500 focus:ring-teal-500/50'
+    },
+    inferencial: {
+        bg: 'bg-amber-50 dark:bg-amber-900/15',
+        bgActive: 'bg-amber-500 dark:bg-amber-600',
+        text: 'text-amber-600 dark:text-amber-400',
+        border: 'border-amber-200 dark:border-amber-800',
+        ring: 'ring-amber-300 dark:ring-amber-700',
+        bgSelected: 'bg-amber-50 dark:bg-amber-900/20',
+        checkboxClass: 'checked:bg-amber-600 checked:border-amber-600 dark:checked:bg-amber-500 dark:checked:border-amber-500 focus:ring-amber-500/50'
+    },
+    critico: {
+        bg: 'bg-violet-50 dark:bg-violet-900/15',
+        bgActive: 'bg-violet-500 dark:bg-violet-600',
+        text: 'text-violet-600 dark:text-violet-400',
+        border: 'border-violet-200 dark:border-violet-800',
+        ring: 'ring-violet-300 dark:ring-violet-700',
+        bgSelected: 'bg-violet-50 dark:bg-violet-900/20',
+        checkboxClass: 'checked:bg-violet-600 checked:border-violet-600 dark:checked:bg-violet-500 dark:checked:border-violet-500 focus:ring-violet-500/50'
+    }
+};
+
+const DEFAULT_CAP_COLOR = CAP_COLORS['literal']!;
+const getCapColor = (tipo: string): CapColor => CAP_COLORS[tipo] ?? DEFAULT_CAP_COLOR;
+
+const allSelectedInTab = computed(() => {
+    const ids = props.desempenosPorCapacidad[props.activeCapacidadTab]?.map(d => d.id) || [];
+    return ids.length > 0 && ids.every(id => props.selectedDesempenoIds.includes(id));
+});
 </script>
 
 <template>
@@ -85,7 +133,7 @@ const getCapacidadLabel = (tipo: string): string => {
                 <div v-for="tipo in ['literal', 'inferencial', 'critico']" :key="tipo" class="flex-1">
                     <button @click="emit('update:activeCapacidadTab', tipo)"
                         class="w-full py-1.5 text-[10px] sm:text-xs font-medium rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                        :class="activeCapacidadTab === tipo ? 'bg-teal-500 dark:bg-teal-600 text-slate-800 dark:text-white shadow-sm dark:shadow-none' : 'text-slate-500 hover:text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800/50'">
+                        :class="activeCapacidadTab === tipo ? `${getCapColor(tipo).bgActive} text-white shadow-sm dark:shadow-none` : 'text-slate-500 hover:text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800/50'">
                         <BookOpen v-if="tipo === 'literal'" class="w-3.5 h-3.5" />
                         <FileSearch v-else-if="tipo === 'inferencial'" class="w-3.5 h-3.5" />
                         <Lightbulb v-else class="w-3.5 h-3.5" />
@@ -100,17 +148,17 @@ const getCapacidadLabel = (tipo: string): string => {
                 <div class="flex justify-between items-center px-1 mb-1">
                    <span class="text-[10px] text-slate-500">Seleccionar desempeños</span>
                    <div class="flex gap-2">
-                       <button @click="emit('select-all-capacidad', activeCapacidadTab)" class="text-[10px] text-sky-400 hover:text-sky-300 cursor-pointer">Todos</button>
-                       <button @click="emit('deselect-all-capacidad', activeCapacidadTab)" class="text-[10px] text-slate-500 hover:text-slate-500 dark:text-slate-400 cursor-pointer">Ninguno</button>
+                       <button v-if="!allSelectedInTab" @click="emit('select-all-capacidad', activeCapacidadTab)" class="text-[10px] font-semibold cursor-pointer" :class="getCapColor(activeCapacidadTab).text">Todos</button>
+                       <button v-else @click="emit('deselect-all-capacidad', activeCapacidadTab)" class="text-[10px] text-slate-500 hover:text-slate-600 dark:text-slate-400 cursor-pointer">Ninguno</button>
                    </div>
                 </div>
 
                 <template v-if="desempenosPorCapacidad[activeCapacidadTab]?.length">
                     <Checkbox v-for="des in desempenosPorCapacidad[activeCapacidadTab]" :key="des.id"
                         v-model="localSelectedDesempenoIds" :value="des.id"
-                        class="p-3 rounded-xl border transition-colors cursor-pointer"
-                        :class="localSelectedDesempenoIds.includes(des.id) ? 'bg-teal-500 dark:bg-teal-600 border-slate-300 dark:border-slate-600' : 'bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-700 hover:border-slate-300 dark:border-slate-600'"
-                        color="checked:bg-sky-500 checked:border-sky-500 focus:ring-sky-500/50">
+                        class="p-3 rounded-xl border cursor-pointer transition-all duration-150"
+                        :class="localSelectedDesempenoIds.includes(des.id) ? `${getCapColor(activeCapacidadTab).bgSelected} ${getCapColor(activeCapacidadTab).border} ring-1 ${getCapColor(activeCapacidadTab).ring}` : 'bg-slate-50 dark:bg-slate-950 border-slate-300 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800/50'"
+                        :color="getCapColor(activeCapacidadTab).checkboxClass">
                         <div class="mb-1">
                             <span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-mono">{{ des.codigo }}</span>
                         </div>

@@ -17,7 +17,7 @@ import Swal from 'sweetalert2'
 import {
   Plus, Edit2, Search, X, Eye, EyeOff,
   GraduationCap, AlertCircle, CheckCircle, Users, Download, FileSpreadsheet,
-  Filter, ChevronDown, ChevronLeft, ChevronRight, CalendarPlus
+  Filter, ChevronDown, ChevronLeft, ChevronRight, CalendarPlus, KeyRound
 } from 'lucide-vue-next'
 
 // ── State ────────────────────────────────────────────────────────────────────
@@ -32,6 +32,7 @@ const successCodigo = ref('')
 const showSuccessModal = ref(false)
 const showImportModal = ref(false)
 const importing = ref(false)
+const activatingPendientes = ref(false)
 const selectedImportFileName = ref('')
 const nominaFileInput = useTemplateRef<HTMLInputElement>('nominaFileInput')
 const currentEditStudent = ref<EstudianteDocente | null>(null)
@@ -79,7 +80,9 @@ const showPass = ref(false)
 const importForm = ref({
   grado_id: 0,
   seccion: '',
+  password: '1234',
 })
+const showImportPass = ref(false)
 
 // ── Computed ─────────────────────────────────────────────────────────────────
 const formError = computed(() => {
@@ -95,6 +98,7 @@ const formError = computed(() => {
 const importFormError = computed(() => {
   if (!importForm.value.grado_id) return 'Selecciona el grado de la nómina'
   if (!importForm.value.seccion.trim()) return 'La sección es requerida'
+  if (importForm.value.password.length < 4) return 'La contraseña debe tener al menos 4 caracteres'
   if (!selectedImportFileName.value) return 'Selecciona el archivo Excel de la nómina'
   return ''
 })
@@ -230,8 +234,9 @@ function closeModal() {
 }
 
 function openImport() {
-  importForm.value = { grado_id: grados.value[0]?.id || 0, seccion: '' }
+  importForm.value = { grado_id: grados.value[0]?.id || 0, seccion: '', password: '1234' }
   selectedImportFileName.value = ''
+  showImportPass.value = false
   showImportModal.value = true
 }
 
@@ -355,18 +360,60 @@ async function importarNomina() {
         throw new Error('No se encontraron estudiantes válidos en el archivo')
     }
 
-    await docenteEstudiantesService.importarNomina({
+    const res = await docenteEstudiantesService.importarNomina({
       grado_id: importForm.value.grado_id,
       seccion: importForm.value.seccion.trim(),
+      password: importForm.value.password,
       estudiantes: estudiantesImportados,
     })
     closeImportModal()
     await cargarEstudiantes()
-    Swal.fire('Éxito', 'Nómina importada correctamente', 'success')
+    await Swal.fire({
+      icon: 'success',
+      title: `${res.creados} estudiante${res.creados !== 1 ? 's' : ''} importado${res.creados !== 1 ? 's' : ''}`,
+      html: `Los estudiantes ya están activos.<br>Contraseña asignada: <strong>${res.password}</strong>`,
+      confirmButtonText: 'Entendido',
+    })
   } catch (error: any) {
     Swal.fire('Error', error.message || 'No se pudo importar la nómina', 'error')
   } finally {
     importing.value = false
+  }
+}
+
+async function activarPendientes() {
+  const { value: password, isConfirmed } = await Swal.fire({
+    title: 'Asignar contraseñas pendientes',
+    html: 'Se asignará contraseña a los estudiantes importados que aún no la tienen, incluidos los que ya están activados.<br>Se les asignará la siguiente contraseña:',
+    input: 'text',
+    inputValue: '1234',
+    inputAttributes: { autocapitalize: 'off', autocomplete: 'off' },
+    inputValidator: (value) => (!value || value.length < 4) ? 'La contraseña debe tener al menos 4 caracteres' : null,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#14b8a6',
+    confirmButtonText: 'Activar',
+    cancelButtonText: 'Cancelar',
+  })
+  if (!isConfirmed || !password) return
+  activatingPendientes.value = true
+  try {
+    const res = await docenteEstudiantesService.activarPendientes(password)
+    await cargarEstudiantes()
+    if (res.activados === 0) {
+      Swal.fire('Sin cambios', 'No se encontraron estudiantes sin contraseña', 'info')
+    } else {
+      await Swal.fire({
+        icon: 'success',
+        title: `${res.activados} estudiante${res.activados !== 1 ? 's' : ''} activado${res.activados !== 1 ? 's' : ''}`,
+        html: `Contraseña asignada: <strong>${res.password}</strong>`,
+        confirmButtonText: 'Entendido',
+      })
+    }
+  } catch (error: any) {
+    Swal.fire('Error', error.response?.data?.detail ?? 'No se pudo activar a los estudiantes pendientes', 'error')
+  } finally {
+    activatingPendientes.value = false
   }
 }
 
@@ -447,6 +494,10 @@ function nombreGrado(id: number | null) {
             <BaseButton variant="secondary" size="md" class="flex-1 lg:flex-none" @click="openImport">
               <template #icon><FileSpreadsheet class="w-4 h-4 text-emerald-500" /></template>
               Importar
+            </BaseButton>
+            <BaseButton variant="secondary" size="md" class="flex-1 lg:flex-none" :disabled="activatingPendientes" :loading="activatingPendientes" @click="activarPendientes" title="Asignar contraseña a estudiantes importados que aún no la tienen">
+              <template #icon><KeyRound class="w-4 h-4 text-amber-500" /></template>
+              Asignar contraseñas
             </BaseButton>
           </div>
         </div>
@@ -760,6 +811,14 @@ function nombreGrado(id: number | null) {
                   <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Sección</label>
                   <ComboBox v-model="importForm.seccion" :options="seccionesOpciones" placeholder="Selecciona sección" />
                 </div>
+              </div>
+              <div class="space-y-1.5">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Contraseña para los estudiantes</label>
+                <div class="relative">
+                  <input v-model="importForm.password" :type="showImportPass ? 'text' : 'password'" placeholder="••••" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-2.5 px-3.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all font-bold" />
+                  <button @click="showImportPass = !showImportPass" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"><Eye v-if="!showImportPass" class="w-5 h-5" /><EyeOff v-else class="w-5 h-5" /></button>
+                </div>
+                <p class="text-[10px] font-bold text-slate-400 ml-1">Por defecto 1234. Los estudiantes quedarán activos con esta contraseña.</p>
               </div>
               <input ref="nominaFileInput" type="file" accept=".xlsx,.xls" class="hidden" @change="onNominaFileChange" />
               <div class="rounded-2xl border-2 border-dashed border-slate-300 p-6 bg-slate-50/50">

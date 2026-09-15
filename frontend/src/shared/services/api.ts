@@ -830,6 +830,7 @@ export interface ImportarEstudianteFilaPayload {
 export interface ImportarEstudiantesPayload {
   grado_id: number
   seccion: string
+  password?: string
   año_escolar?: number
   estudiantes: ImportarEstudianteFilaPayload[]
 }
@@ -846,7 +847,7 @@ export interface RegistroEstudianteDirectoResponse {
 
 export interface ImportarEstudiantesResponse {
   creados: number
-  pendientes_generacion_usuario: number
+  password: string
 }
 
 export const docenteEstudiantesService = {
@@ -862,6 +863,14 @@ export const docenteEstudiantesService = {
 
   async importarNomina(data: ImportarEstudiantesPayload): Promise<ImportarEstudiantesResponse> {
     const response = await apiClient.post<ImportarEstudiantesResponse>('/docente/importar-estudiantes', data)
+    return response.data
+  },
+
+  async activarPendientes(password: string): Promise<{ activados: number; password: string }> {
+    const response = await apiClient.post<{ activados: number; password: string }>(
+      '/docente/mis-estudiantes/activar-pendientes',
+      { password },
+    )
     return response.data
   },
 

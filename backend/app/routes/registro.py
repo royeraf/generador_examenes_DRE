@@ -16,7 +16,7 @@ from app.models.usuario import Usuario
 from app.models.estudiante import Estudiante
 from app.models.enums import RolCodigo
 from app.api.dependencies import get_current_active_user, require_role, require_modulo
-from app.core.security import get_password_hash
+from app.core.security import get_password_hash, verify_password
 from app.services.matricula_service import crear_matricula, get_matricula_activa
 from app.services.estudiante_service import estudiante_service
 from app.schemas.pagination import PaginatedResponse
@@ -114,13 +114,23 @@ class ImportarEstudianteFila(BaseModel):
 class ImportarEstudiantesRequest(BaseModel):
     grado_id: int
     seccion: str = Field(..., min_length=1, max_length=10)
+    password: str = Field("1234", min_length=4, max_length=72)
     año_escolar: int = Field(default_factory=lambda: datetime.now().year)
     estudiantes: List[ImportarEstudianteFila] = Field(..., min_length=1, max_length=500)
 
 
 class ImportarEstudiantesResponse(BaseModel):
     creados: int
-    pendientes_generacion_usuario: int
+    password: str
+
+
+class ActivarPendientesRequest(BaseModel):
+    password: str = Field("1234", min_length=4, max_length=72)
+
+
+class ActivarPendientesResponse(BaseModel):
+    activados: int
+    password: str
 
 
 # ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -525,10 +535,10 @@ async def importar_estudiantes_desde_nomina(
             dni=fila.dni.strip(),
             nombres=fila.nombres.strip(),
             apellidos=fila.apellidos.strip(),
-            password=f"PENDIENTE-{fila.dni.strip()}",
+            password=data.password,
             institucion_educativa_id=current_user.institucion_educativa_id,
             creado_por_id=current_user.id,
-            is_active=False,
+            is_active=True,
             grado_id=data.grado_id,
             seccion=data.seccion.strip(),
             año_escolar=año_escolar,
@@ -536,7 +546,41 @@ async def importar_estudiantes_desde_nomina(
         )
         creados += 1
 
-    return ImportarEstudiantesResponse(creados=creados, pendientes_generacion_usuario=creados)
+    return ImportarEstudiantesResponse(creados=creados, password=data.password)
+
+
+@router.post("/docente/mis-estudiantes/activar-pendientes", response_model=ActivarPendientesResponse)
+async def activar_estudiantes_pendientes(
+    data: ActivarPendientesRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(get_current_active_user),
+):
+    """Asigna contraseña a estudiantes que aún no la tienen.
+
+    Detecta las cuentas creadas por el propio docente/creador cuya contraseña
+    siga siendo el placeholder `PENDIENTE-{DNI}`, sin importar si ya fueron
+    activadas manualmente. No toca cuentas con contraseña real definida.
+    """
+    if current_user.rol_codigo not in [r.value for r in CREADORES_ROLES]:
+        raise HTTPException(403, "Permisos insuficientes")
+
+    result = await db.execute(
+        select(Estudiante).where(Estudiante.creado_por_id == current_user.id)
+    )
+    estudiantes = result.scalars().all()
+
+    activados = 0
+    for est in estudiantes:
+        if not est.dni or not est.password_hash:
+            continue
+        if not verify_password(f"PENDIENTE-{est.dni}", est.password_hash):
+            continue
+        est.password_hash = get_password_hash(data.password)
+        est.is_active = True
+        activados += 1
+
+    await db.flush()
+    return ActivarPendientesResponse(activados=activados, password=data.password)
 
 
 @router.get("/docente/mis-estudiantes", response_model=PaginatedResponse[EstudianteListItem])
