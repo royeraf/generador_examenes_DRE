@@ -22,6 +22,7 @@ from app.models.db_models import (
     Matricula,
     InstitucionEducativa,
     Grado,
+    Rol,
     IntentoExamen,
     RespuestaIntento,
     ProgresoEstudiante,
@@ -32,6 +33,7 @@ from app.models.enums import RolCodigo
 from app.api.dependencies import require_role
 from app.schemas.pagination import PaginatedResponse
 from app.services.matricula_service import crear_matricula
+from app.routes.registro import _get_or_create_aula
 
 router = APIRouter()
 
@@ -325,6 +327,8 @@ async def transferir_estudiantes(
     for m in mats:
         mats_por_estudiante.setdefault(m.estudiante_id, []).append(m)
 
+    destinos_aula: set[tuple[int, int, int, str, int]] = set()
+
     for est in estudiantes:
         if data.nuevo_creador_id:
             est.creado_por_id = data.nuevo_creador_id
@@ -341,8 +345,10 @@ async def transferir_estudiantes(
             if data.nueva_seccion:
                 m.seccion = data.nueva_seccion.strip()
 
+        mat_destino = mats_est[0] if mats_est else None
+
         # Crear matrícula si el estudiante no tenía una activa y hay datos suficientes
-        if not mats_est:
+        if mat_destino is None:
             ie_destino_id = ie.id if ie else est.institucion_educativa_id
             ie_destino = ie
             if not ie_destino and ie_destino_id:
@@ -354,7 +360,7 @@ async def transferir_estudiantes(
             grado_destino_id = data.nuevo_grado_id or (grado.id if grado else None)
             seccion_destino = data.nueva_seccion.strip() if data.nueva_seccion else None
             if ie_destino and grado_destino_id and seccion_destino:
-                await crear_matricula(
+                mat_destino = await crear_matricula(
                     db,
                     estudiante_id=est.id,
                     grado_id=grado_destino_id,
@@ -363,6 +369,42 @@ async def transferir_estudiantes(
                     institucion_educativa_id=ie_destino.id,
                     ugel_id=ie_destino.ugel_id,
                 )
+
+        if mat_destino and est.creado_por_id and mat_destino.grado_id and mat_destino.seccion:
+            destinos_aula.add((
+                est.creado_por_id,
+                mat_destino.institucion_educativa_id,
+                mat_destino.grado_id,
+                mat_destino.seccion,
+                mat_destino.año_escolar or año,
+            ))
+
+    # Para docentes/auxiliares, las secciones de Asignaciones salen de sus
+    # códigos de clase. Nos aseguramos de que el docente destino tenga un aula
+    # en la sección a la que se transfirieron los estudiantes.
+    creadores_docentes: set[int] = set()
+    if destinos_aula:
+        creador_ids = {d[0] for d in destinos_aula}
+        roles_r = await db.execute(
+            select(Usuario.id)
+            .join(Rol, Rol.id == Usuario.rol_id)
+            .where(Usuario.id.in_(creador_ids), Rol.codigo.in_(["docente", "auxiliar"]))
+        )
+        creadores_docentes = set(roles_r.scalars().all())
+
+    for creador_id, ie_id, grado_id, seccion_dest, anio in destinos_aula:
+        if creador_id not in creadores_docentes or not ie_id or not seccion_dest:
+            continue
+        aula = await _get_or_create_aula(
+            db,
+            institucion_educativa_id=ie_id,
+            grado_id=grado_id,
+            seccion=seccion_dest,
+            año_escolar=anio,
+            creado_por_id=creador_id,
+        )
+        if aula.creado_por_id != creador_id:
+            aula.creado_por_id = creador_id
 
     await db.flush()
     return TransferirEstudiantesResponse(actualizados=len(estudiantes))
