@@ -121,6 +121,8 @@ class ImportarEstudiantesRequest(BaseModel):
 
 class ImportarEstudiantesResponse(BaseModel):
     creados: int
+    omitidos: int = 0
+    omitidos_dnis: List[str] = []
     password: str
 
 
@@ -507,29 +509,37 @@ async def importar_estudiantes_desde_nomina(
     if not grado_result.scalars().first():
         raise HTTPException(400, "El grado seleccionado no existe")
 
+    # Los DNI repetidos dentro del archivo o ya registrados se omiten (no
+    # bloquean la importación); se reportan en la respuesta.
     dnis = [fila.dni.strip() for fila in data.estudiantes]
-    duplicated_dnis = sorted({dni for dni in dnis if dnis.count(dni) > 1})
-    if duplicated_dnis:
-        raise HTTPException(400, f"El archivo contiene DNI repetidos: {', '.join(duplicated_dnis[:10])}")
-
     existing_result = await db.execute(select(Estudiante.dni).where(Estudiante.dni.in_(dnis)))
-    existing_dnis = sorted({dni for dni in existing_result.scalars().all() if dni})
-    if existing_dnis:
-        raise HTTPException(400, f"Los siguientes DNI ya están registrados: {', '.join(existing_dnis[:10])}")
+    existing_dnis = {dni for dni in existing_result.scalars().all() if dni}
+
+    vistos: set[str] = set()
+    omitidos_dnis: set[str] = set()
+    filas_a_crear: List[ImportarEstudianteFila] = []
+    for fila in data.estudiantes:
+        dni = fila.dni.strip()
+        if dni in vistos or dni in existing_dnis:
+            omitidos_dnis.add(dni)
+            continue
+        vistos.add(dni)
+        filas_a_crear.append(fila)
 
     año_escolar = data.año_escolar or datetime.now().year
 
-    await _get_or_create_aula(
-        db,
-        institucion_educativa_id=current_user.institucion_educativa_id,
-        grado_id=data.grado_id,
-        seccion=data.seccion.strip(),
-        año_escolar=año_escolar,
-        creado_por_id=current_user.id,
-    )
+    if filas_a_crear:
+        await _get_or_create_aula(
+            db,
+            institucion_educativa_id=current_user.institucion_educativa_id,
+            grado_id=data.grado_id,
+            seccion=data.seccion.strip(),
+            año_escolar=año_escolar,
+            creado_por_id=current_user.id,
+        )
 
     creados = 0
-    for fila in data.estudiantes:
+    for fila in filas_a_crear:
         await estudiante_service.crear_estudiante(
             db,
             dni=fila.dni.strip(),
@@ -546,7 +556,12 @@ async def importar_estudiantes_desde_nomina(
         )
         creados += 1
 
-    return ImportarEstudiantesResponse(creados=creados, password=data.password)
+    return ImportarEstudiantesResponse(
+        creados=creados,
+        omitidos=len(omitidos_dnis),
+        omitidos_dnis=sorted(omitidos_dnis),
+        password=data.password,
+    )
 
 
 @router.post("/docente/mis-estudiantes/activar-pendientes", response_model=ActivarPendientesResponse)

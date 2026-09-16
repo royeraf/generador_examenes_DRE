@@ -847,6 +847,8 @@ export interface RegistroEstudianteDirectoResponse {
 
 export interface ImportarEstudiantesResponse {
   creados: number
+  omitidos: number
+  omitidos_dnis: string[]
   password: string
 }
 

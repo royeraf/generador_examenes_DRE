@@ -368,14 +368,28 @@ async function importarNomina() {
     })
     closeImportModal()
     await cargarEstudiantes()
-    await Swal.fire({
-      icon: 'success',
-      title: `${res.creados} estudiante${res.creados !== 1 ? 's' : ''} importado${res.creados !== 1 ? 's' : ''}`,
-      html: `Los estudiantes ya están activos.<br>Contraseña asignada: <strong>${res.password}</strong>`,
-      confirmButtonText: 'Entendido',
-    })
+
+    const detalleOmitidos = res.omitidos > 0
+      ? `<br><br>Se omitieron <strong>${res.omitidos}</strong> DNI ya registrados${res.omitidos_dnis.length ? `:<br><span class="text-xs">${res.omitidos_dnis.join(', ')}</span>` : ''}`
+      : ''
+
+    if (res.creados === 0) {
+      await Swal.fire({
+        icon: 'info',
+        title: 'No se importó ningún estudiante',
+        html: `Todos los DNI del archivo ya estaban registrados.${detalleOmitidos}`,
+        confirmButtonText: 'Entendido',
+      })
+    } else {
+      await Swal.fire({
+        icon: 'success',
+        title: `${res.creados} estudiante${res.creados !== 1 ? 's' : ''} importado${res.creados !== 1 ? 's' : ''}`,
+        html: `Los estudiantes ya están activos.<br>Contraseña asignada: <strong>${res.password}</strong>${detalleOmitidos}`,
+        confirmButtonText: 'Entendido',
+      })
+    }
   } catch (error: any) {
-    Swal.fire('Error', error.message || 'No se pudo importar la nómina', 'error')
+    Swal.fire('Error', error.response?.data?.detail || error.message || 'No se pudo importar la nómina', 'error')
   } finally {
     importing.value = false
   }
