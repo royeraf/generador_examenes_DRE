@@ -55,6 +55,8 @@ interface Asignacion {
 interface Resultado {
   estudiante: string
   codigo: string | null
+  grado: string | null
+  seccion: string | null
   estado: string
   puntaje: number | null
   nivel_logro: string | null
@@ -1095,6 +1097,12 @@ const estadoColors: Record<string, string> = {
                     <p class="text-base font-black text-slate-800 dark:text-slate-200 truncate leading-tight">{{ r.estudiante || r.codigo }}</p>
                     <div class="flex items-center gap-3 mt-1.5">
                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider font-mono">{{ r.codigo }}</span>
+                       <template v-if="r.grado || r.seccion">
+                         <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+                         <span class="text-[10px] font-bold text-slate-400">
+                           {{ r.grado || 'Sin grado' }}<span v-if="r.seccion"> · Secc. {{ r.seccion }}</span>
+                         </span>
+                       </template>
                        <span v-if="r.fecha" class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
                        <span v-if="r.fecha" class="text-[10px] font-bold text-slate-400 flex items-center gap-1">
                           <Clock class="w-3 h-3" />

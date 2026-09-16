@@ -30,6 +30,19 @@ EXAM_CREATOR_ROLES = (
 )
 
 
+def _iso_utc(dt: Optional[datetime]) -> Optional[str]:
+    """Serializa un datetime guardado en UTC (MySQL lo devuelve naive) con offset.
+
+    Sin esto el frontend interpreta el string como hora local y la muestra
+    corrida por el offset de la zona horaria.
+    """
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.isoformat()
+
+
 # ─── Schemas ─────────────────────────────────────────────────────────────────
 
 class RespuestaEnvio(BaseModel):
@@ -191,8 +204,8 @@ async def listar_examenes_estudiante(
             "id": a.id,
             "tipo_examen": a.tipo_examen,
             "titulo": titulo,
-            "fecha_inicio": a.fecha_inicio.isoformat() if a.fecha_inicio else None,
-            "fecha_fin": a.fecha_fin.isoformat() if a.fecha_fin else None,
+            "fecha_inicio": _iso_utc(a.fecha_inicio),
+            "fecha_fin": _iso_utc(a.fecha_fin),
             "duracion_minutos": a.duracion_minutos,
             "intentos_permitidos": a.intentos_permitidos,
             "mis_intentos": mis_intentos,
@@ -610,8 +623,8 @@ async def listar_asignaciones(
             "grado_nombre": grado_nombre,
             "seccion": a.seccion,
             "codigo_clase_id": a.codigo_clase_id,
-            "fecha_inicio": a.fecha_inicio.isoformat() if a.fecha_inicio else None,
-            "fecha_fin": a.fecha_fin.isoformat() if a.fecha_fin else None,
+            "fecha_inicio": _iso_utc(a.fecha_inicio),
+            "fecha_fin": _iso_utc(a.fecha_fin),
             "duracion_minutos": a.duracion_minutos,
             "intentos_permitidos": a.intentos_permitidos,
             "mezclar_preguntas": a.mezclar_preguntas,
@@ -662,11 +675,12 @@ async def resultados_asignacion(
 
     from sqlalchemy import and_
     estudiantes_q = (
-        select(Estudiante)
+        select(Estudiante, Matricula, Grado.nombre)
         .join(Matricula, and_(
             Matricula.estudiante_id == Estudiante.id,
             Matricula.is_active == True,
         ))
+        .outerjoin(Grado, Grado.id == Matricula.grado_id)
         .where(Estudiante.institucion_educativa_id == asig.institucion_educativa_id)
     )
     if asig.grado_id is not None:
@@ -679,20 +693,22 @@ async def resultados_asignacion(
     estudiantes_r = await db.execute(
         estudiantes_q.order_by(Estudiante.apellidos, Estudiante.nombres)
     )
-    estudiantes = estudiantes_r.scalars().all()
+    estudiantes = estudiantes_r.all()
 
     resultado = []
-    for estudiante in estudiantes:
+    for estudiante, matricula, grado_nombre in estudiantes:
         intento = ultimo_intento_por_estudiante.get(estudiante.id)
         resultado.append({
             "estudiante": f"{estudiante.nombres or ''} {estudiante.apellidos or ''}".strip() or estudiante.codigo_estudiante,
             "codigo": estudiante.codigo_estudiante or estudiante.dni,
+            "grado": grado_nombre,
+            "seccion": matricula.seccion if matricula else None,
             "estado": intento.estado if intento else "sin_intento",
             "puntaje": intento.puntaje_total if intento else None,
             "nivel_logro": intento.nivel_logro if intento else None,
             "correctas": intento.preguntas_correctas if intento else None,
             "total": intento.preguntas_total if intento else None,
-            "fecha": intento.fecha_fin.isoformat() if intento and intento.fecha_fin else None,
+            "fecha": _iso_utc(intento.fecha_fin) if intento else None,
         })
     return resultado
 
