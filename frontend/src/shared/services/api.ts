@@ -11,6 +11,12 @@ import type {
   Distrito,
   FilesMetadata
 } from '../types';
+import type {
+  SesionAcceso,
+  SesionesFiltros,
+  ResumenMonitoreo,
+  EstadisticasMonitoreo,
+} from '../types/monitoreo';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:8000/api');
 
@@ -952,5 +958,33 @@ export const gestionEstudiantesService = {
       { estudiante_ids, forzar },
     )
     return response.data
+  },
+}
+
+export const monitoreoService = {
+  async getResumen(): Promise<ResumenMonitoreo> {
+    const response = await apiClient.get<ResumenMonitoreo>('/monitoreo/resumen')
+    return response.data
+  },
+
+  async getSesionesActivas(params?: { q?: string; rol?: string }): Promise<SesionAcceso[]> {
+    const response = await apiClient.get<SesionAcceso[]>('/monitoreo/sesiones-activas', { params })
+    return response.data
+  },
+
+  async getSesiones(filtros: SesionesFiltros = {}): Promise<PaginatedResponse<SesionAcceso>> {
+    const response = await apiClient.get<PaginatedResponse<SesionAcceso>>('/monitoreo/sesiones', {
+      params: filtros,
+    })
+    return response.data
+  },
+
+  async getEstadisticas(): Promise<EstadisticasMonitoreo> {
+    const response = await apiClient.get<EstadisticasMonitoreo>('/monitoreo/estadisticas')
+    return response.data
+  },
+
+  async cerrarSesion(id: number): Promise<void> {
+    await apiClient.post(`/monitoreo/sesiones/${id}/cerrar`)
   },
 }

@@ -15,6 +15,7 @@ from fastapi import APIRouter
 
 # Asegurar que todos los modelos estén registrados en SQLAlchemy
 import app.models.estudiante  # noqa: F401
+import app.models.sesion  # noqa: F401
 
 # Importar routers existentes (manteniendo compatibilidad)
 from app.routes.preguntas import router as preguntas_router
@@ -29,6 +30,7 @@ from app.routes.registro import router as registro_router
 from app.routes.estudiantes import router as estudiantes_router
 from app.routes.metricas import router as metricas_router
 from app.routes.gestion_estudiantes import router as gestion_estudiantes_router
+from app.routes.monitoreo import router as monitoreo_router
 
 
 def create_api_router() -> APIRouter:
@@ -140,6 +142,15 @@ def create_api_router() -> APIRouter:
         gestion_estudiantes_router,
         prefix="/gestion-estudiantes",
         tags=["Gestión de Estudiantes"]
+    )
+
+    # ==========================================================================
+    # MÓDULO: MONITOREO DE SESIONES (solo especialistas DRE)
+    # ==========================================================================
+    api_router.include_router(
+        monitoreo_router,
+        prefix="/monitoreo",
+        tags=["Monitoreo"]
     )
 
     return api_router

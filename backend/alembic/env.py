@@ -27,6 +27,8 @@ from app.models.db_models import (  # noqa: E402, F401
 )
 from app.models.usuario import Usuario  # noqa: E402, F401
 from app.models.ubigeo import Provincia, Distrito  # noqa: E402, F401
+from app.models.estudiante import Estudiante  # noqa: E402, F401
+from app.models.sesion import SesionAcceso  # noqa: E402, F401
 
 config = context.config
 

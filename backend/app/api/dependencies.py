@@ -1,7 +1,9 @@
+from datetime import datetime, timedelta, timezone
 from typing import Callable
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
+from sqlalchemy import or_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -10,11 +12,38 @@ from app.repositories.usuario_repository import usuario_repository
 from app.repositories.estudiante_repository import estudiante_repository
 from app.models.usuario import Usuario
 from app.models.estudiante import Estudiante
+from app.models.sesion import SesionAcceso
 from app.models.enums import RolCodigo
 from app.schemas.token import TokenPayload
 from typing import Union
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+
+# Intervalo mínimo entre actualizaciones de actividad por sesión (evita
+# escribir en cada request; la sesión se considera activa a los 15 min).
+ACTIVIDAD_THROTTLE_SECONDS = 60
+
+
+async def _touch_sesion(db: AsyncSession, jti: str) -> None:
+    """Actualiza last_activity de la sesión, como máximo una vez por minuto."""
+    try:
+        await db.execute(
+            update(SesionAcceso)
+            .where(
+                SesionAcceso.jti == jti,
+                SesionAcceso.exito.is_(True),
+                SesionAcceso.logout_at.is_(None),
+                or_(
+                    SesionAcceso.last_activity.is_(None),
+                    SesionAcceso.last_activity
+                    < datetime.now(timezone.utc) - timedelta(seconds=ACTIVIDAD_THROTTLE_SECONDS),
+                ),
+            )
+            .values(last_activity=datetime.now(timezone.utc))
+        )
+    except Exception:
+        # El monitoreo nunca debe romper la autenticación
+        pass
 
 
 async def get_current_user(
@@ -45,6 +74,10 @@ async def get_current_user(
 
     if user is None:
         raise credentials_exception
+
+    jti = payload.get("jti")
+    if jti:
+        await _touch_sesion(db, jti)
 
     return user
 

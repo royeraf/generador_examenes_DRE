@@ -10,6 +10,7 @@ const MatSistemView = () => import('../modules/matsistem/MatSistemView.vue')
 const AdminCurriculumView = () => import('../modules/admin/AdminCurriculumView.vue')
 const AdminUsuariosView = () => import('../modules/admin/AdminUsuariosView.vue')
 const MetricasView = () => import('../modules/metricas/MetricasView.vue')
+const MonitoreoView = () => import('../modules/monitoreo/MonitoreoView.vue')
 
 // Asignaciones (docente)
 const AsignacionesView = () => import('../modules/asignaciones/AsignacionesView.vue')
@@ -125,6 +126,11 @@ const routes: RouteRecordRaw[] = [
     path: '/admin/metricas',
     component: MetricasView,
     meta: { requiresAuth: true, requiredRoles: EXAM_CREATORS, requiredModulo: 'metricas' },
+  },
+  {
+    path: '/admin/monitoreo',
+    component: MonitoreoView,
+    meta: { requiresAuth: true, requiredRoles: DRE_ROLES, requiredModulo: 'monitoreo' },
   },
 
   // ── Gestión organizacional ──────────────────────────────────────────────────

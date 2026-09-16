@@ -31,10 +31,22 @@ export const authService = {
   },
 
   logout() {
-    localStorage.removeItem('token')
+    localStorage.removeItem('token');
+  },
+
+  async logoutRequest(): Promise<void> {
+    // Captura el token antes de que el store lo elimine y avisa al backend
+    const token = localStorage.getItem('token');
+    try {
+      await apiClient.post('/auth/logout', null, {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      });
+    } catch {
+      // El cierre de sesión en servidor es best-effort
+    }
   },
 
   isAuthenticated(): boolean {
-    return !!localStorage.getItem('token')
+    return !!localStorage.getItem('token');
   },
 }
