@@ -156,12 +156,13 @@ const TODOS_MODULOS = [
   { id: 'admin_ugeles',         label: 'Gestión UGELes' },
   { id: 'admin_instituciones',  label: 'Gestión Instituciones' },
   { id: 'admin_usuarios',       label: 'Gestión Usuarios' },
+  { id: 'gestion_estudiantes',  label: 'Gestión de Estudiantes' },
 ]
 const ROLE_MODULOS_DEFAULT: Record<string, string[]> = {
-  especialista_dre_comunicacion: ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas', 'admin_desempenos_comunicacion', 'admin_ugeles', 'admin_instituciones', 'admin_usuarios'],
-  especialista_dre_matematica:   ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas', 'admin_desempenos_matematica',   'admin_ugeles', 'admin_instituciones', 'admin_usuarios'],
-  responsable_ugel:              ['metricas', 'admin_instituciones', 'admin_usuarios'],
-  director:                      ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas', 'admin_usuarios'],
+  especialista_dre_comunicacion: ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas', 'admin_desempenos_comunicacion', 'admin_ugeles', 'admin_instituciones', 'admin_usuarios', 'gestion_estudiantes'],
+  especialista_dre_matematica:   ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas', 'admin_desempenos_matematica',   'admin_ugeles', 'admin_instituciones', 'admin_usuarios', 'gestion_estudiantes'],
+  responsable_ugel:              ['metricas', 'admin_instituciones', 'admin_usuarios', 'gestion_estudiantes'],
+  director:                      ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas', 'admin_usuarios', 'gestion_estudiantes'],
   auxiliar:                      ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas'],
   docente:                       ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas'],
   estudiante:                    [],

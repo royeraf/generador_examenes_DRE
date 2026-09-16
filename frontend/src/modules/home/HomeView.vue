@@ -3,7 +3,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import {
   BookOpen, Calculator, Sparkles, GraduationCap, Users, ArrowRight,
   BarChart3, Building2, MapPin, ClipboardList, Loader2, ChevronRight, School,
-  SlidersHorizontal, Check, GripVertical
+  SlidersHorizontal, Check, GripVertical, UserCog
 } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
@@ -62,11 +62,13 @@ const managementItems = computed<NavItem[]>(() => {
     items.push({ label: 'Aulas', sub: 'Códigos de clase para matricular estudiantes', icon: School, color: 'from-indigo-400 to-purple-500', route: '/codigos-clase' });
     items.push({ label: 'Asignaciones', sub: 'Resultados de las evaluaciones de tu IE', icon: ClipboardList, color: 'from-rose-400 to-pink-500', route: '/asignaciones' });
     items.push({ label: 'Usuarios', sub: 'Administra cuentas de docentes y estudiantes', icon: Users, color: 'from-violet-400 to-pink-500', route: '/admin/usuarios' });
+    if (auth.canAccessGestionEstudiantes) items.push({ label: 'Gestión de Estudiantes', sub: 'Reasigna o elimina nóminas mal cargadas', icon: UserCog, color: 'from-amber-400 to-orange-500', route: '/gestion-estudiantes' });
     items.push({ label: 'Métricas', sub: 'Estadísticas de uso de la plataforma', icon: BarChart3, color: 'from-indigo-500 to-violet-600', route: '/admin/metricas' });
   }
   if (auth.isResponsableUGEL) {
     items.push({ label: 'Mi UGEL', sub: 'Estadísticas y detalle de tu UGEL', icon: MapPin, color: 'from-teal-400 to-emerald-500', route: '/mi-ugel' });
     items.push({ label: 'Instituciones', sub: 'Instituciones educativas de tu UGEL', icon: Building2, color: 'from-indigo-400 to-purple-500', route: '/admin/instituciones' });
+    if (auth.canAccessGestionEstudiantes) items.push({ label: 'Gestión de Estudiantes', sub: 'Reasigna o elimina nóminas mal cargadas', icon: UserCog, color: 'from-amber-400 to-orange-500', route: '/gestion-estudiantes' });
     items.push({ label: 'Métricas', sub: 'Estadísticas de uso de la plataforma', icon: BarChart3, color: 'from-violet-400 to-pink-500', route: '/admin/metricas' });
   }
   if (auth.isEspecialista) {
@@ -76,6 +78,7 @@ const managementItems = computed<NavItem[]>(() => {
     if (auth.canAccessAdminUgeles) items.push({ label: 'UGELes', sub: 'Administra las UGELes del sistema', icon: MapPin, color: 'from-teal-500 to-cyan-600', route: '/admin/ugeles' });
     if (auth.canAccessAdminInstituciones) items.push({ label: 'Instituciones', sub: 'Instituciones educativas del sistema', icon: Building2, color: 'from-indigo-400 to-blue-500', route: '/admin/instituciones' });
     if (auth.canAccessAdminUsuarios) items.push({ label: 'Usuarios', sub: 'Crea y administra las cuentas de acceso', icon: Users, color: 'from-violet-400 to-pink-500', route: '/admin/usuarios' });
+    if (auth.canAccessGestionEstudiantes) items.push({ label: 'Gestión de Estudiantes', sub: 'Reasigna o elimina nóminas mal cargadas', icon: UserCog, color: 'from-amber-400 to-orange-500', route: '/gestion-estudiantes' });
     if (auth.canAccessMetricas) items.push({ label: 'Métricas', sub: 'Estadísticas de uso de la plataforma', icon: BarChart3, color: 'from-indigo-500 to-violet-600', route: '/admin/metricas' });
     if (auth.canAccessCodigosClase) items.push({ label: 'Aulas', sub: 'Códigos de clase para matricular estudiantes', icon: School, color: 'from-teal-400 to-emerald-500', route: '/codigos-clase' });
     if (auth.canAccessAsignaciones) items.push({ label: 'Asignaciones', sub: 'Resultados de las evaluaciones asignadas', icon: ClipboardList, color: 'from-violet-400 to-purple-500', route: '/asignaciones' });

@@ -27,6 +27,9 @@ const RegistroEstudianteView = () => import('../modules/auth/RegistroEstudianteV
 // Gestión de estudiantes por docente
 const MisEstudiantesView = () => import('../modules/admin/MisEstudiantesView.vue')
 
+// Gestión de estudiantes por administradores (DRE/UGEL/Director)
+const GestionEstudiantesView = () => import('../modules/admin/GestionEstudiantesView.vue')
+
 // Vistas nuevas - Portal estudiantil
 const EstudianteDashboardView = () => import('../modules/estudiante/EstudianteDashboardView.vue')
 const EstudianteExamenesView = () => import('../modules/estudiante/EstudianteExamenesView.vue')
@@ -91,6 +94,11 @@ const routes: RouteRecordRaw[] = [
     path: '/mis-estudiantes',
     component: MisEstudiantesView,
     meta: { requiresAuth: true, requiredRoles: EXAM_CREATORS },
+  },
+  {
+    path: '/gestion-estudiantes',
+    component: GestionEstudiantesView,
+    meta: { requiresAuth: true, requiredRoles: GESTORES_ROLES, requiredModulo: 'gestion_estudiantes' },
   },
   {
     path: '/asignaciones',

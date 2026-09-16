@@ -28,6 +28,7 @@ from app.routes.organizacion import router as organizacion_router
 from app.routes.registro import router as registro_router
 from app.routes.estudiantes import router as estudiantes_router
 from app.routes.metricas import router as metricas_router
+from app.routes.gestion_estudiantes import router as gestion_estudiantes_router
 
 
 def create_api_router() -> APIRouter:
@@ -130,6 +131,15 @@ def create_api_router() -> APIRouter:
         metricas_router,
         prefix="/metricas",
         tags=["Métricas"]
+    )
+
+    # ==========================================================================
+    # MÓDULO: GESTIÓN DE ESTUDIANTES (Admin DRE/UGEL/Director)
+    # ==========================================================================
+    api_router.include_router(
+        gestion_estudiantes_router,
+        prefix="/gestion-estudiantes",
+        tags=["Gestión de Estudiantes"]
     )
 
     return api_router

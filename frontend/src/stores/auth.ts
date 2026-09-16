@@ -38,10 +38,10 @@ export const useAuthStore = defineStore('auth', () => {
   // Fallback local — solo se usa si el backend no devuelve modulos_efectivos.
   // Debe mantenerse en sync con backend/app/models/enums.py → ROLE_MODULOS_DEFAULT.
   const ROLE_MODULOS_DEFAULT_FALLBACK: Record<string, string[]> = {
-    especialista_dre_comunicacion: ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas', 'admin_desempenos_comunicacion', 'admin_ugeles', 'admin_instituciones', 'admin_usuarios'],
-    especialista_dre_matematica:   ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas', 'admin_desempenos_matematica',   'admin_ugeles', 'admin_instituciones', 'admin_usuarios'],
-    responsable_ugel:              ['metricas', 'admin_instituciones', 'admin_usuarios'],
-    director:                      ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas', 'admin_usuarios'],
+    especialista_dre_comunicacion: ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas', 'admin_desempenos_comunicacion', 'admin_ugeles', 'admin_instituciones', 'admin_usuarios', 'gestion_estudiantes'],
+    especialista_dre_matematica:   ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas', 'admin_desempenos_matematica',   'admin_ugeles', 'admin_instituciones', 'admin_usuarios', 'gestion_estudiantes'],
+    responsable_ugel:              ['metricas', 'admin_instituciones', 'admin_usuarios', 'gestion_estudiantes'],
+    director:                      ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas', 'admin_usuarios', 'gestion_estudiantes'],
     auxiliar:                      ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas'],
     docente:                       ['lectosistem', 'matsistem', 'asignaciones', 'codigos_clase', 'metricas'],
     estudiante:                    [],
@@ -79,6 +79,7 @@ export const useAuthStore = defineStore('auth', () => {
   const canAccessAdminUgeles = computed(() => modulosEfectivos.value.includes('admin_ugeles'))
   const canAccessAdminInstituciones = computed(() => modulosEfectivos.value.includes('admin_instituciones'))
   const canAccessAdminUsuarios = computed(() => modulosEfectivos.value.includes('admin_usuarios'))
+  const canAccessGestionEstudiantes = computed(() => modulosEfectivos.value.includes('gestion_estudiantes'))
 
   const displayName = computed(() => {
     if (!user.value) return ''
@@ -149,6 +150,7 @@ export const useAuthStore = defineStore('auth', () => {
     canAccessAdminDesempenosComunicacion, canAccessAdminDesempenosMatematica,
     canAccessGestionCurricular,
     canAccessAdminUgeles, canAccessAdminInstituciones, canAccessAdminUsuarios,
+    canAccessGestionEstudiantes,
     displayName, homeRoute,
     login, logout, fetchMe, init,
   }

@@ -889,3 +889,66 @@ export const docenteEstudiantesService = {
     return response.data
   },
 }
+
+// =============================================================================
+// SERVICIO DE GESTIÓN DE ESTUDIANTES (Admin DRE / UGEL / Director)
+// =============================================================================
+
+export interface EstudianteGestionItem {
+  id: number
+  dni: string | null
+  codigo_estudiante: string | null
+  nombres: string | null
+  apellidos: string | null
+  is_active: boolean
+  creado_por_id: number | null
+  creado_por_nombre: string | null
+  institucion_educativa_id: number | null
+  institucion_nombre: string | null
+  ugel_id: number | null
+  grado_id: number | null
+  grado_nombre: string | null
+  seccion: string | null
+  año_escolar: number | null
+  intentos: number
+}
+
+export interface GestionEstudiantesFiltros {
+  page?: number
+  size?: number
+  q?: string
+  institucion_educativa_id?: number
+  grado_id?: number
+  seccion?: string
+  creado_por_id?: number
+  año_escolar?: number
+}
+
+export interface TransferirEstudiantesPayload {
+  estudiante_ids: number[]
+  nuevo_creador_id?: number
+  nueva_institucion_educativa_id?: number
+  nuevo_grado_id?: number
+  nueva_seccion?: string
+  año_escolar?: number
+}
+
+export const gestionEstudiantesService = {
+  async listar(params: GestionEstudiantesFiltros): Promise<PaginatedResponse<EstudianteGestionItem>> {
+    const response = await apiClient.get<PaginatedResponse<EstudianteGestionItem>>('/gestion-estudiantes', { params })
+    return response.data
+  },
+
+  async transferir(data: TransferirEstudiantesPayload): Promise<{ actualizados: number }> {
+    const response = await apiClient.post<{ actualizados: number }>('/gestion-estudiantes/transferir', data)
+    return response.data
+  },
+
+  async eliminar(estudiante_ids: number[], forzar = false): Promise<{ eliminados: number; intentos_eliminados: number }> {
+    const response = await apiClient.post<{ eliminados: number; intentos_eliminados: number }>(
+      '/gestion-estudiantes/eliminar',
+      { estudiante_ids, forzar },
+    )
+    return response.data
+  },
+}
