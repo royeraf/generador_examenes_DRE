@@ -2,7 +2,8 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import {
   UserCog, Search, ArrowRightLeft, Trash2, AlertTriangle,
-  Users, ChevronLeft, ChevronRight, ShieldAlert, X, Square, CheckSquare
+  Users, ChevronLeft, ChevronRight, ShieldAlert, X, Square, CheckSquare,
+  Download, FileText
 } from 'lucide-vue-next'
 import Header from '../../shared/components/Header.vue'
 import EduBackground from '../../shared/components/EduBackground.vue'
@@ -16,6 +17,7 @@ import {
 } from '../../shared/services/api'
 import type { EstudianteGestionItem } from '../../shared/services/api'
 import type { Grado, InstitucionEducativa, Docente } from '../../shared/types'
+import { exportToExcel, exportToPdf, type ExportColumn } from '../../shared/utils/exportUtils'
 
 // ── Estado ───────────────────────────────────────────────────────────────────
 const estudiantes = ref<EstudianteGestionItem[]>([])
@@ -258,6 +260,77 @@ async function eliminarSeleccionados() {
 function nombreEstudiante(e: EstudianteGestionItem) {
   return [e.apellidos, e.nombres].filter(Boolean).join(', ') || e.codigo_estudiante || e.dni || `#${e.id}`
 }
+
+// ── Exportación ──────────────────────────────────────────────────────────────
+const COLUMNAS_EXPORT: ExportColumn[] = [
+  { header: 'Apellidos', key: 'apellidos' },
+  { header: 'Nombres', key: 'nombres' },
+  { header: 'DNI', key: 'dni' },
+  { header: 'Código', key: 'codigo' },
+  { header: 'Institución', key: 'institucion' },
+  { header: 'Docente creador', key: 'creador' },
+  { header: 'Grado', key: 'grado' },
+  { header: 'Sección', key: 'seccion' },
+  { header: 'Intentos', key: 'intentos' },
+]
+
+function filaExport(e: EstudianteGestionItem) {
+  return {
+    apellidos: e.apellidos || '',
+    nombres: e.nombres || '',
+    dni: e.dni || '',
+    codigo: e.codigo_estudiante || '',
+    institucion: e.institucion_nombre || '',
+    creador: e.creado_por_nombre || '',
+    grado: e.grado_nombre || '',
+    seccion: e.seccion || '',
+    intentos: e.intentos,
+  }
+}
+
+async function obtenerParaExportar(): Promise<EstudianteGestionItem[]> {
+  const res = await gestionEstudiantesService.listar({
+    page: 1,
+    size: Math.min(Math.max(total.value, 1), 1000),
+    q: filtroQ.value || undefined,
+    institucion_educativa_id: filtroIe.value ?? undefined,
+    grado_id: filtroGrado.value ?? undefined,
+    seccion: filtroSeccion.value ?? undefined,
+    creado_por_id: filtroCreador.value ?? undefined,
+  })
+  return res.items
+}
+
+async function exportarExcel() {
+  try {
+    const items = await obtenerParaExportar()
+    exportToExcel(
+      COLUMNAS_EXPORT,
+      items.map(filaExport),
+      `gestion_estudiantes_${new Date().toISOString().split('T')[0]}.xlsx`,
+      'Estudiantes',
+    )
+  } catch {
+    Swal.fire('Error', 'No se pudo exportar a Excel', 'error')
+  }
+}
+
+async function exportarPdf() {
+  try {
+    const items = await obtenerParaExportar()
+    const rows = items.map(filaExport)
+    exportToPdf({
+      title: 'Gestión de estudiantes',
+      subtitle: `Generado el ${new Date().toLocaleDateString('es-PE')} · ${rows.length} estudiante(s)`,
+      columns: COLUMNAS_EXPORT,
+      rows,
+      filename: `gestion_estudiantes_${new Date().toISOString().split('T')[0]}.pdf`,
+      accent: [245, 158, 11],
+    })
+  } catch {
+    Swal.fire('Error', 'No se pudo exportar a PDF', 'error')
+  }
+}
 </script>
 
 <template>
@@ -279,6 +352,17 @@ function nombreEstudiante(e: EstudianteGestionItem) {
               {{ total }} encontrados
             </p>
           </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <BaseButton variant="secondary" size="md" class="flex-1 sm:flex-none" @click="exportarExcel">
+            <template #icon><Download class="w-4 h-4 text-emerald-500" /></template>
+            Excel
+          </BaseButton>
+          <BaseButton variant="secondary" size="md" class="flex-1 sm:flex-none" @click="exportarPdf">
+            <template #icon><FileText class="w-4 h-4 text-rose-500" /></template>
+            PDF
+          </BaseButton>
         </div>
       </div>
 

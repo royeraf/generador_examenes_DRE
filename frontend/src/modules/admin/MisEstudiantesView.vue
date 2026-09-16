@@ -9,6 +9,7 @@ import {
   type RegistrarEstudianteDirectoPayload,
 } from '../../shared/services/api'
 import type { Grado } from '../../shared/types'
+import { exportToPdf } from '../../shared/utils/exportUtils'
 import Header from '../../shared/components/Header.vue'
 import EduBackground from '../../shared/components/EduBackground.vue'
 import ComboBox from '../../shared/components/ComboBox.vue'
@@ -17,7 +18,7 @@ import Swal from 'sweetalert2'
 import {
   Plus, Edit2, Search, X, Eye, EyeOff,
   GraduationCap, AlertCircle, CheckCircle, Users, Download, FileSpreadsheet,
-  Filter, ChevronDown, ChevronLeft, ChevronRight, CalendarPlus, KeyRound
+  Filter, ChevronDown, ChevronLeft, ChevronRight, CalendarPlus, KeyRound, FileText
 } from 'lucide-vue-next'
 
 // ── State ────────────────────────────────────────────────────────────────────
@@ -193,6 +194,42 @@ async function exportarExcel() {
     XLSX.writeFile(wb, `estudiantes_${new Date().toISOString().split('T')[0]}.xlsx`)
   } catch {
     Swal.fire('Error', 'No se pudo exportar la lista de estudiantes', 'error')
+  }
+}
+
+async function exportarPdf() {
+  try {
+    const response = await docenteEstudiantesService.getMisEstudiantes({
+      grado_id: filtroGrado.value ?? undefined,
+      seccion: filtroSeccion.value || undefined,
+      q: filtroQ.value || undefined,
+      page: 1,
+      size: Math.min(Math.max(totalCount.value, 1), 1000),
+    })
+    const rows = response.items.map(e => ({
+      apellidos: e.apellidos || '',
+      nombres: e.nombres || '',
+      dni: e.dni || '',
+      codigo: e.codigo_estudiante || '',
+      grado: e.grado_nombre || '',
+      seccion: e.seccion || '',
+    }))
+    exportToPdf({
+      title: 'Listado de estudiantes',
+      subtitle: `Generado el ${new Date().toLocaleDateString('es-PE')} · ${rows.length} estudiante(s)`,
+      columns: [
+        { header: 'Apellidos', key: 'apellidos' },
+        { header: 'Nombres', key: 'nombres' },
+        { header: 'DNI', key: 'dni' },
+        { header: 'Código', key: 'codigo' },
+        { header: 'Grado', key: 'grado' },
+        { header: 'Sección', key: 'seccion' },
+      ],
+      rows,
+      filename: `estudiantes_${new Date().toISOString().split('T')[0]}.pdf`,
+    })
+  } catch {
+    Swal.fire('Error', 'No se pudo exportar la lista a PDF', 'error')
   }
 }
 
@@ -503,7 +540,11 @@ function nombreGrado(id: number | null) {
           <div class="flex items-center gap-2 flex-1 lg:flex-none">
             <BaseButton variant="secondary" size="md" class="flex-1 lg:flex-none" @click="exportarExcel">
               <template #icon><Download class="w-4 h-4 text-teal-500" /></template>
-              Exportar
+              Excel
+            </BaseButton>
+            <BaseButton variant="secondary" size="md" class="flex-1 lg:flex-none" @click="exportarPdf">
+              <template #icon><FileText class="w-4 h-4 text-rose-500" /></template>
+              PDF
             </BaseButton>
             <BaseButton variant="secondary" size="md" class="flex-1 lg:flex-none" @click="openImport">
               <template #icon><FileSpreadsheet class="w-4 h-4 text-emerald-500" /></template>
