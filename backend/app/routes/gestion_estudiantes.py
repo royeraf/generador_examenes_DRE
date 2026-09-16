@@ -284,6 +284,15 @@ async def transferir_estudiantes(
         if not ie:
             raise HTTPException(404, "La institución destino no existe")
         _validar_ie(current_user, ie)
+    elif creador and creador.institucion_educativa_id:
+        # Sin IE explícita: la institución sigue al docente asignado.
+        ie = (
+            await db.execute(
+                select(InstitucionEducativa).where(
+                    InstitucionEducativa.id == creador.institucion_educativa_id
+                )
+            )
+        ).scalars().first()
 
     grado = None
     if data.nuevo_grado_id:

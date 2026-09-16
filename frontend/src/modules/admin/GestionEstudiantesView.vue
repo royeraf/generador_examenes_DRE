@@ -469,7 +469,7 @@ function nombreEstudiante(e: EstudianteGestionItem) {
             <div class="space-y-5 p-6">
               <div class="rounded-xl border border-indigo-100 bg-indigo-50/50 p-4 text-xs font-bold text-indigo-700 dark:border-indigo-900/40 dark:bg-indigo-900/20 dark:text-indigo-300 flex items-start gap-3">
                 <AlertTriangle class="w-5 h-5 shrink-0" />
-                <p>Solo se aplicarán los campos que completes. Deja vacío lo que no quieras cambiar.</p>
+                <p>Solo se aplicarán los campos que completes. Si cambias el docente y dejas la institución vacía, los estudiantes pasarán a la institución de ese docente.</p>
               </div>
               <div class="space-y-1.5">
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nuevo docente creador</label>
@@ -477,7 +477,7 @@ function nombreEstudiante(e: EstudianteGestionItem) {
               </div>
               <div class="space-y-1.5">
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nueva institución educativa</label>
-                <ComboBox v-model="transferForm.nueva_institucion_educativa_id" :options="ieOpciones" placeholder="Sin cambio" searchable />
+                <ComboBox v-model="transferForm.nueva_institucion_educativa_id" :options="ieOpciones" placeholder="Seguir al docente" searchable />
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="space-y-1.5">
