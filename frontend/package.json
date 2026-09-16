@@ -27,7 +27,8 @@
     "yup": "^1.7.1"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild"]
+    "onlyBuiltDependencies": ["esbuild"],
+    "ignoredBuiltDependencies": ["core-js"]
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.17",
