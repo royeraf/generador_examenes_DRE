@@ -784,10 +784,10 @@ function nombreGrado(id: number | null) {
     <!-- ── Modal: Importar nómina ── -->
     <Teleport to="body">
       <Transition name="modal">
-        <div v-if="showImportModal" class="fixed inset-0 z-50 flex items-center sm:items-center justify-center items-end bg-slate-900/60 backdrop-blur-sm cursor-pointer" @click.self="closeImportModal">
-          <div class="w-full max-w-lg overflow-hidden rounded-t-2xl sm:rounded-2xl bg-white shadow-2xl dark:bg-slate-800 relative">
-            <div class="sm:hidden flex justify-center pt-4 pb-1" @click="closeImportModal"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div></div>
-            <div class="flex items-center justify-between border-b border-slate-300 p-6 dark:border-slate-700">
+        <div v-if="showImportModal" class="fixed inset-0 z-50 flex items-center sm:items-center justify-center items-end bg-slate-900/60 backdrop-blur-sm cursor-pointer p-0 sm:p-4" @click.self="closeImportModal">
+          <div class="w-full max-w-lg flex flex-col max-h-[92vh] sm:max-h-[88vh] overflow-hidden rounded-t-2xl sm:rounded-2xl bg-white shadow-2xl dark:bg-slate-800 relative">
+            <div class="sm:hidden flex justify-center pt-4 pb-1 shrink-0" @click="closeImportModal"><div class="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div></div>
+            <div class="flex items-center justify-between border-b border-slate-300 p-6 dark:border-slate-700 shrink-0">
               <div class="flex items-center gap-4">
                 <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-500 shadow-lg shadow-teal-500/20"><FileSpreadsheet class="h-6 w-6 text-white" /></div>
                 <div>
@@ -797,7 +797,7 @@ function nombreGrado(id: number | null) {
               </div>
               <button @click="closeImportModal" class="p-2 text-slate-400"><X class="h-5 w-5" /></button>
             </div>
-            <div class="space-y-6 p-6">
+            <div class="flex-1 min-h-0 overflow-y-auto custom-scrollbar space-y-6 p-6">
               <div class="rounded-xl border border-teal-100 bg-teal-50/50 p-5 text-xs font-bold text-teal-700 shadow-sm flex items-start gap-3">
                 <AlertCircle class="w-5 h-5 shrink-0" />
                 <div><p class="text-base font-black tracking-tight">Columnas: dni, nombres, apellidos</p></div>
@@ -835,7 +835,7 @@ function nombreGrado(id: number | null) {
               </div>
               <p v-if="importFormError" class="text-[10px] font-bold text-amber-600 uppercase">{{ importFormError }}</p>
             </div>
-            <div class="flex flex-col sm:flex-row gap-3 p-6 bg-slate-50 dark:bg-slate-900/50">
+            <div class="flex flex-col sm:flex-row gap-3 p-6 bg-slate-50 dark:bg-slate-900/50 shrink-0">
               <BaseButton variant="secondary" size="md" class="flex-1" @click="closeImportModal">Cancelar</BaseButton>
               <BaseButton variant="primary" size="md" class="flex-1" :disabled="importing || !!importFormError" :loading="importing" @click="importarNomina">
                 Confirmar Importación
