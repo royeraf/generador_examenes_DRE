@@ -85,6 +85,7 @@ export function useExamHistory() {
                         grado: ex.grado_nombre,
                         instrucciones: ex.instrucciones,
                         lectura: ex.lectura,
+                        lecturas: ex.lecturas,
                         preguntas: ex.preguntas,
                         tabla_respuestas: ex.tabla_respuestas
                     }

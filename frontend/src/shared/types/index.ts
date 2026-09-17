@@ -170,6 +170,7 @@ export interface Examen {
   grado: string;
   instrucciones: string;
   lectura: string;
+  lecturas?: { titulo: string; texto: string }[];
   preguntas: PreguntaExamen[];
   tabla_respuestas: FilaTablaRespuestas[];
 }

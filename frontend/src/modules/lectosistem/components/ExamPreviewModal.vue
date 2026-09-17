@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import {
     X, Clock, GraduationCap, FileText, Trash2,
     ClipboardCheck, BookOpen, HelpCircle, FileSearch, Lightbulb,
@@ -50,6 +50,16 @@ const tieneRetro = (numeroPregunta: number): boolean => {
     const row = getTablaRow(numeroPregunta);
     return !!(row?.retroalimentacion_correcta || row?.retroalimentacion_incorrecta);
 };
+
+// Fuente única de lecturas: `lecturas` (JSON) con respaldo en `lectura` (Text),
+// igual que la vista del estudiante, para que ambas muestren el mismo texto.
+const lecturasPreview = computed<{ titulo: string; texto: string }[]>(() => {
+    const examen = props.entry?.resultado.examen;
+    if (!examen) return [];
+    if (examen.lecturas && examen.lecturas.length) return examen.lecturas;
+    if (examen.lectura) return [{ titulo: '', texto: examen.lectura }];
+    return [];
+});
 </script>
 
 <template>
@@ -157,8 +167,8 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                                 </p>
                             </div>
 
-                            <!-- Lectura -->
-                            <div
+                            <!-- Lectura(s) -->
+                            <div v-for="(lec, i) in lecturasPreview" :key="i"
                                 class="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-900 dark:to-slate-950 rounded-xl p-5 border-2 border-amber-100 dark:border-slate-700">
                                 <h4
                                     class="text-sm font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
@@ -166,11 +176,14 @@ const tieneRetro = (numeroPregunta: number): boolean => {
                                         class="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center">
                                         <BookOpen class="w-4 h-4 text-white" />
                                     </div>
-                                    Lectura
+                                    {{ lecturasPreview.length > 1 ? `Texto ${i + 1}` : 'Lectura' }}
                                 </h4>
+                                <MathText v-if="lec.titulo" as="h5"
+                                    class="text-sm font-bold text-slate-800 dark:text-white mb-2"
+                                    :text="lec.titulo" />
                                 <MathText as="p"
                                     class="text-slate-700 dark:text-slate-300 text-sm leading-7 whitespace-pre-line bg-white/50 dark:bg-black/20 p-4 rounded-lg"
-                                    :text="entry.resultado.examen.lectura" />
+                                    :text="lec.texto" />
                             </div>
 
                             <!-- Preguntas -->
