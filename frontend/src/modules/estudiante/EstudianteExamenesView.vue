@@ -25,6 +25,7 @@ interface AsignacionResumen {
   completado: boolean
   puntaje?: number | null
   nivel_logro?: string | null
+  disponible: boolean
 }
 
 const examenes = ref<AsignacionResumen[]>([])
@@ -241,6 +242,10 @@ const nivelLabels: Record<string, string> = {
                   class="inline-flex items-center gap-1 text-emerald-500 font-bold uppercase tracking-widest text-[10px]">
                   <CheckCircle2 class="w-3.5 h-3.5" />
                 </span>
+                <span v-else-if="!examen.disponible"
+                  class="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest text-[10px] flex items-center gap-1">
+                  <Clock class="w-3.5 h-3.5" /> Próximamente
+                </span>
                 <span v-else class="text-amber-500 font-bold uppercase tracking-widest text-[10px] flex items-center gap-1">
                   <Zap class="w-3.5 h-3.5 fill-amber-500" /> Pendiente
                 </span>
@@ -251,6 +256,10 @@ const nivelLabels: Record<string, string> = {
               <div class="flex justify-between text-[11px] font-medium text-slate-500 dark:text-slate-400">
                 <span>Vence:</span>
                 <span class="font-bold text-slate-700 dark:text-slate-200">{{ examen.fecha_fin ? formatFechaHoraCorta(examen.fecha_fin) : 'Sin límite' }}</span>
+              </div>
+              <div v-if="!examen.disponible && examen.fecha_inicio" class="flex justify-between text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                <span>Disponible desde:</span>
+                <span class="font-bold text-teal-600 dark:text-teal-400">{{ formatFechaHoraCorta(examen.fecha_inicio) }}</span>
               </div>
               <div class="flex justify-between text-[11px] font-medium text-slate-500 dark:text-slate-400">
                 <span>Intentos:</span>
@@ -270,7 +279,11 @@ const nivelLabels: Record<string, string> = {
               <BookText class="w-5 h-5" />
             </button>
             <template v-if="!examen.completado || examen.mis_intentos < examen.intentos_permitidos">
-              <BaseButton type="button" variant="primary" size="md" class="flex-1" @click="router.push(`/estudiante/examen/${examen.id}`)">
+              <BaseButton v-if="!examen.disponible" type="button" variant="secondary" size="md" class="flex-1" disabled>
+                <template #icon><Clock class="w-4 h-4" /></template>
+                Aún no disponible
+              </BaseButton>
+              <BaseButton v-else type="button" variant="primary" size="md" class="flex-1" @click="router.push(`/estudiante/examen/${examen.id}`)">
                 {{ examen.mis_intentos > 0 ? 'Reintentar' : 'Comenzar' }}
                 <ArrowRight class="w-4 h-4" />
               </BaseButton>

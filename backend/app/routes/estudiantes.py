@@ -43,6 +43,18 @@ def _iso_utc(dt: Optional[datetime]) -> Optional[str]:
     return dt.isoformat()
 
 
+def _naive_utc(dt: Optional[datetime]) -> Optional[datetime]:
+    """Normaliza a UTC naive para comparar contra las fechas almacenadas.
+
+    SQLite/MySQL no conservan timezone, así que comparamos naive-vs-naive en UTC.
+    """
+    if dt is None:
+        return None
+    if dt.tzinfo:
+        return dt.replace(tzinfo=None)
+    return dt
+
+
 # ─── Schemas ─────────────────────────────────────────────────────────────────
 
 class RespuestaEnvio(BaseModel):
@@ -132,6 +144,7 @@ async def listar_examenes_estudiante(
     """Lista los exámenes asignados al estudiante."""
     matricula = await get_matricula_activa(db, current_user.id)
     ahora = datetime.now(timezone.utc)
+    ahora_naive = datetime.now(timezone.utc).replace(tzinfo=None)
     q = select(AsignacionExamen).where(
         AsignacionExamen.is_active == True,
         AsignacionExamen.institucion_educativa_id == current_user.institucion_educativa_id,
@@ -146,10 +159,6 @@ async def listar_examenes_estudiante(
         or_(
             AsignacionExamen.seccion == None,
             AsignacionExamen.seccion == (matricula.seccion if matricula else None),
-        ),
-        or_(
-            AsignacionExamen.fecha_inicio == None,
-            AsignacionExamen.fecha_inicio <= ahora,
         ),
         or_(
             AsignacionExamen.fecha_fin == None,
@@ -200,6 +209,13 @@ async def listar_examenes_estudiante(
             if t:
                 titulo = t
 
+        inicio = _naive_utc(a.fecha_inicio)
+        fin = _naive_utc(a.fecha_fin)
+        disponible = (
+            (inicio is None or inicio <= ahora_naive)
+            and (fin is None or fin >= ahora_naive)
+        )
+
         examenes_out.append({
             "id": a.id,
             "tipo_examen": a.tipo_examen,
@@ -212,6 +228,7 @@ async def listar_examenes_estudiante(
             "completado": ultimo is not None,
             "puntaje": ultimo.puntaje_total if ultimo else None,
             "nivel_logro": ultimo.nivel_logro if ultimo else None,
+            "disponible": disponible,
         })
 
     return examenes_out
@@ -232,17 +249,10 @@ async def iniciar_examen(
     # Usar UTC naive para comparar con las fechas almacenadas
     # SQLite no almacena timezone, así que comparamos naive-vs-naive en UTC
     ahora = datetime.now(timezone.utc).replace(tzinfo=None)
-    def _naive(dt):
-        """Normalizar datetime a naive UTC para comparar."""
-        if dt is None:
-            return None
-        if dt.tzinfo:
-            return dt.replace(tzinfo=None)
-        return dt
 
-    if asig.fecha_inicio and _naive(asig.fecha_inicio) > ahora:
+    if asig.fecha_inicio and _naive_utc(asig.fecha_inicio) > ahora:
         raise HTTPException(400, "El examen aún no está habilitado")
-    if asig.fecha_fin and _naive(asig.fecha_fin) < ahora:
+    if asig.fecha_fin and _naive_utc(asig.fecha_fin) < ahora:
         raise HTTPException(400, "El horario del examen ya finalizó")
 
     # Verificar que el estudiante pertenece a este examen
