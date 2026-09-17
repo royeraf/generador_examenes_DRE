@@ -979,6 +979,13 @@ export const monitoreoService = {
     return response.data
   },
 
+  async getReporte(filtros: SesionesFiltros = {}): Promise<SesionAcceso[]> {
+    const response = await apiClient.get<SesionAcceso[]>('/monitoreo/reporte', {
+      params: filtros,
+    })
+    return response.data
+  },
+
   async getEstadisticas(): Promise<EstadisticasMonitoreo> {
     const response = await apiClient.get<EstadisticasMonitoreo>('/monitoreo/estadisticas')
     return response.data

@@ -4,11 +4,13 @@ import {
   Activity, RefreshCw, Users, GraduationCap, ShieldCheck, AlertTriangle,
   Monitor, Smartphone, Tablet, Loader2, Search, ChevronLeft, ChevronRight,
   Wifi, Building2, Clock, LogOut, BarChart3, Globe, CheckCircle2, XCircle,
+  FileSpreadsheet, FileText,
 } from 'lucide-vue-next'
 import Swal from 'sweetalert2'
 import Header from '../../shared/components/Header.vue'
 import EduBackground from '../../shared/components/EduBackground.vue'
 import BaseButton from '../../shared/components/BaseButton.vue'
+import { exportToExcel, exportToPdf, type ExportColumn } from '../../shared/utils/exportUtils'
 import { monitoreoService, type PaginatedResponse } from '../../shared/services/api'
 import type {
   SesionAcceso, ResumenMonitoreo, EstadisticasMonitoreo,
@@ -26,6 +28,19 @@ const ROL_LABELS: Record<string, string> = {
   estudiante: 'Estudiante',
 }
 
+const COLUMNAS_REPORTE: ExportColumn[] = [
+  { header: 'Estado', key: 'estado' },
+  { header: 'Usuario', key: 'usuario' },
+  { header: 'DNI / Código', key: 'identificador' },
+  { header: 'Rol', key: 'rol' },
+  { header: 'Institución educativa', key: 'ie' },
+  { header: 'UGEL', key: 'ugel' },
+  { header: 'IP', key: 'ip' },
+  { header: 'Equipo', key: 'equipo' },
+  { header: 'Fecha y hora', key: 'fecha' },
+  { header: 'Motivo', key: 'motivo' },
+]
+
 const tab = ref<Tab>('vivo')
 const tabs: { id: Tab; label: string; icon: typeof Wifi }[] = [
   { id: 'vivo', label: 'En vivo', icon: Wifi },
@@ -41,6 +56,7 @@ const sesionesActivas = ref<SesionAcceso[]>([])
 const estadisticas = ref<EstadisticasMonitoreo | null>(null)
 const historico = ref<PaginatedResponse<SesionAcceso> | null>(null)
 const cargandoHistorico = ref(false)
+const exportando = ref<'pdf' | 'xlsx' | ''>('')
 
 // Filtros de sesiones activas
 const buscarActiva = ref('')
@@ -69,6 +85,7 @@ const formatFecha = (iso: string | null) => {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return '—'
   return d.toLocaleString('es-PE', {
+    timeZone: 'America/Lima',
     day: '2-digit', month: '2-digit', year: 'numeric',
     hour: '2-digit', minute: '2-digit',
   })
@@ -205,6 +222,86 @@ async function cerrarSesion(s: SesionAcceso) {
 function aplicarFiltros() {
   filtros.value.page = 1
   void cargarHistorico()
+}
+
+const descripcionFiltros = computed(() => {
+  const partes = [
+    `Rol: ${filtros.value.rol ? rolLabel(filtros.value.rol) : 'Todos'}`,
+  ]
+  if (filtros.value.q) partes.push(`Búsqueda: ${filtros.value.q}`)
+  if (filtros.value.solo_fallidos) partes.push('Solo intentos fallidos')
+  partes.push(`Desde: ${filtros.value.fecha_desde || 'sin límite'}`)
+  partes.push(`Hasta: ${filtros.value.fecha_hasta || 'hoy'}`)
+  return partes.join('  ·  ')
+})
+
+function filaReporte(s: SesionAcceso) {
+  return {
+    estado: s.exito ? 'Correcto' : 'Fallido',
+    usuario: nombreMostrar(s),
+    identificador: s.identificador ?? '—',
+    rol: rolLabel(s.rol_codigo),
+    ie: s.institucion_nombre ?? '—',
+    ugel: s.ugel_nombre ?? '—',
+    ip: s.ip ?? '—',
+    equipo: [s.sistema_operativo, s.navegador].filter(Boolean).join(' · ') || '—',
+    fecha: formatFecha(s.login_at),
+    motivo: s.motivo ?? (s.exito ? '—' : 'credenciales'),
+  }
+}
+
+async function exportarReporte(formato: 'pdf' | 'xlsx') {
+  exportando.value = formato
+  try {
+    const sesiones = await monitoreoService.getReporte({
+      q: filtros.value.q || undefined,
+      rol: filtros.value.rol || undefined,
+      solo_fallidos: filtros.value.solo_fallidos || undefined,
+      fecha_desde: filtros.value.fecha_desde || undefined,
+      fecha_hasta: filtros.value.fecha_hasta || undefined,
+    })
+
+    if (sesiones.length === 0) {
+      await Swal.fire({
+        icon: 'info',
+        title: 'Sin registros',
+        text: 'No hay inicios de sesión que coincidan con los filtros seleccionados.',
+        customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl font-bold' },
+      })
+      return
+    }
+
+    const rows = sesiones.map(filaReporte)
+    const stamp = new Date().toISOString().split('T')[0]
+    const subtitulo = `${descripcionFiltros.value}  ·  Total: ${rows.length} registros`
+
+    if (formato === 'pdf') {
+      exportToPdf({
+        title: 'Reporte de inicios de sesión',
+        subtitle: subtitulo,
+        columns: COLUMNAS_REPORTE,
+        rows,
+        filename: `reporte_inicios_sesion_${stamp}.pdf`,
+        accent: [225, 29, 72],
+      })
+    } else {
+      exportToExcel(
+        COLUMNAS_REPORTE,
+        rows,
+        `reporte_inicios_sesion_${stamp}.xlsx`,
+        'Inicios de sesión',
+      )
+    }
+  } catch (e: any) {
+    await Swal.fire({
+      icon: 'error',
+      title: 'No se pudo generar el reporte',
+      text: e.response?.data?.detail ?? 'Intenta nuevamente',
+      customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl font-bold' },
+    })
+  } finally {
+    exportando.value = ''
+  }
 }
 
 function cambiarPagina(delta: number) {
@@ -610,6 +707,35 @@ onMounted(cargarTodo)
                 <BaseButton variant="primary" size="md" block @click="aplicarFiltros">
                   <template #icon><Search class="w-4 h-4" /></template>
                   Buscar
+                </BaseButton>
+              </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
+              <p class="text-[11px] font-semibold text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
+                <FileText class="w-3.5 h-3.5" />
+                El reporte incluye todos los intentos (correctos y fallidos) que coincidan con los filtros, no solo esta página.
+              </p>
+              <div class="flex items-center gap-2 shrink-0">
+                <BaseButton
+                  variant="secondary"
+                  size="sm"
+                  :disabled="!!exportando"
+                  :loading="exportando === 'xlsx'"
+                  @click="exportarReporte('xlsx')"
+                >
+                  <template #icon><FileSpreadsheet class="w-3.5 h-3.5 text-emerald-500" /></template>
+                  Excel
+                </BaseButton>
+                <BaseButton
+                  variant="secondary"
+                  size="sm"
+                  :disabled="!!exportando"
+                  :loading="exportando === 'pdf'"
+                  @click="exportarReporte('pdf')"
+                >
+                  <template #icon><FileText class="w-3.5 h-3.5 text-rose-500" /></template>
+                  PDF
                 </BaseButton>
               </div>
             </div>

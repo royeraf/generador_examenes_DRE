@@ -30,6 +30,12 @@ router = APIRouter()
 # Minutos sin actividad tras los cuales una sesión deja de considerarse activa.
 VENTANA_ACTIVA_MINUTOS = 15
 
+# Tope de filas que devuelve el reporte exportable de inicios de sesión.
+MAX_REPORTE = 5000
+
+# Zona horaria de Perú (UTC-5), usada para agrupar/etiquetar series temporales.
+TZ_PERU = timezone(timedelta(hours=-5))
+
 
 async def get_monitoreo_user(current_user: Usuario = Depends(get_current_superuser)) -> Usuario:
     """Solo especialistas DRE con el módulo 'monitoreo' habilitado."""
@@ -125,9 +131,9 @@ def _to_out(
         sistema_operativo=s.sistema_operativo,
         navegador=s.navegador,
         es_movil=bool(s.es_movil),
-        login_at=s.login_at,
-        last_activity=s.last_activity,
-        logout_at=s.logout_at,
+        login_at=login,
+        last_activity=last,
+        logout_at=logout,
         is_active=bool(s.is_active),
         en_linea=en_linea,
         duracion_minutos=duracion,
@@ -158,7 +164,12 @@ async def resumen_monitoreo(
     """KPIs de sesiones activas, accesos de hoy y distribución por rol/UGEL/IE."""
     ahora = _utcnow()
     activo = _filtro_activo(ahora)
-    inicio_hoy = ahora.replace(hour=0, minute=0, second=0, microsecond=0)
+    # Medianoche en hora Perú (UTC-5), no en UTC, para el KPI "hoy".
+    inicio_hoy = (
+        ahora.astimezone(TZ_PERU)
+        .replace(hour=0, minute=0, second=0, microsecond=0)
+        .astimezone(timezone.utc)
+    )
 
     activas = (
         await db.execute(select(SesionAcceso).where(activo))
@@ -262,6 +273,49 @@ async def sesiones_activas(
     return await _serializar(db, list(sesiones))
 
 
+def _filtros_sesiones(
+    q: Optional[str],
+    rol: Optional[str],
+    ie_id: Optional[int],
+    ugel_id: Optional[int],
+    fecha_desde: Optional[date],
+    fecha_hasta: Optional[date],
+    solo_fallidos: bool,
+) -> list:
+    """Filtros compartidos por el histórico paginado y el reporte exportable.
+
+    Las fechas se interpretan en hora Perú (UTC-5) para que el día coincida con
+    lo que el especialista ve en pantalla.
+    """
+    filtros: list = []
+    if rol:
+        filtros.append(SesionAcceso.rol_codigo == rol)
+    if ie_id:
+        filtros.append(SesionAcceso.institucion_educativa_id == ie_id)
+    if ugel_id:
+        filtros.append(SesionAcceso.ugel_id == ugel_id)
+    if solo_fallidos:
+        filtros.append(SesionAcceso.exito.is_(False))
+    if fecha_desde:
+        filtros.append(
+            SesionAcceso.login_at
+            >= datetime.combine(fecha_desde, time.min, tzinfo=TZ_PERU).astimezone(timezone.utc)
+        )
+    if fecha_hasta:
+        filtros.append(
+            SesionAcceso.login_at
+            <= datetime.combine(fecha_hasta, time.max, tzinfo=TZ_PERU).astimezone(timezone.utc)
+        )
+    if q:
+        term = f"%{q}%"
+        filtros.append(
+            (SesionAcceso.identificador.ilike(term))
+            | (SesionAcceso.nombres.ilike(term))
+            | (SesionAcceso.apellidos.ilike(term))
+        )
+    return filtros
+
+
 @router.get("/sesiones", response_model=PaginatedResponse[SesionAccesoOut])
 async def listar_sesiones(
     page: int = Query(1, ge=1),
@@ -277,31 +331,7 @@ async def listar_sesiones(
     current_user: Usuario = Depends(get_monitoreo_user),
 ):
     """Histórico paginado de accesos (exitosos y fallidos) con filtros."""
-    filtros = []
-    if rol:
-        filtros.append(SesionAcceso.rol_codigo == rol)
-    if ie_id:
-        filtros.append(SesionAcceso.institucion_educativa_id == ie_id)
-    if ugel_id:
-        filtros.append(SesionAcceso.ugel_id == ugel_id)
-    if solo_fallidos:
-        filtros.append(SesionAcceso.exito.is_(False))
-    if fecha_desde:
-        filtros.append(
-            SesionAcceso.login_at >= datetime.combine(fecha_desde, time.min, tzinfo=timezone.utc)
-        )
-    if fecha_hasta:
-        filtros.append(
-            SesionAcceso.login_at <= datetime.combine(fecha_hasta, time.max, tzinfo=timezone.utc)
-        )
-    if q:
-        term = f"%{q}%"
-        filtros.append(
-            (SesionAcceso.identificador.ilike(term))
-            | (SesionAcceso.nombres.ilike(term))
-            | (SesionAcceso.apellidos.ilike(term))
-        )
-
+    filtros = _filtros_sesiones(q, rol, ie_id, ugel_id, fecha_desde, fecha_hasta, solo_fallidos)
     where = and_(*filtros) if filtros else None
 
     count_stmt = select(func.count(SesionAcceso.id))
@@ -321,6 +351,32 @@ async def listar_sesiones(
         size=size,
         pages=(total + size - 1) // size if size else 0,
     )
+
+
+@router.get("/reporte", response_model=List[SesionAccesoOut])
+async def reporte_sesiones(
+    q: Optional[str] = Query(None, description="Buscar por nombre, DNI o código"),
+    rol: Optional[str] = Query(None),
+    ie_id: Optional[int] = Query(None),
+    ugel_id: Optional[int] = Query(None),
+    fecha_desde: Optional[date] = Query(None),
+    fecha_hasta: Optional[date] = Query(None),
+    solo_fallidos: bool = Query(False),
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(get_monitoreo_user),
+):
+    """Todos los accesos (correctos y fallidos) que coinciden con los filtros.
+
+    Pensado para exportar a PDF/Excel: no pagina, pero limita a `MAX_REPORTE`
+    filas para no comprometer la memoria del servidor.
+    """
+    filtros = _filtros_sesiones(q, rol, ie_id, ugel_id, fecha_desde, fecha_hasta, solo_fallidos)
+    stmt = select(SesionAcceso)
+    if filtros:
+        stmt = stmt.where(and_(*filtros))
+    stmt = stmt.order_by(SesionAcceso.login_at.desc()).limit(MAX_REPORTE)
+    sesiones = (await db.execute(stmt)).scalars().all()
+    return await _serializar(db, list(sesiones))
 
 
 @router.get("/estadisticas", response_model=EstadisticasMonitoreo)
@@ -345,6 +401,7 @@ async def estadisticas_monitoreo(
         dt = _aware(login_at)
         if not dt:
             continue
+        dt = dt.astimezone(TZ_PERU)
         key = dt.strftime("%Y-%m-%d %H:00")
         bucket = horas.setdefault(key, {"total": 0, "exitos": 0, "fallidos": 0})
         bucket["total"] += 1
@@ -357,8 +414,12 @@ async def estadisticas_monitoreo(
         for k, v in sorted(horas.items())
     ]
 
-    # ── Accesos por día (últimos 14 días) ────────────────────────────────────
-    desde_14d = (ahora - timedelta(days=14)).replace(hour=0, minute=0, second=0, microsecond=0)
+    # ── Accesos por día (últimos 14 días, en hora Perú) ──────────────────────
+    desde_14d = (
+        (ahora.astimezone(TZ_PERU) - timedelta(days=14))
+        .replace(hour=0, minute=0, second=0, microsecond=0)
+        .astimezone(timezone.utc)
+    )
     rows = (
         await db.execute(
             select(SesionAcceso.login_at, SesionAcceso.exito).where(
@@ -371,6 +432,7 @@ async def estadisticas_monitoreo(
         dt = _aware(login_at)
         if not dt:
             continue
+        dt = dt.astimezone(TZ_PERU)
         key = dt.strftime("%Y-%m-%d")
         bucket = dias.setdefault(key, {"total": 0, "exitos": 0, "fallidos": 0})
         bucket["total"] += 1
