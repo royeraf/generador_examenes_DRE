@@ -83,7 +83,6 @@ class LectoSistemService:
     ) -> str:
         """Construye el prompt para generar preguntas."""
         
-        texto_instruccion = ""
         if texto_base:
             texto_instruccion = f"""
 TEXTO BASE PARA LAS PREGUNTAS:
@@ -93,6 +92,12 @@ TEXTO BASE PARA LAS PREGUNTAS:
 
 Las preguntas deben basarse estrictamente en este texto. IMPORTANTE: En el campo 'lectura' del JSON responde EXACTAMENTE '[Texto base proporcionado]' y NO repitas el texto base para no exceder los límites de tokens.
 """
+            texto_base_header = "Usa el siguiente texto proporcionado (en el campo 'lectura' del JSON responde '[Texto base proporcionado]'):"
+            placeholder_lectura = "[Texto base proporcionado]"
+        else:
+            texto_instruccion = "El texto debe ser original, creativo, motivador y adecuado para la edad de estudiantes, con una extensión de 250-400 palabras. Temas sugeridos: Tradiciones peruanas, cuidado del medio ambiente, tecnología en la escuela, convivencia escolar."
+            texto_base_header = "GENERA UN TEXTO NUEVO."
+            placeholder_lectura = "Texto completo de la lectura..."
         
         prompt = f"""Eres un experto pedagogo peruano, especialista en Comprensión Lectora y Evaluación Formativa según el Currículo Nacional de Educación Básica (CNEB).
 Tu misión es crear un instrumento de evaluación de alta calidad para estudiantes de **{grado_nombre}**.
@@ -105,8 +110,8 @@ Tu misión es crear un instrumento de evaluación de alta calidad para estudiant
 
 **ESPECIFICACIONES DEL CONTENIDO:**
 1. **TEXTO BASE:**
-   {f'Usa el siguiente texto proporcionado (en el campo \"lectura\" del JSON responde \"[Texto base proporcionado]\"):' if texto_base else 'GENERA UN TEXTO NUEVO.'}
-   {texto_instruccion if texto_base else 'El texto debe ser original, creativo, motivador y adecuado para la edad de estudiantes, con una extensión de 250-400 palabras. Temas sugeridos: Tradiciones peruanas, cuidado del medio ambiente, tecnología en la escuela, convivencia escolar.'}
+   {texto_base_header}
+   {texto_instruccion}
 
 2. **COMPETENCIA Y DESEMPEÑO A EVALUAR:**
    - Capacidad: {capacidad}
@@ -130,7 +135,7 @@ Responde ÚNICAMENTE con un JSON válido que siga esta estructura exacta, sin co
         "titulo": "Título creativo y motivador para la lectura",
         "grado": "{grado_nombre}",
         "instrucciones": "Lee atentamente el siguiente texto y marca la alternativa correcta.",
-        "lectura": "{'[Texto base proporcionado]' if texto_base else 'Texto completo de la lectura...'}",
+        "lectura": "{placeholder_lectura}",
         "preguntas": [
             {{
                 "numero": 1,
