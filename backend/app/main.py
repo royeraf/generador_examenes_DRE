@@ -35,6 +35,7 @@ async def no_cache_api(request: Request, call_next):
     if request.url.path.startswith("/api"):
         response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
         response.headers["Pragma"] = "no-cache"
+        response.headers["X-Accel-Expires"] = "0"
     return response
 
 # Initialize database on startup
