@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from app.core.database import Base
+from app.core.tz import ahora_peru
 
 
 class Estudiante(Base):
@@ -26,7 +27,7 @@ class Estudiante(Base):
     creado_por_id = Column(
         Integer, ForeignKey("usuarios.id", ondelete="SET NULL"), nullable=True
     )
-    fecha_creacion = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    fecha_creacion = Column(DateTime(timezone=True), default=ahora_peru, server_default=func.now(), nullable=False)
     ultimo_acceso = Column(DateTime(timezone=True), nullable=True)
 
     # Relationships

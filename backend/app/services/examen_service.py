@@ -4,7 +4,7 @@ Centraliza calificación, mezcla, retroalimentación y construcción de revision
 """
 import json
 import random
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
 from typing import Optional
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,6 +17,7 @@ from app.models.db_models import (
     PreguntaExamen, RespuestaIntento,
 )
 from app.models.usuario import Usuario
+from app.core.tz import a_peru_naive, ahora_peru
 from app.services.ai_factory import ai_factory
 from app.services.ai_base import repair_latex_backslash_escapes, repair_stray_control_chars
 
@@ -66,12 +67,11 @@ class ExamenService:
             return
         if not fecha_inicio or not fecha_fin:
             raise HTTPException(400, "Debes definir la fecha con hora de inicio y hora de fin")
-        TZ_PERU = timezone(timedelta(hours=-5))
-        inicio_peru = fecha_inicio.astimezone(TZ_PERU)
-        fin_peru = fecha_fin.astimezone(TZ_PERU)
+        inicio_peru = a_peru_naive(fecha_inicio)
+        fin_peru = a_peru_naive(fecha_fin)
         if inicio_peru.date() != fin_peru.date():
             raise HTTPException(400, "El rango horario debe estar dentro de un solo día")
-        if fecha_fin <= fecha_inicio:
+        if fin_peru <= inicio_peru:
             raise HTTPException(400, "La hora fin debe ser mayor que la hora inicio")
 
     # ── Preparación y mezcla de preguntas ─────────────────────────────────────
@@ -271,7 +271,7 @@ class ExamenService:
         transacción (RespuestaIntento ya insertadas, IntentoExamen ya actualizado) —
         y se reintenta el UPDATE, que esta vez sí encuentra la fila.
         """
-        ahora = datetime.now(timezone.utc)
+        ahora = ahora_peru()
         upd = await db.execute(
             update(ProgresoEstudiante)
             .where(ProgresoEstudiante.matricula_id == matricula_id, ProgresoEstudiante.area == area)

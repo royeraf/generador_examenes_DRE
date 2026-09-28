@@ -6,6 +6,7 @@ from typing import List, Optional
 
 from app.core.database import get_db
 from app.core.db_utils import get_or_404
+from app.core.tz import ahora_peru, iso_peru
 from app.models.db_models import Grado, Capacidad, Desempeno, Rol
 from app.models.usuario import Usuario as DocenteModel
 from app.schemas.usuario import (
@@ -375,7 +376,7 @@ async def get_metricas(
     _: DocenteModel = Depends(get_current_superuser)
 ):
     """Métricas de uso del sistema para el administrador."""
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
 
     # ── Totales de docentes ──────────────────────────────────────────────
     r = await db.execute(select(func.count()).select_from(DocenteModel))
@@ -392,7 +393,7 @@ async def get_metricas(
     total_matematica = r.scalar() or 0
 
     # ── Exámenes por mes (últimos 6 meses) ───────────────────────────────
-    hace_6_meses = datetime.now(timezone.utc) - timedelta(days=180)
+    hace_6_meses = ahora_peru() - timedelta(days=180)
 
     r_lec = await db.execute(
         select(
@@ -419,7 +420,7 @@ async def get_metricas(
     # Construir los últimos 6 meses
     meses = []
     for i in range(5, -1, -1):
-        d = datetime.now(timezone.utc).replace(day=1) - timedelta(days=i * 30)
+        d = ahora_peru().replace(day=1) - timedelta(days=i * 30)
         key = d.strftime('%Y-%m')
         meses.append({
             'mes': key,
@@ -505,7 +506,7 @@ async def get_metricas(
             'titulo': ex.titulo or 'Sin título',
             'grado': ex.grado_nombre or '—',
             'docente': f"{doc.nombres or ''} {doc.apellidos or ''}".strip() or doc.dni,
-            'fecha': ex.fecha_creacion.isoformat() if ex.fecha_creacion else None,
+            'fecha': iso_peru(ex.fecha_creacion),
             'area': 'lectura',
         }
         for ex, doc in r
@@ -523,7 +524,7 @@ async def get_metricas(
             'titulo': ex.titulo or 'Sin título',
             'grado': ex.grado_nombre or '—',
             'docente': f"{doc.nombres or ''} {doc.apellidos or ''}".strip() or doc.dni,
-            'fecha': ex.fecha_creacion.isoformat() if ex.fecha_creacion else None,
+            'fecha': iso_peru(ex.fecha_creacion),
             'area': 'matematica',
         }
         for ex, doc in r

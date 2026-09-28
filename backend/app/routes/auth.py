@@ -10,6 +10,7 @@ from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
+from app.core.tz import ahora_peru
 from app.core.security import create_access_token, settings, verify_password, get_password_hash
 from app.core.request_meta import get_client_ip, parse_user_agent
 from app.services.usuario_service import usuario_service
@@ -118,7 +119,7 @@ async def login_access_token(
         ugel_id=getattr(usuario, "ugel_id", None),
         is_active=True,
     ))
-    usuario.ultimo_acceso = now
+    usuario.ultimo_acceso = ahora_peru()
 
     return {
         "access_token": create_access_token(

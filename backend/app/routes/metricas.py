@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 
 from app.core.database import get_db
+from app.core.tz import iso_peru
 from app.models.db_models import (
     ExamenLectura, ExamenMatematica,
     InstitucionEducativa, Ugel, AsignacionExamen,
@@ -184,7 +185,7 @@ async def resumen_metricas(
             "titulo": e.titulo or f"Examen {e.grado_nombre}",
             "grado": e.grado_nombre or "—",
             "area": "lectura",
-            "fecha": e.fecha_creacion.isoformat() if e.fecha_creacion else None,
+            "fecha": iso_peru(e.fecha_creacion),
         }
         for e in recientes_lec
     ] + [
@@ -193,7 +194,7 @@ async def resumen_metricas(
             "titulo": e.titulo or f"Examen {e.grado_nombre}",
             "grado": e.grado_nombre or "—",
             "area": "matematica",
-            "fecha": e.fecha_creacion.isoformat() if e.fecha_creacion else None,
+            "fecha": iso_peru(e.fecha_creacion),
         }
         for e in recientes_mat
     ]

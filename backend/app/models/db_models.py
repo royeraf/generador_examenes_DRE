@@ -4,6 +4,7 @@ from sqlalchemy.sql import func
 import enum
 
 from app.core.database import Base
+from app.core.tz import ahora_peru
 
 
 # =============================================================================
@@ -60,7 +61,7 @@ class Ugel(Base):
     nombre = Column(String(200), nullable=False)
     provincia_id = Column(Integer, ForeignKey("provincias.id", ondelete="SET NULL"), nullable=True)
     is_active = Column(Boolean, default=True)
-    fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
+    fecha_creacion = Column(DateTime(timezone=True), default=ahora_peru, server_default=func.now())
 
     provincia = relationship("Provincia", lazy="joined")
     instituciones = relationship("InstitucionEducativa", back_populates="ugel")
@@ -84,7 +85,7 @@ class InstitucionEducativa(Base):
     ugel_id = Column(Integer, ForeignKey("ugeles.id"), nullable=False)
     distrito_id = Column(Integer, ForeignKey("distritos.id", ondelete="SET NULL"), nullable=True)
     is_active = Column(Boolean, default=True)
-    fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
+    fecha_creacion = Column(DateTime(timezone=True), default=ahora_peru, server_default=func.now())
 
     ugel = relationship("Ugel", back_populates="instituciones")
     distrito = relationship("Distrito", lazy="joined")
@@ -130,7 +131,7 @@ class Matricula(Base):
     institucion_educativa_id = Column(Integer, ForeignKey("instituciones_educativas.id"), nullable=False)
     ugel_id = Column(Integer, ForeignKey("ugeles.id", ondelete="SET NULL"), nullable=True)
     is_active = Column(Boolean, default=True)
-    fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
+    fecha_creacion = Column(DateTime(timezone=True), default=ahora_peru, server_default=func.now())
 
     __table_args__ = (
         UniqueConstraint("estudiante_id", "año_escolar", name="uq_matricula_estudiante_anio"),
@@ -156,7 +157,7 @@ class CodigoClase(Base):
     año_escolar = Column(Integer, nullable=False, default=lambda: __import__('datetime').datetime.now().year)
     max_estudiantes = Column(Integer, default=40)
     is_active = Column(Boolean, default=True)
-    fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
+    fecha_creacion = Column(DateTime(timezone=True), default=ahora_peru, server_default=func.now())
     fecha_expiracion = Column(DateTime(timezone=True), nullable=True)
 
     creado_por = relationship("Usuario", foreign_keys=[creado_por_id])
@@ -319,7 +320,7 @@ class ExamenLectura(Base):
     # FK a usuarios (antes docentes) — columna renombrada para compatibilidad
     docente_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
     grado_id = Column(Integer, ForeignKey("grados.id"), nullable=True)
-    fecha_creacion = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    fecha_creacion = Column(DateTime(timezone=True), default=ahora_peru, server_default=func.now(), nullable=False)
 
     titulo = Column(String(300), nullable=True)
     grado_nombre = Column(String(100), nullable=True)
@@ -349,7 +350,7 @@ class ExamenMatematica(Base):
     docente_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
     grado_id = Column(Integer, ForeignKey("grados.id"), nullable=True)
     competencia_id = Column(Integer, ForeignKey("competencias_matematica.id"), nullable=True)
-    fecha_creacion = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    fecha_creacion = Column(DateTime(timezone=True), default=ahora_peru, server_default=func.now(), nullable=False)
 
     titulo = Column(String(300), nullable=True)
     grado_nombre = Column(String(100), nullable=True)
@@ -397,7 +398,7 @@ class AsignacionExamen(Base):
     mezclar_preguntas = Column(Boolean, default=False, nullable=False)
     mezclar_alternativas = Column(Boolean, default=False, nullable=False)
     is_active = Column(Boolean, default=True)
-    fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
+    fecha_creacion = Column(DateTime(timezone=True), default=ahora_peru, server_default=func.now())
 
     __table_args__ = (
         CheckConstraint("tipo_examen IN ('lectura', 'matematica')", name="ck_asignacion_tipo_examen"),
@@ -432,7 +433,7 @@ class IntentoExamen(Base):
     preguntas_total = Column(Integer, nullable=True)
     nivel_logro = Column(String(50), nullable=True)  # NivelLogro enum values
 
-    fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
+    fecha_creacion = Column(DateTime(timezone=True), default=ahora_peru, server_default=func.now())
 
     __table_args__ = (
         UniqueConstraint("asignacion_id", "estudiante_id", "numero_intento", name="uq_intento"),
@@ -458,7 +459,7 @@ class ProgresoEstudiante(Base):
     nivel_logro_actual = Column(String(50), nullable=True)
     dominio_desempenos = Column(JSON, nullable=True)
     ultima_actividad = Column(DateTime(timezone=True), nullable=True)
-    fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
+    fecha_creacion = Column(DateTime(timezone=True), default=ahora_peru, server_default=func.now())
 
     __table_args__ = (
         UniqueConstraint("matricula_id", "area", name="uq_progreso_matricula_area"),

@@ -2,14 +2,15 @@
 Rutas del portal estudiantil: exámenes, intentos y progreso.
 """
 from typing import List, Optional
-from datetime import datetime, timezone
+from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, func, or_
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from app.core.database import get_db
 from app.core.db_retry import con_reintento
+from app.core.tz import a_peru_naive, ahora_peru, iso_peru
 from app.models.db_models import (
     AsignacionExamen, IntentoExamen, ProgresoEstudiante,
     ExamenLectura, ExamenMatematica,
@@ -30,29 +31,22 @@ EXAM_CREATOR_ROLES = (
 )
 
 
-def _iso_utc(dt: Optional[datetime]) -> Optional[str]:
-    """Serializa un datetime guardado en UTC (MySQL lo devuelve naive) con offset.
+def _iso_peru(dt: Optional[datetime]) -> Optional[str]:
+    """Serializa un datetime guardado en hora Perú (naive) con offset -05:00.
 
-    Sin esto el frontend interpreta el string como hora local y la muestra
-    corrida por el offset de la zona horaria.
+    Sin el offset el frontend interpretaría el string como hora local del
+    navegador y lo mostraría corrido si la zona del equipo no es Perú.
     """
-    if dt is None:
-        return None
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
-    return dt.isoformat()
+    return iso_peru(dt)
 
 
-def _naive_utc(dt: Optional[datetime]) -> Optional[datetime]:
-    """Normaliza a UTC naive para comparar contra las fechas almacenadas.
+def _peru_naive(dt: Optional[datetime]) -> Optional[datetime]:
+    """Normaliza a hora Perú naive para comparar contra las fechas almacenadas.
 
-    SQLite/MySQL no conservan timezone, así que comparamos naive-vs-naive en UTC.
+    SQLite/MySQL no conservan timezone, así que comparamos naive-vs-naive en
+    hora Perú.
     """
-    if dt is None:
-        return None
-    if dt.tzinfo:
-        return dt.replace(tzinfo=None)
-    return dt
+    return a_peru_naive(dt)
 
 
 # ─── Schemas ─────────────────────────────────────────────────────────────────
@@ -81,6 +75,11 @@ class AsignarExamenRequest(BaseModel):
     mezclar_preguntas: bool = False
     mezclar_alternativas: bool = False
 
+    @field_validator("fecha_inicio", "fecha_fin")
+    @classmethod
+    def _a_hora_peru(cls, v: Optional[datetime]) -> Optional[datetime]:
+        return a_peru_naive(v)
+
 
 class UpdateAsignacionRequest(BaseModel):
     fecha_inicio: Optional[datetime] = None
@@ -90,6 +89,11 @@ class UpdateAsignacionRequest(BaseModel):
     mezclar_preguntas: bool = False
     mezclar_alternativas: bool = False
     is_active: bool = True
+
+    @field_validator("fecha_inicio", "fecha_fin")
+    @classmethod
+    def _a_hora_peru(cls, v: Optional[datetime]) -> Optional[datetime]:
+        return a_peru_naive(v)
 
 
 # ─── Portal estudiante: preview de lectura (sin crear intento) ───────────────
@@ -143,8 +147,8 @@ async def listar_examenes_estudiante(
 ):
     """Lista los exámenes asignados al estudiante."""
     matricula = await get_matricula_activa(db, current_user.id)
-    ahora = datetime.now(timezone.utc)
-    ahora_naive = datetime.now(timezone.utc).replace(tzinfo=None)
+    ahora = ahora_peru()
+    ahora_naive = ahora
     q = select(AsignacionExamen).where(
         AsignacionExamen.is_active == True,
         AsignacionExamen.institucion_educativa_id == current_user.institucion_educativa_id,
@@ -209,8 +213,8 @@ async def listar_examenes_estudiante(
             if t:
                 titulo = t
 
-        inicio = _naive_utc(a.fecha_inicio)
-        fin = _naive_utc(a.fecha_fin)
+        inicio = _peru_naive(a.fecha_inicio)
+        fin = _peru_naive(a.fecha_fin)
         disponible = (
             (inicio is None or inicio <= ahora_naive)
             and (fin is None or fin >= ahora_naive)
@@ -220,8 +224,8 @@ async def listar_examenes_estudiante(
             "id": a.id,
             "tipo_examen": a.tipo_examen,
             "titulo": titulo,
-            "fecha_inicio": _iso_utc(a.fecha_inicio),
-            "fecha_fin": _iso_utc(a.fecha_fin),
+            "fecha_inicio": _iso_peru(a.fecha_inicio),
+            "fecha_fin": _iso_peru(a.fecha_fin),
             "duracion_minutos": a.duracion_minutos,
             "intentos_permitidos": a.intentos_permitidos,
             "mis_intentos": mis_intentos,
@@ -246,13 +250,13 @@ async def iniciar_examen(
     if not asig or not asig.is_active:
         raise HTTPException(404, "Examen no encontrado")
 
-    # Usar UTC naive para comparar con las fechas almacenadas
-    # SQLite no almacena timezone, así que comparamos naive-vs-naive en UTC
-    ahora = datetime.now(timezone.utc).replace(tzinfo=None)
+    # Usar hora Perú naive para comparar con las fechas almacenadas
+    # SQLite no almacena timezone, así que comparamos naive-vs-naive
+    ahora = ahora_peru()
 
-    if asig.fecha_inicio and _naive_utc(asig.fecha_inicio) > ahora:
+    if asig.fecha_inicio and _peru_naive(asig.fecha_inicio) > ahora:
         raise HTTPException(400, "El examen aún no está habilitado")
-    if asig.fecha_fin and _naive_utc(asig.fecha_fin) < ahora:
+    if asig.fecha_fin and _peru_naive(asig.fecha_fin) < ahora:
         raise HTTPException(400, "El horario del examen ya finalizó")
 
     # Verificar que el estudiante pertenece a este examen
@@ -302,7 +306,7 @@ async def iniciar_examen(
                 estudiante_id=estudiante_id,
                 numero_intento=len(todos_intentos) + 1,
                 estado="en_progreso",
-                fecha_inicio=datetime.now(timezone.utc),
+                fecha_inicio=ahora_peru(),
             )
             db.add(intento)
             await db.flush()
@@ -418,7 +422,7 @@ async def finalizar_intento(
             IntentoExamen.estudiante_id == estudiante_id,
             IntentoExamen.estado != "completado",
         )
-        .values(estado="completado", fecha_fin=datetime.now(timezone.utc))
+        .values(estado="completado", fecha_fin=ahora_peru())
     )
     if claim.rowcount == 0:
         existe_r = await db.execute(
@@ -493,7 +497,7 @@ async def progreso_estudiante(
             "total_examenes_completados": p.total_examenes_completados,
             "puntaje_promedio": round(p.puntaje_promedio or 0, 2),
             "nivel_logro_actual": p.nivel_logro_actual,
-            "ultima_actividad": p.ultima_actividad.isoformat() if p.ultima_actividad else None,
+            "ultima_actividad": _iso_peru(p.ultima_actividad),
         }
         for p in progresos
     ]
@@ -633,15 +637,15 @@ async def listar_asignaciones(
             "grado_nombre": grado_nombre,
             "seccion": a.seccion,
             "codigo_clase_id": a.codigo_clase_id,
-            "fecha_inicio": _iso_utc(a.fecha_inicio),
-            "fecha_fin": _iso_utc(a.fecha_fin),
+            "fecha_inicio": _iso_peru(a.fecha_inicio),
+            "fecha_fin": _iso_peru(a.fecha_fin),
             "duracion_minutos": a.duracion_minutos,
             "intentos_permitidos": a.intentos_permitidos,
             "mezclar_preguntas": a.mezclar_preguntas,
             "mezclar_alternativas": a.mezclar_alternativas,
             "is_active": a.is_active,
             "completados": completados,
-            "fecha_creacion": a.fecha_creacion.isoformat() if a.fecha_creacion else None,
+            "fecha_creacion": _iso_peru(a.fecha_creacion),
             "asignado_por_id": a.asignado_por_id,
             "asignado_por_nombre": asignado_por_nombre,
             "puede_eliminar": puede_eliminar,
@@ -718,7 +722,7 @@ async def resultados_asignacion(
             "nivel_logro": intento.nivel_logro if intento else None,
             "correctas": intento.preguntas_correctas if intento else None,
             "total": intento.preguntas_total if intento else None,
-            "fecha": _iso_utc(intento.fecha_fin) if intento else None,
+            "fecha": _iso_peru(intento.fecha_fin) if intento else None,
         })
     return resultado
 

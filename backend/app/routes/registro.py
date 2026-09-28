@@ -4,13 +4,14 @@ Rutas para auto-registro de estudiantes y gestión de códigos de clase.
 import random
 import string
 from typing import List, Optional
-from datetime import datetime, timezone
+from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from app.core.database import get_db
+from app.core.tz import a_peru_naive, ahora_peru
 from app.models.db_models import CodigoClase, Grado, InstitucionEducativa, Matricula
 from app.models.usuario import Usuario
 from app.models.estudiante import Estudiante
@@ -38,6 +39,11 @@ class CodigoClaseCreate(BaseModel):
     max_estudiantes: int = Field(40, ge=1, le=200)
     fecha_expiracion: Optional[datetime] = None
     año_escolar: int = Field(default_factory=lambda: datetime.now().year)
+
+    @field_validator("fecha_expiracion")
+    @classmethod
+    def _a_hora_peru(cls, v: Optional[datetime]) -> Optional[datetime]:
+        return a_peru_naive(v)
 
 
 class CodigoClaseResponse(BaseModel):
@@ -344,7 +350,7 @@ async def registrar_estudiante(
     if not cc or not cc.is_active:
         raise HTTPException(400, "Código de clase inválido o inactivo")
 
-    if cc.fecha_expiracion and cc.fecha_expiracion < datetime.now(timezone.utc):
+    if cc.fecha_expiracion and cc.fecha_expiracion < ahora_peru():
         raise HTTPException(400, "El código de clase ha expirado")
 
     if data.dni:
@@ -409,7 +415,7 @@ async def validar_codigo_clase(
     cc = result.scalars().first()
     if not cc or not cc.is_active:
         raise HTTPException(400, "Código inválido o inactivo")
-    if cc.fecha_expiracion and cc.fecha_expiracion < datetime.now(timezone.utc):
+    if cc.fecha_expiracion and cc.fecha_expiracion < ahora_peru():
         raise HTTPException(400, "Código expirado")
 
     grado_result = await db.execute(select(Grado).where(Grado.id == cc.grado_id))

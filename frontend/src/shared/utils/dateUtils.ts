@@ -3,10 +3,12 @@
  *
  * CONVENCIÓN:
  * - El docente programa exámenes en hora Perú (America/Lima, UTC-5).
- * - El frontend convierte la hora local ingresada a UTC ISO-8601 antes de
- *   enviarla al backend.
- * - El backend almacena todo en UTC.
- * - Al mostrar al usuario, se formatea de vuelta a hora Perú.
+ * - El frontend envía la fecha/hora tal cual la escribió el usuario, en hora
+ *   Perú y sin offset ("2026-05-05T08:00:00").
+ * - El backend almacena todo en hora Perú (naive), igual que hace el motor de
+ *   BD con CURRENT_TIMESTAMP.
+ * - Al mostrar al usuario, se serializa con offset -05:00 y se formatea con
+ *   timeZone 'America/Lima', así el resultado no depende del reloj del equipo.
  */
 
 const TIMEZONE_PERU = 'America/Lima'
@@ -15,32 +17,44 @@ const LOCALE_PERU  = 'es-PE'
 // ─── Construcción ───────────────────────────────────────────────────────────
 
 /**
- * Construye un datetime ISO-8601 en UTC a partir de una fecha ("2026-05-05")
- * y una hora ("08:00") ingresadas por el usuario en hora Perú.
+ * Construye un datetime ISO-8601 en hora Perú a partir de una fecha
+ * ("2026-05-05") y una hora ("08:00") ingresadas por el usuario.
  *
- * Usa la zona horaria del navegador (que en Perú es America/Lima) para
- * determinar el offset correcto.
+ * No se usa toISOString(): eso convertiría a UTC según la zona del navegador
+ * y dejaría la columna de la BD corridida. La convención es guardar hora Perú.
  */
 export function construirFechaISO(fecha: string, hora: string): string | null {
   if (!fecha || !hora) return null
-  // Construimos "2026-05-05T08:00:00" — el constructor de Date lo interpreta
-  // como hora local del navegador.
-  return new Date(`${fecha}T${hora}:00`).toISOString()
+  return `${fecha}T${hora}:00`
 }
 
 // ─── Extracción (para rellenar inputs date/time al editar) ──────────────────
 
 /**
- * Dado un ISO-8601 UTC ("2026-05-05T13:00:00.000Z"), extrae la fecha y hora
- * en hora local del navegador (Perú) para rellenar inputs type="date" y
- * type="time".
+ * Dado un ISO-8601 con offset ("-05:00"), extrae la fecha y hora en hora Perú
+ * para rellenar inputs type="date" y type="time".
+ *
+ * Se formatea con timeZone explícita para que el resultado sea el mismo sin
+ * importar la zona horaria configurada en el equipo.
  */
 export function extraerFechaHora(iso: string | null): { date: string; time: string } {
   if (!iso) return { date: '', time: '' }
   const d = new Date(iso)
-  const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-  const time = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
-  return { date, time }
+  if (Number.isNaN(d.getTime())) return { date: '', time: '' }
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: TIMEZONE_PERU,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(d)
+  const get = (type: string) => parts.find(p => p.type === type)?.value ?? ''
+  return {
+    date: `${get('year')}-${get('month')}-${get('day')}`,
+    time: `${get('hour')}:${get('minute')}`,
+  }
 }
 
 // ─── Formateo para mostrar al usuario ───────────────────────────────────────

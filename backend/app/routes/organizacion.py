@@ -11,6 +11,7 @@ from datetime import datetime
 
 from app.core.database import get_db
 from app.core.db_utils import get_or_404
+from app.core.tz import iso_peru
 from app.models.db_models import Ugel, InstitucionEducativa, InstitucionNivel, Grado, ExamenLectura, ExamenMatematica, AsignacionExamen, IntentoExamen
 from app.models.usuario import Usuario
 from app.models.enums import RolCodigo
@@ -555,7 +556,7 @@ async def ie_analytics(
             "titulo": ex.titulo or f"Examen {ex.grado_nombre}",
             "grado": ex.grado_nombre or "—",
             "area": "lectura",
-            "fecha": ex.fecha_creacion.isoformat() if ex.fecha_creacion else None,
+            "fecha": iso_peru(ex.fecha_creacion),
             "docente": f"{doc.nombres or ''} {doc.apellidos or ''}".strip() or doc.dni,
         })
 
@@ -572,7 +573,7 @@ async def ie_analytics(
             "titulo": ex.titulo or f"Examen {ex.grado_nombre}",
             "grado": ex.grado_nombre or "—",
             "area": "matematica",
-            "fecha": ex.fecha_creacion.isoformat() if ex.fecha_creacion else None,
+            "fecha": iso_peru(ex.fecha_creacion),
             "docente": f"{doc.nombres or ''} {doc.apellidos or ''}".strip() or doc.dni,
         })
 
