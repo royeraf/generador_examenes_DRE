@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { Bot, AlertTriangle, Download, Loader2, Sparkles, MessageSquare, X, CheckCircle2, XCircle } from 'lucide-vue-next';
+import { ref, computed } from 'vue';
+import { Bot, AlertTriangle, Download, Loader2, Sparkles, MessageSquare, X, CheckCircle2, XCircle, BookOpen, Maximize2 } from 'lucide-vue-next';
 import ThinkingLoader from '../../../shared/components/ThinkingLoader.vue';
 import type { Examen, FilaTablaRespuestas } from '../../../shared/types';
 import BaseButton from '../../../shared/components/BaseButton.vue';
@@ -26,6 +26,54 @@ const props = defineProps<{
 const emit = defineEmits<{
     (e: 'descargar-word'): void;
 }>();
+
+// ── Lecturas y texto extenso ─────────────────────────────────────────────────
+
+const UMBRAL_TEXTO_EXTENSO = 400;
+
+const listaLecturas = computed<{ titulo: string; texto: string }[]>(() => {
+    if (props.resultado?.lecturas && props.resultado.lecturas.length > 0) {
+        return props.resultado.lecturas;
+    }
+    if (props.resultado?.examen.lectura && props.resultado.examen.lectura.trim()) {
+        return [{
+            titulo: props.resultado.examen.titulo ? `Lectura: ${props.resultado.examen.titulo}` : 'Lectura Principal',
+            texto: props.resultado.examen.lectura
+        }];
+    }
+    return [];
+});
+
+const esTextoExtenso = (texto: string): boolean => {
+    return (texto || '').trim().length > UMBRAL_TEXTO_EXTENSO;
+};
+
+const getTextoResumen = (texto: string): string => {
+    if (!texto) return '';
+    const limpio = texto.trim();
+    if (limpio.length <= UMBRAL_TEXTO_EXTENSO) return limpio;
+    const corte = limpio.slice(0, 350);
+    const ultimoEspacio = corte.lastIndexOf(' ');
+    const base = ultimoEspacio > 220 ? corte.slice(0, ultimoEspacio) : corte;
+    return `${base.trim()}...`;
+};
+
+const contarPalabras = (texto: string): number => {
+    if (!texto) return 0;
+    return texto.trim().split(/\s+/).filter(Boolean).length;
+};
+
+// ── Modal de lectura completa ─────────────────────────────────────────────────
+
+const modalLectura = ref<{ titulo: string; texto: string } | null>(null);
+
+const abrirModalLectura = (lectura: { titulo: string; texto: string }) => {
+    modalLectura.value = lectura;
+};
+
+const cerrarModalLectura = () => {
+    modalLectura.value = null;
+};
 
 // ── Modal de retroalimentación ────────────────────────────────────────────────
 
@@ -94,11 +142,46 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
                     <p class="text-xs text-slate-500 dark:text-slate-400">{{ resultado.examen.grado }} | {{ resultado.total_preguntas }} Preguntas</p>
                 </div>
 
-                <div v-if="resultado.lecturas && resultado.lecturas.length" class="space-y-6">
-                    <div v-for="(lectura, idx) in resultado.lecturas" :key="idx"
+                <div v-if="listaLecturas.length" class="space-y-6">
+                    <div v-for="(lectura, idx) in listaLecturas" :key="idx"
                         class="bg-slate-50 dark:bg-slate-950 rounded-2xl p-5 border border-slate-300 dark:border-slate-700">
-                        <MathText as="h3" class="text-sm font-bold text-slate-800 dark:text-white mb-3" :text="lectura.titulo" />
-                        <MathText as="p" class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-serif" :text="lectura.texto" />
+                        <div class="flex items-start justify-between gap-3 mb-3">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <div class="w-7 h-7 rounded-lg bg-teal-100/80 dark:bg-teal-900/30 flex items-center justify-center text-teal-600 dark:text-teal-400 shrink-0">
+                                    <BookOpen class="w-4 h-4" />
+                                </div>
+                                <MathText as="h3" class="text-sm font-bold text-slate-800 dark:text-white truncate"
+                                    :text="lectura.titulo || (listaLecturas.length > 1 ? `Texto ${idx + 1}` : 'Lectura Principal')" />
+                            </div>
+                            <span v-if="esTextoExtenso(lectura.texto)"
+                                class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 border border-teal-200 dark:border-teal-800/60 shrink-0">
+                                {{ contarPalabras(lectura.texto) }} palabras
+                            </span>
+                        </div>
+
+                        <!-- Si es extenso, mostrar resumen + botón para abrir modal -->
+                        <template v-if="esTextoExtenso(lectura.texto)">
+                            <div class="relative">
+                                <MathText as="p" class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-serif"
+                                    :text="getTextoResumen(lectura.texto)" />
+                                <div class="h-6 bg-gradient-to-t from-slate-50 dark:from-slate-950 to-transparent pointer-events-none -mt-4"></div>
+                            </div>
+                            <div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
+                                <p class="text-xs text-slate-500 dark:text-slate-400">
+                                    Vista previa del texto base.
+                                </p>
+                                <button type="button" @click="abrirModalLectura(lectura)"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-teal-500/10 dark:bg-teal-500/20 text-teal-600 dark:text-teal-400 hover:bg-teal-500/20 dark:hover:bg-teal-500/30 border border-teal-500/30 transition-colors">
+                                    <Maximize2 class="w-3.5 h-3.5" />
+                                    <span>Ver texto completo</span>
+                                </button>
+                            </div>
+                        </template>
+
+                        <!-- Si es corto, mostrar el texto completo directamente -->
+                        <template v-else>
+                            <MathText as="p" class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-serif" :text="lectura.texto" />
+                        </template>
                     </div>
                 </div>
 
@@ -221,6 +304,69 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
                         <!-- Footer modal -->
                         <div class="px-5 py-3 border-t border-slate-300 dark:border-slate-700 flex justify-end">
                             <BaseButton variant="secondary" size="sm" @click="cerrarModal">
+                                Cerrar
+                            </BaseButton>
+                        </div>
+                    </div>
+                </div>
+            </Transition>
+        </Teleport>
+
+        <!-- Modal de Lectura Completa -->
+        <Teleport to="body">
+            <Transition name="modal">
+                <div v-if="modalLectura"
+                    class="fixed inset-0 z-[200] flex items-end sm:items-center justify-center sm:p-4 cursor-pointer"
+                    @click.self="cerrarModalLectura">
+
+                    <!-- Backdrop -->
+                    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm cursor-pointer" @click="cerrarModalLectura" />
+
+                    <!-- Dialog -->
+                    <div class="relative z-10 w-full sm:max-w-2xl lg:max-w-3xl bg-white dark:bg-slate-900 rounded-t-2xl sm:rounded-2xl shadow-2xl border border-slate-300 dark:border-slate-700 overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[85vh] cursor-default"
+                        @click.stop>
+
+                        <!-- Drag handle (mobile) -->
+                        <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0" @click="cerrarModalLectura">
+                            <div class="w-10 h-1 rounded-full bg-slate-200 dark:bg-slate-600"></div>
+                        </div>
+
+                        <!-- Header modal -->
+                        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-300 dark:border-slate-700 shrink-0">
+                            <div class="flex items-center gap-2.5 min-w-0 pr-2">
+                                <div class="w-8 h-8 rounded-lg bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center text-teal-600 dark:text-teal-400 shrink-0">
+                                    <BookOpen class="w-4 h-4" />
+                                </div>
+                                <div class="min-w-0">
+                                    <h3 class="text-sm sm:text-base font-bold text-slate-800 dark:text-white truncate">
+                                        {{ modalLectura.titulo || 'Texto de Lectura Completo' }}
+                                    </h3>
+                                    <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                                        {{ contarPalabras(modalLectura.texto) }} palabras · {{ modalLectura.texto.length }} caracteres
+                                    </p>
+                                </div>
+                            </div>
+                            <button @click="cerrarModalLectura"
+                                class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors shrink-0"
+                                title="Cerrar">
+                                <X class="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        <!-- Body modal -->
+                        <div class="p-5 sm:p-6 overflow-y-auto custom-scrollbar flex-1 bg-slate-50/50 dark:bg-slate-950/50">
+                            <div class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                                <MathText as="div" class="text-sm sm:text-base text-slate-700 dark:text-slate-200 leading-relaxed sm:leading-loose whitespace-pre-wrap font-serif selection:bg-teal-500/20"
+                                    :text="modalLectura.texto" />
+                            </div>
+                        </div>
+
+                        <!-- Footer modal -->
+                        <div class="px-5 py-3 border-t border-slate-300 dark:border-slate-700 flex items-center justify-between shrink-0 bg-white dark:bg-slate-900">
+                            <span class="text-xs text-slate-400 dark:text-slate-500">
+                                Lectura base de la evaluación
+                            </span>
+                            <BaseButton variant="secondary" size="sm" @click="cerrarModalLectura">
                                 Cerrar
                             </BaseButton>
                         </div>

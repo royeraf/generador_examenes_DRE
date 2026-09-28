@@ -91,7 +91,7 @@ TEXTO BASE PARA LAS PREGUNTAS:
 {texto_base}
 \"\"\"
 
-Las preguntas deben basarse en este texto.
+Las preguntas deben basarse estrictamente en este texto. IMPORTANTE: En el campo 'lectura' del JSON responde EXACTAMENTE '[Texto base proporcionado]' y NO repitas el texto base para no exceder los límites de tokens.
 """
         
         prompt = f"""Eres un experto pedagogo peruano, especialista en Comprensión Lectora y Evaluación Formativa según el Currículo Nacional de Educación Básica (CNEB).
@@ -105,7 +105,7 @@ Tu misión es crear un instrumento de evaluación de alta calidad para estudiant
 
 **ESPECIFICACIONES DEL CONTENIDO:**
 1. **TEXTO BASE:**
-   {f'Usa el siguiente texto proporcionado:' if texto_base else 'GENERA UN TEXTO NUEVO.'}
+   {f'Usa el siguiente texto proporcionado (en el campo \"lectura\" del JSON responde \"[Texto base proporcionado]\"):' if texto_base else 'GENERA UN TEXTO NUEVO.'}
    {texto_instruccion if texto_base else 'El texto debe ser original, creativo, motivador y adecuado para la edad de estudiantes, con una extensión de 250-400 palabras. Temas sugeridos: Tradiciones peruanas, cuidado del medio ambiente, tecnología en la escuela, convivencia escolar.'}
 
 2. **COMPETENCIA Y DESEMPEÑO A EVALUAR:**
@@ -130,7 +130,7 @@ Responde ÚNICAMENTE con un JSON válido que siga esta estructura exacta, sin co
         "titulo": "Título creativo y motivador para la lectura",
         "grado": "{grado_nombre}",
         "instrucciones": "Lee atentamente el siguiente texto y marca la alternativa correcta.",
-        "lectura": "Texto completo de la lectura...",
+        "lectura": "{'[Texto base proporcionado]' if texto_base else 'Texto completo de la lectura...'}",
         "preguntas": [
             {{
                 "numero": 1,
@@ -245,14 +245,18 @@ Responde ÚNICAMENTE con un JSON válido que siga esta estructura exacta, sin co
         
         try:
             data = await ai_service.generate_structured_content(prompt, RespuestaLecto)
-            preguntas = data.get("examen", {}).get("preguntas", [])
+            examen = data.get("examen", {})
+            if texto_base:
+                examen["lectura"] = texto_base
+            preguntas = examen.get("preguntas", [])
             return {
                 "grado": grado.nombre,
                 "nivel_logro": nivel_logro,
                 "desempeno_base": desempeno.descripcion,
                 "capacidad": capacidad_nombre,
                 "preguntas": preguntas,
-                "total": len(preguntas)
+                "total": len(preguntas),
+                "examen": examen
             }
         except ValueError:
             raise
@@ -401,16 +405,27 @@ TEXTO DE LECTURA {titulo_label}:
 \"\"\"
 {t["texto"]}
 \"\"\"
+IMPORTANTE: El texto de lectura ya fue proporcionado por el usuario. En el campo 'lectura' del JSON responde EXACTAMENTE '[Texto base proporcionado]'. NO repitas el texto de lectura en el JSON para no agotar el límite de tokens y concentrar toda la respuesta en la calidad pedagógica de las preguntas.
 """
             else:
                 bloques = []
                 for i, t in enumerate(textos_base, 1):
                     titulo_label = f': "{t["titulo"]}"' if t.get("titulo") else ""
                     bloques.append(f'TEXTO {i}{titulo_label}:\n"""\n{t["texto"]}\n"""')
-                texto_lectura = "\nTEXTOS DE LECTURA PROPORCIONADOS (genera preguntas que cubran TODOS estos textos, distribuyendo las preguntas entre los textos):\n\n" + "\n\n".join(bloques) + "\nIMPORTANTE: En el campo 'lectura' del JSON, escribe '[Ver textos proporcionados]'. Las preguntas deben referenciar el texto correspondiente en su enunciado si es necesario.\n"
+                texto_lectura = "\nTEXTOS DE LECTURA PROPORCIONADOS (genera preguntas que cubran TODOS estos textos, distribuyendo las preguntas entre los textos):\n\n" + "\n\n".join(bloques) + "\nIMPORTANTE: En el campo 'lectura' del JSON, escribe EXACTAMENTE '[Ver textos proporcionados]'. Las preguntas deben referenciar el texto correspondiente en su enunciado si es necesario. NO repitas los textos en el JSON.\n"
         elif tipo_textual or formato_textual:
             texto_lectura = "Debes GENERAR un texto original que cumpla con el TIPO y FORMATO especificados arriba."
 
+        instruccion_lectura_item = (
+            "3. La lectura ya fue proporcionada por el usuario, por lo que en el campo 'lectura' del JSON debes escribir ÚNICAMENTE '[Texto base proporcionado]' (o '[Ver textos proporcionados]') sin duplicar el texto en la respuesta."
+            if textos_base
+            else "3. La 'lectura completa' o 'un fragmento de la lectura' que redactarás para que los estudiantes respondan las preguntas. SI SE ESPECIFICÓ UN FORMATO DISCONTINUO O MIXTO, REPRESENTA LOS ELEMENTOS VISUALES (TABLAS, GRÁFICOS) USANDO MARKDOWN O DESCRIBIÉNDOLOS CLARAMENTE."
+        )
+        placeholder_lectura = (
+            ("[Ver textos proporcionados]" if len(textos_base) > 1 else "[Texto base proporcionado]")
+            if textos_base
+            else "texto de lectura completo o fragmento para las preguntas"
+        )
         
         # Prompt basado en el formato del usuario.
         # No se le pide a la IA una sección de "Apellidos y Nombres"/"Fecha": ese
@@ -433,7 +448,7 @@ Usarás los siguientes desempeños que están enumerados e indican entre parént
 El examen debe presentar:
 1. Un 'título' motivador para el examen
 2. 'Instrucciones precisas en un párrafo' para responder el examen
-3. La 'lectura completa' o 'un fragmento de la lectura' que utilizarás para que los estudiantes respondan las preguntas. SI SE ESPECIFICÓ UN FORMATO DISCONTINUO O MIXTO, REPRESENTA LOS ELEMENTOS VISUALES (TABLAS, GRÁFICOS) USANDO MARKDOWN O DESCRIBIÉNDOLOS CLARAMENTE.
+{instruccion_lectura_item}
 4. Las preguntas con esquema de opción múltiple (4 alternativas A, B, C, D siendo una sola la correcta, en orden aleatorio)
 5. Al final una 'tabla' indicando: los desempeños utilizados, número de pregunta, nivel (LITERAL/INFERENCIAL/CRÍTICO), alternativa correcta y una justificación breve indicando por qué es correcta. EN LA TABLA EL DESEMPEÑO DEBE TENER EL FORMATO EXACTO: "(CÓDIGO) DESCRIPCIÓN", por ejemplo: "(01) Obtiene información explícita...".
 
@@ -446,7 +461,7 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
         "titulo": "título motivador del examen",
         "grado": "{grado.nombre}",
         "instrucciones": "instrucciones precisas para responder el examen",
-        "lectura": "texto de lectura completo o fragmento para las preguntas",
+        "lectura": "{placeholder_lectura}",
         "preguntas": [
             {{
                 "numero": 1,

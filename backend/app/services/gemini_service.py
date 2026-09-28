@@ -54,12 +54,15 @@ class GeminiService(AIService):
                 if not response.candidates:
                     raise ValueError("Respuesta bloqueada por filtros de seguridad")
 
+                first_candidate = response.candidates[0]
+                finish_reason = getattr(first_candidate, "finish_reason", None)
+
                 text = response.text
                 if not text or not text.strip():
                     raise ValueError("Gemini devolvió una respuesta vacía")
 
                 self.stats[index]["llamadas_ok"] += 1
-                return text
+                return text, finish_reason
             except asyncio.TimeoutError:
                 raise ValueError(
                     "La API de Google Gemini tardó demasiado en responder (Timeout). "
@@ -98,7 +101,8 @@ class GeminiService(AIService):
             max_output_tokens=8192,
             thinking_config=types.ThinkingConfig(thinking_budget=0),
         )
-        return await self._generate(config, prompt)
+        text, _ = await self._generate(config, prompt)
+        return text
 
     async def generate_structured_content(self, prompt: str, schema: Type) -> dict:
         """Generate JSON output enforced by a Pydantic schema (Gemini structured output).
@@ -113,7 +117,7 @@ class GeminiService(AIService):
             max_output_tokens=8192,
             thinking_config=types.ThinkingConfig(thinking_budget=0),
         )
-        text = await self._generate(config, prompt)
+        text, finish_reason = await self._generate(config, prompt)
         try:
             data = json.loads(text)
         except json.JSONDecodeError:
@@ -121,8 +125,19 @@ class GeminiService(AIService):
             # con el backslash sin doblar. Ver repair_latex_backslash_escapes.
             try:
                 data = json.loads(repair_latex_backslash_escapes(text))
-            except json.JSONDecodeError as e:
-                raise ValueError(f"Error al parsear la respuesta estructurada de Gemini: {e}")
+            except json.JSONDecodeError:
+                # Intento adicional de limpieza y reparación de JSON
+                try:
+                    cleaned = self.clean_json_response(text)
+                    data = json.loads(cleaned)
+                except json.JSONDecodeError as e:
+                    finish_reason_str = str(finish_reason) if finish_reason else ""
+                    if "MAX_TOKENS" in finish_reason_str:
+                        raise ValueError(
+                            "La respuesta generada por Gemini excedió la longitud máxima permitida (límite de tokens) "
+                            "y quedó incompleta. Por favor intenta reduciendo la cantidad de preguntas o el tamaño del texto."
+                        )
+                    raise ValueError(f"Error al parsear la respuesta estructurada de Gemini: {e}")
         return repair_stray_control_chars(data)
 
     def _build_prompt(
