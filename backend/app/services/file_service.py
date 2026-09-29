@@ -8,7 +8,9 @@ import fitz  # PyMuPDF
 from docx import Document
 from fastapi import UploadFile, HTTPException
 from fastapi.concurrency import run_in_threadpool
+from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED
 import io
+import os
 import re
 import time
 import unicodedata
@@ -29,12 +31,17 @@ class FileExtractionService:
     # Si una página aporta menos caracteres que este umbral, se asume que es
     # una imagen escaneada y se procesa con Tesseract vía pytesseract.
     OCR_MIN_CHARS_PER_PAGE = 20
-    # Límite de páginas a procesar con OCR por archivo (protege CPU/tiempo).
-    OCR_MAX_PAGES = 10
+    # Límite de páginas a procesar con OCR por archivo. El tope real de tiempo
+    # lo fija OCR_TIME_BUDGET_SECONDS; este evita tragarse PDFs gigantes.
+    OCR_MAX_PAGES = 30
     # Zoom de renderizado (72 dpi base × 3 ≈ 216 dpi, suficiente para OCR).
     OCR_ZOOM = 3.0
     # Español primero (lecturas de aula), inglés como respaldo.
     OCR_LANG = "spa+eng"
+    # Páginas OCR en paralelo. tesseract corre como subproceso (no usa el GIL),
+    # así que en un VPS de 16 cores un PDF de 11 páginas tarda ~20s en vez de ~75s.
+    # Se reserva la mitad de los cores para no saturar la máquina.
+    OCR_MAX_WORKERS = max(2, min(6, (os.cpu_count() or 4) // 2))
     # Presupuesto total de OCR por petición. Debe ser MUY inferior al timeout
     # del proxy: en producción nginx no define proxy_read_timeout, así que su
     # default de 60s corta la petición con 504 Gateway Time-out. Se deja margen
@@ -363,34 +370,72 @@ class FileExtractionService:
 
         matrix = fitz.Matrix(self.OCR_ZOOM, self.OCR_ZOOM)
         lang = self._elegir_idioma_ocr(pytesseract)
-        logger.info("OCR con idioma: %s", lang)
-        ocr_texts: list = []
+        workers = self.OCR_MAX_WORKERS
+        logger.info("OCR con idioma: %s · %s trabajador(es) en paralelo", lang, workers)
+
+        results: list = [""] * len(page_numbers)
         skipped = 0
-        for idx, page_num in enumerate(page_numbers):
-            remaining = None
-            if deadline is not None:
-                remaining = deadline - time.monotonic()
-                if remaining <= 0:
-                    skipped = len(page_numbers) - idx
-                    logger.warning(
-                        "OCR detenido por tiempo límite: %s página(s) omitidas", skipped
-                    )
-                    break
-            try:
-                pix = doc[page_num].get_pixmap(matrix=matrix)
-                img = Image.open(io.BytesIO(pix.tobytes("png")))
-                # Limita también cada página: una imagen pesada no puede usar
-                # el tiempo que falta y hacer que el proxy corte la petición.
-                page_kwargs = {}
-                if remaining is not None:
-                    page_kwargs["timeout"] = max(3, min(20, int(remaining)))
-                page_text = pytesseract.image_to_string(img, lang=lang, **page_kwargs).strip()
-            except Exception as e:
-                logger.warning("OCR falló en página %s: %s", page_num + 1, e)
-                page_text = ""
-            ocr_texts.append(page_text)
-        ok_pages = sum(1 for t in ocr_texts if t)
-        return ocr_texts, ok_pages, lang, skipped
+        futures: dict = {}
+        executor = ThreadPoolExecutor(max_workers=workers)
+        try:
+            for idx, page_num in enumerate(page_numbers):
+                remaining = None
+                if deadline is not None:
+                    remaining = deadline - time.monotonic()
+                    if remaining <= 0:
+                        skipped = len(page_numbers) - idx
+                        logger.warning(
+                            "OCR detenido por tiempo límite: %s página(s) omitidas", skipped
+                        )
+                        break
+                # Render secuencial: PyMuPDF no es thread-safe sobre un mismo documento.
+                try:
+                    pix = doc[page_num].get_pixmap(matrix=matrix)
+                    img = Image.open(io.BytesIO(pix.tobytes("png")))
+                except Exception as e:
+                    logger.warning("OCR: no se pudo renderizar página %s: %s", page_num + 1, e)
+                    continue
+                # Limita las imágenes en vuelo para no acumular memoria.
+                while len(futures) >= workers * 2:
+                    done, _ = wait(futures, return_when=FIRST_COMPLETED)
+                    for fut in done:
+                        results[futures.pop(fut)] = fut.result()
+                # Se envía el deadline (absoluto): el timeout se calcula cuando
+                # la tarea realmente empieza, no cuando entra en la cola.
+                futures[executor.submit(self._ocr_one_page, img, lang, deadline, page_num)] = idx
+            while futures:
+                done, _ = wait(futures, return_when=FIRST_COMPLETED)
+                for fut in done:
+                    results[futures.pop(fut)] = fut.result()
+        finally:
+            executor.shutdown()
+
+        ok_pages = sum(1 for t in results if t)
+        return results, ok_pages, lang, skipped
+
+    def _ocr_one_page(self, img, lang: str, deadline: float | None, page_num: int) -> str:
+        """OCR de una página ya renderizada.
+
+        Seguro en paralelo: tesseract es un subproceso independiente.
+        El presupuesto se evalúa al INICIAR la tarea (no al encolarla): así una
+        página encolada tarde nunca puede pasar del deadline de la petición.
+        """
+        import pytesseract
+
+        page_kwargs = {}
+        if deadline is not None:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                logger.warning("OCR: página %s omitida por presupuesto agotado", page_num + 1)
+                return ""
+            # Como máximo hasta el deadline, sin tope adicional: con OCR en
+            # paralelo un tope fijo por página provoca timeouts falsos.
+            page_kwargs["timeout"] = max(3, int(remaining))
+        try:
+            return pytesseract.image_to_string(img, lang=lang, **page_kwargs).strip()
+        except Exception as e:
+            logger.warning("OCR falló en página %s: %s", page_num + 1, e)
+            return ""
 
     def _extract_text_from_pdf(self, content: bytes, deadline: float | None = None) -> Tuple[str, dict]:
         """Extrae texto embebido y aplica OCR por página cuando falta texto.
