@@ -38,7 +38,7 @@ export function validateFiles(files: File[]): string | null {
  * `{ mensaje, errores: [{ archivo, error }] }` cuando fallan todos los archivos.
  */
 export function parseUploadError(e: unknown): string {
-  const err = e as { response?: { data?: { detail?: unknown } }; code?: string; message?: string };
+  const err = e as { response?: { data?: { detail?: unknown }; status?: number }; code?: string; message?: string };
   const detail = err?.response?.data?.detail;
 
   if (typeof detail === 'string') return detail;
@@ -52,7 +52,21 @@ export function parseUploadError(e: unknown): string {
     if (d.mensaje) return d.mensaje;
   }
 
+  const status = err?.response?.status;
+  if (status === 413) {
+    return 'El archivo es demasiado grande para el servidor. Redúcelo e inténtalo de nuevo.';
+  }
+  if (status === 502 || status === 503 || status === 504) {
+    return 'El servidor tardó demasiado en responder (tiempo de espera agotado). Vuelve a intentarlo en unos minutos o usa un archivo más liviano.';
+  }
+  if (status && status >= 500) {
+    return 'El servidor tuvo un error al procesar los archivos. Vuelve a intentarlo en unos minutos.';
+  }
+
   if (err?.code === 'ECONNABORTED') return 'La subida tardó demasiado. Intenta con un archivo más liviano.';
+  if (err?.code === 'ERR_NETWORK' || (!err?.response && err?.message === 'Network Error')) {
+    return 'No se pudo conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.';
+  }
 
   return 'Error al procesar los archivos';
 }

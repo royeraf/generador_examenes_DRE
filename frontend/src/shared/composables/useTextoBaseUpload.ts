@@ -53,9 +53,17 @@ export function useTextoBaseUpload() {
     uploadError.value = null;
     try {
       const result = await desempenosService.uploadTextoBase(files);
+      const archivos = Array.isArray(result?.archivos) ? result.archivos : null;
+      if (typeof result?.texto !== 'string' || !archivos) {
+        uploadError.value = 'El servidor devolvió una respuesta inesperada. Vuelve a intentarlo.';
+        selectedFiles.value = [];
+        filesMetadata.value = null;
+        textoBase.value = '';
+        return;
+      }
       textoBase.value = result.texto;
       filesMetadata.value = {
-        archivos: result.archivos,
+        archivos,
         total_palabras: result.total_palabras,
         total_caracteres: result.total_caracteres,
         advertencias: result.advertencias,

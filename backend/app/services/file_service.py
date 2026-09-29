@@ -10,6 +10,7 @@ from fastapi import UploadFile, HTTPException
 from fastapi.concurrency import run_in_threadpool
 import io
 import re
+import time
 import unicodedata
 from typing import Tuple
 import zipfile
@@ -34,6 +35,10 @@ class FileExtractionService:
     OCR_ZOOM = 3.0
     # Español primero (lecturas de aula), inglés como respaldo.
     OCR_LANG = "spa+eng"
+    # Presupuesto total de OCR por petición (los límites de tiempo de nginx y
+    # gunicorn matan la petición antes; así el backend responde a tiempo con
+    # un texto parcial + advertencia en lugar de un 504 Gateway Time-out).
+    OCR_TIME_BUDGET_SECONDS = 90
 
     MAGIC_BYTES: dict[str, list[bytes]] = {
         "pdf":  [b"%PDF"],
@@ -322,12 +327,14 @@ class FileExtractionService:
         resto = sorted(l for l in disponibles if l != "osd")
         return "+".join(resto) if resto else self.OCR_LANG
 
-    def _ocr_pdf_pages(self, doc, page_numbers: list[int]) -> Tuple[list, int, str]:
+    def _ocr_pdf_pages(self, doc, page_numbers: list[int], deadline: float | None = None) -> Tuple[list, int, str, int]:
         """Aplica OCR (Tesseract) a las páginas indicadas.
 
-        Retorna (textos_por_pagina, n_paginas_ok, idioma_usado) manteniendo el
-        orden de `page_numbers`. Los imports son diferidos para que el servicio
-        siga funcionando aunque las dependencias de OCR no estén instaladas.
+        Retorna (textos_por_pagina, n_paginas_ok, idioma_usado, n_paginas_omitidas)
+        manteniendo el orden de `page_numbers`. Si se agota `deadline` (segundos
+        desde time.monotonic()), se dejan de procesar páginas y se reportan las
+        omitidas. Los imports son diferidos para que el servicio siga
+        funcionando aunque las dependencias de OCR no estén instaladas.
         """
         try:
             from PIL import Image
@@ -357,7 +364,14 @@ class FileExtractionService:
         lang = self._elegir_idioma_ocr(pytesseract)
         logger.info("OCR con idioma: %s", lang)
         ocr_texts: list = []
-        for page_num in page_numbers:
+        skipped = 0
+        for idx, page_num in enumerate(page_numbers):
+            if deadline is not None and time.monotonic() >= deadline:
+                skipped = len(page_numbers) - idx
+                logger.warning(
+                    "OCR detenido por tiempo límite: %s página(s) omitidas", skipped
+                )
+                break
             try:
                 pix = doc[page_num].get_pixmap(matrix=matrix)
                 img = Image.open(io.BytesIO(pix.tobytes("png")))
@@ -367,13 +381,14 @@ class FileExtractionService:
                 page_text = ""
             ocr_texts.append(page_text)
         ok_pages = sum(1 for t in ocr_texts if t)
-        return ocr_texts, ok_pages, lang
+        return ocr_texts, ok_pages, lang, skipped
 
-    def _extract_text_from_pdf(self, content: bytes) -> Tuple[str, dict]:
+    def _extract_text_from_pdf(self, content: bytes, deadline: float | None = None) -> Tuple[str, dict]:
         """Extrae texto embebido y aplica OCR por página cuando falta texto.
 
         Retorna (texto, info_ocr) donde info_ocr incluye `ocr_aplicado` y,
-        de ser el caso, `ocr_paginas` y `ocr_paginas_omitidas`.
+        de ser el caso, `ocr_paginas`, `ocr_paginas_omitidas` y
+        `ocr_tiempo_excedido` (se agotó el presupuesto de tiempo de OCR).
         """
         try:
             doc = fitz.open(stream=content, filetype="pdf")
@@ -400,10 +415,13 @@ class FileExtractionService:
                     "PDF con %s página(s) escaneada(s), aplicando OCR a %s",
                     len(scanned_pages), len(to_ocr),
                 )
-                ocr_texts, ok_pages, lang_usado = self._ocr_pdf_pages(doc, to_ocr)
+                ocr_texts, ok_pages, lang_usado, skipped_ocr = self._ocr_pdf_pages(
+                    doc, to_ocr, deadline
+                )
                 for page_num, ocr_text in zip(to_ocr, ocr_texts):
                     if ocr_text:
                         page_texts[page_num] = ocr_text
+                omitted += skipped_ocr
                 if ok_pages > 0:
                     ocr_info = {
                         "ocr_aplicado": True,
@@ -412,7 +430,18 @@ class FileExtractionService:
                     }
                     if omitted:
                         ocr_info["ocr_paginas_omitidas"] = omitted
+                    if skipped_ocr:
+                        ocr_info["ocr_tiempo_excedido"] = True
                 elif not page_texts:
+                    if skipped_ocr:
+                        raise HTTPException(
+                            status_code=400,
+                            detail=(
+                                "El servidor tardó demasiado en procesar el PDF "
+                                "escaneado (OCR). Intenta con un archivo más "
+                                "liviano o vuelve a intentarlo en unos minutos."
+                            ),
+                        )
                     raise HTTPException(
                         status_code=400,
                         detail=(
@@ -421,6 +450,11 @@ class FileExtractionService:
                             "sean legibles (buena resolución, sin fotos borrosas)."
                         ),
                     )
+                elif skipped_ocr:
+                    # Hay texto embebido pero no se alcanzó a procesar todas
+                    # las páginas escaneadas (se agotó el presupuesto de OCR).
+                    ocr_info["ocr_paginas_omitidas"] = omitted
+                    ocr_info["ocr_tiempo_excedido"] = True
                 # Si el OCR no rescató nada pero hay algo de texto embebido,
                 # se continúa con ese texto (el pipeline valida el mínimo).
 
@@ -446,12 +480,15 @@ class FileExtractionService:
         except Exception as e:
             raise HTTPException(400, f"Error al procesar Word: {e}")
 
-    def _validate_scan_and_extract(self, content: bytes, extension: str) -> Tuple[str, dict]:
+    def _validate_scan_and_extract(self, content: bytes, extension: str, deadline: float | None = None) -> Tuple[str, dict]:
         """Trabajo CPU-bound (magic bytes, escaneo de amenazas, extracción de texto).
 
         Se ejecuta en threadpool porque bloquearía el event loop si corriera
         directamente dentro de la ruta async (archivos grandes/lentos frenan
         a todos los usuarios conectados al mismo worker).
+
+        `deadline` (time.monotonic()) limita el tiempo total de OCR de la
+        petición para responder antes de que nginx/gunicorn corten la conexión.
 
         Retorna (texto, info_extra) donde info_extra trae datos de OCR
         cuando aplicó (solo PDF).
@@ -464,12 +501,14 @@ class FileExtractionService:
             self._scan_docx_for_threats(content)
 
         if extension == "pdf":
-            return self._extract_text_from_pdf(content)
+            return self._extract_text_from_pdf(content, deadline)
         return self._extract_text_from_docx(content), {}
 
     # ── Pipeline público ───────────────────────────────────────────────────────
 
-    async def extract_text_from_file(self, file: UploadFile) -> Tuple[str, dict]:
+    async def extract_text_from_file(
+        self, file: UploadFile, deadline: float | None = None
+    ) -> Tuple[str, dict]:
         """
         Pipeline de seguridad multicapa:
         1. Validar extensión  2. Sanitizar nombre  3. Verificar tamaño
@@ -502,7 +541,9 @@ class FileExtractionService:
                 ),
             )
 
-        text, extra = await run_in_threadpool(self._validate_scan_and_extract, content, extension)
+        text, extra = await run_in_threadpool(
+            self._validate_scan_and_extract, content, extension, deadline
+        )
 
         text = text.strip()
         if not text:
@@ -529,8 +570,10 @@ class FileExtractionService:
         if extra.get("ocr_aplicado"):
             metadata["ocr_paginas"] = extra.get("ocr_paginas", 0)
             metadata["ocr_idioma"] = extra.get("ocr_idioma", "")
-            if extra.get("ocr_paginas_omitidas"):
-                metadata["ocr_paginas_omitidas"] = extra["ocr_paginas_omitidas"]
+        if extra.get("ocr_paginas_omitidas"):
+            metadata["ocr_paginas_omitidas"] = extra["ocr_paginas_omitidas"]
+        if extra.get("ocr_tiempo_excedido"):
+            metadata["ocr_tiempo_excedido"] = True
         if extra.get("total_paginas"):
             metadata["total_paginas"] = extra["total_paginas"]
 

@@ -4,6 +4,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 from pydantic import BaseModel, Field
+import time
 
 from app.core.database import get_db
 from app.models.db_models import Grado, Capacidad, Desempeno, ExamenLectura
@@ -242,6 +243,10 @@ async def upload_texto_base(files: list[UploadFile] = File(...)):
     if len(files) == 0:
         raise HTTPException(status_code=400, detail="Debe enviar al menos un archivo.")
 
+    # Presupuesto total de OCR para TODA la petición: evita que nginx (504) o
+    # gunicorn corten la conexión antes de que el backend pueda responder.
+    deadline = time.monotonic() + file_extraction_service.OCR_TIME_BUDGET_SECONDS
+
     textos = []
     archivos_metadata = []
     errores = []
@@ -250,11 +255,23 @@ async def upload_texto_base(files: list[UploadFile] = File(...)):
 
     for file in files:
         try:
-            text, metadata = await file_extraction_service.extract_text_from_file(file)
+            text, metadata = await file_extraction_service.extract_text_from_file(
+                file, deadline=deadline
+            )
             textos.append(f"=== {metadata['filename']} ===\n{text}")
             archivos_metadata.append(metadata)
             total_palabras += metadata["palabras"]
             total_caracteres += metadata["caracteres"]
+            if metadata.get("ocr_tiempo_excedido"):
+                omitidas = metadata.get("ocr_paginas_omitidas", 0)
+                errores.append({
+                    "archivo": metadata["filename"],
+                    "error": (
+                        "OCR incompleto: se agotó el tiempo de procesamiento y "
+                        f"{omitidas} página(s) escaneada(s) quedaron sin reconocer. "
+                        "El texto devuelto es parcial."
+                    ),
+                })
         except HTTPException as e:
             errores.append({
                 "archivo": file.filename or "desconocido",

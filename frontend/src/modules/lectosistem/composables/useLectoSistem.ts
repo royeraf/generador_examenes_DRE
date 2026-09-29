@@ -40,7 +40,9 @@ function loadTextosFromStorage(makeTexto: () => TextoBaseItem): TextoBaseItem[] 
       ...makeTexto(),
       titulo: p.titulo ?? '',
       texto: p.texto ?? '',
-      filesMetadata: p.filesMetadata ?? null,
+      // Estado guardado por versiones anteriores/corrupto: si `archivos` no es
+      // un array, se descarta para evitar leer `.archivos.length` sobre undefined.
+      filesMetadata: p.filesMetadata && Array.isArray(p.filesMetadata.archivos) ? p.filesMetadata : null,
     }));
   } catch {
     return [makeTexto()];
@@ -251,9 +253,16 @@ export function useLectoSistem() {
     item.uploadError = null;
     try {
       const result = await desempenosService.uploadTextoBase(files);
+      const archivos = Array.isArray(result?.archivos) ? result.archivos : null;
+      if (typeof result?.texto !== 'string' || !archivos) {
+        // Respuesta inesperada (p. ej. HTML de error con status 200): no se
+        // debe guardar un filesMetadata sin `archivos` (rompe los computed).
+        item.uploadError = 'El servidor devolvió una respuesta inesperada. Vuelve a intentarlo.';
+        return;
+      }
       item.texto = result.texto;
       item.filesMetadata = {
-        archivos: result.archivos,
+        archivos,
         total_palabras: result.total_palabras,
         total_caracteres: result.total_caracteres,
         advertencias: result.advertencias
@@ -262,6 +271,7 @@ export function useLectoSistem() {
     } catch (e: any) {
       item.uploadError = parseUploadError(e);
       item.texto = '';
+      item.filesMetadata = null;
       sourceFilesMap.value.delete(item.id);
       console.error('Error al subir archivo de texto base:', e);
     } finally {
@@ -290,7 +300,7 @@ export function useLectoSistem() {
   const textosBaseStatus = computed<TextosBaseStatus>(() => {
     const items = textosBase.value;
     const conTexto = items.filter(t => t.texto.trim().length > 0);
-    const conArchivo = items.filter(t => t.filesMetadata && t.filesMetadata.archivos.length > 0);
+    const conArchivo = items.filter(t => (t.filesMetadata?.archivos?.length ?? 0) > 0);
     const count = { filled: conTexto.length, total: items.length };
 
     if (items.some(t => t.uploadingFile)) {
@@ -314,7 +324,7 @@ export function useLectoSistem() {
     }
 
     const archivosResumen = conArchivo
-      .flatMap(t => t.filesMetadata!.archivos.map(a => `${a.filename} (${formatPalabras(a.palabras)})`))
+      .flatMap(t => (t.filesMetadata?.archivos ?? []).map(a => `${a.filename} (${formatPalabras(a.palabras)})`))
       .join(' · ');
 
     if (conTexto.length < items.length) {

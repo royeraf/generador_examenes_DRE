@@ -97,6 +97,9 @@ export const desempenosService = {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
+        // La extracción/OCR de PDFs escaneados puede tardar; el timeout debe
+        // superar el de nginx (300s) para que llegue el error real del servidor.
+        timeout: 310000,
       }
     );
     return response.data;

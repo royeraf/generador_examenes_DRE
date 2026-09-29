@@ -37,7 +37,7 @@ const accentClasses = computed(() => props.accent === 'indigo'
   : 'bg-teal-500/10 text-teal-500 dark:text-teal-400 border-teal-500/20');
 
 const showEmpty = computed(() =>
-  !props.uploading && !props.error && !props.hasText && !(props.metadata && props.metadata.archivos.length > 0));
+  !props.uploading && !props.error && !props.hasText && !(props.metadata?.archivos?.length));
 </script>
 
 <template>
@@ -50,7 +50,7 @@ const showEmpty = computed(() =>
       <AlertTriangle class="w-3.5 h-3.5 shrink-0" /> {{ error }}
     </div>
 
-    <div v-if="metadata && metadata.archivos.length > 0" class="flex flex-wrap gap-2">
+    <div v-if="metadata?.archivos?.length" class="flex flex-wrap gap-2">
       <div v-for="(archivo, idx) in metadata.archivos" :key="idx"
         class="flex min-w-0 max-w-full items-center gap-1.5 sm:gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 pl-1.5 pr-2 sm:pr-3 py-1.5 text-xs text-emerald-600 dark:text-emerald-400">
         <FileTypeIcon :filename="archivo.filename" :extension="archivo.extension" />

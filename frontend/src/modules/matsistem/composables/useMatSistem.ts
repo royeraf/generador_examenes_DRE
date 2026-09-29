@@ -216,9 +216,17 @@ export function useMatSistem() {
     uploadError.value = null;
     try {
       const result = await desempenosService.uploadTextoBase(fileArray);
+      const archivos = Array.isArray(result?.archivos) ? result.archivos : null;
+      if (typeof result?.texto !== 'string' || !archivos) {
+        uploadError.value = 'El servidor devolvió una respuesta inesperada. Vuelve a intentarlo.';
+        selectedFiles.value = [];
+        textoBase.value = '';
+        input.value = '';
+        return;
+      }
       textoBase.value = result.texto;
       filesMetadata.value = {
-        archivos: result.archivos,
+        archivos,
         total_palabras: result.total_palabras,
         total_caracteres: result.total_caracteres,
         advertencias: result.advertencias

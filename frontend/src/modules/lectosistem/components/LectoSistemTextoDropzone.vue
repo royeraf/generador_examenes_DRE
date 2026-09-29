@@ -31,7 +31,7 @@ const uploadError = computed(() => {
 });
 
 const filledItems = computed(() =>
-  props.textosBase.filter(t => t.texto.trim().length > 0 || (t.filesMetadata && t.filesMetadata.archivos.length > 0))
+  props.textosBase.filter(t => t.texto.trim().length > 0 || (t.filesMetadata?.archivos?.length ?? 0) > 0)
 );
 
 const hasContent = computed(() => filledItems.value.length > 0);

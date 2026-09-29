@@ -711,7 +711,7 @@ onMounted(async () => {
                     <div class="flex flex-wrap items-center gap-2">
                       <input type="file" :id="'file-' + idx" class="hidden" :disabled="texto.uploadingFile" accept=".pdf,.doc,.docx" multiple @change="(e) => handleFileUploadAt(idx, e)" />
                       <label :for="'file-' + idx" class="cursor-pointer text-xs flex items-center gap-1.5 px-3 py-1.5 bg-slate-200 dark:bg-slate-200 dark:bg-slate-700/50 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-lg transition-colors" :class="{ 'opacity-50 pointer-events-none': texto.uploadingFile }"><CloudUpload class="w-3.5 h-3.5" /> Archivo</label>
-                      <BaseButton v-if="texto.filesMetadata && texto.filesMetadata.archivos.length > 0" variant="destructive" size="sm" class="ml-2" @click="clearFilesAt(idx)">Eliminar archivo</BaseButton>
+                      <BaseButton v-if="texto.filesMetadata?.archivos?.length" variant="destructive" size="sm" class="ml-2" @click="clearFilesAt(idx)">Eliminar archivo</BaseButton>
                       <button v-if="textosBase.length > 1" @click="removeTexto(idx)" class="text-slate-500 dark:text-slate-400 hover:text-red-400 ml-2"><Trash2 class="w-4 h-4" /></button>
                     </div>
                   </div>
