@@ -35,10 +35,11 @@ class FileExtractionService:
     OCR_ZOOM = 3.0
     # Español primero (lecturas de aula), inglés como respaldo.
     OCR_LANG = "spa+eng"
-    # Presupuesto total de OCR por petición (los límites de tiempo de nginx y
-    # gunicorn matan la petición antes; así el backend responde a tiempo con
-    # un texto parcial + advertencia en lugar de un 504 Gateway Time-out).
-    OCR_TIME_BUDGET_SECONDS = 90
+    # Presupuesto total de OCR por petición. Debe ser MUY inferior al timeout
+    # del proxy: en producción nginx no define proxy_read_timeout, así que su
+    # default de 60s corta la petición con 504 Gateway Time-out. Se deja margen
+    # para el escaneo de amenazas, la extracción y el render de la última página.
+    OCR_TIME_BUDGET_SECONDS = 40
 
     MAGIC_BYTES: dict[str, list[bytes]] = {
         "pdf":  [b"%PDF"],
@@ -366,16 +367,24 @@ class FileExtractionService:
         ocr_texts: list = []
         skipped = 0
         for idx, page_num in enumerate(page_numbers):
-            if deadline is not None and time.monotonic() >= deadline:
-                skipped = len(page_numbers) - idx
-                logger.warning(
-                    "OCR detenido por tiempo límite: %s página(s) omitidas", skipped
-                )
-                break
+            remaining = None
+            if deadline is not None:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    skipped = len(page_numbers) - idx
+                    logger.warning(
+                        "OCR detenido por tiempo límite: %s página(s) omitidas", skipped
+                    )
+                    break
             try:
                 pix = doc[page_num].get_pixmap(matrix=matrix)
                 img = Image.open(io.BytesIO(pix.tobytes("png")))
-                page_text = pytesseract.image_to_string(img, lang=lang).strip()
+                # Limita también cada página: una imagen pesada no puede usar
+                # el tiempo que falta y hacer que el proxy corte la petición.
+                page_kwargs = {}
+                if remaining is not None:
+                    page_kwargs["timeout"] = max(3, min(20, int(remaining)))
+                page_text = pytesseract.image_to_string(img, lang=lang, **page_kwargs).strip()
             except Exception as e:
                 logger.warning("OCR falló en página %s: %s", page_num + 1, e)
                 page_text = ""

@@ -57,7 +57,7 @@ export function parseUploadError(e: unknown): string {
     return 'El archivo es demasiado grande para el servidor. Redúcelo e inténtalo de nuevo.';
   }
   if (status === 502 || status === 503 || status === 504) {
-    return 'El servidor tardó demasiado en responder (tiempo de espera agotado). Vuelve a intentarlo en unos minutos o usa un archivo más liviano.';
+    return `El servidor tardó demasiado en responder (error HTTP ${status}). Vuelve a intentarlo en unos minutos o usa un archivo más liviano.`;
   }
   if (status && status >= 500) {
     return 'El servidor tuvo un error al procesar los archivos. Vuelve a intentarlo en unos minutos.';
