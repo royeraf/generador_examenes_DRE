@@ -226,7 +226,8 @@ async def upload_texto_base(files: list[UploadFile] = File(...)):
     - Verificación de firma real del archivo (magic bytes)
     - Detección de JavaScript, macros y scripts maliciosos
     - OCR automático (Tesseract spa+eng) para PDFs escaneados sin texto
-      (máx. 10 páginas por archivo; la metadata indica `ocr_aplicado`)
+      (presupuesto de 40s por petición, con páginas escaneadas en paralelo;
+      la metadata indica `ocr_aplicado`, `ocr_paginas` y `ocr_paginas_omitidas`)
 
     Returns:
         - texto: Texto combinado extraído de todos los archivos
