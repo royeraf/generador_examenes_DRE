@@ -183,6 +183,7 @@ export interface GenerarExamenResponse {
   examen: Examen;
   lecturas?: { titulo: string; texto: string }[];
   total_preguntas: number;
+  advertencias_calidad?: string[];
 }
 
 // Mantener compatibilidad con estructura anterior (deprecada)

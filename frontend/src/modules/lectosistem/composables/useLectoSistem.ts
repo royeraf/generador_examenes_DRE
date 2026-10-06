@@ -141,6 +141,7 @@ export function useLectoSistem() {
     examen: Examen;
     lecturas?: { titulo: string; texto: string }[];
     total_preguntas: number;
+    advertencias_calidad?: string[];
   } | null>(null);
   const activeCapacidadTab = shallowRef<string>('literal');
 

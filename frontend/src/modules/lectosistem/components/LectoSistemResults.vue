@@ -13,6 +13,7 @@ interface Resultado {
     examen: Examen;
     lecturas?: { titulo: string; texto: string }[];
     total_preguntas: number;
+    advertencias_calidad?: string[];
 }
 
 const props = defineProps<{
@@ -47,6 +48,8 @@ const listaLecturas = computed<{ titulo: string; texto: string }[]>(() => {
 const esTextoExtenso = (texto: string): boolean => {
     return (texto || '').trim().length > UMBRAL_TEXTO_EXTENSO;
 };
+
+const advertencias = computed<string[]>(() => props.resultado?.advertencias_calidad ?? []);
 
 const getTextoResumen = (texto: string): string => {
     if (!texto) return '';
@@ -140,6 +143,22 @@ const tieneRetroalimentacion = (numeroPregunta: number): boolean => {
                 <div class="text-center space-y-2">
                     <h1 class="text-xl font-bold text-slate-800 dark:text-white">{{ resultado.examen.titulo }}</h1>
                     <p class="text-xs text-slate-500 dark:text-slate-400">{{ resultado.examen.grado }} | {{ resultado.total_preguntas }} Preguntas</p>
+                </div>
+
+                <div v-if="advertencias.length"
+                    class="rounded-2xl border border-amber-300 dark:border-amber-700/60 bg-amber-50 dark:bg-amber-950/40 p-4 space-y-2">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-7 h-7 rounded-lg bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
+                            <AlertTriangle class="w-4 h-4" />
+                        </div>
+                        <p class="text-sm font-bold text-amber-800 dark:text-amber-300">Revisa el examen antes de descargarlo</p>
+                    </div>
+                    <ul class="space-y-1.5 pl-9">
+                        <li v-for="(aviso, idx) in advertencias" :key="idx"
+                            class="text-xs text-amber-700 dark:text-amber-300/90 leading-relaxed">
+                            {{ aviso }}
+                        </li>
+                    </ul>
                 </div>
 
                 <div v-if="listaLecturas.length" class="space-y-6">

@@ -18,6 +18,16 @@ class Settings(BaseSettings):
     google_api_key_2: str = os.getenv("GOOGLE_API_KEY_2", "")
     google_api_key_3: str = os.getenv("GOOGLE_API_KEY_3", "")
 
+    # Modelos Gemini en orden de preferencia. Google retira modelos del free
+    # tier (404 "no longer available to new users") y los nuevos suelen volver
+    # 503 por alta demanda, así que se baja a la siguiente opción y finalmente
+    # se reintenta un segundo pase. Se sobreescribe con GEMINI_MODELS=a,b,c
+    gemini_models: str = os.getenv(
+        "GEMINI_MODELS",
+        "gemini-3.8-flash,gemini-3.7-flash,gemini-3.5-flash,gemini-2.5-flash,"
+        "gemini-3.5-flash-lite,gemini-flash-latest",
+    )
+
     # Consulta DNI (RENIEC) - fuente principal + contingencias
     reniec_api_url: str = os.getenv("RENIEC_API_URL", "https://api.decolecta.com/v1/reniec/dni")
     reniec_api_token: str = os.getenv("RENIEC_API_TOKEN", "")
@@ -61,6 +71,15 @@ class Settings(BaseSettings):
     def google_api_keys(self) -> list[str]:
         """Claves de Gemini en orden de prioridad, sin las vacías."""
         return [k for k in (self.google_api_key, self.google_api_key_2, self.google_api_key_3) if k]
+
+    @property
+    def gemini_model_list(self) -> list[str]:
+        """Modelos Gemini en orden de preferencia, sin las entradas vacías."""
+        return [
+            nombre.strip().removeprefix("models/")
+            for nombre in self.gemini_models.split(",")
+            if nombre.strip()
+        ]
 
 
 @lru_cache()

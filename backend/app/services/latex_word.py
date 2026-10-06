@@ -274,12 +274,22 @@ def set_cell_text(cell, text: Optional[str], *, align=None, bold: bool = False) 
 def truncate_math_safe(text: str, limit: int) -> str:
     """Trunca `text` a `limit` caracteres sin cortar a la mitad de una
     fórmula $...$: si el corte deja un número impar de '$' sin escapar,
-    recorta hasta antes del último '$'."""
+    recorta hasta antes del último '$'.
+
+    También corta en límite de palabra para no dejar "seleccionand..." a la
+    mitad de una palabra en las celdas estrechas del Word."""
     if not text or len(text) <= limit:
         return text or ""
-    cut = text[:limit]
-    if cut.count('$') % 2 == 1:
-        last_dollar = cut.rfind('$')
-        if last_dollar != -1:
-            cut = cut[:last_dollar]
-    return cut + "..."
+
+    def sin_dolar_impar(parte: str) -> str:
+        if parte.count('$') % 2 == 1:
+            ultimo = parte.rfind('$')
+            if ultimo != -1:
+                return parte[:ultimo]
+        return parte
+
+    cut = sin_dolar_impar(text[:limit])
+    espacio = cut.rfind(' ')
+    if espacio >= limit // 2:
+        cut = sin_dolar_impar(cut[:espacio])
+    return cut.rstrip() + "..."

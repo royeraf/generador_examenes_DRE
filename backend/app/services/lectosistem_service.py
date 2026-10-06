@@ -1,7 +1,11 @@
 """
-Servicio para gestionar desempeños y generar preguntas de comprensión lectora.
+Servicio para gestionar desempenos y generar preguntas de comprensión lectora.
 """
 from typing import Optional
+import logging
+import re
+import time
+import unicodedata
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -12,17 +16,53 @@ from app.models.ai_schemas import RespuestaLecto
 from app.core.config import get_settings
 from app.services.ai_factory import ai_factory
 from app.services.prompt_fragments import NOTACION_MATEMATICA_BREVE
+from app.services.ai_base import PRESUPUESTO_IA_SEGUNDOS
 
 settings = get_settings()
+logger = logging.getLogger(__name__)
+
+# Presupuesto mínimo que debe quedar libre para un segundo intento de
+# generación cuando el primero incumple los controles de calidad.
+_MARGEN_REINTENTO_SEGUNDOS = 12.0
 
 
-def _completar_tabla_respuestas(examen: dict, desempenos_por_codigo: Optional[dict[str, str]] = None) -> None:
-    """Garantiza una clave con justificación para cada pregunta generada.
+def _normalizar_codigo(codigo) -> str:
+    """Uniformiza el código de un desempeño ("3" y "03" son el mismo código)."""
+    texto = str(codigo if codigo is not None else "").strip()
+    return texto.zfill(2) if texto.isdigit() and len(texto) == 1 else texto
+
+
+def _normalizar_nivel(nivel) -> str:
+    """Uniformiza el nivel ("CRÍTICO" y "CRITICO" son el mismo nivel)."""
+    return str(nivel or "").strip().upper().replace("Í", "I")
+
+
+def _normalizar_enunciado(texto: str) -> str:
+    """Normaliza un enunciado para detectar repeticiones reales."""
+    texto = unicodedata.normalize("NFD", texto or "")
+    texto = "".join(caracter for caracter in texto if unicodedata.category(caracter) != "Mn")
+    return re.sub(r"\W+", "", texto.lower())
+
+
+def _codigo_suelto(texto: str) -> Optional[str]:
+    """Detecta un desempeño escrito solo como código ("03", "(3)") sin texto."""
+    coincidencia = re.fullmatch(r"\(?\s*(\d{1,3})\s*\)?", texto or "")
+    return coincidencia.group(1) if coincidencia else None
+
+
+def _completar_tabla_respuestas(
+    examen: dict,
+    desempenos_por_codigo: Optional[dict[str, str]] = None,
+    desempenos_por_nivel: Optional[dict[str, list[str]]] = None,
+) -> None:
+    """Garantiza una clave con desempeño, nivel y justificación por pregunta.
 
     En exámenes extensos el modelo puede truncar ``tabla_respuestas`` antes de
-    completar todas las preguntas. Se preserva el contenido pedagógico que sí
-    generó y se completa cualquier fila o justificación ausente con los datos
-    verificables de la pregunta, para que la clave nunca quede incompleta.
+    completar todas las preguntas, o bien escribir en la columna "desempeno" el
+    código suelto ("03") en vez de "(03) descripción". Se preserva el contenido
+    pedagógico que sí generó y se completa cualquier fila ausente o degradada
+    con los datos verificables de la pregunta, para que la clave nunca quede
+    incompleta ni muestre códigos crudos.
     """
     preguntas = examen.get("preguntas") or []
     filas_originales = examen.get("tabla_respuestas") or []
@@ -31,6 +71,8 @@ def _completar_tabla_respuestas(examen: dict, desempenos_por_codigo: Optional[di
         for fila in filas_originales
         if isinstance(fila, dict)
     }
+    mapa = desempenos_por_codigo or {}
+    por_nivel = desempenos_por_nivel or {}
     filas_completas = []
 
     for indice, pregunta in enumerate(preguntas, start=1):
@@ -40,12 +82,23 @@ def _completar_tabla_respuestas(examen: dict, desempenos_por_codigo: Optional[di
         numero = pregunta.get("numero", indice)
         fila = filas_por_numero.get(str(numero).strip(), {}).copy()
         fila["pregunta"] = numero
-        codigo_desempeno = str(pregunta.get("desempeno_codigo") or "").strip()
-        if not str(fila.get("desempeno") or "").strip():
-            fila["desempeno"] = (desempenos_por_codigo or {}).get(
-                codigo_desempeno,
-                f"({codigo_desempeno}) Desempeño asociado a la pregunta." if codigo_desempeno else "Desempeño asociado a la pregunta.",
+        codigo_desempeno = _normalizar_codigo(pregunta.get("desempeno_codigo"))
+
+        # La columna "desempeno" puede venir vacía, con un código suelto o con
+        # el texto genérico de un relleno anterior: en los tres casos se
+        # sustituye por la descripción real del desempeño.
+        actual = str(fila.get("desempeno") or "").strip()
+        if not actual or _codigo_suelto(actual) or actual.startswith("Desempeño asociado"):
+            nivel_fila = _normalizar_nivel(fila.get("nivel") or pregunta.get("nivel"))
+            candidatos = por_nivel.get(nivel_fila) or []
+            por_nivel_texto = candidatos[indice % len(candidatos)] if candidatos else ""
+            fila["desempeno"] = (
+                mapa.get(codigo_desempeno)
+                or por_nivel_texto
+                or (f"({codigo_desempeno}) Desempeño asociado a la pregunta." if codigo_desempeno
+                    else "Desempeño asociado a la pregunta.")
             )
+
         if not str(fila.get("nivel") or "").strip():
             fila["nivel"] = pregunta.get("nivel", "")
 
@@ -83,17 +136,30 @@ def _validar_calidad_examen(
     cantidad: int,
     niveles_por_codigo: dict[str, str],
     niveles_programados: Optional[list[str]] = None,
-) -> list[str]:
-    """Devuelve errores que impiden entregar una evaluación inconsistente."""
-    # La generación ya no rechaza exámenes mediante controles heurísticos.
-    return []
+    desempenos_por_nivel: Optional[dict[str, list[str]]] = None,
+) -> tuple[list[str], list[str]]:
+    """Repara lo reparable y devuelve (errores, advertencias).
 
+    **Repara sobre el propio examen** (para no desperdiciar un intento):
+    - un código de desempeño ausente o no seleccionado se sustituye por uno
+      seleccionado del mismo nivel, en orden, y se avisa;
+    - la etiqueta ``nivel`` se fuerza al nivel programado para esa posición
+      (el prompt fija el orden) y se avisa, para que el docente pueda revisar
+      si el enunciado de verdad lo exige.
+
+    **Errores** (no se pueden reparar y obligan a regenerar): número de
+    preguntas incorrecto, enunciados vacíos o repetidos.
+
+    **Advertencias**: todo lo demás (nivel del desempeño no coincidente,
+    pregunta CRÍTICA sin valoración explícita, reparaciones aplicadas).
+    """
     preguntas = examen.get("preguntas") or []
-    errores = []
+    errores: list[str] = []
+    advertencias: list[str] = []
+
     if len(preguntas) != cantidad:
         errores.append(f"Se recibieron {len(preguntas)} preguntas en lugar de {cantidad}.")
 
-    enunciados_vistos: set[str] = set()
     marcadores_criticos = (
         "opin", "piensas", "consideras", "evalu", "valora", "juicio",
         "argument", "postura", "acuerdo", "desacuerdo", "perspectiva", "critica",
@@ -101,36 +167,73 @@ def _validar_calidad_examen(
         "impacto", "eficaz", "efectiv", "convinc", "persuas", "util", "adecuad",
         "justifica", "sustenta", "califica", "mejor", "peor",
     )
+    enunciados_vistos: set[str] = set()
+
     for indice, pregunta in enumerate(preguntas, start=1):
         if not isinstance(pregunta, dict):
             errores.append(f"La pregunta {indice} no tiene un formato válido.")
             continue
 
+        numero = pregunta.get("numero", indice)
         enunciado = _normalizar_enunciado(str(pregunta.get("enunciado", "")))
         if not enunciado:
             errores.append(f"La pregunta {indice} no tiene enunciado.")
         elif enunciado in enunciados_vistos:
-            errores.append(f"La pregunta {pregunta.get('numero', indice)} está repetida.")
+            errores.append(f"La pregunta {numero} está repetida.")
         else:
             enunciados_vistos.add(enunciado)
 
-        codigo = str(pregunta.get("desempeno_codigo") or "").strip()
-        nivel_esperado = niveles_por_codigo.get(codigo, "").upper()
-        nivel_recibido = str(pregunta.get("nivel") or "").upper().replace("Í", "I")
-        nivel_programado = (niveles_programados or [])[indice - 1] if niveles_programados and indice <= len(niveles_programados) else ""
+        nivel_programado = (
+            niveles_programados[indice - 1]
+            if niveles_programados and indice <= len(niveles_programados)
+            else ""
+        )
+        nivel_recibido = _normalizar_nivel(pregunta.get("nivel"))
+
+        # 1) Código de desempeño ausente o no seleccionado → se asigna uno
+        #    seleccionado del nivel que corresponde a esa posición.
+        codigo = _normalizar_codigo(pregunta.get("desempeno_codigo"))
         if codigo not in niveles_por_codigo:
-            errores.append(
-                f"La pregunta {pregunta.get('numero', indice)} usa un desempeño no seleccionado ({codigo or 'sin código'})."
-            )
+            nivel_objetivo = nivel_programado or nivel_recibido
+            reemplazo = (desempenos_por_nivel or {}).get(nivel_objetivo) or []
+            if reemplazo:
+                nuevo = reemplazo[indice % len(reemplazo)]
+                pregunta["desempeno_codigo"] = _normalizar_codigo(
+                    re.match(r"\(([^)]+)\)", nuevo).group(1)
+                    if re.match(r"\(([^)]+)\)", nuevo)
+                    else nuevo
+                )
+                advertencias.append(
+                    f"La pregunta {numero} usaba un desempeño no seleccionado "
+                    f"({codigo or 'sin código'}); se le asignó {nuevo} para el nivel {nivel_objetivo}."
+                )
+                codigo = pregunta["desempeno_codigo"]
+            else:
+                errores.append(
+                    f"La pregunta {numero} usa un desempeño no seleccionado ({codigo or 'sin código'})."
+                )
+
+        # 2) Nivel de la pregunta distinto del programado para esa posición
+        #    (p. ej. una INFERENCIAL en el bloque CRÍTICO 15-20) → se corrige
+        #    la etiqueta y se avisa para que el docente revise el enunciado.
         if nivel_programado and nivel_recibido != nivel_programado:
-            errores.append(
-                f"La pregunta {pregunta.get('numero', indice)} debe ser de nivel {nivel_programado}, "
-                f"pero fue generada como {nivel_recibido or 'SIN NIVEL'}.")
-        if nivel_esperado and nivel_recibido != nivel_esperado:
-            errores.append(
-                f"La pregunta {pregunta.get('numero', indice)} no coincide con el nivel "
-                f"{nivel_esperado} de su desempeño seleccionado."
+            pregunta["nivel"] = nivel_programado
+            advertencias.append(
+                f"La pregunta {numero} estaba marcada como {nivel_recibido or 'SIN NIVEL'} "
+                f"pero corresponde a nivel {nivel_programado}: se corrigió la etiqueta, "
+                "revisa que el enunciado realmente exija ese nivel."
             )
+            nivel_recibido = nivel_programado
+
+        # 3) Nivel del desempeño seleccionado ≠ nivel de la pregunta.
+        nivel_esperado = _normalizar_nivel(niveles_por_codigo.get(codigo, ""))
+        if nivel_esperado and nivel_recibido and nivel_recibido != nivel_esperado:
+            advertencias.append(
+                f"La pregunta {numero} es de nivel {nivel_recibido}, distinto del nivel "
+                f"{nivel_esperado} de su desempeño seleccionado ({codigo})."
+            )
+
+        # 4) Una CRÍTICA debe pedir juicio/valoración, no solo localizar o inferir.
         tiene_marcador_critico = any(marcador in enunciado for marcador in marcadores_criticos)
         # "¿Qué crees que es la intención...?” pide inferir, no valorar. En
         # cambio, “¿qué impacto crees...?” sí formula una evaluación crítica.
@@ -139,12 +242,13 @@ def _validar_calidad_examen(
             for marcador in ("intencion", "sentido", "significado", "mensaje")
         ):
             tiene_marcador_critico = True
-        if (nivel_esperado == "CRITICO" or nivel_programado == "CRITICO") and not tiene_marcador_critico:
-            errores.append(
-                f"La pregunta {pregunta.get('numero', indice)} marcada como CRÍTICO no solicita "
+        if nivel_recibido == "CRITICO" and not tiene_marcador_critico:
+            advertencias.append(
+                f"La pregunta {numero} está marcada como CRÍTICO pero no solicita "
                 "juicio, valoración, argumentación o toma de postura."
             )
-    return errores
+
+    return errores, advertencias
 
 
 class LectoSistemService:
@@ -380,11 +484,18 @@ Responde ÚNICAMENTE con un JSON válido que siga esta estructura exacta, sin co
         )
         
         try:
-            data = await ai_service.generate_structured_content(prompt, RespuestaLecto)
+            data = await ai_service.generate_structured_content(
+                prompt,
+                RespuestaLecto,
+                max_output_tokens=min(65536, 8192 + cantidad * 1536),
+            )
             examen = data.get("examen", {})
             _completar_tabla_respuestas(
                 examen,
                 {desempeno.codigo: f"({desempeno.codigo}) {desempeno.descripcion}"},
+                {desempeno.capacidad.tipo.upper(): [
+                    f"({desempeno.codigo}) {desempeno.descripcion}"
+                ]} if desempeno.capacidad else None,
             )
             if texto_base:
                 examen["lectura"] = texto_base
@@ -638,13 +749,82 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
 }}
 """
         
-        try:
-            data = await ai_service.generate_structured_content(prompt, RespuestaLecto)
-            examen = data.get("examen", {})
-            _completar_tabla_respuestas(
-                examen,
-                {d.codigo: f"({d.codigo}) {d.descripcion}" for d in desempenos},
+        # Datos de referencia para validar/reparar lo que devuelva el modelo.
+        niveles_por_codigo = {
+            _normalizar_codigo(d.codigo): _normalizar_nivel(d.capacidad.tipo if d.capacidad else "")
+            for d in desempenos
+        }
+        mapa_desempenos = {d.codigo: f"({d.codigo}) {d.descripcion}" for d in desempenos}
+        desempenos_por_nivel: dict[str, list[str]] = {}
+        for d in desempenos:
+            desempenos_por_nivel.setdefault(
+                _normalizar_nivel(d.capacidad.tipo if d.capacidad else ""), []
+            ).append(f"({d.codigo}) {d.descripcion}")
+
+        # Orden obligatorio del prompt (literales, luego inferenciales, luego
+        # críticos). Solo se exige si la distribución pedida cuadra con el total.
+        niveles_programados: Optional[list[str]] = None
+        if (
+            None not in (cantidad_literal, cantidad_inferencial, cantidad_critico)
+            and cantidad_literal + cantidad_inferencial + cantidad_critico == cantidad
+        ):
+            niveles_programados = (
+                ["LITERAL"] * cantidad_literal
+                + ["INFERENCIAL"] * cantidad_inferencial
+                + ["CRITICO"] * cantidad_critico
             )
+
+        # Un examen de 20 preguntas con su tabla de respuestas ronda los 12k
+        # tokens de salida: con 8192 el JSON quedaba cortado a mitad de tabla.
+        max_output_tokens = min(65536, 8192 + cantidad * 1536)
+        deadline = time.monotonic() + PRESUPUESTO_IA_SEGUNDOS
+        intentos = 2
+
+        try:
+            errores_calidad: list[str] = []
+            advertencias_calidad: list[str] = []
+            for intento in range(intentos):
+                restante = deadline - time.monotonic()
+                data = await ai_service.generate_structured_content(
+                    prompt,
+                    RespuestaLecto,
+                    max_output_tokens=max_output_tokens,
+                    timeout=max(5.0, restante),
+                    deadline=deadline,
+                )
+                examen = data.get("examen", {})
+                errores_calidad, advertencias_calidad = _validar_calidad_examen(
+                    examen,
+                    cantidad,
+                    niveles_por_codigo,
+                    niveles_programados,
+                    desempenos_por_nivel,
+                )
+                if not errores_calidad:
+                    logger.info(
+                        "LectoSistem: examen válido en el intento %d/%d (%d advertencias de calidad)",
+                        intento + 1, intentos, len(advertencias_calidad),
+                    )
+                    break
+                logger.warning(
+                    "LectoSistem: validación falló en el intento %d/%d (%d errores): %s",
+                    intento + 1, intentos, len(errores_calidad),
+                    "; ".join(errores_calidad)[:600],
+                )
+                if intento == 0 and (deadline - time.monotonic()) >= _MARGEN_REINTENTO_SEGUNDOS:
+                    prompt += (
+                        "\n\nVALIDACIÓN DEL INTENTO ANTERIOR FALLÓ. Genera un examen NUEVO y completo, "
+                        "sin reutilizar preguntas. Corrige obligatoriamente estos problemas:\n- "
+                        + "\n- ".join(errores_calidad)
+                    )
+                else:
+                    raise ValueError(
+                        "No se pudo generar un examen válido: "
+                        + "; ".join(errores_calidad)
+                        + ". Vuelve a intentarlo."
+                    )
+
+            _completar_tabla_respuestas(examen, mapa_desempenos, desempenos_por_nivel)
             if textos_base:
                 lecturas_out = textos_base
                 if len(textos_base) == 1:
@@ -666,7 +846,8 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
                 "saludo": data.get("saludo", ""),
                 "examen": examen,
                 "lecturas": lecturas_out,
-                "total_preguntas": len(examen.get("preguntas", []))
+                "total_preguntas": len(examen.get("preguntas", [])),
+                "advertencias_calidad": advertencias_calidad,
             }
 
         except ValueError:

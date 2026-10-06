@@ -5,6 +5,16 @@ import re
 
 _VALID_JSON_TWO_CHAR_ESCAPES = set('"\\/')
 
+# Timeout por intento y presupuesto total de todas las llamadas a la IA dentro
+# de una misma petición. El límite real lo impone el proxy de producción
+# (nginx sin proxy_read_timeout ⇒ 60s por defecto) y el axios del frontend
+# (120s), así que el presupuesto deja margen para la consulta a la BD y la
+# respuesta. Ver file_service.OCR_TIME_BUDGET_SECONDS, fijado con el mismo criterio.
+# IMPORTANTE: para que el margen sea real, producción debe aplicar el bloque
+# `proxy_read_timeout 300s` de vps_setup.sh (si no, nginx corta a los 60s).
+TIMEOUT_INTENTO_SEGUNDOS = 45.0
+PRESUPUESTO_IA_SEGUNDOS = 50.0
+
 
 def repair_latex_backslash_escapes(text: str) -> str:
     """Repara backslashes de comandos LaTeX mal escapados dentro de strings JSON.
@@ -105,11 +115,22 @@ class AIService(ABC):
         """Generate questions (legacy method mainly used by preguntas.py)."""
         pass
 
-    async def generate_structured_content(self, prompt: str, schema: Type) -> dict:
+    async def generate_structured_content(
+        self,
+        prompt: str,
+        schema: Type,
+        max_output_tokens: Optional[int] = None,
+        timeout: float = 45.0,
+        deadline: Optional[float] = None,
+    ) -> dict:
         """Generate structured JSON output conforming to a Pydantic schema.
 
         Default implementation: generates text and parses as JSON.
         Override in subclasses (e.g. GeminiService) for native structured output.
+
+        ``max_output_tokens``/``timeout``/``deadline`` se ignoran aquí: solo los
+        usa quien controla la llamada remota (Gemini), pero se aceptan para que
+        el llamador pueda pasarlos por igual a cualquier proveedor.
         """
         text = await self.generate_content(prompt)
         text = self.clean_json_response(text)
