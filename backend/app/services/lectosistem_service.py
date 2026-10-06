@@ -644,27 +644,17 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
                 if cantidad_literal is not None and cantidad_inferencial is not None and cantidad_critico is not None
                 else None
             )
-            errores_calidad = []
-            for intento in range(2):
-                data = await ai_service.generate_structured_content(prompt, RespuestaLecto)
-                examen = data.get("examen", {})
-                errores_calidad = _validar_calidad_examen(
-                    examen,
-                    cantidad,
-                    niveles_por_codigo,
-                    niveles_programados,
-                )
-                if not errores_calidad:
-                    break
-                if intento == 0:
-                    prompt += (
-                        "\n\nVALIDACIÓN DEL INTENTO ANTERIOR FALLÓ. Genera un examen NUEVO y completo, "
-                        "sin reutilizar preguntas. Corrige obligatoriamente estos problemas:\n- "
-                        + "\n- ".join(errores_calidad)
-                    )
-            else:
+            data = await ai_service.generate_structured_content(prompt, RespuestaLecto)
+            examen = data.get("examen", {})
+            errores_calidad = _validar_calidad_examen(
+                examen,
+                cantidad,
+                niveles_por_codigo,
+                niveles_programados,
+            )
+            if errores_calidad:
                 raise ValueError(
-                    "No se pudo generar un examen válido tras dos intentos: " + "; ".join(errores_calidad)
+                    "El examen generado no cumplió los controles de calidad: " + "; ".join(errores_calidad)
                 )
 
             _completar_tabla_respuestas(
