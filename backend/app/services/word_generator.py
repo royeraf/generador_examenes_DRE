@@ -45,8 +45,14 @@ def _filas_tabla_respuestas(preguntas: list, tabla_respuestas: list) -> list:
         numero = pregunta.get("numero", indice)
         fila = filas_por_pregunta.get(str(numero).strip(), {}).copy()
         fila["pregunta"] = numero
-        fila.setdefault("desempeno", pregunta.get("desempeno") or pregunta.get("desempeno_codigo", ""))
-        fila.setdefault("nivel", pregunta.get("nivel") or pregunta.get("capacidad", ""))
+        if not str(fila.get("desempeno") or "").strip():
+            codigo_desempeno = str(pregunta.get("desempeno_codigo") or "").strip()
+            fila["desempeno"] = (
+                pregunta.get("desempeno")
+                or (f"({codigo_desempeno}) Desempeño asociado a la pregunta." if codigo_desempeno else "Desempeño asociado a la pregunta.")
+            )
+        if not str(fila.get("nivel") or "").strip():
+            fila["nivel"] = pregunta.get("nivel") or pregunta.get("capacidad", "")
         if not fila.get("respuesta_correcta") and not fila.get("respuesta_esperada"):
             fila["respuesta_correcta"] = _respuesta_correcta_de_pregunta(pregunta)
         if not str(fila.get("justificacion") or "").strip():
