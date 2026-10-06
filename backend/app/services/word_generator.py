@@ -49,7 +49,23 @@ def _filas_tabla_respuestas(preguntas: list, tabla_respuestas: list) -> list:
         fila.setdefault("nivel", pregunta.get("nivel") or pregunta.get("capacidad", ""))
         if not fila.get("respuesta_correcta") and not fila.get("respuesta_esperada"):
             fila["respuesta_correcta"] = _respuesta_correcta_de_pregunta(pregunta)
-        fila.setdefault("justificacion", "")
+        if not str(fila.get("justificacion") or "").strip():
+            opcion_correcta = next(
+                (
+                    opcion for opcion in pregunta.get("opciones") or []
+                    if isinstance(opcion, dict) and opcion.get("es_correcta")
+                ),
+                None,
+            )
+            respuesta = fila.get("respuesta_correcta") or fila.get("respuesta_esperada", "")
+            texto_opcion = (opcion_correcta or {}).get("texto", "")
+            detalle_opcion = f' («{texto_opcion}»)' if texto_opcion else ""
+            fila["justificacion"] = (
+                f"La alternativa {respuesta}{detalle_opcion} es correcta porque responde "
+                "al enunciado según la información evaluada."
+                if respuesta
+                else "La respuesta se fundamenta en la información evaluada en el enunciado."
+            )
         filas.append(fila)
     return filas
 

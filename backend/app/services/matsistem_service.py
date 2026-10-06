@@ -52,6 +52,52 @@ TIPOS_PRODUCTO = {
 }
 
 
+def _completar_tabla_respuestas_matematica(examen: dict) -> None:
+    """Completa la clave docente cuando la IA omite filas o justificaciones."""
+    preguntas = examen.get("preguntas") or []
+    filas_por_numero = {
+        str(fila.get("pregunta", "")).strip(): fila
+        for fila in examen.get("tabla_respuestas") or []
+        if isinstance(fila, dict)
+    }
+    filas_completas = []
+
+    for indice, pregunta in enumerate(preguntas, start=1):
+        if not isinstance(pregunta, dict):
+            continue
+
+        numero = pregunta.get("numero", indice)
+        fila = filas_por_numero.get(str(numero).strip(), {}).copy()
+        fila["pregunta"] = numero
+        fila.setdefault("capacidad", pregunta.get("capacidad", ""))
+        fila.setdefault("desempeno", pregunta.get("desempeno_codigo", ""))
+
+        opcion_correcta = next(
+            (
+                opcion for opcion in pregunta.get("opciones") or []
+                if isinstance(opcion, dict) and opcion.get("es_correcta")
+            ),
+            None,
+        )
+        if not fila.get("respuesta_correcta") and not fila.get("respuesta_esperada"):
+            fila["respuesta_correcta"] = (opcion_correcta or {}).get("letra", "")
+
+        if not str(fila.get("justificacion") or "").strip():
+            respuesta = fila.get("respuesta_correcta") or fila.get("respuesta_esperada", "")
+            texto_opcion = (opcion_correcta or {}).get("texto", "")
+            detalle_opcion = f' («{texto_opcion}»)' if texto_opcion else ""
+            fila["justificacion"] = (
+                f"La respuesta {respuesta}{detalle_opcion} es correcta porque cumple "
+                "con el procedimiento y la información matemática evaluada."
+                if respuesta
+                else "La respuesta se fundamenta en el procedimiento y la información matemática evaluada."
+            )
+
+        filas_completas.append(fila)
+
+    examen["tabla_respuestas"] = filas_completas
+
+
 class MatSistemService:
     """Servicio para generar evaluaciones de matemática."""
 
@@ -494,6 +540,7 @@ El contexto debe ser PERUANO, auténtico y motivador para la edad del estudiante
                 desarrollo = examen_data.get("desarrollo", {})
                 total = len(desarrollo.get("actividades", []) if isinstance(desarrollo, dict) else [])
             else:
+                _completar_tabla_respuestas_matematica(examen_data)
                 total = len(examen_data.get("preguntas", []) if isinstance(examen_data, dict) else [])
 
             return {

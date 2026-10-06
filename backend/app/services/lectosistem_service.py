@@ -16,6 +16,62 @@ from app.services.prompt_fragments import NOTACION_MATEMATICA_BREVE
 settings = get_settings()
 
 
+def _completar_tabla_respuestas(examen: dict) -> None:
+    """Garantiza una clave con justificación para cada pregunta generada.
+
+    En exámenes extensos el modelo puede truncar ``tabla_respuestas`` antes de
+    completar todas las preguntas. Se preserva el contenido pedagógico que sí
+    generó y se completa cualquier fila o justificación ausente con los datos
+    verificables de la pregunta, para que la clave nunca quede incompleta.
+    """
+    preguntas = examen.get("preguntas") or []
+    filas_originales = examen.get("tabla_respuestas") or []
+    filas_por_numero = {
+        str(fila.get("pregunta", "")).strip(): fila
+        for fila in filas_originales
+        if isinstance(fila, dict)
+    }
+    filas_completas = []
+
+    for indice, pregunta in enumerate(preguntas, start=1):
+        if not isinstance(pregunta, dict):
+            continue
+
+        numero = pregunta.get("numero", indice)
+        fila = filas_por_numero.get(str(numero).strip(), {}).copy()
+        fila["pregunta"] = numero
+        fila.setdefault("desempeno", pregunta.get("desempeno_codigo", ""))
+        fila.setdefault("nivel", pregunta.get("nivel", ""))
+
+        opcion_correcta = next(
+            (
+                opcion for opcion in pregunta.get("opciones") or []
+                if isinstance(opcion, dict) and opcion.get("es_correcta")
+            ),
+            None,
+        )
+        respuesta_correcta = (
+            fila.get("respuesta_correcta")
+            or pregunta.get("respuesta_correcta")
+            or (opcion_correcta or {}).get("letra", "")
+        )
+        fila["respuesta_correcta"] = respuesta_correcta
+
+        if not str(fila.get("justificacion") or "").strip():
+            texto_opcion = (opcion_correcta or {}).get("texto", "")
+            detalle_opcion = f' («{texto_opcion}»)' if texto_opcion else ""
+            fila["justificacion"] = (
+                f"La alternativa {respuesta_correcta}{detalle_opcion} es correcta "
+                "porque responde al enunciado según la información evaluada."
+                if respuesta_correcta
+                else "La respuesta se fundamenta en la información evaluada en el enunciado."
+            )
+
+        filas_completas.append(fila)
+
+    examen["tabla_respuestas"] = filas_completas
+
+
 class LectoSistemService:
     """Servicio para consultar desempeños y generar preguntas."""
     
@@ -251,6 +307,7 @@ Responde ÚNICAMENTE con un JSON válido que siga esta estructura exacta, sin co
         try:
             data = await ai_service.generate_structured_content(prompt, RespuestaLecto)
             examen = data.get("examen", {})
+            _completar_tabla_respuestas(examen)
             if texto_base:
                 examen["lectura"] = texto_base
             preguntas = examen.get("preguntas", [])
@@ -456,6 +513,7 @@ El examen debe presentar:
 {instruccion_lectura_item}
 4. Las preguntas con esquema de opción múltiple (4 alternativas A, B, C, D siendo una sola la correcta, en orden aleatorio)
 5. Al final una 'tabla' indicando: los desempeños utilizados, número de pregunta, nivel (LITERAL/INFERENCIAL/CRÍTICO), alternativa correcta y una justificación breve indicando por qué es correcta. EN LA TABLA EL DESEMPEÑO DEBE TENER EL FORMATO EXACTO: "(CÓDIGO) DESCRIPCIÓN", por ejemplo: "(01) Obtiene información explícita...".
+   La clave `tabla_respuestas` debe contener EXACTAMENTE {cantidad} filas: una para cada pregunta, del 1 al {cantidad}. Ninguna fila puede tener la `justificacion` vacía.
 
 {NOTACION_MATEMATICA_BREVE}
 
@@ -500,6 +558,7 @@ IMPORTANTE: Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:
             data = await ai_service.generate_structured_content(prompt, RespuestaLecto)
 
             examen = data.get("examen", {})
+            _completar_tabla_respuestas(examen)
             if textos_base:
                 lecturas_out = textos_base
                 if len(textos_base) == 1:
