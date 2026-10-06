@@ -9,6 +9,51 @@ from docx.enum.table import WD_TABLE_ALIGNMENT
 from app.services.latex_word import add_latex_runs, set_cell_text, truncate_math_safe
 
 
+def _respuesta_correcta_de_pregunta(pregunta: dict) -> str:
+    """Obtiene la alternativa correcta cuando falta en la tabla de la IA."""
+    respuesta = pregunta.get("respuesta_correcta") or pregunta.get("respuesta_esperada")
+    if respuesta:
+        return str(respuesta)
+
+    for opcion in pregunta.get("opciones") or []:
+        if isinstance(opcion, dict) and opcion.get("es_correcta"):
+            return str(opcion.get("letra", ""))
+    return ""
+
+
+def _filas_tabla_respuestas(preguntas: list, tabla_respuestas: list) -> list:
+    """Devuelve una fila de respuestas por cada pregunta del examen.
+
+    Aunque se solicita a la IA una fila por pregunta, en respuestas extensas
+    puede devolver una tabla incompleta. El Word debe conservar una clave
+    completa: se mantienen los datos recibidos y se completan las filas que
+    falten a partir de los datos de cada pregunta.
+    """
+    if not preguntas:
+        return tabla_respuestas
+
+    filas_por_pregunta = {
+        str(fila.get("pregunta", "")).strip(): fila
+        for fila in tabla_respuestas
+        if isinstance(fila, dict)
+    }
+    filas = []
+    for indice, pregunta in enumerate(preguntas, start=1):
+        if not isinstance(pregunta, dict):
+            continue
+
+        numero = pregunta.get("numero", indice)
+        fila = filas_por_pregunta.get(str(numero).strip(), {}).copy()
+        fila["pregunta"] = numero
+        fila.setdefault("desempeno", pregunta.get("desempeno") or pregunta.get("desempeno_codigo", ""))
+        fila.setdefault("nivel", pregunta.get("nivel") or pregunta.get("capacidad", ""))
+        if not fila.get("respuesta_correcta") and not fila.get("respuesta_esperada"):
+            fila["respuesta_correcta"] = _respuesta_correcta_de_pregunta(pregunta)
+        fila.setdefault("justificacion", "")
+        filas.append(fila)
+    return filas
+
+
 def generar_examen_word(data: dict) -> BytesIO:
     """
     Genera un documento Word con el examen completo.
@@ -114,7 +159,10 @@ def generar_examen_word(data: dict) -> BytesIO:
     tabla_heading = doc.add_heading("TABLA DE RESPUESTAS (PARA EL DOCENTE)", level=1)
     tabla_heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
     
-    tabla_respuestas = examen.get("tabla_respuestas", [])
+    tabla_respuestas = _filas_tabla_respuestas(
+        preguntas,
+        examen.get("tabla_respuestas", []),
+    )
     
     if tabla_respuestas:
         # Crear tabla
