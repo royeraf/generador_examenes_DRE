@@ -252,7 +252,7 @@ const onDragEnd = () => {
         <div class="hidden sm:block text-right">
           <p class="shimmer-text text-xl font-black tracking-tight leading-none">SIEVA</p>
           <p class="text-[11px] text-slate-400 dark:text-slate-500 font-medium mt-0.5 leading-tight">Sistema Integrado
-            de Evaluación de Aula</p>
+            de Evaluación en Aula</p>
         </div>
       </div>
 

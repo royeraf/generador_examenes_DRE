@@ -90,7 +90,7 @@ const onSubmit = handleSubmit(async (formValues) => {
             <div class="relative z-10 max-w-2xl">
                 <h1 class="text-2xl xl:text-3xl text-teal-400 font-black tracking-[0.3em] mb-4 uppercase">SIEVA</h1>
                 <p class="text-lg text-white/60 leading-relaxed max-w-lg">
-                    Sistema Integrado de Evaluación de Aula de la DRE Huánuco. Un solo espacio para enseñar, aprender y crecer juntos.
+                    Sistema Integrado de Evaluación en Aula. Un solo espacio para enseñar, aprender y crecer juntos.
                 </p>
             </div>
 
