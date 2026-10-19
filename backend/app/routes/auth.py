@@ -70,6 +70,12 @@ async def login_access_token(
 
     identifier_input = (form_data.username or "").strip().upper()
 
+    # Los DNI (8) y códigos de estudiante (EST0001) nunca superan 20 caracteres.
+    # Se rechaza antes de tocar la BD para evitar errores de longitud en la
+    # auditoría y entradas arbitrariamente largas.
+    if len(identifier_input) > 20:
+        raise HTTPException(status_code=400, detail="Credenciales incorrectas")
+
     # Bloqueo temporal por fuerza bruta (antes de validar credenciales).
     throttle = await check_login_allowed(db, ip, identifier_input)
     if throttle.blocked:

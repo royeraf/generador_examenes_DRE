@@ -20,7 +20,8 @@ const passwordFieldType = shallowRef('password');
 const loginSchema = yup.object({
     identifier: yup.string()
         .required('El usuario es obligatorio')
-        .min(4, 'Ingresa tu DNI o código'),
+        .min(4, 'Ingresa tu DNI o código')
+        .max(20, 'Máximo 20 caracteres'),
     password: yup.string()
         .required('La contraseña es obligatoria')
         .max(72, 'Contraseña demasiado larga'),
