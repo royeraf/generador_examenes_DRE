@@ -5,17 +5,22 @@ from fastapi import Request
 
 
 def get_client_ip(request: Request) -> Optional[str]:
-    """Obtiene la IP real del cliente considerando proxies (nginx)."""
-    forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
-        # El primer valor es la IP original del cliente
-        ip = forwarded.split(",")[0].strip()
-        if ip:
-            return ip
+    """Obtiene la IP real del cliente considerando proxies (nginx).
 
+    Se prioriza ``X-Real-IP`` porque nginx lo sobrescribe con ``$remote_addr``.
+    El primer valor de ``X-Forwarded-For`` no es confiable: el cliente puede
+    enviarlo falsificado y nginx lo conserva al inicio de la cadena.
+    """
     real_ip = request.headers.get("x-real-ip")
     if real_ip:
         return real_ip.strip()
+
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        # Sin X-Real-IP, el último valor es el agregado por el proxy más cercano.
+        ip = forwarded.split(",")[-1].strip()
+        if ip:
+            return ip
 
     if request.client:
         return request.client.host

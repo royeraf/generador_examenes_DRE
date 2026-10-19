@@ -6,7 +6,6 @@ import { LogIn, User, Lock, AlertCircle, Eye, EyeOff } from 'lucide-vue-next';
 import { useForm, useField } from 'vee-validate';
 import * as yup from 'yup';
 import logoDre from '../../assets/logo.png';
-import Swal from 'sweetalert2';
 import teachingSvg from '../../assets/undraw_visual-explanation_vd4l.svg';
 import ThemeToggle from '../../shared/components/ThemeToggle.vue';
 import BaseButton from '../../shared/components/BaseButton.vue';
@@ -43,19 +42,15 @@ const onSubmit = handleSubmit(async (formValues) => {
         await auth.login(cleanIdentifier, formValues.password);
         router.push(auth.homeRoute);
     } catch (e: any) {
-        const detail = e.response?.data?.detail ?? ''
-        if (detail === 'Usuario inactivo') {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Cuenta desactivada',
-                text: 'Tu cuenta ha sido desactivada. Comunícate con un administrador.',
-                confirmButtonColor: '#14b8a6',
-                confirmButtonText: 'Entendido',
-            })
+        const status = e.response?.status
+        if (status === 429) {
+            error.value = 'Demasiados intentos fallidos. Espera unos minutos e inténtalo de nuevo.'
+        } else if (status === 400) {
+            // Mismo mensaje para credenciales inválidas y cuentas inactivas:
+            // no se revela si el identificador existe.
+            error.value = 'Credenciales incorrectas'
         } else {
-            error.value = e.response?.status === 400
-                ? 'Credenciales incorrectas'
-                : 'Error de conexión. Intente nuevamente.'
+            error.value = 'Error de conexión. Intente nuevamente.'
         }
     } finally {
         loading.value = false;

@@ -38,6 +38,26 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
+// Token expirado o sesión revocada en el servidor: limpiar y volver al login.
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      const requestUrl: string = error.config?.url ?? '';
+      // El logout es best-effort; no debe provocar otra redirección.
+      if (!requestUrl.includes('/auth/logout')) {
+        localStorage.removeItem('token');
+        document.cookie = '_logged_in_=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
+        const path = window.location.pathname;
+        if (path !== '/login' && path !== '/registro') {
+          window.location.assign('/login');
+        }
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const desempenosService = {
   /**
    * Obtiene todos los grados disponibles

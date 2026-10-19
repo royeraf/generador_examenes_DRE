@@ -11,8 +11,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.tz import ahora_peru
-from app.core.security import create_access_token, settings, verify_password, get_password_hash
+from app.core.security import (
+    create_access_token,
+    get_dummy_hash,
+    get_password_hash,
+    settings,
+    verify_password,
+)
 from app.core.request_meta import get_client_ip, parse_user_agent
+from app.services.login_guard import check_login_allowed
 from app.services.usuario_service import usuario_service
 from app.services.estudiante_service import estudiante_service
 from app.services.matricula_service import get_matricula_activa
@@ -61,23 +68,40 @@ async def login_access_token(
             **kwargs,
         )
 
-    usuario = await usuario_service.authenticate(
-        db, identifier=form_data.username, password=form_data.password
-    )
-    tipo_usuario = "usuario"
-    if not usuario:
-        usuario = await estudiante_service.authenticate(
-            db, identifier=form_data.username, password=form_data.password
+    identifier_input = (form_data.username or "").strip().upper()
+
+    # Bloqueo temporal por fuerza bruta (antes de validar credenciales).
+    throttle = await check_login_allowed(db, ip, identifier_input)
+    if throttle.blocked:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Demasiados intentos fallidos. Inténtalo de nuevo más tarde.",
+            headers={"Retry-After": str(throttle.retry_after)},
         )
+
+    usuario = await usuario_service.get_by_login(db, identifier_input)
+    tipo_usuario = "usuario"
+    if usuario is None:
+        usuario = await estudiante_service.get_by_login(db, identifier_input)
         tipo_usuario = "estudiante"
 
-    if not usuario:
+    if usuario is None:
+        # Igualar el costo de bcrypt cuando el identificador no existe para
+        # que el tiempo de respuesta no revele qué cuentas están registradas.
+        verify_password(form_data.password, get_dummy_hash())
+        credenciales_validas = False
+    else:
+        credenciales_validas = verify_password(
+            form_data.password, usuario.password_hash
+        )
+
+    if not credenciales_validas:
         # Auditar intento fallido (commit explícito: get_db haría rollback al lanzar HTTPException)
         db.add(_base_sesion(
             jti=None,
             exito=False,
             motivo="credenciales",
-            identificador=form_data.username,
+            identificador=identifier_input,
             is_active=False,
         ))
         await db.commit()
@@ -90,7 +114,7 @@ async def login_access_token(
             motivo="inactivo",
             tipo_usuario=tipo_usuario,
             usuario_id=usuario.id,
-            identificador=usuario.codigo_estudiante or usuario.dni or form_data.username,
+            identificador=usuario.codigo_estudiante or usuario.dni or identifier_input,
             nombres=usuario.nombres,
             apellidos=usuario.apellidos,
             rol_codigo=usuario.rol_codigo,
@@ -99,7 +123,8 @@ async def login_access_token(
             is_active=False,
         ))
         await db.commit()
-        raise HTTPException(status_code=400, detail="Usuario inactivo")
+        # Mismo mensaje que credenciales inválidas: no revelar que la cuenta existe.
+        raise HTTPException(status_code=400, detail="Credenciales incorrectas")
 
     identifier = usuario.codigo_estudiante or usuario.dni
     jti = uuid.uuid4().hex

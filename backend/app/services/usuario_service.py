@@ -72,6 +72,10 @@ class UsuarioService:
 
         return db_obj
 
+    async def get_by_login(self, db: AsyncSession, identifier: str) -> Optional[Usuario]:
+        """Busca un usuario staff por DNI sin validar la contraseña."""
+        return await self.repository.get_by_login(db, identifier)
+
     async def authenticate(self, db: AsyncSession, identifier: str, password: str) -> Optional[Usuario]:
         usuario = await self.repository.get_by_login(db, identifier)
         if not usuario:

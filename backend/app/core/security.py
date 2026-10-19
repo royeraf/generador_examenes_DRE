@@ -1,6 +1,7 @@
 import bcrypt
 import uuid
 from datetime import datetime, timedelta, timezone
+from functools import lru_cache
 from typing import Optional
 from jose import JWTError, jwt
 from app.core.config import get_settings
@@ -29,3 +30,13 @@ def get_password_hash(password: str) -> str:
     """Hash password."""
     password_bytes = password.encode("utf-8")[:72]
     return bcrypt.hashpw(password_bytes, bcrypt.gensalt()).decode("utf-8")
+
+
+@lru_cache(maxsize=1)
+def get_dummy_hash() -> str:
+    """Hash de descarte con el mismo costo de bcrypt.
+
+    Se usa cuando el identificador no existe para que el tiempo de respuesta
+    del login no delate qué cuentas están registradas (anti timing attack).
+    """
+    return get_password_hash("timing-equalizer-not-a-real-password")

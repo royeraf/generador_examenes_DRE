@@ -63,6 +63,14 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 8  # 8 hours
 
+    # Login security (anti fuerza bruta)
+    # Intentos fallidos permitidos por IP + identificador dentro de la ventana.
+    login_max_attempts: int = int(os.getenv("LOGIN_MAX_ATTEMPTS", "5"))
+    # Intentos fallidos permitidos por IP (cubre barridos de identificadores).
+    login_max_ip_attempts: int = int(os.getenv("LOGIN_MAX_IP_ATTEMPTS", "20"))
+    # Ventana de tiempo en minutos para contar los intentos fallidos.
+    login_attempt_window_minutes: int = int(os.getenv("LOGIN_ATTEMPT_WINDOW_MINUTES", "5"))
+
     class Config:
         env_file = ".env"
         extra = "ignore"  # Ignorar variables de entorno no declaradas

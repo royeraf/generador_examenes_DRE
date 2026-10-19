@@ -3,7 +3,7 @@ from typing import Callable
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from sqlalchemy import or_, update
+from sqlalchemy import or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -22,6 +22,21 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 # Intervalo mínimo entre actualizaciones de actividad por sesión (evita
 # escribir en cada request; la sesión se considera activa a los 15 min).
 ACTIVIDAD_THROTTLE_SECONDS = 60
+
+
+async def _sesion_activa(db: AsyncSession, jti: str) -> bool:
+    """Comprueba que el jti corresponda a una sesión abierta y vigente."""
+    result = await db.execute(
+        select(SesionAcceso.id)
+        .where(
+            SesionAcceso.jti == jti,
+            SesionAcceso.exito.is_(True),
+            SesionAcceso.is_active.is_(True),
+            SesionAcceso.logout_at.is_(None),
+        )
+        .limit(1)
+    )
+    return result.scalar_one_or_none() is not None
 
 
 async def _touch_sesion(db: AsyncSession, jti: str) -> None:
@@ -75,9 +90,16 @@ async def get_current_user(
     if user is None:
         raise credentials_exception
 
+    # Revocación real: el token solo sirve mientras su sesión siga abierta.
     jti = payload.get("jti")
-    if jti:
-        await _touch_sesion(db, jti)
+    if not jti or not await _sesion_activa(db, jti):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Sesión expirada o cerrada",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    await _touch_sesion(db, jti)
 
     return user
 

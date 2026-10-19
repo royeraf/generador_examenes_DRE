@@ -75,6 +75,10 @@ class EstudianteService:
 
         return est
 
+    async def get_by_login(self, db: AsyncSession, identifier: str) -> Optional[Estudiante]:
+        """Busca un estudiante por DNI o código sin validar la contraseña."""
+        return await estudiante_repository.get_by_login(db, identifier)
+
     async def authenticate(
         self, db: AsyncSession, identifier: str, password: str
     ) -> Optional[Estudiante]:
