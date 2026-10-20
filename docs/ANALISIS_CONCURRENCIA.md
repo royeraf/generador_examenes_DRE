@@ -435,12 +435,27 @@ El script hizo backup del vhost y del unit con timestamp
 
 ### Advertencias operativas
 
-1. **El vhost lo regenera el Nginx Manager de cPanel.** Si se regenera, el bloque
-   `location ^~ /api/` desaparece y vuelve el problema. Verificación:
+1. **El vhost lo regenera ngxconf (Nginx Manager de cPanel).** Ya no requiere intervención
+   manual: el script instala dos capas de protección.
+
+   - **Origen:** `cache_lock_enable: false` en `~/.imh/nginx/sieva_drehuanuco_gob_pe.yml`
+     (archivo del usuario, no del root). Si ngxconf regenera el vhost, lo hará sin
+     `proxy_cache_lock`, así que el problema crítico no vuelve aunque el bloque desaparezca.
+   - **Watchdog:** `sieva-api-direct.timer` revisa cada 30 s si el bloque
+     `location ^~ /api/` sigue en el vhost y lo re-aplica (con `nginx -t` y rollback) si
+     ngxconf lo borró. Log: `/var/log/sieva-api-direct.log`.
+
+   Verificación:
 
    ```bash
-   grep -c "P0-concurrencia" /etc/nginx/vhosts/drehua5__sieva_drehuanuco_gob_pe.conf   # debe dar 1
+   grep -c "location ^~ /api/" /etc/nginx/vhosts/drehua5__sieva_drehuanuco_gob_pe.conf
+   systemctl list-timers sieva-api-direct.timer
    ```
+
+   Existe una alternativa oficial (`allow_user_includes` en `/opt/ngxconf/config.yaml` +
+   include por dominio), pero **no se activó**: es una opción global que permite a cualquier
+   cuenta cPanel inyectar directivas nginx que el master parsea como root. En un servidor
+   compartido (aquí hay más cuentas y un `.bashrc.infected.bak`) es un vector de escalada.
 
 2. **Los 8 workers en ejecución se añadieron en caliente.** El unit ya dice `-w 8`, así que
    un restart (o un crash con `Restart=always`) arranca con 8. No hace falta reiniciar ahora.
