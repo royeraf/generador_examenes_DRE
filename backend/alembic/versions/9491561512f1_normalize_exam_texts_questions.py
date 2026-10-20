@@ -11,8 +11,9 @@ Normaliza los textos y preguntas generados:
    ``examenes_matematica.situacion_problematica``.
 2. Amplía ``preguntas_examen`` con ``tipo``, ``contexto``, ``respuesta_esperada``,
    ``espacio_respuesta``, ``criterio_evaluacion`` y ``opcion_e``.
-3. Enriquece las preguntas normalizadas desde los JSON ``preguntas`` y
-   ``tabla_respuestas`` (incluye la 5.ª alternativa de MatSistem).
+3. Reconstruye las preguntas normalizadas desde los JSON ``preguntas`` y
+   ``tabla_respuestas`` (incluye la 5.ª alternativa de MatSistem). Empareja
+   por orden y renumera 1..N por examen para corregir números duplicados.
 4. Agrega restricciones de unicidad y permite respuestas abiertas.
 
 Las columnas JSON/texto anteriores se conservan en esta release para permitir
@@ -219,18 +220,31 @@ def upgrade() -> None:
                 "texto": situacion,
             })
 
-    # ── 7. Enriquecer preguntas desde los JSON ───────────────────────────
-    def _enriquecer(examen_id: int, columna: str, preguntas_raw, tabla_raw):
+    # ── 7. Reconstruir preguntas desde los JSON ──────────────────────────
+    # Se emparejan las filas existentes con las preguntas del JSON por orden de
+    # ``id`` y se renumera 1..N por examen. Esto corrige dos problemas reales de
+    # datos antiguos: números repetidos y actualizaciones cruzadas cuando había
+    # duplicados (el UPDATE por ``numero`` afectaba a todas las filas iguales).
+    def _merge(nuevo, actual):
+        if nuevo is None:
+            return actual
+        if isinstance(nuevo, str) and not nuevo.strip():
+            return actual
+        return nuevo
+
+    def _sincronizar(examen_id: int, columna: str, preguntas_raw, tabla_raw):
         preguntas = _parse(preguntas_raw)
         if not isinstance(preguntas, list):
             preguntas = []
+        preguntas = [p for p in preguntas if isinstance(p, dict)]
+
         tabla = _parse(tabla_raw)
         if not isinstance(tabla, list):
             tabla = []
+        tabla = [t for t in tabla if isinstance(t, dict)]
+
         tabla_map = {}
         for fila in tabla:
-            if not isinstance(fila, dict):
-                continue
             clave = fila.get("pregunta")
             if clave is None:
                 continue
@@ -241,13 +255,32 @@ def upgrade() -> None:
             except (TypeError, ValueError):
                 pass
 
-        for p in preguntas:
-            if not isinstance(p, dict):
-                continue
-            num = p.get("numero")
-            if num is None:
-                continue
-            info = tabla_map.get(num, {})
+        filas = conn.execute(sa.text(f"""
+            SELECT id, enunciado, tipo, contexto, opcion_a, opcion_b, opcion_c,
+                   opcion_d, opcion_e, respuesta_correcta, respuesta_esperada,
+                   espacio_respuesta, nivel, desempeno_codigo, desempeno_descripcion,
+                   criterio_evaluacion, justificacion,
+                   retroalimentacion_correcta, retroalimentacion_incorrecta
+            FROM preguntas_examen
+            WHERE {columna} = :eid
+            ORDER BY id
+        """), {"eid": examen_id}).fetchall()
+
+        # Los JSON de preguntas y tabla suelen ser arrays paralelos. Si sus
+        # longitudes difieren, se usa el número original como respaldo.
+        usar_indice = len(preguntas) == len(tabla)
+        otra_columna = (
+            "examen_matematica_id" if columna == "examen_lectura_id"
+            else "examen_lectura_id"
+        )
+
+        for indice, p in enumerate(preguntas, start=1):
+            actual = filas[indice - 1] if indice <= len(filas) else None
+            info = (
+                tabla[indice - 1]
+                if usar_indice and indice <= len(tabla)
+                else tabla_map.get(p.get("numero"), {})
+            )
 
             opciones = {}
             for o in (p.get("opciones") or []):
@@ -258,73 +291,102 @@ def upgrade() -> None:
                 if letra:
                     opciones[letra] = str(texto)
 
-            tipo = str(p.get("tipo") or info.get("tipo") or "").strip().lower()
-            if tipo not in ("cerrada", "abierta"):
+            tipo_nuevo = str(p.get("tipo") or info.get("tipo") or "").strip().lower()
+            tipo_actual = str(actual[2] or "").strip().lower() if actual else ""
+            if tipo_nuevo in ("cerrada", "abierta"):
+                tipo = tipo_nuevo
+            elif tipo_actual in ("cerrada", "abierta"):
+                tipo = tipo_actual
+            else:
                 tipo = "cerrada" if any(str(v).strip() for v in opciones.values()) else "abierta"
 
-            rc = str(info.get("respuesta_correcta") or "")[:1].upper() or None
-            if tipo == "abierta":
-                rc = None
+            rc = str(info.get("respuesta_correcta") or "").strip()[:1].upper() or None
+            rc = None if tipo == "abierta" else _merge(
+                rc, actual[9] if actual else None
+            )
 
             nivel = p.get("nivel") or info.get("nivel") or info.get("capacidad")
-            desempeno_codigo = p.get("desempeno_codigo") or info.get("desempeno_codigo")
-            desempeno = info.get("desempeno")
-            contexto = p.get("contexto")
-            respuesta_esperada = info.get("respuesta_esperada") or p.get("respuesta_esperada")
-            espacio_respuesta = p.get("espacio_respuesta")
-            criterio = p.get("criterio_evaluacion")
+            nivel = _merge(str(nivel)[:20] if nivel else None, actual[12] if actual else None)
+            dc = p.get("desempeno_codigo") or info.get("desempeno_codigo")
+            dc = _merge(str(dc)[:50] if dc else None, actual[13] if actual else None)
 
-            conn.execute(sa.text(f"""
-                UPDATE preguntas_examen SET
-                    tipo = :tipo,
-                    contexto = :contexto,
-                    opcion_a = :a,
-                    opcion_b = :b,
-                    opcion_c = :c,
-                    opcion_d = :d,
-                    opcion_e = :e,
-                    respuesta_correcta = :rc,
-                    respuesta_esperada = :re,
-                    espacio_respuesta = :esp,
-                    nivel = :nivel,
-                    desempeno_codigo = :dc,
-                    desempeno_descripcion = :dd,
-                    criterio_evaluacion = :crit,
-                    justificacion = :just,
-                    retroalimentacion_correcta = :retro_ok,
-                    retroalimentacion_incorrecta = :retro_ko
-                WHERE {columna} = :eid AND numero = :num
-            """), {
+            valores = {
+                "num": indice,
+                "enunciado": _merge(str(p.get("enunciado") or ""), actual[1] if actual else None) or "",
                 "tipo": tipo,
-                "contexto": contexto,
-                "a": opciones.get("A") or None,
-                "b": opciones.get("B") or None,
-                "c": opciones.get("C") or None,
-                "d": opciones.get("D") or None,
-                "e": opciones.get("E") or None,
+                "contexto": _merge(p.get("contexto"), actual[3] if actual else None),
+                "a": _merge(opciones.get("A"), actual[4] if actual else None),
+                "b": _merge(opciones.get("B"), actual[5] if actual else None),
+                "c": _merge(opciones.get("C"), actual[6] if actual else None),
+                "d": _merge(opciones.get("D"), actual[7] if actual else None),
+                "e": _merge(opciones.get("E"), actual[8] if actual else None),
                 "rc": rc,
-                "re": respuesta_esperada,
-                "esp": espacio_respuesta,
-                "nivel": str(nivel)[:20] if nivel else None,
-                "dc": str(desempeno_codigo)[:50] if desempeno_codigo else None,
-                "dd": desempeno,
-                "crit": criterio,
-                "just": info.get("justificacion"),
-                "retro_ok": info.get("retroalimentacion_correcta"),
-                "retro_ko": info.get("retroalimentacion_incorrecta"),
-                "eid": examen_id,
-                "num": num,
-            })
+                "re": _merge(
+                    info.get("respuesta_esperada") or p.get("respuesta_esperada"),
+                    actual[10] if actual else None,
+                ),
+                "esp": _merge(p.get("espacio_respuesta"), actual[11] if actual else None),
+                "nivel": nivel,
+                "dc": dc,
+                "dd": _merge(info.get("desempeno"), actual[14] if actual else None),
+                "crit": _merge(p.get("criterio_evaluacion"), actual[15] if actual else None),
+                "just": _merge(info.get("justificacion"), actual[16] if actual else None),
+                "retro_ok": _merge(
+                    info.get("retroalimentacion_correcta"), actual[17] if actual else None
+                ),
+                "retro_ko": _merge(
+                    info.get("retroalimentacion_incorrecta"), actual[18] if actual else None
+                ),
+            }
+
+            if actual:
+                valores["id"] = actual[0]
+                conn.execute(sa.text("""
+                    UPDATE preguntas_examen SET
+                        numero = :num, enunciado = :enunciado, tipo = :tipo,
+                        contexto = :contexto, opcion_a = :a, opcion_b = :b,
+                        opcion_c = :c, opcion_d = :d, opcion_e = :e,
+                        respuesta_correcta = :rc, respuesta_esperada = :re,
+                        espacio_respuesta = :esp, nivel = :nivel,
+                        desempeno_codigo = :dc, desempeno_descripcion = :dd,
+                        criterio_evaluacion = :crit, justificacion = :just,
+                        retroalimentacion_correcta = :retro_ok,
+                        retroalimentacion_incorrecta = :retro_ko
+                    WHERE id = :id
+                """), valores)
+            else:
+                valores["eid"] = examen_id
+                conn.execute(sa.text(f"""
+                    INSERT INTO preguntas_examen
+                        ({columna}, {otra_columna}, numero, enunciado, tipo, contexto,
+                         opcion_a, opcion_b, opcion_c, opcion_d, opcion_e,
+                         respuesta_correcta, respuesta_esperada, espacio_respuesta,
+                         nivel, desempeno_codigo, desempeno_descripcion,
+                         criterio_evaluacion, justificacion,
+                         retroalimentacion_correcta, retroalimentacion_incorrecta)
+                    VALUES
+                        (:eid, NULL, :num, :enunciado, :tipo, :contexto,
+                         :a, :b, :c, :d, :e, :rc, :re, :esp, :nivel, :dc, :dd,
+                         :crit, :just, :retro_ok, :retro_ko)
+                """), valores)
+
+        # Filas normalizadas que no tienen contraparte en el JSON: conservarlas,
+        # pero renumerarlas para cumplir la restricción de unicidad.
+        for numero, fila in enumerate(filas[len(preguntas):], start=len(preguntas) + 1):
+            conn.execute(
+                sa.text("UPDATE preguntas_examen SET numero = :num WHERE id = :id"),
+                {"num": numero, "id": fila[0]},
+            )
 
     for examen_id, preguntas_raw, tabla_raw in conn.execute(sa.text(
         "SELECT id, preguntas, tabla_respuestas FROM examenes_lectura ORDER BY id"
     )).fetchall():
-        _enriquecer(examen_id, "examen_lectura_id", preguntas_raw, tabla_raw)
+        _sincronizar(examen_id, "examen_lectura_id", preguntas_raw, tabla_raw)
 
     for examen_id, preguntas_raw, tabla_raw in conn.execute(sa.text(
         "SELECT id, preguntas, tabla_respuestas FROM examenes_matematica ORDER BY id"
     )).fetchall():
-        _enriquecer(examen_id, "examen_matematica_id", preguntas_raw, tabla_raw)
+        _sincronizar(examen_id, "examen_matematica_id", preguntas_raw, tabla_raw)
 
     # Normalizar cadenas vacías a NULL e inferir tipo en filas sin JSON.
     for col in ("opcion_a", "opcion_b", "opcion_c", "opcion_d", "opcion_e"):
@@ -343,8 +405,8 @@ def upgrade() -> None:
     """))
 
     # ── 8. Restricciones de unicidad ─────────────────────────────────────
-    # Se agregan después del backfill para fallar de forma explícita si hubiera
-    # números repetidos por examen.
+    # Se agregan después del backfill; la renumeración anterior garantiza que
+    # no existan números repetidos por examen.
     with op.batch_alter_table("preguntas_examen") as batch_op:
         batch_op.create_unique_constraint(
             "uq_pregunta_lectura_numero", ["examen_lectura_id", "numero"]
