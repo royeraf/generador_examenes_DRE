@@ -103,6 +103,21 @@ def _indices(conn, tabla: str) -> set[str]:
 def upgrade() -> None:
     conn = op.get_bind()
 
+    # ── 0. Codificación ──────────────────────────────────────────────────
+    # Producción usa latin1 por herencia, pero las preguntas de matemática
+    # contienen símbolos como π o ≈. Las tablas normalizadas y las respuestas
+    # deben poder almacenar UTF-8 completo. La conversión es segura para los
+    # datos latin1 existentes (acentos y ñ).
+    for tabla in (
+        "preguntas_examen", "textos_examen", "respuestas_intento",
+        "examenes_lectura", "examenes_matematica",
+    ):
+        if sa.inspect(conn).has_table(tabla):
+            conn.execute(sa.text(
+                f"ALTER TABLE {tabla} CONVERT TO CHARACTER SET utf8mb4 "
+                "COLLATE utf8mb4_unicode_ci"
+            ))
+
     # ── 1. textos_examen ─────────────────────────────────────────────────
     # Producción ya tenía esta tabla creada por un intento previo de
     # normalización, aunque la revisión de Alembic no estuviera marcada.
@@ -129,6 +144,8 @@ def upgrade() -> None:
             ),
             sa.UniqueConstraint("examen_lectura_id", "orden", name="uq_texto_lectura_orden"),
             sa.UniqueConstraint("examen_matematica_id", "orden", name="uq_texto_matematica_orden"),
+            mysql_charset="utf8mb4",
+            mysql_collate="utf8mb4_unicode_ci",
         )
 
     indices_textos = _indices(conn, "textos_examen")
