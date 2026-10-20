@@ -227,7 +227,7 @@ async function eliminar(ie: InstitucionEducativa) {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans relative flex flex-col overflow-x-hidden">
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans relative flex flex-col overflow-x-clip">
     <EduBackground variant="teal" />
     <Header title="Gestión" subtitle="Instituciones Educativas" :show-home="true" />
 

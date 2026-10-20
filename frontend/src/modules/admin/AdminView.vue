@@ -140,7 +140,7 @@ const deleteItem = async (id: number) => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans relative flex flex-col overflow-x-hidden">
+    <div class="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans relative flex flex-col overflow-x-clip">
         <EduBackground variant="emerald" />
         <Header title="Gestión" subtitle="Currículo Nacional" :show-home="true" />
         <div class="max-w-7xl mx-auto w-full relative z-10 flex-1 flex flex-col p-4 sm:p-8">

@@ -39,18 +39,28 @@ fi
 # ─── Backend ─────────────────────────────────────────────────────────────────
 echo -e "${CYAN}[2/3] Arrancando backend (puerto 8000)...${NC}"
 cd "$BACKEND"
-source venv/bin/activate
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload &
+if [ ! -x "$BACKEND/venv/bin/python" ]; then
+    echo -e "${RED}  Error: no se encontró el entorno virtual en backend/venv${NC}"
+    echo -e "${RED}  Créalo con: cd backend && python3 -m venv venv && ./venv/bin/pip install -r requirements.txt${NC}"
+    exit 1
+fi
+# Se invoca el python del venv directamente: no depende de 'activate' ni del PATH.
+"$BACKEND/venv/bin/python" -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload &
 BACKEND_PID=$!
 
 # Esperar a que el backend responda
+BACKEND_UP=0
 for i in $(seq 1 15); do
     if curl -s http://localhost:8000/api/health &>/dev/null; then
         echo -e "${GREEN}  Backend listo en http://localhost:8000${NC}"
+        BACKEND_UP=1
         break
     fi
     sleep 1
 done
+if [ "$BACKEND_UP" -eq 0 ]; then
+    echo -e "${YELLOW}  Aviso: el backend no respondió en 15s. Revisa la salida de arriba.${NC}"
+fi
 
 # ─── Frontend ────────────────────────────────────────────────────────────────
 echo -e "${CYAN}[3/3] Arrancando frontend (puerto 5173)...${NC}"

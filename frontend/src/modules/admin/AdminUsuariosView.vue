@@ -745,7 +745,7 @@ async function saveResetPassword() {
 
 <template>
   <div @click="showDeleteFor = null"
-    class="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 font-sans relative overflow-x-hidden">
+    class="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 font-sans relative overflow-x-clip">
     <EduBackground variant="indigo" />
     
     <Header title="Gestión" subtitle="Usuarios del Sistema" :show-home="true" />

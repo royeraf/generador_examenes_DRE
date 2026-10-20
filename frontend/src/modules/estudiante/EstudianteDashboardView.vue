@@ -115,7 +115,7 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-all duration-300 overflow-x-hidden font-sans"
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-all duration-300 overflow-x-clip font-sans"
        :class="isSidebarCollapsed ? 'lg:pl-[84px]' : 'lg:pl-[280px]'">
 
     <!-- Premium Background Elements -->

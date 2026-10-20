@@ -116,7 +116,7 @@ async function eliminar(ugel: Ugel) {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans relative flex flex-col overflow-x-hidden">
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans relative flex flex-col overflow-x-clip">
     <EduBackground variant="indigo" />
     <Header title="Gestión" subtitle="UGELes Regionales" :show-home="true" />
 

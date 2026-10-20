@@ -99,11 +99,56 @@ export const useAuthStore = defineStore('auth', () => {
     }
   })
 
+  function clearSessionState() {
+    token.value = null
+    user.value = null
+    localStorage.removeItem('token')
+    document.cookie = '_logged_in_=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/'
+  }
+
+  function redirectToLoginIfNeeded() {
+    if (window.location.pathname !== '/login') {
+      window.location.assign('/login')
+    }
+  }
+
+  function onStorageChange(event: StorageEvent) {
+    // El token es compartido por todas las pestañas del navegador. Si otra
+    // pestaña inicia o cierra sesión, esta debe reflejar el mismo estado.
+    if (event.key !== 'token') return
+    const newToken = event.newValue
+    if (!newToken) {
+      clearSessionState()
+      redirectToLoginIfNeeded()
+      return
+    }
+    if (newToken === token.value) return
+    // Otra pestaña cambió de usuario: recargar para no mezclar el estado
+    // (nombre, matrícula, exámenes) del usuario anterior con el token nuevo.
+    window.location.reload()
+  }
+
   async function login(identifier: string, password: string) {
-    const data = await authService.login(identifier, password)
+    // En equipos compartidos no debe quedar visible ni activa la sesión previa.
+    if (localStorage.getItem('token')) {
+      await authService.logoutRequest()
+    }
+    // No borrar localStorage todavía: si el login falla se limpia en el catch;
+    // si funciona, authService.login reemplaza el token y las otras pestañas
+    // reciben un único evento con la sesión nueva.
+    user.value = null
+    token.value = null
+
+    let data: Awaited<ReturnType<typeof authService.login>>
+    try {
+      data = await authService.login(identifier, password)
+    } catch (e) {
+      clearSessionState()
+      throw e
+    }
     token.value = data.access_token
     document.cookie = '_logged_in_=1; path=/; SameSite=Lax'
-    // Retry fetchMe hasta 2 veces para tolerar caché transitorio de nginx
+    // Retry fetchMe hasta 2 veces para tolerar errores transitorios
     let lastError: unknown
     for (let i = 0; i < 3; i++) {
       try {
@@ -114,15 +159,14 @@ export const useAuthStore = defineStore('auth', () => {
         if (i < 2) await new Promise(r => setTimeout(r, 400))
       }
     }
+    // Nunca dejar un token nuevo con el perfil anterior en memoria.
+    clearSessionState()
     throw lastError
   }
 
   function logout() {
     void authService.logoutRequest()
-    token.value = null
-    user.value = null
-    localStorage.removeItem('token')
-    document.cookie = '_logged_in_=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/'
+    clearSessionState()
   }
 
   async function fetchMe() {
@@ -134,9 +178,13 @@ export const useAuthStore = defineStore('auth', () => {
       try {
         await fetchMe()
       } catch {
-        logout()
+        clearSessionState()
       }
     }
+  }
+
+  if (typeof window !== 'undefined') {
+    window.addEventListener('storage', onStorageChange)
   }
 
   return {

@@ -3,7 +3,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import {
   BookOpen, Calculator, Sparkles, GraduationCap, Users, ArrowRight,
   BarChart3, Building2, MapPin, ClipboardList, Loader2, ChevronRight, School,
-  SlidersHorizontal, Check, GripVertical, UserCog, Activity
+  SlidersHorizontal, Check, GripVertical, UserCog, Activity, Copyright
 } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
@@ -14,6 +14,7 @@ import logoDre from '../../assets/logo.png';
 const router = useRouter();
 const auth = useAuthStore();
 const isLoading = ref(true);
+const currentYear = new Date().getFullYear();
 
 console.log('[HomeView] setup:', {
   hasUser: !!auth.user,
@@ -217,7 +218,7 @@ const onDragEnd = () => {
 
     <!-- Header -->
     <header
-      class="relative z-30 border-b border-slate-300/80 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm shrink-0">
+      class="sticky top-0 z-40 border-b border-slate-300/80 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm shrink-0">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
         <div class="flex items-center gap-3">
           <div class="relative w-8 h-8 shrink-0">
@@ -405,13 +406,25 @@ const onDragEnd = () => {
 
       </div>
 
-      <!-- Footer -->
-      <p
-        class="mt-8 text-center text-[11px] text-slate-400 dark:text-slate-600 flex items-center justify-center gap-1.5">
-        <Sparkles class="w-3 h-3 animate-sparkle" /> Desarrollado para la Dirección Regional de Educación Huánuco
-      </p>
-
     </main>
+
+    <!-- Sticky footer -->
+    <footer
+      class="sticky bottom-0 z-20 shrink-0 mt-auto border-t border-slate-300/80 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm transition-colors duration-300"
+    >
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-start gap-2 sm:gap-3 overflow-hidden">
+        <p class="text-[10px] sm:text-[11px] leading-tight whitespace-nowrap truncate">
+          <span class="font-bold text-slate-700 dark:text-slate-200">SIEVA</span>
+          <span class="text-slate-300 dark:text-slate-600 mx-1">·</span>
+          <span class="text-slate-500 dark:text-slate-400">Sistema Integrado de Evaluación en Aula</span>
+        </p>
+        <span class="w-px h-3 bg-slate-300 dark:bg-slate-700 shrink-0"></span>
+        <p class="flex items-center gap-1 text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-500 whitespace-nowrap shrink-0">
+          <Copyright class="w-3 h-3" />
+          <span>{{ currentYear }}</span>
+        </p>
+      </div>
+    </footer>
   </div>
 </template>
 
@@ -628,22 +641,4 @@ const onDragEnd = () => {
   animation: logoCycle2 10s infinite;
 }
 
-/* ── Sparkle ──────────────────────────────────────── */
-.animate-sparkle {
-  animation: sparklePulse 2.5s ease-in-out infinite;
-}
-
-@keyframes sparklePulse {
-
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1) rotate(0deg);
-  }
-
-  50% {
-    opacity: 0.6;
-    transform: scale(1.3) rotate(20deg);
-  }
-}
 </style>

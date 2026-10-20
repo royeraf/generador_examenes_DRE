@@ -17,6 +17,32 @@ html.dark textarea::placeholder {
   color: rgb(100 116 139); /* slate-500 */
 }
 
+/* ====== Anti-zoom en móviles/tablets ====== */
+/* `pan-x pan-y` desactiva pinch-zoom y double-tap zoom sin bloquear el scroll.
+   También evita que iOS reescale el texto al rotar el dispositivo. */
+html {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  touch-action: pan-x pan-y;
+  overscroll-behavior: none;
+}
+
+/* iOS hace zoom automático al enfocar un input con font-size menor a 16px.
+   En pantallas táctiles pequeñas los campos de texto se fuerzan a 16px. */
+@media (hover: none) and (pointer: coarse) {
+  input:not([type='checkbox']):not([type='radio']):not([type='range']),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Escape hatch: elementos que sí necesitan zoom/gestos propios */
+[data-allow-zoom] {
+  touch-action: auto;
+}
+
 /* ====== KaTeX × Tailwind v4 preflight ====== */
 /* El preflight de Tailwind aplica box-sizing:border-box a *, pero KaTeX
    calcula el layout de fórmulas (fracciones, raíces, subrayados) asumiendo

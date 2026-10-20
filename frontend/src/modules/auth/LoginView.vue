@@ -57,6 +57,13 @@ const onSubmit = handleSubmit(async (formValues) => {
         loading.value = false;
     }
 });
+
+const handleSwitchUser = () => {
+    auth.logout();
+    error.value = '';
+    identifierValue.value = '';
+    passwordValue.value = '';
+};
 </script>
 
 <template>
@@ -134,6 +141,32 @@ const onSubmit = handleSubmit(async (formValues) => {
                         <p class="text-slate-500 dark:text-slate-400 font-medium">Ingresa a tu cuenta para continuar</p>
                     </div>
 
+                    <!-- Sesión activa: equipo compartido -->
+                    <div
+                        v-if="auth.isAuthenticated && !loading"
+                        class="mb-4 flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm dark:border-amber-500/30 dark:bg-amber-500/10"
+                    >
+                        <div class="flex items-start gap-3">
+                            <User class="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+                            <div>
+                                <p class="font-bold text-amber-800 dark:text-amber-300">
+                                    Sesión activa: {{ auth.displayName || 'usuario' }}
+                                </p>
+                                <p class="mt-1 font-medium text-amber-700 dark:text-amber-400/80">
+                                    Si este equipo es compartido, cierra la sesión antes de que otro estudiante ingrese.
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            @click="handleSwitchUser"
+                            class="inline-flex items-center justify-center gap-2 rounded-xl border border-amber-300 bg-white px-4 py-2.5 text-xs font-bold text-amber-800 transition-colors hover:bg-amber-100 dark:border-amber-500/40 dark:bg-transparent dark:text-amber-300 dark:hover:bg-amber-500/10"
+                        >
+                            <LogIn class="h-4 w-4" />
+                            Cerrar sesión e ingresar con otra cuenta
+                        </button>
+                    </div>
+
                     <!-- Error Alert -->
                     <div class="min-h-[76px] mb-4">
                         <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="transform -translate-y-2 opacity-0" enter-to-class="transform translate-y-0 opacity-100">
@@ -150,47 +183,79 @@ const onSubmit = handleSubmit(async (formValues) => {
                     <form @submit="onSubmit" class="space-y-6" autocomplete="on" novalidate>
                         <!-- Fields -->
                         <div class="space-y-2">
-                            <label for="login-identifier" class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5 ml-1">DNI o Código</label>
-                            <div class="relative group">
-                                <User class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-teal-500 transition-colors pointer-events-none" />
-                                <input 
+                            <div class="relative">
+                                <input
                                     id="login-identifier"
                                     v-model="identifierValue"
-                                    type="text" 
+                                    type="text"
                                     autocomplete="username"
-                                    placeholder="DNI o Código"
+                                    placeholder=" "
                                     :disabled="loading"
-                                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-4 pl-12 pr-4 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all uppercase placeholder:normal-case disabled:opacity-60 disabled:cursor-not-allowed"
-                                    :class="{'border-red-500/50': identifierError}"
+                                    :aria-invalid="!!identifierError"
+                                    aria-describedby="login-identifier-help"
+                                    class="peer block w-full bg-transparent px-4 pt-4 pb-2.5 text-sm font-bold text-slate-700 dark:text-slate-200 uppercase rounded-xl border appearance-none outline-none focus:ring-0 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                                    :class="identifierError
+                                        ? 'border-red-500 focus:border-red-500'
+                                        : 'border-slate-300 dark:border-slate-600 focus:border-teal-500'"
                                 />
+                                <label
+                                    for="login-identifier"
+                                    class="inline-flex items-center absolute text-sm font-bold transition-all duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] start-1 px-2 bg-white dark:bg-slate-950 rounded-lg cursor-text peer-focus:px-2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2"
+                                    :class="identifierError
+                                        ? 'text-red-600 dark:text-red-400 peer-focus:text-red-600 dark:peer-focus:text-red-400'
+                                        : 'text-slate-400 dark:text-slate-400 peer-focus:text-teal-500'"
+                                >
+                                    <User class="w-4 h-4 me-1.5 shrink-0" aria-hidden="true" />
+                                    DNI o Código
+                                </label>
                             </div>
-                            <div class="h-4 text-[10px] font-bold text-red-500 ml-1">
-                                {{ identifierError }}
-                            </div>
+                            <p
+                                id="login-identifier-help"
+                                aria-live="polite"
+                                class="mt-2 min-h-[1rem] text-xs font-medium text-red-600 dark:text-red-400"
+                            >
+                                <template v-if="identifierError"><span class="font-bold">Revisa:</span> {{ identifierError }}</template>
+                            </p>
                         </div>
 
                         <div class="space-y-2">
-                            <label for="login-password" class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5 ml-1">Contraseña</label>
-                            <div class="relative group">
-                                <Lock class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-teal-500 transition-colors pointer-events-none" />
-                                <input 
+                            <div class="relative">
+                                <input
                                     id="login-password"
                                     v-model="passwordValue"
-                                    :type="passwordFieldType" 
+                                    :type="passwordFieldType"
                                     autocomplete="current-password"
-                                    placeholder="••••••••"
+                                    placeholder=" "
                                     :disabled="loading"
-                                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl py-4 pl-12 pr-12 text-sm font-bold text-slate-700 dark:text-slate-200 outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-                                    :class="{'border-red-500/50': passwordError}"
+                                    :aria-invalid="!!passwordError"
+                                    aria-describedby="login-password-help"
+                                    class="peer block w-full bg-transparent px-4 pr-12 pt-4 pb-2.5 text-sm font-bold text-slate-700 dark:text-slate-200 rounded-xl border appearance-none outline-none focus:ring-0 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                                    :class="passwordError
+                                        ? 'border-red-500 focus:border-red-500'
+                                        : 'border-slate-300 dark:border-slate-600 focus:border-teal-500'"
                                 />
+                                <label
+                                    for="login-password"
+                                    class="inline-flex items-center absolute text-sm font-bold transition-all duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] start-1 px-2 bg-white dark:bg-slate-950 rounded-lg cursor-text peer-focus:px-2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2"
+                                    :class="passwordError
+                                        ? 'text-red-600 dark:text-red-400 peer-focus:text-red-600 dark:peer-focus:text-red-400'
+                                        : 'text-slate-400 dark:text-slate-400 peer-focus:text-teal-500'"
+                                >
+                                    <Lock class="w-4 h-4 me-1.5 shrink-0" aria-hidden="true" />
+                                    Contraseña
+                                </label>
                                 <button type="button" @click="passwordFieldType = passwordFieldType === 'password' ? 'text' : 'password'" :aria-label="passwordFieldType === 'password' ? 'Mostrar contraseña' : 'Ocultar contraseña'" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors cursor-pointer">
                                     <Eye v-if="passwordFieldType === 'password'" class="w-5 h-5" />
                                     <EyeOff v-else class="w-5 h-5" />
                                 </button>
                             </div>
-                            <div class="h-4 text-[10px] font-bold text-red-500 ml-1">
-                                {{ passwordError }}
-                            </div>
+                            <p
+                                id="login-password-help"
+                                aria-live="polite"
+                                class="mt-2 min-h-[1rem] text-xs font-medium text-red-600 dark:text-red-400"
+                            >
+                                <template v-if="passwordError"><span class="font-bold">Revisa:</span> {{ passwordError }}</template>
+                            </p>
                         </div>
 
                         <!-- Action Button -->

@@ -320,7 +320,7 @@ onMounted(cargarTodo)
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans relative flex flex-col overflow-x-hidden">
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans relative flex flex-col overflow-x-clip">
     <EduBackground variant="indigo" />
     <Header title="Monitoreo" subtitle="Sesiones activas y estadísticas de acceso" :show-home="true" />
 

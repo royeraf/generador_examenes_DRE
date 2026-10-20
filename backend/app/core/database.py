@@ -1,6 +1,11 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, declarative_base
+import logging
 import os
+
+from sqlalchemy.exc import SQLAlchemyError
+
+logger = logging.getLogger(__name__)
 
 # Database URL — SQLite por defecto para desarrollo local
 DATABASE_URL = os.getenv(
@@ -21,7 +26,9 @@ elif DATABASE_URL.startswith("mysql") or DATABASE_URL.startswith("mariadb"):
         "pool_pre_ping": True,
         "pool_size": 5,
         "max_overflow": 10,
-        "pool_recycle": 1800,  # reciclar conexiones cada 30 min antes de que MySQL las cierre
+        # MySQL cierra conexiones ociosas según wait_timeout (600 s en prod).
+        # Reciclar antes evita errores intermitentes de conexión.
+        "pool_recycle": int(os.getenv("DB_POOL_RECYCLE_SECONDS", "240")),
         "pool_timeout": 30,
     }
 else:
@@ -53,6 +60,10 @@ async def get_db():
         try:
             yield session
             await session.commit()
+        except SQLAlchemyError:
+            logger.exception("Error de base de datos en la sesión")
+            await session.rollback()
+            raise
         except Exception:
             await session.rollback()
             raise
