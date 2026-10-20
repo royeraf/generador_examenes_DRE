@@ -67,7 +67,11 @@ class Settings(BaseSettings):
     # Intentos fallidos permitidos por IP + identificador dentro de la ventana.
     login_max_attempts: int = int(os.getenv("LOGIN_MAX_ATTEMPTS", "5"))
     # Intentos fallidos permitidos por IP (cubre barridos de identificadores).
-    login_max_ip_attempts: int = int(os.getenv("LOGIN_MAX_IP_ATTEMPTS", "20"))
+    # Un aula completa comparte una sola IP pública (NAT): con 20, unos pocos
+    # alumnos que se equivoquen dejan bloqueado al colegio entero durante la
+    # ventana. El límite por identificador (5) sigue siendo la protección real
+    # contra fuerza bruta.
+    login_max_ip_attempts: int = int(os.getenv("LOGIN_MAX_IP_ATTEMPTS", "100"))
     # Ventana de tiempo en minutos para contar los intentos fallidos.
     login_attempt_window_minutes: int = int(os.getenv("LOGIN_ATTEMPT_WINDOW_MINUTES", "5"))
 
