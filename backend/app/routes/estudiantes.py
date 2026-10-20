@@ -11,9 +11,10 @@ from pydantic import BaseModel, field_validator
 from app.core.database import get_db
 from app.core.db_retry import con_reintento
 from app.core.tz import a_peru_naive, ahora_peru, iso_peru
+from app.core.escala_cneb import clasificar, porcentaje_a_nota, nota_a_nivel
 from app.models.db_models import (
     AsignacionExamen, IntentoExamen, ProgresoEstudiante,
-    ExamenLectura, ExamenMatematica,
+    ExamenLectura, ExamenMatematica, TextoExamen,
     PreguntaExamen, Rol, CodigoClase, Matricula, Grado,
 )
 from app.models.usuario import Usuario
@@ -21,9 +22,34 @@ from app.models.estudiante import Estudiante
 from app.models.enums import RolCodigo
 from app.api.dependencies import get_estudiante_user, get_current_active_user, require_role, require_modulo
 from app.services.examen_service import examen_service
+from app.services.examen_serializer import lecturas_dict, texto_concatenado, texto_plano
 from app.services.matricula_service import get_matricula_activa
 
 router = APIRouter()
+
+
+async def _cargar_textos(
+    db: AsyncSession,
+    *,
+    examen_lectura_id: Optional[int] = None,
+    examen_matematica_id: Optional[int] = None,
+) -> list[TextoExamen]:
+    """Carga los textos normalizados de un examen, ordenados."""
+    if examen_lectura_id is not None:
+        q = (
+            select(TextoExamen)
+            .where(TextoExamen.examen_lectura_id == examen_lectura_id)
+            .order_by(TextoExamen.orden)
+        )
+    else:
+        q = (
+            select(TextoExamen)
+            .where(TextoExamen.examen_matematica_id == examen_matematica_id)
+            .order_by(TextoExamen.orden)
+        )
+    result = await db.execute(q)
+    return result.scalars().all()
+
 
 EXAM_CREATOR_ROLES = (
     RolCodigo.DOCENTE, RolCodigo.AUXILIAR, RolCodigo.DIRECTOR,
@@ -117,7 +143,8 @@ async def preview_examen(
         examen = ex_r.scalars().first()
         if not examen:
             raise HTTPException(404, "Examen no encontrado")
-        lecturas = examen.lecturas or [{"titulo": "", "texto": examen.lectura or ""}]
+        textos = await _cargar_textos(db, examen_lectura_id=asig.examen_id)
+        lecturas = lecturas_dict(textos)
         return {
             "titulo": examen.titulo or "Examen de Comunicación",
             "tipo_examen": "lectura",
@@ -129,11 +156,13 @@ async def preview_examen(
         examen = ex_r.scalars().first()
         if not examen:
             raise HTTPException(404, "Examen no encontrado")
+        textos = await _cargar_textos(db, examen_matematica_id=asig.examen_id)
+        lecturas = lecturas_dict(textos)
         return {
             "titulo": examen.titulo or "Examen de Matemática",
             "tipo_examen": "matematica",
-            "lecturas": [{"titulo": "", "texto": examen.situacion_problematica or ""}],
-            "instrucciones": "",
+            "lecturas": lecturas,
+            "instrucciones": examen.instrucciones or "",
         }
     raise HTTPException(400, "Tipo de examen no soportado")
 
@@ -232,6 +261,8 @@ async def listar_examenes_estudiante(
             "completado": ultimo is not None,
             "puntaje": ultimo.puntaje_total if ultimo else None,
             "nivel_logro": ultimo.nivel_logro if ultimo else None,
+            "nota_vigesimal": ultimo.nota_vigesimal if ultimo else None,
+            "nivel_cneb": ultimo.nivel_cneb if ultimo else None,
             "disponible": disponible,
         })
 
@@ -327,11 +358,13 @@ async def iniciar_examen(
             .order_by(PreguntaExamen.numero)
         )
         preguntas = preguntas_r.scalars().all()
-        lecturas = examen.lecturas or [{"titulo": "", "texto": examen.lectura or ""}]
+        textos = await _cargar_textos(db, examen_lectura_id=asig_examen_id)
+        lecturas = lecturas_dict(textos)
+        lectura = texto_concatenado(textos)
         return {
             "titulo": examen.titulo or "Examen de Comunicación",
             "instrucciones": examen.instrucciones or "",
-            "lectura": examen.lectura or "",
+            "lectura": lectura,
             "lecturas": lecturas,
             "preguntas": examen_service.mezclar_examen(
                 examen_service.preparar_preguntas(preguntas),
@@ -353,11 +386,14 @@ async def iniciar_examen(
             .order_by(PreguntaExamen.numero)
         )
         preguntas = preguntas_r.scalars().all()
+        textos = await _cargar_textos(db, examen_matematica_id=asig_examen_id)
+        lecturas = lecturas_dict(textos)
+        situacion = texto_plano(textos)
         return {
             "titulo": examen.titulo or "Examen de Matemática",
-            "instrucciones": "",
-            "lectura": examen.situacion_problematica or "",
-            "lecturas": [{"titulo": "", "texto": examen.situacion_problematica or ""}],
+            "instrucciones": examen.instrucciones or "",
+            "lectura": situacion,
+            "lecturas": lecturas,
             "preguntas": examen_service.mezclar_examen(
                 examen_service.preparar_preguntas(preguntas),
                 mezclar_preguntas=asig_mezclar_preguntas,
@@ -394,6 +430,8 @@ async def obtener_resultado_examen(
         "preguntas_correctas": ultimo.preguntas_correctas,
         "preguntas_total": ultimo.preguntas_total,
         "nivel_logro": ultimo.nivel_logro,
+        "nota_vigesimal": ultimo.nota_vigesimal,
+        "nivel_cneb": ultimo.nivel_cneb,
     }
 
 
@@ -497,6 +535,11 @@ async def progreso_estudiante(
             "total_examenes_completados": p.total_examenes_completados,
             "puntaje_promedio": round(p.puntaje_promedio or 0, 2),
             "nivel_logro_actual": p.nivel_logro_actual,
+            "nota_promedio_vigesimal": porcentaje_a_nota(p.puntaje_promedio),
+            "nivel_cneb_actual": (
+                nota_a_nivel(porcentaje_a_nota(p.puntaje_promedio))
+                if p.puntaje_promedio is not None else None
+            ),
             "ultima_actividad": _iso_peru(p.ultima_actividad),
         }
         for p in progresos
@@ -515,6 +558,35 @@ async def asignar_examen(
     if data.tipo_examen not in ("lectura", "matematica"):
         raise HTTPException(400, "tipo_examen debe ser 'lectura' o 'matematica'")
     examen_service.validar_rango_horario(data.fecha_inicio, data.fecha_fin)
+
+    # Validar que el examen exista, tenga preguntas y que sean calificables
+    # automáticamente (las abiertas requieren calificación manual, aún no soportada).
+    if data.tipo_examen == "lectura":
+        existe = await db.execute(select(ExamenLectura.id).where(ExamenLectura.id == data.examen_id))
+        filtro_preguntas = PreguntaExamen.examen_lectura_id == data.examen_id
+    else:
+        existe = await db.execute(select(ExamenMatematica.id).where(ExamenMatematica.id == data.examen_id))
+        filtro_preguntas = PreguntaExamen.examen_matematica_id == data.examen_id
+    if not existe.scalar():
+        raise HTTPException(404, "Examen no encontrado")
+
+    total_preguntas = (await db.execute(
+        select(func.count(PreguntaExamen.id)).where(filtro_preguntas)
+    )).scalar() or 0
+    if total_preguntas == 0:
+        raise HTTPException(400, "El examen no tiene preguntas para asignar")
+
+    abiertas = (await db.execute(
+        select(func.count(PreguntaExamen.id)).where(
+            filtro_preguntas, PreguntaExamen.tipo == "abierta"
+        )
+    )).scalar() or 0
+    if abiertas > 0:
+        raise HTTPException(
+            400,
+            "Este examen contiene preguntas abiertas que requieren calificación manual; "
+            "por ahora no se puede asignar en línea.",
+        )
 
     # Si se provee un codigo_clase_id, derivar grado_id y seccion de él
     grado_id = data.grado_id
@@ -720,6 +792,8 @@ async def resultados_asignacion(
             "estado": intento.estado if intento else "sin_intento",
             "puntaje": intento.puntaje_total if intento else None,
             "nivel_logro": intento.nivel_logro if intento else None,
+            "nota_vigesimal": intento.nota_vigesimal if intento else None,
+            "nivel_cneb": intento.nivel_cneb if intento else None,
             "correctas": intento.preguntas_correctas if intento else None,
             "total": intento.preguntas_total if intento else None,
             "fecha": _iso_peru(intento.fecha_fin) if intento else None,

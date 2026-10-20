@@ -24,6 +24,7 @@ from app.models.db_models import (  # noqa: E402, F401
     EstandarMatematica, DesempenoMatematica,
     ExamenLectura, ExamenMatematica,
     AsignacionExamen, IntentoExamen, ProgresoEstudiante,
+    PreguntaExamen, TextoExamen, RespuestaIntento,
 )
 from app.models.usuario import Usuario  # noqa: E402, F401
 from app.models.ubigeo import Provincia, Distrito  # noqa: E402, F401

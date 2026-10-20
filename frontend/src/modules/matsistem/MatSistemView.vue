@@ -40,6 +40,7 @@ const {
   cantidadPreguntas,
   useTextoBase,
   contenidoTematico,
+  tipoProducto,
   selectedFiles,
   filesMetadata,
   uploadingFile,
@@ -176,7 +177,8 @@ watch(resultado, async (newVal) => {
       grado_id: selectedGradoId.value,
       competencia_id: selectedCompetenciaId.value,
       nivel_dificultad: selectedNivelDificultad.value,
-      modelo: 'gemini'
+      modelo: 'gemini',
+      tipo_producto: tipoProducto.value
     });
   }
 });

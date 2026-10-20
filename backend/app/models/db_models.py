@@ -329,14 +329,22 @@ class ExamenLectura(Base):
 
     saludo = Column(Text, nullable=True)
     instrucciones = Column(Text, nullable=True)
-    lectura = Column(Text, nullable=True)
-    lecturas = Column(JSON, nullable=True)  # [{"titulo": str, "texto": str}]
-    preguntas = Column(JSON, nullable=True)
-    tabla_respuestas = Column(JSON, nullable=True)
     desempenos_usados = Column(Text, nullable=True)
 
     usuario = relationship("Usuario", back_populates="examenes_lectura", foreign_keys=[docente_id])
     grado = relationship("Grado")
+    textos = relationship(
+        "TextoExamen",
+        back_populates="examen_lectura",
+        cascade="all, delete-orphan",
+        foreign_keys="TextoExamen.examen_lectura_id",
+    )
+    preguntas_rel = relationship(
+        "PreguntaExamen",
+        back_populates="examen_lectura",
+        cascade="all, delete-orphan",
+        foreign_keys="PreguntaExamen.examen_lectura_id",
+    )
 
     def __repr__(self):
         return f"<ExamenLectura id={self.id} docente={self.docente_id} grado={self.grado_nombre}>"
@@ -358,14 +366,28 @@ class ExamenMatematica(Base):
     modelo_ia = Column(String(50), nullable=True)
 
     saludo = Column(Text, nullable=True)
-    situacion_problematica = Column(Text, nullable=True)
-    preguntas = Column(JSON, nullable=True)
-    tabla_respuestas = Column(JSON, nullable=True)
+    instrucciones = Column(Text, nullable=True)
+    tipo_producto = Column(Integer, nullable=True)
+    # Documento completo para el tipo 5 (actividad INICIO/DESARROLLO/CIERRE).
+    # Solo se usa como snapshot; las preguntas/lecturas operativas viven normalizadas.
+    contenido_json = Column(JSON, nullable=True)
     desempenos_usados = Column(Text, nullable=True)
 
     usuario = relationship("Usuario", back_populates="examenes_matematica", foreign_keys=[docente_id])
     grado = relationship("Grado")
     competencia = relationship("CompetenciaMatematica")
+    textos = relationship(
+        "TextoExamen",
+        back_populates="examen_matematica",
+        cascade="all, delete-orphan",
+        foreign_keys="TextoExamen.examen_matematica_id",
+    )
+    preguntas_rel = relationship(
+        "PreguntaExamen",
+        back_populates="examen_matematica",
+        cascade="all, delete-orphan",
+        foreign_keys="PreguntaExamen.examen_matematica_id",
+    )
 
     def __repr__(self):
         return f"<ExamenMatematica id={self.id} docente={self.docente_id} grado={self.grado_nombre}>"
@@ -432,6 +454,8 @@ class IntentoExamen(Base):
     preguntas_correctas = Column(Integer, nullable=True)
     preguntas_total = Column(Integer, nullable=True)
     nivel_logro = Column(String(50), nullable=True)  # NivelLogro enum values
+    nota_vigesimal = Column(Float, nullable=True)    # 0-20, escala CNEB (derivada de puntaje_total)
+    nivel_cneb = Column(String(2), nullable=True)    # "AD" | "A" | "B" | "C"
 
     fecha_creacion = Column(DateTime(timezone=True), default=ahora_peru, server_default=func.now())
 
@@ -477,7 +501,7 @@ class ProgresoEstudiante(Base):
 
 class PreguntaExamen(Base):
     """Pregunta individual de un examen (lectura o matemática).
-    Reemplaza el JSON 'preguntas' almacenado en ExamenLectura/ExamenMatematica."""
+    Fuente única de verdad: reemplaza los JSON 'preguntas' y 'tabla_respuestas'."""
     __tablename__ = "preguntas_examen"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -486,15 +510,21 @@ class PreguntaExamen(Base):
     examen_matematica_id = Column(Integer, ForeignKey("examenes_matematica.id", ondelete="CASCADE"), nullable=True)
 
     numero = Column(Integer, nullable=False)
+    tipo = Column(String(20), nullable=False, default="cerrada", server_default="cerrada")
     enunciado = Column(Text, nullable=False)
-    opcion_a = Column(Text, nullable=False)
-    opcion_b = Column(Text, nullable=False)
-    opcion_c = Column(Text, nullable=False)
-    opcion_d = Column(Text, nullable=False)
-    respuesta_correcta = Column(String(1), nullable=False)  # A | B | C | D
-    nivel = Column(String(20), nullable=True)               # literal | inferencial | critico
+    contexto = Column(Text, nullable=True)
+    opcion_a = Column(Text, nullable=True)
+    opcion_b = Column(Text, nullable=True)
+    opcion_c = Column(Text, nullable=True)
+    opcion_d = Column(Text, nullable=True)
+    opcion_e = Column(Text, nullable=True)
+    respuesta_correcta = Column(String(1), nullable=True)      # A | B | C | D | E (NULL en abiertas)
+    respuesta_esperada = Column(Text, nullable=True)           # abiertas
+    espacio_respuesta = Column(Text, nullable=True)            # abiertas
+    nivel = Column(String(20), nullable=True)                  # literal | inferencial | critico
     desempeno_codigo = Column(String(50), nullable=True)
     desempeno_descripcion = Column(Text, nullable=True)
+    criterio_evaluacion = Column(Text, nullable=True)
     justificacion = Column(Text, nullable=True)
     retroalimentacion_correcta = Column(Text, nullable=True)   # pre-generada: si el estudiante acierta
     retroalimentacion_incorrecta = Column(Text, nullable=True) # pre-generada: si el estudiante falla
@@ -505,14 +535,65 @@ class PreguntaExamen(Base):
             "(examen_lectura_id IS NULL AND examen_matematica_id IS NOT NULL)",
             name="ck_pregunta_exactamente_un_examen",
         ),
+        UniqueConstraint("examen_lectura_id", "numero", name="uq_pregunta_lectura_numero"),
+        UniqueConstraint("examen_matematica_id", "numero", name="uq_pregunta_matematica_numero"),
     )
 
-    examen_lectura = relationship("ExamenLectura", foreign_keys=[examen_lectura_id])
-    examen_matematica = relationship("ExamenMatematica", foreign_keys=[examen_matematica_id])
-    respuestas = relationship("RespuestaIntento", back_populates="pregunta", cascade="all, delete-orphan")
+    examen_lectura = relationship(
+        "ExamenLectura", back_populates="preguntas_rel", foreign_keys=[examen_lectura_id]
+    )
+    examen_matematica = relationship(
+        "ExamenMatematica", back_populates="preguntas_rel", foreign_keys=[examen_matematica_id]
+    )
+    # Las respuestas se borran en bloque antes de eliminar el examen
+    # (ver routes/examenes.py) para no depender del cascade de MyISAM.
+    respuestas = relationship(
+        "RespuestaIntento",
+        back_populates="pregunta",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
 
     def __repr__(self):
         return f"<PreguntaExamen #{self.numero} lec={self.examen_lectura_id} mat={self.examen_matematica_id}>"
+
+
+class TextoExamen(Base):
+    """Texto de lectura o situación problemática de un examen.
+
+    Fuente única de verdad desde Release B. Las columnas legacy
+    `examenes_lectura.lectura`/`lecturas` y
+    `examenes_matematica.situacion_problematica` fueron eliminadas.
+    Un examen puede tener 1..N textos.
+    """
+    __tablename__ = "textos_examen"
+
+    id = Column(Integer, primary_key=True, index=True)
+    examen_lectura_id = Column(Integer, ForeignKey("examenes_lectura.id", ondelete="CASCADE"), nullable=True)
+    examen_matematica_id = Column(Integer, ForeignKey("examenes_matematica.id", ondelete="CASCADE"), nullable=True)
+    orden = Column(Integer, nullable=False)
+    titulo = Column(String(300), nullable=True)
+    texto = Column(Text, nullable=False)
+
+    __table_args__ = (
+        CheckConstraint(
+            "(examen_lectura_id IS NOT NULL AND examen_matematica_id IS NULL) OR "
+            "(examen_lectura_id IS NULL AND examen_matematica_id IS NOT NULL)",
+            name="ck_texto_exactamente_un_examen",
+        ),
+        UniqueConstraint("examen_lectura_id", "orden", name="uq_texto_lectura_orden"),
+        UniqueConstraint("examen_matematica_id", "orden", name="uq_texto_matematica_orden"),
+    )
+
+    examen_lectura = relationship(
+        "ExamenLectura", back_populates="textos", foreign_keys=[examen_lectura_id]
+    )
+    examen_matematica = relationship(
+        "ExamenMatematica", back_populates="textos", foreign_keys=[examen_matematica_id]
+    )
+
+    def __repr__(self):
+        return f"<TextoExamen orden={self.orden} lec={self.examen_lectura_id} mat={self.examen_matematica_id}>"
 
 
 class RespuestaIntento(Base):
@@ -523,7 +604,7 @@ class RespuestaIntento(Base):
     id = Column(Integer, primary_key=True, index=True)
     intento_id = Column(Integer, ForeignKey("intentos_examen.id", ondelete="CASCADE"), nullable=False)
     pregunta_id = Column(Integer, ForeignKey("preguntas_examen.id", ondelete="CASCADE"), nullable=False)
-    respuesta_dada = Column(String(1), nullable=False)   # A | B | C | D
+    respuesta_dada = Column(Text, nullable=False)        # A-E en cerradas; texto libre en abiertas
     es_correcta = Column(Boolean, nullable=False)
     retroalimentacion_ia = Column(Text, nullable=True)
 

@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy import event
 import logging
 import os
 
@@ -41,6 +42,14 @@ engine = create_async_engine(
     connect_args=connect_args,
     **engine_kwargs
 )
+
+if DATABASE_URL.startswith("sqlite"):
+    # SQLite ignora las FK (y por tanto ON DELETE CASCADE) si no se activa por conexión.
+    @event.listens_for(engine.sync_engine, "connect")
+    def _activar_foreign_keys_sqlite(dbapi_connection, connection_record):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
 
 # Async Session factory
 AsyncSessionLocal = sessionmaker(

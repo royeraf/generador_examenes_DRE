@@ -151,6 +151,10 @@ export interface PreguntaExamen {
   opciones: OpcionPregunta[];
   desempeno_codigo: string;
   nivel: string; // En comunicación: LITERAL/INFERENCIAL/CRITICO, en matemática: nombre de capacidad
+  tipo?: 'cerrada' | 'abierta' | string;
+  contexto?: string | null;
+  respuesta_esperada?: string | null;
+  espacio_respuesta?: string | null;
 }
 
 // Fila de la tabla de respuestas
@@ -159,9 +163,11 @@ export interface FilaTablaRespuestas {
   desempeno: string;
   nivel: string;
   respuesta_correcta: string;
+  respuesta_esperada?: string | null;
   justificacion?: string;
   retroalimentacion_correcta?: string;
   retroalimentacion_incorrecta?: string;
+  tipo?: 'cerrada' | 'abierta' | string;
 }
 
 // Estructura del examen generado
@@ -173,6 +179,10 @@ export interface Examen {
   lecturas?: { titulo: string; texto: string }[];
   preguntas: PreguntaExamen[];
   tabla_respuestas: FilaTablaRespuestas[];
+  // MatSistem: tipo de producto y snapshot de la actividad (tipo 5).
+  tipo_producto?: number | null;
+  contenido_json?: unknown;
+  situacion_problematica?: string;
 }
 
 // Respuesta completa del generador
@@ -184,6 +194,9 @@ export interface GenerarExamenResponse {
   lecturas?: { titulo: string; texto: string }[];
   total_preguntas: number;
   advertencias_calidad?: string[];
+  tipo_producto?: number;
+  tipo_producto_nombre?: string;
+  es_actividad?: boolean;
 }
 
 // Mantener compatibilidad con estructura anterior (deprecada)

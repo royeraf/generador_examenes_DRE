@@ -49,7 +49,10 @@ export function useMatSistemHistory() {
             nivel_dificultad: params?.nivel_dificultad || 'intermedio',
             modelo_ia: params?.modelo || 'gemini',
             saludo: resultado.saludo,
-            situacion_problematica: resultado.examen.lectura,
+            instrucciones: resultado.examen.instrucciones,
+            tipo_producto: params?.tipo_producto ?? resultado.examen.tipo_producto ?? null,
+            contenido_json: resultado.examen.contenido_json ?? null,
+            situacion_problematica: resultado.examen.situacion_problematica || resultado.examen.lectura,
             preguntas: resultado.examen.preguntas,
             tabla_respuestas: resultado.examen.tabla_respuestas,
             desempenos_usados: resultado.desempenos_usados
@@ -85,6 +88,8 @@ export function useMatSistemHistory() {
                         grado: ex.grado_nombre,
                         instrucciones: ex.instrucciones,
                         situacion_problematica: ex.situacion_problematica,
+                        tipo_producto: ex.tipo_producto,
+                        contenido_json: ex.contenido_json,
                         preguntas: ex.preguntas,
                         tabla_respuestas: ex.tabla_respuestas
                     } as any

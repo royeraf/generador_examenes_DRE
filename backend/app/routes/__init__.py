@@ -31,6 +31,7 @@ from app.routes.estudiantes import router as estudiantes_router
 from app.routes.metricas import router as metricas_router
 from app.routes.gestion_estudiantes import router as gestion_estudiantes_router
 from app.routes.monitoreo import router as monitoreo_router
+from app.routes.escala import router as escala_router
 
 
 def create_api_router() -> APIRouter:
@@ -151,6 +152,14 @@ def create_api_router() -> APIRouter:
         monitoreo_router,
         prefix="/monitoreo",
         tags=["Monitoreo"]
+    )
+
+    # ==========================================================================
+    # MÓDULO: ESCALA DE CALIFICACIÓN CNEB
+    # ==========================================================================
+    api_router.include_router(
+        escala_router,
+        tags=["Escala de Calificación"]
     )
 
     return api_router

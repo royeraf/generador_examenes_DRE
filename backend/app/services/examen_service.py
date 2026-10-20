@@ -13,13 +13,15 @@ from sqlalchemy.exc import IntegrityError
 
 from app.models.db_models import (
     AsignacionExamen, IntentoExamen, ProgresoEstudiante,
-    ExamenLectura, ExamenMatematica,
+    ExamenLectura, ExamenMatematica, TextoExamen,
     PreguntaExamen, RespuestaIntento,
 )
 from app.models.usuario import Usuario
 from app.core.tz import a_peru_naive, ahora_peru
+from app.core.escala_cneb import clasificar, porcentaje_a_nota
 from app.services.ai_factory import ai_factory
 from app.services.ai_base import repair_latex_backslash_escapes, repair_stray_control_chars
+from app.services.examen_serializer import lecturas_dict, texto_concatenado, texto_plano
 
 
 class ExamenService:
@@ -52,11 +54,14 @@ class ExamenService:
         correctas = sum(1 for num, clave in clave_map.items() if student_map.get(num) == clave)
         total = len(tabla_respuestas)
         puntaje = (correctas / total * 100) if total > 0 else 0
+        clasificacion = clasificar(puntaje)
         return {
             "correctas": correctas,
             "total": total,
             "puntaje": round(puntaje, 2),
             "nivel_logro": ExamenService.puntaje_a_nivel(puntaje),
+            "nota_vigesimal": clasificacion["nota_vigesimal"],
+            "nivel_cneb": clasificacion["nivel_cneb"],
         }
 
     # ── Validación de rango horario ────────────────────────────────────────────
@@ -79,21 +84,31 @@ class ExamenService:
     @staticmethod
     def preparar_preguntas(preguntas: list) -> list[dict]:
         """Convierte filas de PreguntaExamen al formato que espera el cliente."""
-        return [
-            {
+        resultado = []
+        for p in preguntas:
+            opciones = []
+            for letra, texto in (
+                ("A", p.opcion_a),
+                ("B", p.opcion_b),
+                ("C", p.opcion_c),
+                ("D", p.opcion_d),
+                ("E", p.opcion_e),
+            ):
+                if texto is None or str(texto).strip() == "":
+                    continue
+                opciones.append({"letra": letra, "valor": letra, "texto": texto})
+            resultado.append({
                 "numero": p.numero,
                 "enunciado": p.enunciado,
-                "opciones": [
-                    {"letra": "A", "valor": "A", "texto": p.opcion_a},
-                    {"letra": "B", "valor": "B", "texto": p.opcion_b},
-                    {"letra": "C", "valor": "C", "texto": p.opcion_c},
-                    {"letra": "D", "valor": "D", "texto": p.opcion_d},
-                ],
+                "opciones": opciones,
                 "nivel": p.nivel or "",
                 "desempeno_codigo": p.desempeno_codigo or "",
-            }
-            for p in preguntas
-        ]
+                "tipo": p.tipo or "cerrada",
+                "contexto": p.contexto,
+                "respuesta_esperada": p.respuesta_esperada,
+                "espacio_respuesta": p.espacio_respuesta,
+            })
+        return resultado
 
     @staticmethod
     def mezclar_examen(
@@ -128,12 +143,16 @@ class ExamenService:
         if not ai_service.is_configured():
             return {}
 
-        opciones_label = {0: "A", 1: "B", 2: "C", 3: "D"}
+        opciones_label = {0: "A", 1: "B", 2: "C", 3: "D", 4: "E"}
         preguntas_texto = ""
         for p in preguntas_data:
             opciones_str = "\n".join([
                 f"  {opciones_label.get(i, chr(65 + i))}) {op}"
-                for i, op in enumerate([p["opcion_a"], p["opcion_b"], p["opcion_c"], p["opcion_d"]])
+                for i, op in enumerate([
+                    p.get("opcion_a"), p.get("opcion_b"), p.get("opcion_c"),
+                    p.get("opcion_d"), p.get("opcion_e"),
+                ])
+                if op
             ])
             estado = "CORRECTA" if p["es_correcta"] else "INCORRECTA"
             preguntas_texto += (
@@ -212,19 +231,29 @@ class ExamenService:
             pregunta = preguntas_map.get(r.pregunta_numero)
             if not pregunta:
                 continue
-            es_correcta = r.respuesta.upper() == pregunta.respuesta_correcta.upper()
+            # Las preguntas abiertas se almacenan pero no se autocalifican
+            # (la asignación en línea las bloquea hasta implementar calificación manual/IA).
+            es_abierta = (pregunta.tipo or "cerrada") == "abierta"
+            respuesta = (r.respuesta or "").strip()
+            if es_abierta or not pregunta.respuesta_correcta:
+                es_correcta = False
+            else:
+                es_correcta = respuesta.upper() == pregunta.respuesta_correcta.upper()
             if es_correcta:
                 correctas += 1
             db.add(RespuestaIntento(
                 intento_id=intento.id,
                 pregunta_id=pregunta.id,
-                respuesta_dada=r.respuesta.upper(),
+                respuesta_dada=respuesta.upper() if not es_abierta else respuesta,
                 es_correcta=es_correcta,
             ))
 
         total = len(preguntas_map)
         puntaje = round((correctas / total * 100) if total > 0 else 0, 2)
         nivel_logro = self.puntaje_a_nivel(puntaje)
+        clasificacion = clasificar(puntaje)
+        nota_vigesimal = clasificacion["nota_vigesimal"]
+        nivel_cneb = clasificacion["nivel_cneb"]
 
         # estado/fecha_fin ya fueron reclamados atómicamente por el caller (ver
         # finalizar_intento) antes de llegar aquí: a partir de ese punto este intento
@@ -234,6 +263,8 @@ class ExamenService:
         intento.preguntas_correctas = correctas
         intento.preguntas_total = total
         intento.nivel_logro = nivel_logro
+        intento.nota_vigesimal = nota_vigesimal
+        intento.nivel_cneb = nivel_cneb
         await db.flush()
 
         area = "comunicacion" if asig.tipo_examen == "lectura" else "matematica"
@@ -246,6 +277,8 @@ class ExamenService:
                 "preguntas_correctas": correctas,
                 "preguntas_total": total,
                 "nivel_logro": nivel_logro,
+                "nota_vigesimal": nota_vigesimal,
+                "nivel_cneb": nivel_cneb,
             }
         await self._upsert_progreso(db, matricula.id, area, puntaje, nivel_logro)
 
@@ -254,6 +287,8 @@ class ExamenService:
             "preguntas_correctas": correctas,
             "preguntas_total": total,
             "nivel_logro": nivel_logro,
+            "nota_vigesimal": nota_vigesimal,
+            "nivel_cneb": nivel_cneb,
         }
 
     @staticmethod
@@ -340,25 +375,29 @@ class ExamenService:
         if asig.tipo_examen == "lectura":
             ex_r = await db.execute(select(ExamenLectura).where(ExamenLectura.id == asig.examen_id))
             examen = ex_r.scalars().first()
+            textos_r = await db.execute(
+                select(TextoExamen)
+                .where(TextoExamen.examen_lectura_id == asig.examen_id)
+                .order_by(TextoExamen.orden)
+            )
+            textos = textos_r.scalars().all()
             if examen:
                 titulo_examen = examen.titulo or ""
-                lectura_texto = (
-                    "\n\n".join(t.get("texto", "") for t in examen.lecturas)
-                    if examen.lecturas
-                    else (examen.lectura or "")
-                )
-                if examen.lecturas:
-                    lecturas_out = [{"titulo": t.get("titulo", ""), "texto": t.get("texto", "")} for t in examen.lecturas]
-                elif examen.lectura:
-                    lecturas_out = [{"titulo": "Texto Principal", "texto": examen.lectura}]
+                lectura_texto = texto_concatenado(textos)
+                lecturas_out = lecturas_dict(textos)
         elif asig.tipo_examen == "matematica":
             ex_r = await db.execute(select(ExamenMatematica).where(ExamenMatematica.id == asig.examen_id))
             examen = ex_r.scalars().first()
+            textos_r = await db.execute(
+                select(TextoExamen)
+                .where(TextoExamen.examen_matematica_id == asig.examen_id)
+                .order_by(TextoExamen.orden)
+            )
+            textos = textos_r.scalars().all()
             if examen:
                 titulo_examen = examen.titulo or ""
-                lectura_texto = examen.situacion_problematica or ""
-                if examen.situacion_problematica:
-                    lecturas_out = [{"titulo": "Situación Problemática", "texto": examen.situacion_problematica}]
+                lectura_texto = texto_plano(textos)
+                lecturas_out = lecturas_dict(textos)
 
         resp_r = await db.execute(select(RespuestaIntento).where(RespuestaIntento.intento_id == intento_id))
         respuestas = resp_r.scalars().all()
@@ -400,6 +439,7 @@ class ExamenService:
                         "opcion_b": p.opcion_b,
                         "opcion_c": p.opcion_c,
                         "opcion_d": p.opcion_d,
+                        "opcion_e": p.opcion_e,
                         "respuesta_correcta": p.respuesta_correcta,
                         "respuesta_dada": r.respuesta_dada,
                         "es_correcta": r.es_correcta,
@@ -423,12 +463,20 @@ class ExamenService:
                 "numero": p.numero,
                 "enunciado": p.enunciado,
                 "opciones": [
-                    {"letra": "A", "texto": p.opcion_a},
-                    {"letra": "B", "texto": p.opcion_b},
-                    {"letra": "C", "texto": p.opcion_c},
-                    {"letra": "D", "texto": p.opcion_d},
+                    {"letra": letra, "texto": texto}
+                    for letra, texto in (
+                        ("A", p.opcion_a),
+                        ("B", p.opcion_b),
+                        ("C", p.opcion_c),
+                        ("D", p.opcion_d),
+                        ("E", p.opcion_e),
+                    )
+                    if texto is not None and str(texto).strip() != ""
                 ],
+                "tipo": p.tipo or "cerrada",
+                "contexto": p.contexto,
                 "respuesta_correcta": p.respuesta_correcta,
+                "respuesta_esperada": p.respuesta_esperada,
                 "respuesta_dada": r.respuesta_dada,
                 "es_correcta": r.es_correcta,
                 "justificacion": p.justificacion or "",
@@ -445,6 +493,8 @@ class ExamenService:
             "preguntas_correctas": intento.preguntas_correctas,
             "preguntas_total": intento.preguntas_total,
             "nivel_logro": intento.nivel_logro,
+            "nota_vigesimal": intento.nota_vigesimal,
+            "nivel_cneb": intento.nivel_cneb,
             "preguntas": preguntas_out,
             "lecturas": lecturas_out,
         }

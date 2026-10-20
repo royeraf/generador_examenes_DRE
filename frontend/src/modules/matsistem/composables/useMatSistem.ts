@@ -288,6 +288,10 @@ export function useMatSistem() {
           grado: response.examen?.grado ?? '',
           instrucciones: response.examen?.instrucciones ?? '',
           lectura: response.examen?.situacion_problematica ?? '',
+          situacion_problematica: response.examen?.situacion_problematica ?? '',
+          tipo_producto: response.tipo_producto ?? tipoProducto.value,
+          // Para tipo 5 (actividad) guardamos el documento completo generado por la IA.
+          contenido_json: response.es_actividad ? response.examen : null,
           preguntas: (response.examen?.preguntas ?? []).map((p: any) => ({
             numero: p.numero,
             enunciado: p.enunciado,
