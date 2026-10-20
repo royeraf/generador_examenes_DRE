@@ -104,31 +104,40 @@ def upgrade() -> None:
     conn = op.get_bind()
 
     # ── 1. textos_examen ─────────────────────────────────────────────────
-    op.create_table(
-        "textos_examen",
-        sa.Column("id", sa.Integer(), primary_key=True, autoincrement=True),
-        sa.Column(
-            "examen_lectura_id", sa.Integer(),
-            sa.ForeignKey("examenes_lectura.id", ondelete="CASCADE"), nullable=True,
-        ),
-        sa.Column(
-            "examen_matematica_id", sa.Integer(),
-            sa.ForeignKey("examenes_matematica.id", ondelete="CASCADE"), nullable=True,
-        ),
-        sa.Column("orden", sa.Integer(), nullable=False),
-        sa.Column("titulo", sa.String(300), nullable=True),
-        sa.Column("texto", sa.Text(), nullable=False),
-        sa.CheckConstraint(
-            "(examen_lectura_id IS NOT NULL AND examen_matematica_id IS NULL) OR "
-            "(examen_lectura_id IS NULL AND examen_matematica_id IS NOT NULL)",
-            name="ck_texto_exactamente_un_examen",
-        ),
-        sa.UniqueConstraint("examen_lectura_id", "orden", name="uq_texto_lectura_orden"),
-        sa.UniqueConstraint("examen_matematica_id", "orden", name="uq_texto_matematica_orden"),
-    )
-    op.create_index("ix_textos_examen_id", "textos_examen", ["id"])
-    op.create_index("ix_textos_examen_examen_lectura_id", "textos_examen", ["examen_lectura_id"])
-    op.create_index("ix_textos_examen_examen_matematica_id", "textos_examen", ["examen_matematica_id"])
+    # Producción ya tenía esta tabla creada por un intento previo de
+    # normalización, aunque la revisión de Alembic no estuviera marcada.
+    # Se reutiliza si existe para no fallar con "table already exists".
+    if not sa.inspect(conn).has_table("textos_examen"):
+        op.create_table(
+            "textos_examen",
+            sa.Column("id", sa.Integer(), primary_key=True, autoincrement=True),
+            sa.Column(
+                "examen_lectura_id", sa.Integer(),
+                sa.ForeignKey("examenes_lectura.id", ondelete="CASCADE"), nullable=True,
+            ),
+            sa.Column(
+                "examen_matematica_id", sa.Integer(),
+                sa.ForeignKey("examenes_matematica.id", ondelete="CASCADE"), nullable=True,
+            ),
+            sa.Column("orden", sa.Integer(), nullable=False),
+            sa.Column("titulo", sa.String(300), nullable=True),
+            sa.Column("texto", sa.Text(), nullable=False),
+            sa.CheckConstraint(
+                "(examen_lectura_id IS NOT NULL AND examen_matematica_id IS NULL) OR "
+                "(examen_lectura_id IS NULL AND examen_matematica_id IS NOT NULL)",
+                name="ck_texto_exactamente_un_examen",
+            ),
+            sa.UniqueConstraint("examen_lectura_id", "orden", name="uq_texto_lectura_orden"),
+            sa.UniqueConstraint("examen_matematica_id", "orden", name="uq_texto_matematica_orden"),
+        )
+
+    indices_textos = _indices(conn, "textos_examen")
+    if "ix_textos_examen_id" not in indices_textos:
+        op.create_index("ix_textos_examen_id", "textos_examen", ["id"])
+    if "ix_textos_examen_examen_lectura_id" not in indices_textos:
+        op.create_index("ix_textos_examen_examen_lectura_id", "textos_examen", ["examen_lectura_id"])
+    if "ix_textos_examen_examen_matematica_id" not in indices_textos:
+        op.create_index("ix_textos_examen_examen_matematica_id", "textos_examen", ["examen_matematica_id"])
 
     # ── 2. Ampliar preguntas_examen ──────────────────────────────────────
     with op.batch_alter_table("preguntas_examen") as batch_op:
