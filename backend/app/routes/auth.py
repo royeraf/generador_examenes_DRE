@@ -14,9 +14,10 @@ from app.core.tz import ahora_peru
 from app.core.security import (
     create_access_token,
     get_dummy_hash,
-    get_password_hash,
+    get_password_hash_async,
+    needs_rehash,
     settings,
-    verify_password,
+    verify_password_async,
 )
 from app.core.request_meta import get_client_ip, parse_user_agent
 from app.services.login_guard import check_login_allowed
@@ -94,10 +95,10 @@ async def login_access_token(
     if usuario is None:
         # Igualar el costo de bcrypt cuando el identificador no existe para
         # que el tiempo de respuesta no revele qué cuentas están registradas.
-        verify_password(form_data.password, get_dummy_hash())
+        await verify_password_async(form_data.password, get_dummy_hash())
         credenciales_validas = False
     else:
-        credenciales_validas = verify_password(
+        credenciales_validas = await verify_password_async(
             form_data.password, usuario.password_hash
         )
 
@@ -131,6 +132,11 @@ async def login_access_token(
         await db.commit()
         # Mismo mensaje que credenciales inválidas: no revelar que la cuenta existe.
         raise HTTPException(status_code=400, detail="Credenciales incorrectas")
+
+    # Migración transparente del coste de bcrypt (12 -> 10): no invalida la
+    # contraseña, solo re-hashea en el siguiente login exitoso.
+    if needs_rehash(usuario.password_hash):
+        usuario.password_hash = await get_password_hash_async(form_data.password)
 
     identifier = usuario.codigo_estudiante or usuario.dni
     jti = uuid.uuid4().hex
@@ -212,10 +218,10 @@ async def change_my_password(
     current_user: UsuarioModel = Depends(get_current_active_user),
 ) -> Any:
     """Cambia la contraseña del usuario autenticado."""
-    if not verify_password(data.current_password, current_user.password_hash):
+    if not await verify_password_async(data.current_password, current_user.password_hash):
         raise HTTPException(status_code=400, detail="Contraseña actual incorrecta")
 
-    current_user.password_hash = get_password_hash(data.new_password)
+    current_user.password_hash = await get_password_hash_async(data.new_password)
     db.add(current_user)
     await db.commit()
     return {"message": "Contraseña actualizada correctamente"}

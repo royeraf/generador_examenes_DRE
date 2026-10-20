@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.estudiante import Estudiante
 from app.repositories.estudiante_repository import estudiante_repository
 from app.services.matricula_service import crear_matricula
-from app.core.security import get_password_hash, verify_password
+from app.core.security import get_password_hash_async, verify_password_async
 
 
 class EstudianteService:
@@ -52,7 +52,7 @@ class EstudianteService:
             codigo_estudiante=codigo_estudiante,
             nombres=nombres,
             apellidos=apellidos,
-            password_hash=get_password_hash(password),
+            password_hash=await get_password_hash_async(password),
             is_active=is_active,
             institucion_educativa_id=institucion_educativa_id,
             distrito_id=distrito_id,
@@ -85,7 +85,7 @@ class EstudianteService:
         est = await estudiante_repository.get_by_login(db, identifier)
         if not est:
             return None
-        if not verify_password(password, est.password_hash):
+        if not await verify_password_async(password, est.password_hash):
             return None
         return est
 

@@ -8,7 +8,7 @@ from app.schemas.usuario import UsuarioAdminCreate, UsuarioUpdate
 from app.models.usuario import Usuario
 from app.models.db_models import Rol, InstitucionEducativa
 from app.models.enums import RolCodigo
-from app.core.security import get_password_hash, verify_password
+from app.core.security import get_password_hash_async, verify_password_async
 from app.core.permissions import puede_crear_rol
 from app.services.matricula_service import get_matricula_activa
 
@@ -58,7 +58,7 @@ class UsuarioService:
         if rol_codigo == RolCodigo.ESTUDIANTE:
             raise ValueError("Los estudiantes deben crearse usando estudiante_service.crear_estudiante()")
 
-        obj_data["password_hash"] = get_password_hash(password)
+        obj_data["password_hash"] = await get_password_hash_async(password)
         obj_data["rol_id"] = await self._get_rol_id(db, rol_codigo)
         obj_data["creado_por_id"] = creado_por_id
 
@@ -80,7 +80,7 @@ class UsuarioService:
         usuario = await self.repository.get_by_login(db, identifier)
         if not usuario:
             return None
-        if not verify_password(password, usuario.password_hash):
+        if not await verify_password_async(password, usuario.password_hash):
             return None
         return usuario
 
@@ -102,7 +102,7 @@ class UsuarioService:
         año_escolar = update_data.pop("año_escolar", None)
 
         if "password" in update_data:
-            update_data["password_hash"] = get_password_hash(update_data.pop("password"))
+            update_data["password_hash"] = await get_password_hash_async(update_data.pop("password"))
         if "rol_codigo" in update_data:
             nuevo_rol = update_data.pop("rol_codigo")
             if nuevo_rol == RolCodigo.ESTUDIANTE:

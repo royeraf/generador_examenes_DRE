@@ -17,7 +17,7 @@ from app.models.usuario import Usuario
 from app.models.estudiante import Estudiante
 from app.models.enums import RolCodigo
 from app.api.dependencies import get_current_active_user, require_role, require_modulo
-from app.core.security import get_password_hash, verify_password
+from app.core.security import get_password_hash_async, verify_password_async
 from app.services.matricula_service import crear_matricula, get_matricula_activa
 from app.services.estudiante_service import estudiante_service
 from app.schemas.pagination import PaginatedResponse
@@ -594,9 +594,9 @@ async def activar_estudiantes_pendientes(
     for est in estudiantes:
         if not est.dni or not est.password_hash:
             continue
-        if not verify_password(f"PENDIENTE-{est.dni}", est.password_hash):
+        if not await verify_password_async(f"PENDIENTE-{est.dni}", est.password_hash):
             continue
-        est.password_hash = get_password_hash(data.password)
+        est.password_hash = await get_password_hash_async(data.password)
         est.is_active = True
         activados += 1
 
@@ -718,10 +718,10 @@ async def actualizar_estudiante(
     estudiante.dni = data.dni
 
     if data.password:
-        from app.core.security import get_password_hash as _hash
+        from app.core.security import get_password_hash_async as _hash
         if not estudiante.codigo_estudiante:
             estudiante.codigo_estudiante = await estudiante_service._generar_codigo(db)
-        estudiante.password_hash = _hash(data.password)
+        estudiante.password_hash = await _hash(data.password)
         estudiante.is_active = True
 
     # Actualizar matrícula activa
