@@ -396,7 +396,12 @@ loop. Con tres cambios de configuración y uno de código, la capacidad pasa de 
 | systemd con `-w 8`, `--timeout 180`, `--graceful-timeout 30` | script P0 | Persistido |
 | nginx: `/api/` directo a gunicorn, `proxy_cache off`, timeout 300 s | script P0 | Activo |
 | MariaDB: `thread_cache_size=64`, slow log a 1 s | script P0 | Activo + persistido |
+| Persistencia ante regeneración de ngxconf | `489668a` | `cache_lock_enable: false` + timer de 30 s activo |
 | Rehash de hashes viejos (12 → 10) | automático en login | Verificado (`$2b$10$`) |
+
+Watchdog verificado: `sieva-api-direct.timer` corre cada 30 s, la última ejecución terminó
+con `status=0/SUCCESS` y `/var/log/sieva-api-direct.log` aún no existe porque no hubo nada
+que corregir. Cuando ngxconf regenere el vhost, la corrección tarda como máximo 30 s.
 
 ### Resultados medidos antes / después
 
