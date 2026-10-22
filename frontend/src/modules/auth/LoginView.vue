@@ -138,7 +138,7 @@ const handleSwitchUser = () => {
                         <h2 class="font-display text-2xl font-semibold text-slate-900 dark:text-white tracking-tight">Iniciar sesión en SIEVA</h2>
                     </div>
 
-                    <!-- Sesión activa: equipo compartido -->
+                    <!-- Sesión activa: solo se llega aquí con /login?cambio=1 -->
                     <div
                         v-if="auth.isAuthenticated && !loading"
                         class="mb-4 flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm dark:border-amber-500/30 dark:bg-amber-500/10"

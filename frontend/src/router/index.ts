@@ -201,11 +201,13 @@ router.beforeEach(async (to) => {
   }
 
   if (to.meta.requiresGuest && auth.isAuthenticated) {
-    // Permitir /login para cambiar de usuario en equipos compartidos.
-    // La vista de login muestra la sesión activa y permite cerrarla.
-    if (to.path !== '/login') {
-      return auth.homeRoute
+    // Con sesión activa no se muestra el login: se vuelve al inicio del rol.
+    // Excepción explícita: /login?cambio=1, para cambiar de cuenta en equipos
+    // compartidos (la vista muestra la sesión activa y permite cerrarla).
+    if (to.path === '/login' && to.query.cambio) {
+      return
     }
+    return auth.homeRoute
   }
 
   // El home general (HomeView) es para docentes/gestores; los estudiantes tienen su propio portal
