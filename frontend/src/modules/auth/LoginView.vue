@@ -6,7 +6,11 @@ import { LogIn, User, Lock, AlertCircle, Eye, EyeOff } from 'lucide-vue-next';
 import { useForm, useField } from 'vee-validate';
 import * as yup from 'yup';
 import logoDre from '../../assets/logo.png';
-import teachingSvg from '../../assets/undraw_visual-explanation_vd4l.svg';
+import pixelExamen from '../../assets/pixel-examen.svg';
+import pixelMetricas from '../../assets/pixel-metricas.svg';
+import pixelAprendizaje from '../../assets/pixel-aprendizaje.svg';
+import pixelAula from '../../assets/pixel-estudiantes.svg';
+import pixelCertificado from '../../assets/pixel-certificado.svg';
 import ThemeToggle from '../../shared/components/ThemeToggle.vue';
 import BaseButton from '../../shared/components/BaseButton.vue';
 
@@ -69,53 +73,47 @@ const handleSwitchUser = () => {
 <template>
     <div class="min-h-screen flex items-stretch bg-slate-50 dark:bg-slate-950 transition-colors duration-500 overflow-hidden font-sans">
         
-        <!-- ═══ Left: Visual Side (Desktop) ═══ -->
-        <div class="hidden lg:flex lg:w-[50%] xl:w-[60%] relative flex-col justify-between p-12 overflow-hidden">
-            <!-- Animated Background -->
-            <div class="absolute inset-0 bg-slate-900 dark:bg-black">
-                <div class="absolute inset-0 hero-grid opacity-20"></div>
-                <div class="absolute top-0 right-0 w-[800px] h-[800px] bg-teal-500/10 rounded-full blur-[120px]"></div>
-                <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[120px]"></div>
+        <!-- ═══ Left: Panel de marca (Desktop) ═══ -->
+        <div class="hidden lg:flex lg:w-1/2 relative flex-col justify-between p-12 xl:p-16 overflow-hidden font-display border-r border-slate-200/70 dark:border-white/5 bg-gradient-to-br from-teal-50 via-white to-indigo-50 dark:from-black dark:via-slate-950 dark:to-black">
+            <!-- Fondo -->
+            <div class="absolute inset-0" aria-hidden="true">
+                <div class="absolute inset-0 hero-grid text-slate-900/10 dark:text-white/10"></div>
+                <div class="absolute -top-24 -right-24 h-[520px] w-[520px] rounded-full bg-teal-400/20 blur-[120px] dark:bg-teal-500/10"></div>
+                <div class="absolute -bottom-32 -left-24 h-[480px] w-[480px] rounded-full bg-indigo-400/15 blur-[120px] dark:bg-indigo-500/10"></div>
             </div>
 
-            <!-- Header -->
-            <div class="relative z-10 flex items-center gap-3">
-                <div class="w-10 h-10 p-1.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl flex items-center justify-center">
-                    <img :src="logoDre" alt="DRE Logo" class="w-full h-full object-contain brightness-0 invert" />
-                </div>
-                <div class="flex flex-col">
-                    <span class="text-white font-bold tracking-widest text-xs uppercase">SIEVA</span>
-                    <span class="text-white/40 text-[10px] uppercase font-bold tracking-wider">DRE Huánuco</span>
+            <!-- Constelación pixel-art -->
+            <div class="relative z-10 flex-1 flex items-center justify-center">
+                <div class="relative w-full max-w-sm aspect-square">
+                    <!-- Halo que ancla la composición circular -->
+                    <div class="absolute inset-[6%] rounded-full blur-2xl bg-[radial-gradient(circle_at_center,rgba(13,148,136,0.16),rgba(99,102,241,0.07)_45%,transparent_72%)] dark:bg-[radial-gradient(circle_at_center,rgba(20,184,166,0.20),rgba(99,102,241,0.10)_45%,transparent_72%)]" aria-hidden="true"></div>
+
+                    <img :src="pixelExamen" alt="Evaluación con respuestas correctas"
+                        class="absolute left-[50%] top-[10%] w-28 xl:w-32 -translate-x-1/2 -translate-y-1/2 drop-shadow-[0_8px_20px_rgba(15,23,42,0.16)] dark:drop-shadow-[0_10px_24px_rgba(2,6,23,0.45)] [image-rendering:pixelated]" />
+                    <img :src="pixelMetricas" alt="Panel de métricas y resultados"
+                        class="absolute left-[86.2%] top-[38.3%] w-28 xl:w-32 -translate-x-1/2 -translate-y-1/2 drop-shadow-[0_8px_20px_rgba(15,23,42,0.16)] dark:drop-shadow-[0_10px_24px_rgba(2,6,23,0.45)] [image-rendering:pixelated]" />
+                    <img :src="pixelAprendizaje" alt="Aprendizaje y logros"
+                        class="absolute left-[72.9%] top-[80.7%] w-28 xl:w-32 -translate-x-1/2 -translate-y-1/2 drop-shadow-[0_8px_20px_rgba(15,23,42,0.16)] dark:drop-shadow-[0_10px_24px_rgba(2,6,23,0.45)] [image-rendering:pixelated]" />
+                    <img :src="pixelAula" alt="Aula y contenidos curriculares"
+                        class="absolute left-[27.1%] top-[80.7%] w-28 xl:w-32 -translate-x-1/2 -translate-y-1/2 drop-shadow-[0_8px_20px_rgba(15,23,42,0.16)] dark:drop-shadow-[0_10px_24px_rgba(2,6,23,0.45)] [image-rendering:pixelated]" />
+                    <img :src="pixelCertificado" alt="Certificado de logros"
+                        class="absolute left-[13.8%] top-[38.3%] w-28 xl:w-32 -translate-x-1/2 -translate-y-1/2 drop-shadow-[0_8px_20px_rgba(15,23,42,0.16)] dark:drop-shadow-[0_10px_24px_rgba(2,6,23,0.45)] [image-rendering:pixelated]" />
                 </div>
             </div>
 
-            <!-- Content -->
-            <div class="relative z-10 max-w-2xl">
-                <h1 class="text-2xl xl:text-3xl text-teal-400 font-black tracking-[0.3em] mb-4 uppercase">SIEVA</h1>
-                <p class="text-lg text-white/60 leading-relaxed max-w-lg">
-                    Sistema Integrado de Evaluación en Aula. Un solo espacio para enseñar, aprender y crecer juntos.
+            <!-- Portada (inferior izquierda) -->
+            <div class="relative z-10 max-w-lg">
+                <h1 class="font-display text-3xl xl:text-4xl text-teal-700 dark:text-teal-400 font-semibold tracking-[0.28em] uppercase mb-3">SIEVA</h1>
+                <p class="text-lg xl:text-xl 2xl:text-2xl text-slate-700 dark:text-white/70 leading-relaxed font-semibold whitespace-nowrap">
+                    Sistema Integrado de Evaluación en Aula.
                 </p>
-            </div>
-
-            <!-- Footer -->
-            <div class="relative z-10">
-                <p class="text-[10px] text-white/30 font-bold uppercase tracking-widest">© 2026 DIRECCIÓN REGIONAL DE EDUCACIÓN HUÁNUCO</p>
-            </div>
-
-            <!-- Floating Illustration -->
-            <div class="absolute right-[-5%] top-[25%] w-[450px] opacity-30 pointer-events-none">
-                <img :src="teachingSvg" alt="" aria-hidden="true" class="w-full h-full object-contain animate-float" />
             </div>
         </div>
 
         <!-- ═══ Right: Login Side ═══ -->
         <div class="flex-1 flex flex-col relative bg-white dark:bg-slate-950">
             
-            <div class="lg:hidden flex items-center justify-between p-6 shrink-0 z-20">
-                <div class="flex items-center gap-2">
-                    <img :src="logoDre" alt="Logo" class="w-7 h-7 object-contain dark:brightness-0 dark:invert" />
-                    <span class="text-sm font-bold text-slate-800 dark:text-white tracking-tighter">SIEVA</span>
-                </div>
+            <div class="lg:hidden flex items-center justify-end p-6 shrink-0 z-20">
                 <ThemeToggle />
             </div>
 
@@ -137,8 +135,7 @@ const handleSwitchUser = () => {
                     
                     <!-- Form Header -->
                     <div class="mb-4 text-center lg:text-left">
-                        <h2 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Bienvenido a SIEVA</h2>
-                        <p class="text-slate-500 dark:text-slate-400 font-medium">Ingresa a tu cuenta para continuar</p>
+                        <h2 class="font-display text-2xl font-semibold text-slate-900 dark:text-white tracking-tight">Iniciar sesión en SIEVA</h2>
                     </div>
 
                     <!-- Sesión activa: equipo compartido -->
@@ -168,21 +165,19 @@ const handleSwitchUser = () => {
                     </div>
 
                     <!-- Error Alert -->
-                    <div class="min-h-[76px] mb-4">
-                        <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="transform -translate-y-2 opacity-0" enter-to-class="transform translate-y-0 opacity-100">
-                            <div v-if="error" class="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-2xl text-red-600 dark:text-red-400 text-sm font-bold animate-shake">
-                                <AlertCircle class="w-5 h-5 shrink-0" />
-                                <span>{{ error }}</span>
-                            </div>
-                        </Transition>
-                    </div>
+                    <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="transform -translate-y-2 opacity-0" enter-to-class="transform translate-y-0 opacity-100">
+                        <div v-if="error" role="alert" class="mb-4 flex items-center gap-3 p-4 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-2xl text-red-600 dark:text-red-400 text-sm font-bold animate-shake">
+                            <AlertCircle class="w-5 h-5 shrink-0" />
+                            <span>{{ error }}</span>
+                        </div>
+                    </Transition>
 
 
 
                     <!-- Form -->
-                    <form @submit="onSubmit" class="space-y-6" autocomplete="on" novalidate>
+                    <form @submit="onSubmit" class="space-y-4" autocomplete="on" novalidate>
                         <!-- Fields -->
-                        <div class="space-y-2">
+                        <div class="space-y-4">
                             <div class="relative">
                                 <input
                                     id="login-identifier"
@@ -193,17 +188,17 @@ const handleSwitchUser = () => {
                                     :disabled="loading"
                                     :aria-invalid="!!identifierError"
                                     aria-describedby="login-identifier-help"
-                                    class="peer block w-full bg-transparent px-4 pt-4 pb-2.5 text-sm font-bold text-slate-700 dark:text-slate-200 uppercase rounded-xl border appearance-none outline-none focus:ring-0 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                                    class="font-display peer block w-full bg-transparent px-4 pt-4 pb-2.5 text-sm font-bold text-slate-700 dark:text-slate-200 uppercase rounded-xl border appearance-none outline-none focus:ring-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                                     :class="identifierError
-                                        ? 'border-red-500 focus:border-red-500'
-                                        : 'border-slate-300 dark:border-slate-600 focus:border-teal-500'"
+                                        ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
+                                        : 'border-slate-300 dark:border-slate-600 focus:border-teal-500 focus:ring-teal-500/25'"
                                 />
                                 <label
                                     for="login-identifier"
                                     class="inline-flex items-center absolute text-sm font-bold transition-all duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] start-1 px-2 bg-white dark:bg-slate-950 rounded-lg cursor-text peer-focus:px-2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2"
                                     :class="identifierError
                                         ? 'text-red-600 dark:text-red-400 peer-focus:text-red-600 dark:peer-focus:text-red-400'
-                                        : 'text-slate-400 dark:text-slate-400 peer-focus:text-teal-500'"
+                                        : 'text-slate-500 dark:text-slate-400 peer-focus:text-teal-500'"
                                 >
                                     <User class="w-4 h-4 me-1.5 shrink-0" aria-hidden="true" />
                                     DNI o Código
@@ -212,13 +207,13 @@ const handleSwitchUser = () => {
                             <p
                                 id="login-identifier-help"
                                 aria-live="polite"
-                                class="mt-2 min-h-[1rem] text-xs font-medium text-red-600 dark:text-red-400"
+                                class="min-h-[1rem] text-xs font-medium text-red-600 dark:text-red-400"
                             >
                                 <template v-if="identifierError"><span class="font-bold">Revisa:</span> {{ identifierError }}</template>
                             </p>
                         </div>
 
-                        <div class="space-y-2">
+                        <div class="space-y-4">
                             <div class="relative">
                                 <input
                                     id="login-password"
@@ -229,17 +224,17 @@ const handleSwitchUser = () => {
                                     :disabled="loading"
                                     :aria-invalid="!!passwordError"
                                     aria-describedby="login-password-help"
-                                    class="peer block w-full bg-transparent px-4 pr-12 pt-4 pb-2.5 text-sm font-bold text-slate-700 dark:text-slate-200 rounded-xl border appearance-none outline-none focus:ring-0 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                                    class="font-display peer block w-full bg-transparent px-4 pr-12 pt-4 pb-2.5 text-sm font-bold text-slate-700 dark:text-slate-200 rounded-xl border appearance-none outline-none focus:ring-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                                     :class="passwordError
-                                        ? 'border-red-500 focus:border-red-500'
-                                        : 'border-slate-300 dark:border-slate-600 focus:border-teal-500'"
+                                        ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
+                                        : 'border-slate-300 dark:border-slate-600 focus:border-teal-500 focus:ring-teal-500/25'"
                                 />
                                 <label
                                     for="login-password"
                                     class="inline-flex items-center absolute text-sm font-bold transition-all duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] start-1 px-2 bg-white dark:bg-slate-950 rounded-lg cursor-text peer-focus:px-2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2"
                                     :class="passwordError
                                         ? 'text-red-600 dark:text-red-400 peer-focus:text-red-600 dark:peer-focus:text-red-400'
-                                        : 'text-slate-400 dark:text-slate-400 peer-focus:text-teal-500'"
+                                        : 'text-slate-500 dark:text-slate-400 peer-focus:text-teal-500'"
                                 >
                                     <Lock class="w-4 h-4 me-1.5 shrink-0" aria-hidden="true" />
                                     Contraseña
@@ -252,36 +247,41 @@ const handleSwitchUser = () => {
                             <p
                                 id="login-password-help"
                                 aria-live="polite"
-                                class="mt-2 min-h-[1rem] text-xs font-medium text-red-600 dark:text-red-400"
+                                class="min-h-[1rem] text-xs font-medium text-red-600 dark:text-red-400"
                             >
                                 <template v-if="passwordError"><span class="font-bold">Revisa:</span> {{ passwordError }}</template>
                             </p>
                         </div>
 
                         <!-- Action Button -->
-                        <BaseButton type="submit" variant="primary" size="lg" block :loading="loading">
-                            <template #icon><LogIn class="w-5 h-5" /></template>
-                            Acceder al Sistema
+                        <BaseButton type="submit" variant="primary" size="lg" block :loading="loading" class="rounded-full!">
+                            Iniciar Sesión
                         </BaseButton>
 
 
                     </form>
 
                     <!-- Student Registration Link -->
-                    <div class="mt-10 pt-8 border-t border-slate-200 dark:border-slate-800 text-center">
+                    <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 text-center">
                         <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">
                             ¿Eres estudiante y no tienes cuenta?
                         </p>
-                        <router-link to="/registro" class="inline-block mt-2 text-teal-600 dark:text-teal-400 font-bold hover:underline underline-offset-4">
+                        <router-link to="/registro" class="inline-block mt-4 rounded-md text-teal-700 dark:text-teal-400 font-bold hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950">
                             Regístrate con tu código de aula
                         </router-link>
+
+                        <!-- Logo DRE -->
+                        <div class="mt-4 flex justify-center">
+                            <img :src="logoDre" alt="Dirección Regional de Educación Huánuco"
+                                class="h-9 w-auto object-contain opacity-90 dark:brightness-0 dark:invert" />
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Copyright (Mobile) -->
             <div class="lg:hidden p-8 text-center shrink-0">
-                <p class="text-[10px] text-slate-400 dark:text-slate-600 font-bold uppercase tracking-widest">© 2026 DRE HUÁNUCO</p>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest">© 2026 DRE HUÁNUCO</p>
             </div>
         </div>
 
@@ -291,7 +291,7 @@ const handleSwitchUser = () => {
 <style scoped>
 .hero-grid {
     background-image: 
-        radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        radial-gradient(currentColor 1px, transparent 1px);
     background-size: 32px 32px;
 }
 

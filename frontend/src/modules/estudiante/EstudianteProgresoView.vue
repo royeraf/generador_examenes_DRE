@@ -6,6 +6,8 @@ import { apiClient } from '../../shared/services/api'
 import EstudianteNavbar from './components/EstudianteNavbar.vue'
 import { isSidebarCollapsed } from './composables/useStudentLayout'
 import BaseButton from '../../shared/components/BaseButton.vue'
+import Footer from '../../shared/components/Footer.vue'
+import EscalaCnebBadge from '../../shared/components/EscalaCnebBadge.vue'
 import {
   Loader2, AlertCircle, BarChart3,
   BookOpen, Calculator, Target, TrendingUp, Calendar, Award
@@ -18,6 +20,8 @@ interface ProgresoArea {
   total_examenes_completados: number
   puntaje_promedio: number
   nivel_logro_actual: string | null
+  nota_promedio_vigesimal?: number | null
+  nivel_cneb_actual?: string | null
   ultima_actividad: string | null
 }
 
@@ -51,13 +55,13 @@ const nivelLabels: Record<string, string> = {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-all duration-300 font-sans selection:bg-teal-500/20"
+  <div class="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-all duration-300 font-sans selection:bg-teal-500/20"
        :class="isSidebarCollapsed ? 'lg:pl-[84px]' : 'lg:pl-[280px]'">
 
     <!-- Unified Student Navbar -->
     <EstudianteNavbar />
 
-    <main class="max-w-4xl mx-auto px-6 pt-8 pb-12 sm:pb-10 relative">
+    <main class="w-full flex-1 max-w-4xl mx-auto px-6 pt-8 pb-12 sm:pb-10 relative">
 
       <!-- Background Orbs -->
       <div class="fixed inset-0 pointer-events-none overflow-hidden opacity-40">
@@ -137,6 +141,9 @@ const nivelLabels: Record<string, string> = {
               <div v-else class="text-xs font-bold text-slate-400 bg-slate-50 dark:bg-slate-800/50 px-4 py-2 rounded-full border border-transparent inline-block">
                 Pendiente de evaluación
               </div>
+              <div v-if="p.nivel_cneb_actual" class="mt-2">
+                <EscalaCnebBadge :nivel="p.nivel_cneb_actual" :nota="p.nota_promedio_vigesimal" />
+              </div>
             </div>
 
             <!-- Puntaje promedio -->
@@ -181,6 +188,8 @@ const nivelLabels: Record<string, string> = {
         </div>
       </div>
     </main>
+
+    <Footer />
   </div>
 </template>
 

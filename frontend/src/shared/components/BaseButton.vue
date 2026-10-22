@@ -41,7 +41,7 @@ const iconSizeClasses: Record<NonNullable<Props['size']>, string> = {
 };
 
 const classes = computed(() => [
-    'inline-flex items-center justify-center transition-all active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100',
+    'inline-flex items-center justify-center transition-all active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950',
     variantClasses[props.variant],
     sizeClasses[props.size],
     props.block ? 'w-full' : '',

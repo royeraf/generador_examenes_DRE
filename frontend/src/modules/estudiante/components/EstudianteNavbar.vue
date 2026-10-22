@@ -8,7 +8,7 @@ import {
   Home, BookOpen, BarChart3, Sun, Moon, LogOut, Rocket,
   Menu, X, User, ChevronDown, ChevronUp, HelpCircle, 
   Building2, Sparkles, Compass, Info, GraduationCap,
-  PanelLeft
+  PanelLeft, Target, TrendingUp
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -74,18 +74,23 @@ const userInitials = computed(() => {
 </script>
 
 <template>
-  <div>
+  <!--
+    `contents` hace que este wrapper no genere caja propia. Así el <header>
+    sticky se posiciona contra el contenedor de la vista (que sí es alto) y
+    no queda atrapado en un wrapper de 64px de alto (el <aside> es fixed).
+  -->
+  <div class="contents">
     <!-- Desktop/Tablet Header (Sticky Top) -->
-    <header class="sticky top-0 z-40 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-sm transition-all duration-300"
-            :class="isSidebarCollapsed ? 'lg:pl-[84px]' : 'lg:pl-[280px]'">
-      <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
+    <header class="sticky top-0 z-40 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-sm transition-all duration-300">
+      <div class="w-full px-6 h-16 flex items-center justify-between">
         
         <!-- Left: Hamburger Button (for Left Sidebar) + Branding -->
         <div class="flex items-center gap-3 shrink-0">
           <!-- Hamburger Button (Mobile only) -->
           <button @click="isSidebarOpen = true"
             class="lg:hidden w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer"
-            title="Opciones y Perfil">
+            title="Opciones y Perfil"
+            aria-label="Abrir menú de opciones y perfil">
             <Menu class="w-4.5 h-4.5" />
           </button>
 
@@ -138,6 +143,7 @@ const userInitials = computed(() => {
         @click="toggleSidebar()"
         class="hidden lg:flex absolute top-6 -right-3 w-6 h-6 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer z-50"
         :title="isSidebarCollapsed ? 'Expandir panel' : 'Colapsar panel'"
+        :aria-label="isSidebarCollapsed ? 'Expandir panel' : 'Colapsar panel'"
       >
         <PanelLeft class="w-3.5 h-3.5" />
       </button>
@@ -257,7 +263,7 @@ const userInitials = computed(() => {
               <Moon v-else class="w-4 h-4 text-slate-400 shrink-0" />
               <span v-show="!isSidebarCollapsed">Cambiar a Modo {{ isDark ? 'Claro' : 'Oscuro' }}</span>
             </div>
-            <span v-show="!isSidebarCollapsed" class="text-[10px] font-bold text-slate-400 px-2 py-0.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-850 rounded-lg shadow-2xs uppercase">
+            <span v-show="!isSidebarCollapsed" class="text-[10px] font-bold text-slate-400 px-2 py-0.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-2xs uppercase">
               {{ isDark ? 'Oscuro' : 'Claro' }}
             </span>
           </button>
@@ -268,7 +274,7 @@ const userInitials = computed(() => {
           <p class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">Información</p>
           
           <!-- Ayuda & Guía -->
-          <div class="bg-slate-50 dark:bg-slate-950/20 border border-slate-200/80 dark:border-slate-850 rounded-xl overflow-hidden">
+          <div class="bg-slate-50 dark:bg-slate-950/20 border border-slate-200/80 dark:border-slate-800 rounded-xl overflow-hidden">
             <button @click="isHelpExpanded = !isHelpExpanded" 
                     class="w-full flex items-center justify-between p-3 text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer select-none">
               <div class="flex items-center gap-2">
@@ -279,17 +285,26 @@ const userInitials = computed(() => {
               <ChevronDown v-else class="w-3.5 h-3.5" />
             </button>
             
-            <div v-show="isHelpExpanded" class="px-3 pb-3 text-[11px] leading-relaxed text-slate-500 dark:text-slate-400 space-y-2 border-t border-slate-200/50 dark:border-slate-800/50 pt-2.5">
-              <p>📖 <strong class="text-slate-700 dark:text-slate-300">Rinde Exámenes:</strong> Ingresa a la sección "Exámenes" para ver tus tareas pendientes generadas por tus docentes.</p>
-              <p>🎯 <strong class="text-slate-700 dark:text-slate-300">Verifica Resultados:</strong> Al culminar un examen, podrás ver tu calificación y la retroalimentación inteligente detallada pregunta por pregunta.</p>
-              <p>📈 <strong class="text-slate-700 dark:text-slate-300">Monitorea tu Progreso:</strong> En la sección "Progreso" observa tus puntajes promedio y tu Nivel de Logro actual en Comunicación y Matemática.</p>
+            <div v-show="isHelpExpanded" class="px-3 pb-3 text-[11px] leading-relaxed text-slate-500 dark:text-slate-400 space-y-2.5 border-t border-slate-200/50 dark:border-slate-800/50 pt-2.5">
+              <div class="flex items-start gap-2">
+                <BookOpen class="w-3.5 h-3.5 text-teal-500/80 mt-0.5 shrink-0" />
+                <p><strong class="text-slate-700 dark:text-slate-300">Rinde Exámenes:</strong> Ingresa a la sección "Exámenes" para ver tus tareas pendientes generadas por tus docentes.</p>
+              </div>
+              <div class="flex items-start gap-2">
+                <Target class="w-3.5 h-3.5 text-teal-500/80 mt-0.5 shrink-0" />
+                <p><strong class="text-slate-700 dark:text-slate-300">Verifica Resultados:</strong> Al culminar un examen, podrás ver tu calificación y la retroalimentación inteligente detallada pregunta por pregunta.</p>
+              </div>
+              <div class="flex items-start gap-2">
+                <TrendingUp class="w-3.5 h-3.5 text-teal-500/80 mt-0.5 shrink-0" />
+                <p><strong class="text-slate-700 dark:text-slate-300">Monitorea tu Progreso:</strong> En la sección "Progreso" observa tus puntajes promedio y tu Nivel de Logro actual en Comunicación y Matemática.</p>
+              </div>
             </div>
           </div>
 
           <!-- Acerca de -->
           <div class="p-3 bg-slate-50/50 dark:bg-slate-950/10 border border-slate-200/60 dark:border-slate-800/40 rounded-xl flex gap-2.5">
             <Info class="w-4 h-4 text-slate-400 dark:text-slate-500 mt-0.5 shrink-0" />
-            <div class="text-[10px] leading-relaxed text-slate-400 dark:text-slate-550">
+            <div class="text-[10px] leading-relaxed text-slate-400 dark:text-slate-400">
               <p class="font-extrabold uppercase text-[8px] tracking-wider text-slate-400">SIEVA DRE Huánuco</p>
               <p class="mt-0.5">Sistema Integrado de Evaluación de Aula de la Dirección Regional de Educación de Huánuco, Perú.</p>
             </div>

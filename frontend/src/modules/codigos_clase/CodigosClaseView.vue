@@ -6,6 +6,7 @@ import type { Grado } from '../../shared/types'
 import Navbar from '../../shared/components/Navbar.vue'
 import EduBackground from '../../shared/components/EduBackground.vue'
 import BaseButton from '../../shared/components/BaseButton.vue'
+import Footer from '../../shared/components/Footer.vue'
 import { Plus, Copy, AlertCircle, Loader2, QrCode, X, Download, School } from 'lucide-vue-next'
 import Swal from 'sweetalert2'
 import QRCode from 'qrcode'
@@ -130,10 +131,11 @@ function descargarQR() {
 </script>
 
 <template>
+  <div class="min-h-screen flex flex-col relative">
   <EduBackground />
   <Navbar title="Aulas" :show-home="true" />
 
-  <main class="max-w-4xl mx-auto px-4 py-8 relative z-10">
+  <main class="flex-1 w-full max-w-4xl mx-auto px-4 py-8 relative z-10">
 
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
       <div>
@@ -289,6 +291,9 @@ function descargarQR() {
     </div>
 
   </main>
+
+  <Footer />
+  </div>
 
   <!-- Modal QR — estilo WhatsApp -->
   <Teleport to="body">

@@ -8,7 +8,9 @@ import EstudianteNavbar from './components/EstudianteNavbar.vue'
 import { isSidebarCollapsed } from './composables/useStudentLayout'
 import { BookOpen, Loader2, Clock, CheckCircle2, AlertCircle, X, BookText, Calculator, ArrowRight, Zap, Target, ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import BaseButton from '../../shared/components/BaseButton.vue'
+import Footer from '../../shared/components/Footer.vue'
 import MathText from '../../shared/components/MathText.vue'
+import EscalaCnebBadge from '../../shared/components/EscalaCnebBadge.vue'
 
 const router = useRouter()
 useTheme()
@@ -25,6 +27,8 @@ interface AsignacionResumen {
   completado: boolean
   puntaje?: number | null
   nivel_logro?: string | null
+  nota_vigesimal?: number | null
+  nivel_cneb?: string | null
   disponible: boolean
 }
 
@@ -119,7 +123,7 @@ const nivelLabels: Record<string, string> = {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-all duration-300 font-sans"
+  <div class="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-all duration-300 font-sans"
        :class="isSidebarCollapsed ? 'lg:pl-[84px]' : 'lg:pl-[280px]'">
     
     <!-- Premium Background Elements -->
@@ -160,7 +164,7 @@ const nivelLabels: Record<string, string> = {
       </div>
     </div>
 
-    <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-8 pb-12 sm:pb-8 relative">
+    <main class="w-full flex-1 max-w-4xl mx-auto px-4 sm:px-6 pt-8 pb-12 sm:pb-8 relative">
       <div v-if="loading" class="flex flex-col items-center justify-center py-20 gap-4">
         <Loader2 class="w-10 h-10 animate-spin text-teal-500" />
         <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Cargando exámenes...</p>
@@ -206,13 +210,13 @@ const nivelLabels: Record<string, string> = {
           <div
             v-for="examen in examenesVisibles"
           :key="examen.id"
-          class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 p-5 sm:p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col group"
+          class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 p-5 sm:p-6 shadow-sm flex flex-col"
         >
           <div class="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
             <div :class="examen.tipo_examen === 'lectura'
               ? 'from-teal-400 to-emerald-500 shadow-teal-500/20'
               : 'from-indigo-400 to-purple-500 shadow-indigo-500/20'"
-              class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg shrink-0 group-hover:scale-105 transition-transform">
+              class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg shrink-0">
               <BookOpen v-if="examen.tipo_examen === 'lectura'" class="w-6 h-6 sm:w-7 sm:h-7 text-white" />
               <Calculator v-else class="w-6 h-6 sm:w-7 sm:h-7 text-white" />
             </div>
@@ -238,6 +242,7 @@ const nivelLabels: Record<string, string> = {
                   class="px-2.5 py-1 rounded-full text-[10px] font-bold border border-transparent uppercase tracking-wider">
                   {{ nivelLabels[examen.nivel_logro] ?? examen.nivel_logro }}
                 </span>
+                <EscalaCnebBadge v-if="examen.completado && examen.nivel_cneb" :nivel="examen.nivel_cneb" :nota="examen.nota_vigesimal" />
                 <span v-if="examen.completado"
                   class="inline-flex items-center gap-1 text-emerald-500 font-bold uppercase tracking-widest text-[10px]">
                   <CheckCircle2 class="w-3.5 h-3.5" />
@@ -297,6 +302,8 @@ const nivelLabels: Record<string, string> = {
         </div>
       </template>
     </main>
+
+    <Footer />
 
     <!-- Modal Preview Lectura -->
     <Teleport to="body">

@@ -13,6 +13,7 @@ import {
 import ComboBox from '../../shared/components/ComboBox.vue'
 import Header from '../../shared/components/Header.vue'
 import EduBackground from '../../shared/components/EduBackground.vue'
+import Footer from '../../shared/components/Footer.vue'
 import BaseButton from '../../shared/components/BaseButton.vue'
 import Swal from 'sweetalert2'
 import { useForm, useField } from 'vee-validate'
@@ -1851,6 +1852,7 @@ async function saveResetPassword() {
       </Transition>
     </Teleport>
 
+    <Footer />
   </div>
 </template>
 

@@ -1,10 +1,31 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
+/* Poppins SemiBold: alternativa libre más cercana a Mounsfield Semi Bold
+   (geométrica tipo Futura/Avant Garde, x-height alto). */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
 @import "tailwindcss";
 
 /* Enable class-based dark mode for Tailwind CSS v4 */
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* Mounsfield Semi Bold es una fuente comercial (Unitype Studio / MyFonts).
+   Se usa si está instalada en el sistema. Para servirla desde el proyecto,
+   copiar Mounsfield-SemiBold.woff2 a src/assets/fonts/ y agregar la línea:
+     src: url('./assets/fonts/Mounsfield-SemiBold.woff2') format('woff2');
+   Si no está disponible, cae a Poppins (ver --font-display). */
+@font-face {
+  font-family: 'Mounsfield';
+  src: local('Mounsfield SemiBold'), local('Mounsfield-SemiBold'), local('Mounsfield Semibold');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Fuente de portada (login) → utilidad `font-display` */
+@theme {
+  --font-display: 'Mounsfield', 'Poppins', 'Nunito', sans-serif;
+}
 
 /* Fix native browser UI (date/time pickers, scrollbars) in dark mode */
 html.dark {
@@ -83,10 +104,12 @@ body {
   font-family: var(--font-body);
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading);
+/* En @layer base para que las utilidades (p. ej. font-display) puedan sobrescribir */
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
 }
-
 /* Animaciones educativas */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }

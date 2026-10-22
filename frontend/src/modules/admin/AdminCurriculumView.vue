@@ -6,6 +6,7 @@ import {
 } from 'lucide-vue-next'
 import Header from '../../shared/components/Header.vue'
 import EduBackground from '../../shared/components/EduBackground.vue'
+import Footer from '../../shared/components/Footer.vue'
 import { useAuthStore } from '../../stores/auth'
 import GradosPanel from './components/curriculum/GradosPanel.vue'
 import ComunicacionPanel from './components/curriculum/ComunicacionPanel.vue'
@@ -126,7 +127,7 @@ const sidebarOpen = shallowRef(false) // Para móvil (drawer)
   <div class="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans relative flex flex-col">
     <EduBackground variant="emerald" />
 
-    <div class="relative z-10 flex flex-col h-screen">
+    <div class="relative z-10 flex flex-col flex-1 min-h-0">
 
       <!-- Header -->
       <Header
@@ -270,6 +271,8 @@ const sidebarOpen = shallowRef(false) // Para móvil (drawer)
           </div>
         </main>
       </div>
+
+      <Footer />
     </div>
   </div>
 </template>

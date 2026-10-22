@@ -12,6 +12,7 @@ import type { Grado } from '../../shared/types'
 import { exportToPdf } from '../../shared/utils/exportUtils'
 import Header from '../../shared/components/Header.vue'
 import EduBackground from '../../shared/components/EduBackground.vue'
+import Footer from '../../shared/components/Footer.vue'
 import ComboBox from '../../shared/components/ComboBox.vue'
 import BaseButton from '../../shared/components/BaseButton.vue'
 import Swal from 'sweetalert2'
@@ -989,6 +990,7 @@ function nombreGrado(id: number | null) {
       </Transition>
     </Teleport>
 
+    <Footer />
   </div>
 </template>
 

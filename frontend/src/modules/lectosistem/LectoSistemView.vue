@@ -12,7 +12,7 @@ import {
   Sparkles, LayoutGrid, History, Trash2,
   GraduationCap, FileText, Loader2, X,
   CloudUpload, Plus, Hash, Target,
-  Eye, FileDown, Send, PanelLeft, BookOpen
+  Eye, FileDown, Send, PanelLeft, BookOpen, MoreVertical
 } from 'lucide-vue-next';
 
 import Checkbox from '../../shared/components/Checkbox.vue';
@@ -91,6 +91,12 @@ const {
 
 
 const previewEntry = shallowRef<ExamenHistoryEntry | null>(null);
+const openMenuId = ref<string | null>(null);
+const openClearMenu = ref(false);
+function closeHistoryMenu() {
+  openMenuId.value = null;
+  openClearMenu.value = false;
+}
 const { previewFile, previewUrl, isPreviewOpen, openPreview, closePreview } = useFilePreview();
 
 function openTextoPreview(textoIdx: number, fileIdx: number) {
@@ -388,10 +394,12 @@ onUnmounted(() => {
   window.addEventListener('resize', onResizeWindow);
   window.removeEventListener('mousemove', onMouseMove);
   window.removeEventListener('mouseup', onMouseUp);
+  document.removeEventListener('click', closeHistoryMenu);
 });
 
 onMounted(async () => {
   window.addEventListener('resize', () => isDesktop.value = window.innerWidth >= 1024);
+  document.addEventListener('click', closeHistoryMenu);
   await loadInitialData();
   await fetchHistory();
 });
@@ -650,9 +658,18 @@ onMounted(async () => {
           <p class="text-slate-500 dark:text-slate-400 text-sm max-w-md mx-auto text-center">Los exámenes que generes se guardarán automáticamente aquí.</p>
         </div>
         <div v-else class="flex-1 overflow-y-auto space-y-4">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-1.5">
             <h3 class="text-slate-800 dark:text-white font-medium flex items-center gap-2">Exámenes Generados ({{ history.length }})</h3>
-            <BaseButton variant="destructive" size="sm" @click="confirmarLimpiarHistorial">Limpiar todo</BaseButton>
+            <div class="relative">
+              <button @click.stop="openClearMenu = !openClearMenu" class="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer" aria-label="Opciones del historial">
+                <MoreVertical class="w-4 h-4" />
+              </button>
+              <div v-if="openClearMenu" class="absolute left-0 top-full mt-1 z-20 min-w-[10rem] overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg">
+                <button @click.stop="openClearMenu = false; confirmarLimpiarHistorial()" class="flex w-full items-center gap-2 px-3 py-2 text-left text-[11px] font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer">
+                  <Trash2 class="w-3.5 h-3.5" />Limpiar todo
+                </button>
+              </div>
+            </div>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             <div v-for="(entry, index) in history" :key="entry.id" class="bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-300 dark:border-slate-700 p-4 flex flex-col gap-3 hover:shadow-md hover:border-slate-400 dark:hover:border-slate-600 transition-all duration-200">
@@ -664,18 +681,28 @@ onMounted(async () => {
                 <div>Grado: {{ entry.gradoLabel }}</div>
                 <div>Preguntas: {{ entry.resultado.total_preguntas }}</div>
               </div>
-              <div class="flex flex-wrap gap-1.5 mt-auto">
-                <BaseButton variant="secondary" size="xs" @click="cargarExamen(index)">
-                  <template #icon><Eye class="w-3.5 h-3.5" /></template>Ver
-                </BaseButton>
-                <BaseButton variant="secondary" size="xs" @click="descargarWordHistorial(index)">
-                  <template #icon><FileDown class="w-3.5 h-3.5" /></template>Word
-                </BaseButton>
-                <!-- <button @click="vincularDesdeHistorial(index)" class="shrink-0 flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-slate-800 dark:text-white bg-slate-200 dark:bg-slate-700/50 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600"><Link class="w-3.5 h-3.5" />Vincular</button> -->
-                <BaseButton variant="secondary" size="xs" @click="abrirAsignar(entry)">
-                  <template #icon><Send class="w-3.5 h-3.5" /></template>Asignar
-                </BaseButton>
-                <button @click="confirmarEliminar(entry.id)" class="shrink-0 px-2 py-1.5 text-[10px] font-bold text-red-400 bg-red-400/10 rounded-lg hover:bg-red-400/20 cursor-pointer transition-colors duration-150"><Trash2 class="w-3.5 h-3.5"/></button>
+              <div class="flex items-center justify-between gap-2 mt-auto">
+                <div class="inline-flex items-stretch overflow-hidden rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 divide-x divide-slate-300 dark:divide-slate-700">
+                  <button @click="cargarExamen(index)" class="flex items-center gap-1 px-2 py-1.5 text-[10px] font-bold whitespace-nowrap text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+                    <Eye class="w-3.5 h-3.5" />Ver
+                  </button>
+                  <button @click="descargarWordHistorial(index)" class="flex items-center gap-1 px-2 py-1.5 text-[10px] font-bold whitespace-nowrap text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+                    <FileDown class="w-3.5 h-3.5" />Word
+                  </button>
+                  <button @click="abrirAsignar(entry)" class="flex items-center gap-1 px-2 py-1.5 text-[10px] font-bold whitespace-nowrap text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer">
+                    <Send class="w-3.5 h-3.5" />Asignar
+                  </button>
+                </div>
+                <div class="relative shrink-0">
+                  <button @click.stop="openMenuId = openMenuId === entry.id ? null : entry.id" class="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer" aria-label="Más opciones">
+                    <MoreVertical class="w-4 h-4" />
+                  </button>
+                  <div v-if="openMenuId === entry.id" class="absolute right-0 bottom-full mb-1 z-20 min-w-[9rem] overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg">
+                    <button @click.stop="confirmarEliminar(entry.id); openMenuId = null" class="flex w-full items-center gap-2 px-3 py-2 text-left text-[11px] font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer">
+                      <Trash2 class="w-3.5 h-3.5" />Eliminar
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

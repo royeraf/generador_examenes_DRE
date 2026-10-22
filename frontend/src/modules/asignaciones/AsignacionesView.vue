@@ -8,11 +8,13 @@ import Header from '../../shared/components/Header.vue'
 import Footer from '../../shared/components/Footer.vue'
 import EduBackground from '../../shared/components/EduBackground.vue'
 import BaseButton from '../../shared/components/BaseButton.vue'
+import EscalaCnebBadge from '../../shared/components/EscalaCnebBadge.vue'
+import EscalaCnebModal from '../../shared/components/EscalaCnebModal.vue'
 import Swal from 'sweetalert2'
 import { Toast } from '../../shared/utils/swal'
 import {
   ClipboardList, BookOpen, Calculator,
-  Loader2, Users, ChevronDown,
+  Loader2, Users, ChevronDown, ChevronRight, Award,
   Clock, AlertCircle, Plus, X, BookMarked, Save, User, Pencil,
   RefreshCw, TrendingUp, GraduationCap, Calendar, ShieldCheck, Hash, Check,
   LayoutGrid, LayoutList
@@ -60,6 +62,8 @@ interface Resultado {
   estado: string
   puntaje: number | null
   nivel_logro: string | null
+  nota_vigesimal?: number | null
+  nivel_cneb?: string | null
   correctas: number | null
   total: number | null
   fecha: string | null
@@ -87,6 +91,7 @@ function setViewMode(mode: 'cards' | 'table') {
 
 // Modal resultados
 const showResultados = shallowRef(false)
+const showEscalaCneb = shallowRef(false)
 const resultadosAsig = ref<Asignacion | null>(null)
 const loadingResultados = shallowRef(false)
 const editingId = shallowRef<number | null>(null)
@@ -1014,52 +1019,51 @@ const estadoColors: Record<string, string> = {
         <div v-if="showResultados"
           class="fixed inset-0 z-[120] flex items-end sm:items-center justify-center sm:p-4">
           
-          <div class="absolute inset-0 bg-black/50 backdrop-blur-sm cursor-pointer" @click="showResultados = false"></div>
+          <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity cursor-pointer" @click="showResultados = false"></div>
 
           <div class="relative bg-white dark:bg-slate-900 w-full sm:max-w-2xl max-h-[94dvh] sm:max-h-[85vh] flex flex-col sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden z-10 animate-slide-up">
 
             <!-- Drag handle mobile -->
-            <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0" @click="showResultados = false">
+            <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0 cursor-pointer" @click="showResultados = false">
               <div class="w-10 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800"></div>
             </div>
 
             <!-- Header -->
-            <div class="px-8 py-6 border-b border-slate-300 dark:border-slate-800 flex flex-col gap-4 shrink-0">
-               <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-4 min-w-0">
-                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-inner"
-                      :class="resultadosAsig?.tipo_examen === 'lectura'
-                        ? 'bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400'
-                        : 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'">
-                      <BookOpen v-if="resultadosAsig?.tipo_examen === 'lectura'" class="w-7 h-7" />
-                      <Calculator v-else class="w-7 h-7" />
-                    </div>
-                    <div class="min-w-0">
-                      <h2 class="text-xl font-black text-slate-800 dark:text-white truncate tracking-tight">
-                        {{ resultadosAsig?.titulo ?? 'Resultados del Examen' }}
-                      </h2>
-                      <p class="text-sm font-bold text-slate-500 dark:text-slate-400">
-                        {{ resultadosAsig?.grado_nombre ?? `Grado ${resultadosAsig?.grado_id}` }}<span v-if="resultadosAsig?.seccion"> · Sección {{ resultadosAsig.seccion }}</span>
-                      </p>
-                    </div>
-                  </div>
-                  <button @click="showResultados = false" class="p-3 bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-2xl transition-all">
-                    <X class="w-6 h-6" />
-                  </button>
-               </div>
-               
-               <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-800/60 px-6 py-3 rounded-2xl border border-slate-300 dark:border-slate-800">
-                  <div class="flex items-center gap-2">
-                    <Users class="w-4 h-4 text-violet-500" />
-                    <span class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                      {{ (resultados[resultadosAsig?.id ?? 0] ?? []).length }} Estudiantes
+            <div class="px-5 sm:px-8 py-5 sm:py-6 border-b border-slate-300 dark:border-slate-800 flex items-start justify-between gap-4 shrink-0">
+              <div class="flex items-center gap-3.5 min-w-0">
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+                  :class="resultadosAsig?.tipo_examen === 'lectura'
+                    ? 'bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400'
+                    : 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'">
+                  <BookOpen v-if="resultadosAsig?.tipo_examen === 'lectura'" class="w-6 h-6" />
+                  <Calculator v-else class="w-6 h-6" />
+                </div>
+                <div class="min-w-0">
+                  <h2 class="text-lg sm:text-xl font-black text-slate-800 dark:text-white truncate tracking-tight">
+                    {{ resultadosAsig?.titulo ?? 'Resultados del Examen' }}
+                  </h2>
+                  <p class="text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400 truncate">
+                    {{ resultadosAsig?.grado_nombre ?? `Grado ${resultadosAsig?.grado_id}` }}<span v-if="resultadosAsig?.seccion"> · Sección {{ resultadosAsig.seccion }}</span>
+                  </p>
+                  <div class="flex flex-wrap items-center gap-1.5 mt-2">
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-violet-50 dark:bg-violet-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-violet-600 dark:text-violet-400 leading-none">
+                      <Users class="w-3 h-3" />
+                      {{ (resultados[resultadosAsig?.id ?? 0] ?? []).length }} estudiantes
+                    </span>
+                    <span v-if="resultadosAsig"
+                      :class="resultadosAsig.is_active
+                        ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'"
+                      class="inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wider leading-none">
+                      {{ resultadosAsig.is_active ? 'Activa' : 'Inactiva' }}
                     </span>
                   </div>
-                  <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span class="text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Sincronizado</span>
-                  </div>
-               </div>
+                </div>
+              </div>
+              <button @click="showResultados = false" aria-label="Cerrar reporte"
+                class="p-2.5 bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl transition-all cursor-pointer shrink-0">
+                <X class="w-5 h-5" />
+              </button>
             </div>
 
             <!-- Body -->
@@ -1083,61 +1087,80 @@ const estadoColors: Record<string, string> = {
                 </div>
               </div>
 
-              <div v-else class="divide-y divide-slate-50 dark:divide-slate-800">
+              <div v-else class="divide-y divide-slate-100 dark:divide-slate-800">
                 <div v-for="r in resultados[resultadosAsig?.id ?? 0]" :key="r.codigo ?? r.estudiante"
-                  class="flex items-center gap-4 px-8 py-5 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all group">
-                  
-                  <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-100 to-indigo-100 dark:from-violet-900/30 dark:to-indigo-900/30 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                    <span class="text-sm font-black text-violet-600 dark:text-violet-400">
-                      {{ (r.estudiante || r.codigo || '?').slice(0, 2).toUpperCase() }}
-                    </span>
-                  </div>
-                  
-                  <div class="flex-1 min-w-0">
-                    <p class="text-base font-black text-slate-800 dark:text-slate-200 truncate leading-tight">{{ r.estudiante || r.codigo }}</p>
-                    <div class="flex items-center gap-3 mt-1.5">
-                       <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider font-mono">{{ r.codigo }}</span>
-                       <template v-if="r.grado || r.seccion">
-                         <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
-                         <span class="text-[10px] font-bold text-slate-400">
-                           {{ r.grado || 'Sin grado' }}<span v-if="r.seccion"> · Secc. {{ r.seccion }}</span>
-                         </span>
-                       </template>
-                       <span v-if="r.fecha" class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
-                       <span v-if="r.fecha" class="text-[10px] font-bold text-slate-400 flex items-center gap-1">
-                          <Clock class="w-3 h-3" />
-                          {{ formatFechaHora(r.fecha) }}
-                       </span>
+                  class="flex flex-col gap-3 px-5 py-4 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/40 sm:flex-row sm:items-center sm:gap-4 sm:px-8">
+
+                  <div class="flex items-center gap-3.5 min-w-0 flex-1">
+                    <div class="w-11 h-11 rounded-full bg-gradient-to-br from-violet-100 to-indigo-100 dark:from-violet-900/30 dark:to-indigo-900/30 flex items-center justify-center flex-shrink-0">
+                      <span class="text-sm font-black text-violet-600 dark:text-violet-400">
+                        {{ (r.estudiante || r.codigo || '?').slice(0, 2).toUpperCase() }}
+                      </span>
+                    </div>
+
+                    <div class="min-w-0">
+                      <p class="text-sm sm:text-base font-black text-slate-800 dark:text-slate-200 truncate leading-tight">{{ r.estudiante || r.codigo }}</p>
+                      <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-1.5">
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider font-mono">{{ r.codigo }}</span>
+                        <template v-if="r.grado || r.seccion">
+                          <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+                          <span class="text-[10px] font-bold text-slate-400">
+                            {{ r.grado || 'Sin grado' }}<span v-if="r.seccion"> · Secc. {{ r.seccion }}</span>
+                          </span>
+                        </template>
+                        <template v-if="r.fecha">
+                          <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+                          <span class="text-[10px] font-bold text-slate-400 flex items-center gap-1">
+                            <Clock class="w-3 h-3" />
+                            {{ formatFechaHora(r.fecha) }}
+                          </span>
+                        </template>
+                      </div>
                     </div>
                   </div>
 
-                  <div class="flex flex-col items-end gap-2 shrink-0">
+                  <div class="flex flex-wrap items-center gap-2 pl-14 shrink-0 sm:flex-col sm:items-end sm:gap-1.5 sm:pl-0">
                     <div class="flex items-center gap-2">
-                       <span v-if="r.puntaje !== null" class="text-lg font-black text-slate-800 dark:text-white leading-none">
-                          {{ r.puntaje?.toFixed(0) }}<span class="text-xs font-bold text-slate-400 ml-0.5">%</span>
-                       </span>
-                       <span :class="estadoColors[r.estado] ?? estadoColors.sin_intento"
-                        class="text-[10px] font-black uppercase px-2.5 py-1 rounded-full tracking-wider border-2 border-transparent">
+                      <span v-if="r.puntaje !== null" class="text-lg font-black tabular-nums text-slate-800 dark:text-white leading-none">
+                        {{ r.puntaje?.toFixed(0) }}<span class="text-xs font-bold text-slate-400 ml-0.5">%</span>
+                      </span>
+                      <span :class="estadoColors[r.estado] ?? estadoColors.sin_intento"
+                        class="inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wider leading-none border border-transparent">
                         {{ estadoLabels[r.estado] ?? r.estado }}
                       </span>
                     </div>
                     <div v-if="r.nivel_logro" :class="nivelColors[r.nivel_logro]"
-                      class="text-[10px] font-black uppercase px-2.5 py-1 rounded-full tracking-wider shadow-sm">
+                      class="inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wider leading-none border border-transparent">
                       {{ nivelLabels[r.nivel_logro] ?? r.nivel_logro }}
                     </div>
+                    <EscalaCnebBadge v-if="r.nivel_cneb" :nivel="r.nivel_cneb" :nota="r.nota_vigesimal" />
                   </div>
                 </div>
               </div>
 
-            </div>
+              <!-- Escala de calificación -->
+              <div class="px-5 sm:px-8 py-5 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  @click="showEscalaCneb = true"
+                  aria-haspopup="dialog"
+                  class="group w-full flex items-center justify-between gap-3 py-1 text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                >
+                  <span class="inline-flex items-center gap-2">
+                    <Award class="w-4 h-4 text-teal-500" />
+                    Ver escala de calificación (CNEB)
+                  </span>
+                  <ChevronRight class="w-4 h-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
+                </button>
+              </div>
 
-            <div class="p-6 bg-slate-50 dark:bg-slate-800/40 text-center border-t border-slate-300 dark:border-slate-800">
-              <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">LectoSistem Report Engine</p>
             </div>
           </div>
         </div>
       </Transition>
     </Teleport>
+
+    <EscalaCnebModal :open="showEscalaCneb" @close="showEscalaCneb = false" />
 
   </div>
 </template>

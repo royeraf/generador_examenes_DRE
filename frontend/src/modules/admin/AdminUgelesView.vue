@@ -4,6 +4,7 @@ import { organizacionService, ubigeoService, type UgelCreatePayload } from '../.
 import type { Ugel, Provincia } from '../../shared/types'
 import Header from '../../shared/components/Header.vue'
 import EduBackground from '../../shared/components/EduBackground.vue'
+import Footer from '../../shared/components/Footer.vue'
 import BaseButton from '../../shared/components/BaseButton.vue'
 import { Plus, Edit2, Trash2, Loader2, AlertCircle, X, Building, MapPin, ChevronDown } from 'lucide-vue-next'
 import Swal from 'sweetalert2'
@@ -268,6 +269,8 @@ async function eliminar(ugel: Ugel) {
         </div>
       </Transition>
     </Teleport>
+
+    <Footer />
   </div>
 </template>
 

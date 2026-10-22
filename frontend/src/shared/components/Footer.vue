@@ -1,41 +1,53 @@
 <template>
-    <footer class="relative z-10 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
-        <div class="max-w-7xl mx-auto px-6 py-4">
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-
-                <!-- Izquierda: Logo + nombre -->
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center p-1 flex-shrink-0">
-                        <img :src="logoDre" alt="Logo DRE" class="w-full h-full object-contain" />
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-slate-800 dark:text-white font-bold text-sm">SIEVA</span>
-                            <span class="text-[10px] bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full font-bold">DRE</span>
-                        </div>
-                        <p class="text-slate-400 dark:text-slate-500 text-[10px]">Dirección Regional de Educación · Huánuco</p>
-                    </div>
-                </div>
-
-                <!-- Derecha: créditos + AI -->
-                <div class="flex items-center gap-3 text-[10px] sm:text-xs text-slate-400 dark:text-slate-500">
-                    <span class="flex items-center gap-1">
-                        <Heart class="w-3 h-3 text-red-400 fill-red-400" />
-                        Hecho para la educación · © 2026
-                    </span>
-                    <span class="w-px h-4 bg-slate-200 dark:bg-slate-700"></span>
-                    <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-full">
-                        <img src="/icons/gemini.svg" alt="Gemini" class="w-3.5 h-3.5 object-contain" />
-                        <span class="text-slate-600 dark:text-slate-400 font-medium">Gemini Flash</span>
-                    </div>
-                </div>
-
-            </div>
+    <footer
+        class="footer-edu z-20 shrink-0 border-t border-teal-200/70 dark:border-slate-800 transition-colors duration-300"
+        :class="fixed ? 'fixed inset-x-0 bottom-0' : 'sticky bottom-0 mt-auto'">
+        <div
+            class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-start gap-2 sm:gap-3 overflow-hidden">
+            <p class="text-[10px] sm:text-[11px] leading-tight whitespace-nowrap truncate">
+                <span class="footer-brand font-bold text-slate-800 dark:text-slate-100 tracking-wide">SIEVA</span>
+                <span class="text-amber-500/80 dark:text-amber-400/80 mx-1">·</span>
+                <span class="text-slate-500 dark:text-slate-400">Sistema Integrado de Evaluación en Aula</span>
+            </p>
+            <span class="w-px h-3.5 bg-teal-300/60 dark:bg-slate-700 shrink-0"></span>
+            <p class="flex items-center gap-1 text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-500 whitespace-nowrap shrink-0">
+                <Copyright class="w-3 h-3" />
+                <span>{{ currentYear }}</span>
+            </p>
         </div>
     </footer>
 </template>
 
-<script setup>
-import { Heart } from 'lucide-vue-next';
-import logoDre from '../../assets/logo.png';
+<script setup lang="ts">
+import { Copyright } from 'lucide-vue-next'
+
+withDefaults(defineProps<{ fixed?: boolean }>(), { fixed: false })
+
+const currentYear = new Date().getFullYear()
 </script>
+
+<style scoped>
+/* ── Footer educativo: papel de cuaderno + acento de logro ── */
+.footer-edu {
+    position: relative;
+    background-color: #ffffff;
+    background-image:
+        radial-gradient(ellipse at 8% 0%, rgba(20, 184, 166, 0.10), transparent 55%),
+        radial-gradient(ellipse at 92% 100%, rgba(245, 158, 11, 0.08), transparent 55%),
+        radial-gradient(rgba(13, 148, 136, 0.10) 1px, transparent 1px);
+    background-size: auto, auto, 16px 16px;
+}
+
+.dark .footer-edu {
+    background-color: #0f172a;
+    background-image:
+        radial-gradient(ellipse at 8% 0%, rgba(20, 184, 166, 0.12), transparent 55%),
+        radial-gradient(ellipse at 92% 100%, rgba(245, 158, 11, 0.10), transparent 55%),
+        radial-gradient(rgba(94, 234, 212, 0.10) 1px, transparent 1px);
+}
+
+/* Wordmark en Fredoka, la fuente de titulares del sistema */
+.footer-brand {
+    font-family: var(--font-heading);
+}
+</style>

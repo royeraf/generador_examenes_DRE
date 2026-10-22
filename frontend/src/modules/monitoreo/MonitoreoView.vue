@@ -9,6 +9,7 @@ import {
 import Swal from 'sweetalert2'
 import Header from '../../shared/components/Header.vue'
 import EduBackground from '../../shared/components/EduBackground.vue'
+import Footer from '../../shared/components/Footer.vue'
 import BaseButton from '../../shared/components/BaseButton.vue'
 import { exportToExcel, exportToPdf, type ExportColumn } from '../../shared/utils/exportUtils'
 import { monitoreoService, type PaginatedResponse } from '../../shared/services/api'
@@ -815,5 +816,7 @@ onMounted(cargarTodo)
         </section>
       </template>
     </main>
+
+    <Footer />
   </div>
 </template>

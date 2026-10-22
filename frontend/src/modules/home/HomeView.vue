@@ -3,18 +3,18 @@ import { ref, computed, onMounted, watch } from 'vue';
 import {
   BookOpen, Calculator, Sparkles, GraduationCap, Users, ArrowRight,
   BarChart3, Building2, MapPin, ClipboardList, Loader2, ChevronRight, School,
-  SlidersHorizontal, Check, GripVertical, UserCog, Activity, Copyright
+  SlidersHorizontal, Check, GripVertical, UserCog, Activity
 } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
 import UserBadge from '../../shared/components/UserBadge.vue';
 import BaseButton from '../../shared/components/BaseButton.vue';
+import Footer from '../../shared/components/Footer.vue';
 import logoDre from '../../assets/logo.png';
 
 const router = useRouter();
 const auth = useAuthStore();
 const isLoading = ref(true);
-const currentYear = new Date().getFullYear();
 
 console.log('[HomeView] setup:', {
   hasUser: !!auth.user,
@@ -240,7 +240,7 @@ const onDragEnd = () => {
     </header>
 
     <!-- Main content -->
-    <main v-if="!isLoading" class="relative z-10 flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <main v-if="!isLoading" class="relative z-10 flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-20 sm:pb-24">
 
       <!-- Greeting row -->
       <div class="flex items-center justify-between mb-6 sm:mb-8 animate-fade-in">
@@ -408,23 +408,7 @@ const onDragEnd = () => {
 
     </main>
 
-    <!-- Sticky footer -->
-    <footer
-      class="sticky bottom-0 z-20 shrink-0 mt-auto border-t border-slate-300/80 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm transition-colors duration-300"
-    >
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-start gap-2 sm:gap-3 overflow-hidden">
-        <p class="text-[10px] sm:text-[11px] leading-tight whitespace-nowrap truncate">
-          <span class="font-bold text-slate-700 dark:text-slate-200">SIEVA</span>
-          <span class="text-slate-300 dark:text-slate-600 mx-1">·</span>
-          <span class="text-slate-500 dark:text-slate-400">Sistema Integrado de Evaluación en Aula</span>
-        </p>
-        <span class="w-px h-3 bg-slate-300 dark:bg-slate-700 shrink-0"></span>
-        <p class="flex items-center gap-1 text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-500 whitespace-nowrap shrink-0">
-          <Copyright class="w-3 h-3" />
-          <span>{{ currentYear }}</span>
-        </p>
-      </div>
-    </footer>
+    <Footer fixed />
   </div>
 </template>
 

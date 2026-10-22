@@ -6,6 +6,8 @@ import { apiClient } from '../../shared/services/api'
 import EstudianteNavbar from './components/EstudianteNavbar.vue'
 import { isSidebarCollapsed } from './composables/useStudentLayout'
 import BaseButton from '../../shared/components/BaseButton.vue'
+import Footer from '../../shared/components/Footer.vue'
+import EscalaCnebBadge from '../../shared/components/EscalaCnebBadge.vue'
 import {
   Trophy, Flame, Target, Sparkles,
   BookOpen, Star, Zap,
@@ -21,6 +23,8 @@ interface ProgresoArea {
   total_examenes_completados: number
   puntaje_promedio: number
   nivel_logro_actual: string | null
+  nota_promedio_vigesimal?: number | null
+  nivel_cneb_actual?: string | null
 }
 
 const progreso = ref<ProgresoArea[]>([])
@@ -115,7 +119,7 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-all duration-300 overflow-x-clip font-sans"
+  <div class="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-all duration-300 overflow-x-clip font-sans"
        :class="isSidebarCollapsed ? 'lg:pl-[84px]' : 'lg:pl-[280px]'">
 
     <!-- Premium Background Elements -->
@@ -127,7 +131,7 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
     <!-- Unified Student Navbar -->
     <EstudianteNavbar />
 
-    <main class="max-w-3xl mx-auto px-6 pt-8 pb-12 sm:pb-8 relative">
+    <main class="w-full flex-1 max-w-3xl mx-auto px-6 pt-8 pb-12 sm:pb-8 relative">
 
       <!-- ── Hero Section ── -->
       <section class="relative mb-8 rounded-2xl overflow-hidden bg-gradient-to-br from-teal-500 via-indigo-500 to-purple-600 p-8 sm:p-10 shadow-2xl shadow-indigo-500/20 group">
@@ -316,6 +320,9 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
                   :class="nivelConfig[p.nivel_logro_actual || '']?.bar ?? 'bg-slate-300 dark:bg-slate-700'"
                   :style="{ width: p.puntaje_promedio + '%' }" />
               </div>
+              <div v-if="p.nivel_cneb_actual" class="mt-2 flex justify-end">
+                <EscalaCnebBadge :nivel="p.nivel_cneb_actual" :nota="p.nota_promedio_vigesimal" />
+              </div>
             </div>
 
             <div v-if="p.nivel_logro_actual && nivelConfig[p.nivel_logro_actual]" class="hidden sm:flex shrink-0">
@@ -340,15 +347,9 @@ const nivelActual = computed(() => nivelLogro.value ? nivelConfig[nivelLogro.val
         </BaseButton>
       </section>
 
-      <!-- Footer Info -->
-      <footer class="mt-12 pt-8 border-t border-slate-300 dark:border-slate-800 text-center pb-12">
-        <p class="text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-widest leading-loose">
-          {{ auth.user?.institucion_nombre }}<br/>
-          Dirección Regional de Educación Huánuco
-        </p>
-      </footer>
-
     </main>
+
+    <Footer />
   </div>
 </template>
 

@@ -6,11 +6,13 @@ import {
   ChevronLeft, ChevronRight, Clock, AlertCircle, CheckCircle2,
   Loader2, BookOpen, ClipboardList,
   CheckCircle, XCircle, Lightbulb, Zap, Target, Trophy, ArrowLeft,
-  X, ChevronDown
+  X, ChevronDown, Award
 } from 'lucide-vue-next'
 import ThinkingLoader from '../../shared/components/ThinkingLoader.vue'
 import BaseButton from '../../shared/components/BaseButton.vue'
 import MathText from '../../shared/components/MathText.vue'
+import EscalaCnebBadge from '../../shared/components/EscalaCnebBadge.vue'
+import EscalaCnebModal from '../../shared/components/EscalaCnebModal.vue'
 import ResumenRespuestasModal from './components/ResumenRespuestasModal.vue'
 import { useTheme } from '../../shared/composables/useTheme'
 import type { Pregunta } from './types'
@@ -54,6 +56,8 @@ interface Revision {
   preguntas_correctas: number
   preguntas_total: number
   nivel_logro: string
+  nota_vigesimal?: number | null
+  nivel_cneb?: string | null
   preguntas: PreguntaRevision[]
   lecturas?: TextoLectura[]
 }
@@ -106,6 +110,7 @@ function triggerConfetti() {
 
 const lecturaTabActiva = shallowRef(0)
 const lecturaAcordeonAbierto = ref<number | null>(0)
+const showEscalaCneb = shallowRef(false)
 
 const toggleAcordeon = (idx: number) => {
   if (lecturaAcordeonAbierto.value === idx) {
@@ -463,11 +468,12 @@ const nivelMensaje: Record<string, string> = {
               <p class="text-7xl font-black tabular-nums leading-none mb-4" :class="resultado.puntaje_total >= 70 ? 'text-teal-500' : 'text-orange-500'">
                 {{ resultado.puntaje_total?.toFixed(0) }}<span class="text-3xl font-bold opacity-50">%</span>
               </p>
-              <div class="flex justify-center mb-6">
+              <div class="flex flex-col items-center gap-2 mb-6">
                 <span :class="nivelColors[resultado.nivel_logro] || 'bg-slate-100 text-slate-600'"
                   class="px-5 py-1.5 rounded-full text-xs font-black uppercase tracking-[0.2em] border border-transparent">
                   {{ nivelLabels[resultado.nivel_logro] ?? resultado.nivel_logro ?? '—' }}
                 </span>
+                <EscalaCnebBadge v-if="resultado.nivel_cneb" :nivel="resultado.nivel_cneb" :nota="resultado.nota_vigesimal" />
               </div>
               <div class="h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mb-2">
                 <div class="h-full rounded-full bg-gradient-to-r from-teal-500 to-indigo-600 transition-all duration-1000 ease-out"
@@ -515,6 +521,21 @@ const nivelMensaje: Record<string, string> = {
             Volver a la lista
           </BaseButton>
         </div>
+
+        <!-- Escala de calificación -->
+        <button
+          type="button"
+          @click="showEscalaCneb = true"
+          aria-haspopup="dialog"
+          class="group mt-6 w-full flex items-center justify-between gap-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 px-5 py-4 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors cursor-pointer"
+        >
+          <span class="inline-flex items-center gap-2">
+            <Award class="w-4 h-4 text-teal-500" />
+            Ver escala de calificación (CNEB)
+          </span>
+          <ChevronRight class="w-4 h-4 shrink-0 text-slate-400 transition-transform group-hover:translate-x-0.5" />
+        </button>
+        <EscalaCnebModal :open="showEscalaCneb" @close="showEscalaCneb = false" />
       </div>
 
       <!-- Full-screen Practice-style Feedback Modal -->
