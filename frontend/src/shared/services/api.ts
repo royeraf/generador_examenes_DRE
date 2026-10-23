@@ -799,6 +799,15 @@ export interface UpdateAsignacionPayload {
   is_active: boolean
 }
 
+export interface ClasificacionNiveles {
+  total_clasificados: number
+  pre_inicio: number
+  inicio: number
+  proceso: number
+  satisfactorio: number
+  sin_nivel: number
+}
+
 export const asignacionesService = {
   async asignar(data: AsignacionPayload): Promise<Asignacion> {
     const response = await apiClient.post<Asignacion>('/examenes/asignar', data)
@@ -810,6 +819,12 @@ export const asignacionesService = {
   },
   async getResultados(id: number) {
     const response = await apiClient.get(`/examenes/asignaciones/${id}/resultados`)
+    return response.data
+  },
+  async getClasificacion(filtro?: { grado_id?: number; seccion?: string | null }): Promise<ClasificacionNiveles> {
+    const response = await apiClient.get<ClasificacionNiveles>('/examenes/asignaciones/clasificacion', {
+      params: filtro,
+    })
     return response.data
   },
   async updateAsignacion(id: number, data: UpdateAsignacionPayload): Promise<void> {

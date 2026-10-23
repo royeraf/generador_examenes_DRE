@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { construirFechaISO, extraerFechaHora, formatFechaHora } from '../../shared/utils/dateUtils'
 import { ref, shallowRef, computed, onMounted } from 'vue'
+import type { Component } from 'vue'
 import { useRouter } from 'vue-router'
 import { apiClient, asignacionesService, examenesService, organizacionService, codigosClaseService } from '../../shared/services/api'
-import type { UpdateAsignacionPayload, CodigoClase } from '../../shared/services/api'
+import type { UpdateAsignacionPayload, CodigoClase, ClasificacionNiveles } from '../../shared/services/api'
 import Header from '../../shared/components/Header.vue'
 import Footer from '../../shared/components/Footer.vue'
 import EduBackground from '../../shared/components/EduBackground.vue'
@@ -17,7 +18,7 @@ import {
   Loader2, Users, ChevronDown, ChevronRight, Award,
   Clock, AlertCircle, Plus, X, BookMarked, Save, User, Pencil,
   RefreshCw, TrendingUp, GraduationCap, Calendar, ShieldCheck, Hash, Check,
-  LayoutGrid, LayoutList
+  LayoutGrid, LayoutList, BarChart3, CheckCircle2, Timer, CircleDashed
 } from 'lucide-vue-next'
 import type { Grado } from '../../shared/types'
 import { useAuthStore } from '../../stores/auth'
@@ -345,19 +346,25 @@ async function toggle(asig: Asignacion) {
   }
 }
 
-onMounted(fetchAsignaciones)
+onMounted(() => {
+  fetchAsignaciones()
+  if (tab.value === 'clasificacion') {
+    fetchAulasFiltro()
+    fetchClasificacion()
+  }
+})
 
 // formatFechaHora importado de shared/utils/dateUtils
 
 const nivelColors: Record<string, string> = {
-  pre_inicio: 'text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400',
-  inicio: 'text-orange-600 bg-orange-50 dark:bg-orange-900/20 dark:text-orange-400',
-  proceso: 'text-yellow-700 bg-yellow-50 dark:bg-yellow-900/20 dark:text-yellow-400',
+  pre_inicio: 'text-slate-600 bg-slate-100 dark:bg-slate-700 dark:text-slate-300',
+  inicio: 'text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400',
+  proceso: 'text-orange-600 bg-orange-50 dark:bg-orange-900/20 dark:text-orange-400',
   satisfactorio: 'text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-400',
-  destacado: 'text-teal-600 bg-teal-50 dark:bg-teal-900/20 dark:text-teal-400',
+  destacado: 'text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400',
 }
 const nivelLabels: Record<string, string> = {
-  pre_inicio: 'Pre Inicio', inicio: 'Inicio', proceso: 'En Proceso',
+  pre_inicio: 'Pre Inicio', inicio: 'En Inicio', proceso: 'En Proceso',
   satisfactorio: 'Satisfactorio', destacado: 'Destacado',
 }
 
@@ -372,6 +379,96 @@ const estadoColors: Record<string, string> = {
   en_progreso: 'text-amber-700 bg-amber-50 dark:bg-amber-900/20 dark:text-amber-300',
   completado: 'text-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-300',
 }
+
+// ── Pestañas ──────────────────────────────────────────────────────────────────
+type VistaTab = 'asignaciones' | 'clasificacion'
+const tab = ref<VistaTab>(
+  (localStorage.getItem('asignaciones_tab') as VistaTab) ?? 'asignaciones'
+)
+function setTab(t: VistaTab) {
+  tab.value = t
+  localStorage.setItem('asignaciones_tab', t)
+  if (t === 'clasificacion') {
+    fetchAulasFiltro()
+    if (clasificacion.value === null) fetchClasificacion()
+  }
+}
+
+// ── Clasificación por niveles de logro (barras) ──────────────────────────────
+type NivelLogroKey = 'satisfactorio' | 'proceso' | 'inicio' | 'pre_inicio'
+
+interface NivelLogroConfig {
+  codigo: NivelLogroKey
+  label: string
+  hex: string
+  rango: string
+  icon: Component
+}
+
+const NIVEL_LOGRO_CONFIG: NivelLogroConfig[] = [
+  { codigo: 'satisfactorio', label: 'Satisfactorio', hex: '#22C55E', rango: '18 – 20', icon: CheckCircle2 },
+  { codigo: 'proceso', label: 'En Proceso', hex: '#F97316', rango: '15 – 17', icon: Timer },
+  { codigo: 'inicio', label: 'En Inicio', hex: '#EF4444', rango: '11 – 14', icon: AlertCircle },
+  { codigo: 'pre_inicio', label: 'Pre Inicio', hex: '#9CA3AF', rango: '00 – 10', icon: CircleDashed },
+]
+
+const clasificacion = ref<ClasificacionNiveles | null>(null)
+const loadingClasificacion = ref(false)
+const clasificacionError = ref('')
+
+// Filtro por aula (códigos de clase del docente/director a cargo)
+const mostrarFiltroAula = computed(() => auth.isDocente || auth.isAuxiliar || auth.isDirector)
+const aulasFiltro = ref<CodigoClase[]>([])
+const loadingAulas = ref(false)
+const aulaFiltroId = ref<string>('') // '' = todas las aulas
+const aulaSeleccionada = computed(() =>
+  aulasFiltro.value.find((a) => String(a.id) === aulaFiltroId.value) ?? null
+)
+
+const totalClasificados = computed(() => clasificacion.value?.total_clasificados ?? 0)
+const sinNivel = computed(() => clasificacion.value?.sin_nivel ?? 0)
+
+const barrasNiveles = computed(() => {
+  const c = clasificacion.value
+  const total = totalClasificados.value
+  return NIVEL_LOGRO_CONFIG.map((n) => {
+    const count = c ? c[n.codigo] : 0
+    const pct = total > 0 ? Math.round((count / total) * 100) : 0
+    return {
+      ...n,
+      count,
+      pct,
+      widthPct: count > 0 ? Math.max(pct, 2) : 0,
+    }
+  })
+})
+
+async function fetchAulasFiltro() {
+  if (!mostrarFiltroAula.value || aulasFiltro.value.length > 0) return
+  loadingAulas.value = true
+  try {
+    const data = await codigosClaseService.getAll()
+    aulasFiltro.value = data.filter((c) => c.is_active)
+  } catch {
+    aulasFiltro.value = []
+  } finally {
+    loadingAulas.value = false
+  }
+}
+
+async function fetchClasificacion() {
+  loadingClasificacion.value = true
+  clasificacionError.value = ''
+  try {
+    const aula = aulaSeleccionada.value
+    const filtro = aula ? { grado_id: aula.grado_id, seccion: aula.seccion } : undefined
+    clasificacion.value = await asignacionesService.getClasificacion(filtro)
+  } catch (e: any) {
+    clasificacionError.value = e.response?.data?.detail ?? 'Error al cargar la clasificación'
+  } finally {
+    loadingClasificacion.value = false
+  }
+}
 </script>
 
 <template>
@@ -380,6 +477,27 @@ const estadoColors: Record<string, string> = {
     <Header :title="headerTitle" subtitle="Exámenes asignados a estudiantes" :show-home="true" />
 
     <main class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 md:py-10 space-y-6 md:space-y-10 relative z-10">
+
+      <!-- Tabs -->
+      <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+        <div class="flex items-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-1 shadow-sm">
+          <button @click="setTab('asignaciones')" title="Ver asignaciones"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all text-sm font-bold"
+            :class="tab === 'asignaciones' ? 'bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'">
+            <ClipboardList class="w-4 h-4" />
+            Asignaciones
+          </button>
+          <button @click="setTab('clasificacion')" title="Ver clasificación por nivel de logro"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all text-sm font-bold"
+            :class="tab === 'clasificacion' ? 'bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'">
+            <BarChart3 class="w-4 h-4" />
+            Niveles de Logro
+          </button>
+        </div>
+      </div>
+
+      <!-- ===================== PESTAÑA: ASIGNACIONES ===================== -->
+      <template v-if="tab === 'asignaciones'">
 
       <!-- Header & Welcome -->
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -618,6 +736,122 @@ const estadoColors: Record<string, string> = {
             </tbody>
           </table>
       </div>
+
+      </template>
+
+      <!-- ===================== PESTAÑA: NIVELES DE LOGRO ===================== -->
+      <template v-else>
+
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2 text-violet-600 dark:text-violet-400 font-bold text-sm tracking-wider uppercase">
+              <BarChart3 class="w-4 h-4" />
+              <span>Distribución por nivel de logro</span>
+            </div>
+            <h2 class="text-3xl md:text-4xl font-black text-slate-800 dark:text-white tracking-tight">
+              Clasificación por Niveles
+            </h2>
+            <p class="text-slate-500 dark:text-slate-400 text-sm md:text-base max-w-2xl">
+              Estudiantes agrupados según su nota vigesimal (escala de 4 niveles).
+            </p>
+          </div>
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-end gap-3">
+            <!-- Filtro por aula -->
+            <div v-if="mostrarFiltroAula" class="space-y-1.5">
+              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Aula</label>
+              <div class="relative">
+                <select v-model="aulaFiltroId" @change="fetchClasificacion" :disabled="loadingAulas"
+                  class="appearance-none w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 pl-3 pr-9 text-xs font-bold text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all shadow-sm cursor-pointer disabled:opacity-50">
+                  <option value="">Todas las aulas</option>
+                  <option v-for="a in aulasFiltro" :key="a.id" :value="String(a.id)">
+                    {{ a.grado_nombre ?? `Grado ${a.grado_id}` }} — Secc. {{ a.seccion }}
+                  </option>
+                </select>
+                <ChevronDown class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              </div>
+            </div>
+            <BaseButton variant="secondary" size="lg" :loading="loadingClasificacion" @click="fetchClasificacion">
+              <template #icon>
+                <RefreshCw class="w-5 h-5" />
+              </template>
+              <span>Actualizar</span>
+            </BaseButton>
+          </div>
+        </div>
+
+        <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="transform -translate-y-4 opacity-0" enter-to-class="transform translate-y-0 opacity-100">
+          <div v-if="clasificacionError" class="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-2xl p-5 text-red-600 dark:text-red-400 text-sm flex items-center justify-between shadow-lg">
+            <span class="flex items-center gap-3 font-medium">
+              <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+              {{ clasificacionError }}
+            </span>
+            <BaseButton size="sm" variant="secondary" @click="fetchClasificacion">
+              Reintentar
+            </BaseButton>
+          </div>
+        </Transition>
+
+        <!-- Loading -->
+        <div v-if="loadingClasificacion" class="flex flex-col items-center justify-center py-24">
+          <div class="relative w-16 h-16">
+            <div class="absolute inset-0 rounded-full border-4 border-slate-300 dark:border-slate-800"></div>
+            <div class="absolute inset-0 rounded-full border-4 border-violet-500 border-t-transparent animate-spin"></div>
+          </div>
+          <p class="mt-4 text-sm font-bold text-slate-400 dark:text-slate-500 tracking-widest uppercase">Calculando clasificación</p>
+        </div>
+
+        <!-- Vacío -->
+        <div v-else-if="totalClasificados === 0"
+          class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 p-12 text-center shadow-sm group">
+          <div class="w-24 h-24 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
+            <BarChart3 class="w-12 h-12 text-slate-300 dark:text-slate-600" />
+          </div>
+          <h3 class="text-2xl font-black text-slate-800 dark:text-white mb-2 tracking-tight">Aún no hay resultados calificados</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mb-8 max-w-sm mx-auto">
+            La clasificación aparecerá cuando los estudiantes completen sus evaluaciones.
+          </p>
+        </div>
+
+        <!-- Barras -->
+        <div v-else class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm overflow-hidden">
+          <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-4">
+            <div>
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Estudiantes clasificados</p>
+              <p class="text-3xl font-black text-slate-800 dark:text-white">{{ totalClasificados }}</p>
+            </div>
+            <div v-if="sinNivel > 0" class="text-right">
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sin nivel</p>
+              <p class="text-xl font-black text-slate-400">{{ sinNivel }}</p>
+            </div>
+          </div>
+
+          <div class="p-6 space-y-8">
+            <div v-for="b in barrasNiveles" :key="b.codigo" class="group cursor-pointer active:scale-95 transition-all">
+              <div class="flex justify-between items-center mb-3">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 rounded-2xl flex items-center justify-center border shadow-sm group-hover:scale-110 transition-transform"
+                    :style="{ backgroundColor: b.hex + '1a', borderColor: b.hex + '33', color: b.hex }">
+                    <component :is="b.icon" class="w-6 h-6" />
+                  </div>
+                  <div>
+                    <p class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tight">{{ b.label }}</p>
+                    <p class="text-xs font-bold text-slate-400">{{ b.rango }}</p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <p class="text-2xl font-black text-slate-800 dark:text-white leading-none">{{ b.count }}</p>
+                  <p class="text-xs font-black mt-1" :style="{ color: b.hex }">{{ b.pct }}%</p>
+                </div>
+              </div>
+              <div class="h-4 w-full bg-slate-100 dark:bg-slate-800/50 rounded-full p-1 border border-slate-300 dark:border-slate-700/30">
+                <div class="h-full rounded-full transition-all duration-1000 shadow-sm"
+                  :style="{ width: b.widthPct + '%', backgroundColor: b.hex }"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </template>
 
     </main>
 

@@ -49,11 +49,20 @@ export const NIVEL_CNEB_LABELS: Record<NivelCneb, string> = {
   C: 'En Inicio',
 }
 
+// Colores oficiales MINEDU ("semáforo") para la escala CNEB:
+// AD = verde, A = celeste, B = amarillo, C = rojo.
+export const NIVEL_CNEB_HEX: Record<NivelCneb, string> = {
+  AD: '#00A651',
+  A: '#00AEEF',
+  B: '#FDB913',
+  C: '#ED1C24',
+}
+
 export const NIVEL_CNEB_COLORS: Record<NivelCneb, string> = {
-  AD: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 border-indigo-100 dark:border-indigo-500/20',
-  A: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20',
-  B: 'text-amber-500 bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20',
-  C: 'text-red-500 bg-red-50 dark:bg-red-500/10 border-red-100 dark:border-red-500/20',
+  AD: 'text-green-600 bg-green-50 dark:bg-green-500/10 dark:text-green-400 border-green-100 dark:border-green-500/20',
+  A: 'text-sky-600 bg-sky-50 dark:bg-sky-500/10 dark:text-sky-400 border-sky-100 dark:border-sky-500/20',
+  B: 'text-amber-600 bg-amber-50 dark:bg-amber-500/10 dark:text-amber-400 border-amber-100 dark:border-amber-500/20',
+  C: 'text-red-600 bg-red-50 dark:bg-red-500/10 dark:text-red-400 border-red-100 dark:border-red-500/20',
 }
 
 export function esNivelCneb(valor: unknown): valor is NivelCneb {

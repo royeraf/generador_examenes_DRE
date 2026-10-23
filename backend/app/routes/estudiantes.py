@@ -801,6 +801,102 @@ async def resultados_asignacion(
     return resultado
 
 
+# Mapea el literal CNEB (AD/A/B/C) de la nota vigesimal a los 4 niveles del sistema.
+_CNEB_A_4NIVELES = {"AD": "satisfactorio", "A": "proceso", "B": "inicio", "C": "pre_inicio"}
+_NIVELES_4 = ["pre_inicio", "inicio", "proceso", "satisfactorio"]
+
+
+@router.get("/examenes/asignaciones/clasificacion")
+async def clasificacion_niveles(
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(require_modulo("asignaciones")),
+    grado_id: Optional[int] = None,
+    seccion: Optional[str] = None,
+):
+    """Distribución de estudiantes por nivel de logro (escala vigesimal de 4 niveles).
+
+    Agrupa el último intento completado de cada estudiante por asignación, dentro del
+    scope del rol del usuario (DRE ve todo, UGEL sus IEs, director/auxiliar su IE,
+    docente sus propias asignaciones). Puede filtrarse por aula (`grado_id` + `seccion`).
+    La nota vigesimal (0-20) se convierte a 4 niveles usando los umbrales del CNEB:
+    0-10 pre_inicio, 11-14 inicio, 15-17 proceso, 18-20 satisfactorio.
+    """
+    from app.models.db_models import InstitucionEducativa
+    rol = RolCodigo(current_user.rol_codigo)
+    ie_id = current_user.institucion_educativa_id
+    ugel_id = current_user.ugel_id
+    DRE_ROLES = {RolCodigo.ESPECIALISTA_DRE_COMUNICACION, RolCodigo.ESPECIALISTA_DRE_MATEMATICA}
+    GESTORES_IE = {RolCodigo.DIRECTOR, RolCodigo.AUXILIAR}
+
+    condiciones = []
+    if rol in DRE_ROLES:
+        pass  # ve todo
+    elif rol == RolCodigo.RESPONSABLE_UGEL and ugel_id:
+        ie_ids_r = await db.execute(
+            select(InstitucionEducativa.id).where(InstitucionEducativa.ugel_id == ugel_id)
+        )
+        ie_ids = [r[0] for r in ie_ids_r.all()]
+        condiciones.append(AsignacionExamen.institucion_educativa_id.in_(ie_ids))
+    elif rol in GESTORES_IE and ie_id:
+        condiciones.append(AsignacionExamen.institucion_educativa_id == ie_id)
+    else:
+        condiciones.append(AsignacionExamen.asignado_por_id == current_user.id)
+
+    if grado_id is not None:
+        condiciones.append(AsignacionExamen.grado_id == grado_id)
+    if seccion is not None:
+        condiciones.append(AsignacionExamen.seccion == seccion)
+
+    asig_q = select(AsignacionExamen.id)
+    if condiciones:
+        asig_q = asig_q.where(*condiciones)
+
+    asig_ids_r = await db.execute(asig_q)
+    asig_ids = [r[0] for r in asig_ids_r.all()]
+
+    vacio = {"total_clasificados": 0, "sin_nivel": 0}
+    for n in _NIVELES_4:
+        vacio[n] = 0
+    if not asig_ids:
+        return vacio
+
+    intentos_r = await db.execute(
+        select(
+            IntentoExamen.asignacion_id,
+            IntentoExamen.estudiante_id,
+            IntentoExamen.numero_intento,
+            IntentoExamen.nota_vigesimal,
+        )
+        .where(
+            IntentoExamen.asignacion_id.in_(asig_ids),
+            IntentoExamen.estado == "completado",
+        )
+        .order_by(
+            IntentoExamen.asignacion_id,
+            IntentoExamen.estudiante_id,
+            IntentoExamen.numero_intento.desc(),
+        )
+    )
+
+    ultimos: dict = {}
+    for asig_id, est_id, _num, nota in intentos_r.all():
+        clave = (asig_id, est_id)
+        if clave not in ultimos:
+            ultimos[clave] = nota
+
+    conteo = {n: 0 for n in _NIVELES_4}
+    conteo["sin_nivel"] = 0
+    for nota in ultimos.values():
+        if nota is None:
+            conteo["sin_nivel"] += 1
+            continue
+        nivel = _CNEB_A_4NIVELES.get(nota_a_nivel(nota), "sin_nivel")
+        conteo[nivel] += 1
+
+    total_clasificados = sum(conteo[n] for n in _NIVELES_4)
+    return {"total_clasificados": total_clasificados, **conteo}
+
+
 @router.delete("/examenes/asignaciones/{asig_id}")
 async def eliminar_asignacion(
     asig_id: int,
