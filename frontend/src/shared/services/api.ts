@@ -706,6 +706,8 @@ export interface CodigoClase {
   fecha_expiracion: string | null
   institucion_nombre: string | null
   total_estudiantes: number
+  creado_por_id: number | null
+  creado_por_nombre: string | null
 }
 
 export interface CodigoClaseCreatePayload {
@@ -808,6 +810,87 @@ export interface ClasificacionNiveles {
   sin_nivel: number
 }
 
+// Opciones jerárquicas para el filtro de la clasificación (UGEL → IE → docente → aula)
+export interface FiltroUgel {
+  id: number
+  nombre: string | null
+}
+
+export interface FiltroInstitucion {
+  id: number
+  nombre: string | null
+  ugel_id: number | null
+}
+
+export interface FiltroDocente {
+  id: number
+  nombre: string | null
+  institucion_educativa_ids: number[]
+  ugel_ids: number[]
+}
+
+export interface FiltroAula {
+  key: string
+  grado_id: number
+  grado_nombre: string | null
+  seccion: string | null
+  año_escolar: number | null
+  institucion_educativa_id: number
+  institucion_nombre: string | null
+  ugel_id: number | null
+  ugel_nombre: string | null
+  docente_ids: number[]
+  docente_nombres: string[]
+}
+
+export interface FiltrosClasificacion {
+  ugeles: FiltroUgel[]
+  instituciones: FiltroInstitucion[]
+  docentes: FiltroDocente[]
+  aulas: FiltroAula[]
+}
+
+export interface ClasificacionFiltro {
+  ugel_id?: number
+  institucion_educativa_id?: number
+  docente_id?: number
+  grado_id?: number
+  seccion?: string | null
+  año_escolar?: number
+}
+
+export interface ReporteEstudianteFila {
+  asignacion_id: number
+  ugel: string | null
+  institucion_educativa: string | null
+  codigo_modular: string | null
+  docente: string | null
+  area: string
+  examen: string | null
+  grado: string | null
+  seccion: string | null
+  año_escolar: number | null
+  codigo_estudiante: string | null
+  dni: string | null
+  estudiante: string
+  estado: string
+  numero_intento: number
+  nota_vigesimal: number | null
+  nivel_logro: string | null
+  nivel_logro_label: string | null
+  nivel_cneb: string | null
+  puntaje_total: number | null
+  correctas: number | null
+  total_preguntas: number | null
+  fecha_inicio: string | null
+  fecha_fin: string | null
+  fecha_asignacion: string | null
+}
+
+export interface ReporteEstudiantesFiltro extends ClasificacionFiltro {
+  asignacion_id?: number
+}
+
 export const asignacionesService = {
   async asignar(data: AsignacionPayload): Promise<Asignacion> {
     const response = await apiClient.post<Asignacion>('/examenes/asignar', data)
@@ -821,10 +904,21 @@ export const asignacionesService = {
     const response = await apiClient.get(`/examenes/asignaciones/${id}/resultados`)
     return response.data
   },
-  async getClasificacion(filtro?: { grado_id?: number; seccion?: string | null }): Promise<ClasificacionNiveles> {
+  async getFiltros(): Promise<FiltrosClasificacion> {
+    const response = await apiClient.get<FiltrosClasificacion>('/examenes/asignaciones/filtros')
+    return response.data
+  },
+  async getClasificacion(filtro?: ClasificacionFiltro): Promise<ClasificacionNiveles> {
     const response = await apiClient.get<ClasificacionNiveles>('/examenes/asignaciones/clasificacion', {
       params: filtro,
     })
+    return response.data
+  },
+  async getReporteEstudiantes(filtro?: ReporteEstudiantesFiltro): Promise<ReporteEstudianteFila[]> {
+    const response = await apiClient.get<ReporteEstudianteFila[]>(
+      '/examenes/asignaciones/reporte-estudiantes',
+      { params: filtro },
+    )
     return response.data
   },
   async updateAsignacion(id: number, data: UpdateAsignacionPayload): Promise<void> {

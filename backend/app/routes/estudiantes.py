@@ -804,48 +804,75 @@ async def resultados_asignacion(
 # Mapea el literal CNEB (AD/A/B/C) de la nota vigesimal a los 4 niveles del sistema.
 _CNEB_A_4NIVELES = {"AD": "satisfactorio", "A": "proceso", "B": "inicio", "C": "pre_inicio"}
 _NIVELES_4 = ["pre_inicio", "inicio", "proceso", "satisfactorio"]
+_NIVEL_4_LABEL = {
+    "pre_inicio": "Pre Inicio",
+    "inicio": "En Inicio",
+    "proceso": "En Proceso",
+    "satisfactorio": "Satisfactorio",
+}
+_AREA_REPORTE = {"lectura": "LectoSistem", "matematica": "MatSistem"}
 
 
 @router.get("/examenes/asignaciones/clasificacion")
 async def clasificacion_niveles(
     db: AsyncSession = Depends(get_db),
     current_user: Usuario = Depends(require_modulo("asignaciones")),
+    ugel_id: Optional[int] = None,
+    institucion_educativa_id: Optional[int] = None,
+    docente_id: Optional[int] = None,
     grado_id: Optional[int] = None,
     seccion: Optional[str] = None,
+    año_escolar: Optional[int] = None,
 ):
     """Distribución de estudiantes por nivel de logro (escala vigesimal de 4 niveles).
 
     Agrupa el último intento completado de cada estudiante por asignación, dentro del
     scope del rol del usuario (DRE ve todo, UGEL sus IEs, director/auxiliar su IE,
-    docente sus propias asignaciones). Puede filtrarse por aula (`grado_id` + `seccion`).
+    docente sus propias asignaciones). Acepta filtros jerárquicos opcionales
+    (`ugel_id` → `institucion_educativa_id` → `docente_id` → aula) que siempre se
+    combinan con el scope del rol, por lo que nunca amplían el acceso.
     La nota vigesimal (0-20) se convierte a 4 niveles usando los umbrales del CNEB:
     0-10 pre_inicio, 11-14 inicio, 15-17 proceso, 18-20 satisfactorio.
     """
     from app.models.db_models import InstitucionEducativa
     rol = RolCodigo(current_user.rol_codigo)
-    ie_id = current_user.institucion_educativa_id
-    ugel_id = current_user.ugel_id
+    user_ie_id = current_user.institucion_educativa_id
+    user_ugel_id = current_user.ugel_id
     DRE_ROLES = {RolCodigo.ESPECIALISTA_DRE_COMUNICACION, RolCodigo.ESPECIALISTA_DRE_MATEMATICA}
     GESTORES_IE = {RolCodigo.DIRECTOR, RolCodigo.AUXILIAR}
 
     condiciones = []
     if rol in DRE_ROLES:
         pass  # ve todo
-    elif rol == RolCodigo.RESPONSABLE_UGEL and ugel_id:
+    elif rol == RolCodigo.RESPONSABLE_UGEL and user_ugel_id:
         ie_ids_r = await db.execute(
-            select(InstitucionEducativa.id).where(InstitucionEducativa.ugel_id == ugel_id)
+            select(InstitucionEducativa.id).where(InstitucionEducativa.ugel_id == user_ugel_id)
         )
         ie_ids = [r[0] for r in ie_ids_r.all()]
         condiciones.append(AsignacionExamen.institucion_educativa_id.in_(ie_ids))
-    elif rol in GESTORES_IE and ie_id:
-        condiciones.append(AsignacionExamen.institucion_educativa_id == ie_id)
+    elif rol in GESTORES_IE and user_ie_id:
+        condiciones.append(AsignacionExamen.institucion_educativa_id == user_ie_id)
     else:
         condiciones.append(AsignacionExamen.asignado_por_id == current_user.id)
 
+    # Filtros jerárquicos: se suman (AND) al scope del rol.
+    if ugel_id is not None:
+        ie_ids_r = await db.execute(
+            select(InstitucionEducativa.id).where(InstitucionEducativa.ugel_id == ugel_id)
+        )
+        condiciones.append(
+            AsignacionExamen.institucion_educativa_id.in_([r[0] for r in ie_ids_r.all()])
+        )
+    if institucion_educativa_id is not None:
+        condiciones.append(AsignacionExamen.institucion_educativa_id == institucion_educativa_id)
+    if docente_id is not None:
+        condiciones.append(AsignacionExamen.asignado_por_id == docente_id)
     if grado_id is not None:
         condiciones.append(AsignacionExamen.grado_id == grado_id)
     if seccion is not None:
         condiciones.append(AsignacionExamen.seccion == seccion)
+    if año_escolar is not None:
+        condiciones.append(AsignacionExamen.año_escolar == año_escolar)
 
     asig_q = select(AsignacionExamen.id)
     if condiciones:
@@ -895,6 +922,466 @@ async def clasificacion_niveles(
 
     total_clasificados = sum(conteo[n] for n in _NIVELES_4)
     return {"total_clasificados": total_clasificados, **conteo}
+
+
+@router.get("/examenes/asignaciones/filtros")
+async def filtros_clasificacion(
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(require_modulo("asignaciones")),
+):
+    """Opciones jerárquicas (UGEL → IE → docente → aula) para filtrar la clasificación.
+
+    Se derivan de las asignaciones dentro del scope del rol, de modo que el filtro
+    siempre ofrece las aulas que realmente tienen resultados:
+    - DRE: todas las UGELs, IEs, docentes y aulas.
+    - UGEL: sus IEs, docentes y aulas.
+    - Director/auxiliar: su IE, sus docentes y aulas.
+    - Docente: únicamente sus asignaciones.
+    """
+    from app.models.db_models import InstitucionEducativa, Ugel
+
+    rol = RolCodigo(current_user.rol_codigo)
+    DRE_ROLES = {RolCodigo.ESPECIALISTA_DRE_COMUNICACION, RolCodigo.ESPECIALISTA_DRE_MATEMATICA}
+    GESTORES_IE = {RolCodigo.DIRECTOR, RolCodigo.AUXILIAR}
+    user_ie_id = current_user.institucion_educativa_id
+    user_ugel_id = current_user.ugel_id
+
+    condiciones = []
+    if rol in DRE_ROLES:
+        pass  # toda la región
+    elif rol == RolCodigo.RESPONSABLE_UGEL and user_ugel_id:
+        ie_ids_r = await db.execute(
+            select(InstitucionEducativa.id).where(InstitucionEducativa.ugel_id == user_ugel_id)
+        )
+        condiciones.append(
+            AsignacionExamen.institucion_educativa_id.in_([r[0] for r in ie_ids_r.all()])
+        )
+    elif rol in GESTORES_IE and user_ie_id:
+        condiciones.append(AsignacionExamen.institucion_educativa_id == user_ie_id)
+    else:
+        condiciones.append(AsignacionExamen.asignado_por_id == current_user.id)
+
+    # Solo filas identificables por IE + grado.
+    condiciones.append(AsignacionExamen.institucion_educativa_id.isnot(None))
+    condiciones.append(AsignacionExamen.grado_id.isnot(None))
+
+    filas = (
+        await db.execute(
+            select(
+                AsignacionExamen.institucion_educativa_id,
+                AsignacionExamen.grado_id,
+                AsignacionExamen.seccion,
+                AsignacionExamen.año_escolar,
+                AsignacionExamen.asignado_por_id,
+            )
+            .where(*condiciones)
+            .distinct()
+        )
+    ).all()
+
+    if not filas:
+        return {"ugeles": [], "instituciones": [], "docentes": [], "aulas": []}
+
+    ie_ids_set = {f[0] for f in filas}
+    grado_ids = {f[1] for f in filas}
+    docente_ids = {f[4] for f in filas if f[4]}
+
+    grados_r = await db.execute(select(Grado).where(Grado.id.in_(grado_ids)))
+    grado_map = {g.id: g.nombre for g in grados_r.scalars().all()}
+
+    ies_r = await db.execute(
+        select(InstitucionEducativa).where(InstitucionEducativa.id.in_(ie_ids_set))
+    )
+    ies = ies_r.scalars().all()
+    ie_map = {ie.id: ie for ie in ies}
+
+    ugel_ids = {ie.ugel_id for ie in ies if ie.ugel_id}
+    ugel_map: dict = {}
+    if ugel_ids:
+        ug_r = await db.execute(select(Ugel).where(Ugel.id.in_(ugel_ids)))
+        ugel_map = {u.id: u.nombre for u in ug_r.scalars().all()}
+
+    # Un docente puede tener asignaciones en varias IEs/UGELs.
+    docente_ies: dict = {}
+    docente_ugeles: dict = {}
+    for ie_id, _grado_id, _seccion, _anio, docente_id in filas:
+        if not docente_id:
+            continue
+        docente_ies.setdefault(docente_id, set()).add(ie_id)
+        ie_f = ie_map.get(ie_id)
+        if ie_f and ie_f.ugel_id:
+            docente_ugeles.setdefault(docente_id, set()).add(ie_f.ugel_id)
+
+    docentes_r = await db.execute(select(Usuario).where(Usuario.id.in_(docente_ids)))
+    docente_map = {}
+    docentes_out: dict = {}
+    docentes_roles = {'docente', 'auxiliar', 'director'}
+    for u in docentes_r.scalars().all():
+        # El selector es de docentes/responsables, no de administradores DRE/UGEL.
+        if u.rol_codigo not in docentes_roles:
+            continue
+        nombre = (
+            " ".join(filter(None, [u.apellidos, u.nombres])).strip()
+            or u.dni
+            or f"Usuario {u.id}"
+        )
+        docente_map[u.id] = nombre
+        docentes_out[u.id] = {
+            "id": u.id,
+            "nombre": nombre,
+            "institucion_educativa_ids": sorted(docente_ies.get(u.id, set())),
+            "ugel_ids": sorted(docente_ugeles.get(u.id, set())),
+        }
+
+    ugeles_out: dict = {}
+    instituciones_out: dict = {}
+    aulas_map: dict = {}
+
+    for ie_id, grado_id, seccion, anio, docente_id in filas:
+        ie = ie_map.get(ie_id)
+        ugel_id_c = ie.ugel_id if ie else None
+        ugel_nombre = ugel_map.get(ugel_id_c) if ugel_id_c else None
+
+        if ugel_id_c and ugel_id_c not in ugeles_out:
+            ugeles_out[ugel_id_c] = {"id": ugel_id_c, "nombre": ugel_nombre}
+        if ie and ie.id not in instituciones_out:
+            instituciones_out[ie.id] = {
+                "id": ie.id,
+                "nombre": ie.nombre,
+                "ugel_id": ie.ugel_id,
+            }
+
+        clave = f"{ie_id}-{grado_id}-{seccion or ''}-{anio or ''}"
+        aula = aulas_map.get(clave)
+        if aula is None:
+            aula = {
+                "key": clave,
+                "grado_id": grado_id,
+                "grado_nombre": grado_map.get(grado_id),
+                "seccion": seccion,
+                "año_escolar": anio,
+                "institucion_educativa_id": ie_id,
+                "institucion_nombre": ie.nombre if ie else None,
+                "ugel_id": ugel_id_c,
+                "ugel_nombre": ugel_nombre,
+                "docente_ids": [],
+                "docente_nombres": [],
+            }
+            aulas_map[clave] = aula
+        if docente_id and docente_id in docente_map and docente_id not in aula["docente_ids"]:
+            aula["docente_ids"].append(docente_id)
+            aula["docente_nombres"].append(docente_map[docente_id])
+
+    aulas = sorted(
+        aulas_map.values(),
+        key=lambda a: (
+            a["institucion_nombre"] or "",
+            a["grado_id"],
+            a["seccion"] or "",
+            a["año_escolar"] or 0,
+        ),
+    )
+
+    return {
+        "ugeles": sorted(ugeles_out.values(), key=lambda u: (u["nombre"] or "")),
+        "instituciones": sorted(
+            instituciones_out.values(), key=lambda i: (i["nombre"] or "", i["id"])
+        ),
+        "docentes": sorted(
+            docentes_out.values(), key=lambda d: (d["nombre"] or "", d["id"])
+        ),
+        "aulas": aulas,
+    }
+
+
+@router.get("/examenes/asignaciones/reporte-estudiantes")
+async def reporte_estudiantes(
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(require_modulo("asignaciones")),
+    ugel_id: Optional[int] = None,
+    institucion_educativa_id: Optional[int] = None,
+    docente_id: Optional[int] = None,
+    grado_id: Optional[int] = None,
+    seccion: Optional[str] = None,
+    año_escolar: Optional[int] = None,
+    asignacion_id: Optional[int] = None,
+):
+    """Reporte plano de estudiantes evaluados (último intento completado por asignación).
+
+    Devuelve una fila por estudiante y asignación con los datos del estudiante,
+    su IE/UGEL, el docente responsable, el examen y el resultado (nota vigesimal,
+    nivel CNEB, aciertos y fechas). Respeta el scope del rol y acepta los mismos
+    filtros jerárquicos de la clasificación, que solo pueden acotar el acceso.
+    """
+    from app.models.db_models import InstitucionEducativa, Ugel
+
+    rol = RolCodigo(current_user.rol_codigo)
+    user_ie_id = current_user.institucion_educativa_id
+    user_ugel_id = current_user.ugel_id
+    DRE_ROLES = {RolCodigo.ESPECIALISTA_DRE_COMUNICACION, RolCodigo.ESPECIALISTA_DRE_MATEMATICA}
+    GESTORES_IE = {RolCodigo.DIRECTOR, RolCodigo.AUXILIAR}
+
+    condiciones = []
+    if rol in DRE_ROLES:
+        pass  # ve toda la región
+    elif rol == RolCodigo.RESPONSABLE_UGEL and user_ugel_id:
+        ie_ids_r = await db.execute(
+            select(InstitucionEducativa.id).where(InstitucionEducativa.ugel_id == user_ugel_id)
+        )
+        condiciones.append(
+            AsignacionExamen.institucion_educativa_id.in_([r[0] for r in ie_ids_r.all()])
+        )
+    elif rol in GESTORES_IE and user_ie_id:
+        condiciones.append(AsignacionExamen.institucion_educativa_id == user_ie_id)
+    else:
+        condiciones.append(AsignacionExamen.asignado_por_id == current_user.id)
+
+    # Filtros jerárquicos opcionales: se suman (AND) al scope del rol.
+    if ugel_id is not None:
+        ie_ids_r = await db.execute(
+            select(InstitucionEducativa.id).where(InstitucionEducativa.ugel_id == ugel_id)
+        )
+        condiciones.append(
+            AsignacionExamen.institucion_educativa_id.in_([r[0] for r in ie_ids_r.all()])
+        )
+    if institucion_educativa_id is not None:
+        condiciones.append(AsignacionExamen.institucion_educativa_id == institucion_educativa_id)
+    if docente_id is not None:
+        condiciones.append(AsignacionExamen.asignado_por_id == docente_id)
+    if grado_id is not None:
+        condiciones.append(AsignacionExamen.grado_id == grado_id)
+    if seccion is not None:
+        condiciones.append(AsignacionExamen.seccion == seccion)
+    if año_escolar is not None:
+        condiciones.append(AsignacionExamen.año_escolar == año_escolar)
+    if asignacion_id is not None:
+        condiciones.append(AsignacionExamen.id == asignacion_id)
+
+    asig_q = select(AsignacionExamen)
+    if condiciones:
+        asig_q = asig_q.where(*condiciones)
+    asignaciones = (
+        await db.execute(asig_q.order_by(AsignacionExamen.fecha_creacion.desc()))
+    ).scalars().all()
+    if not asignaciones:
+        return []
+
+    asig_map = {a.id: a for a in asignaciones}
+    asig_ids = list(asig_map)
+
+    # Solo intentos completados; el primero por (asignación, estudiante) es el más reciente.
+    intentos_rows = (
+        await db.execute(
+            select(
+                IntentoExamen.asignacion_id,
+                IntentoExamen.estudiante_id,
+                IntentoExamen.numero_intento,
+                IntentoExamen.estado,
+                IntentoExamen.puntaje_total,
+                IntentoExamen.preguntas_correctas,
+                IntentoExamen.preguntas_total,
+                IntentoExamen.nota_vigesimal,
+                IntentoExamen.nivel_logro,
+                IntentoExamen.nivel_cneb,
+                IntentoExamen.fecha_inicio,
+                IntentoExamen.fecha_fin,
+                Estudiante.nombres,
+                Estudiante.apellidos,
+                Estudiante.codigo_estudiante,
+                Estudiante.dni,
+                Estudiante.institucion_educativa_id,
+            )
+            .join(Estudiante, Estudiante.id == IntentoExamen.estudiante_id)
+            .where(
+                IntentoExamen.asignacion_id.in_(asig_ids),
+                IntentoExamen.estado == "completado",
+            )
+            .order_by(
+                IntentoExamen.asignacion_id,
+                IntentoExamen.estudiante_id,
+                IntentoExamen.numero_intento.desc(),
+            )
+        )
+    ).all()
+
+    ultimos: dict = {}
+    for row in intentos_rows:
+        clave = (row.asignacion_id, row.estudiante_id)
+        if clave not in ultimos:
+            ultimos[clave] = row
+    if not ultimos:
+        return []
+
+    estudiante_ids = {row.estudiante_id for row in ultimos.values()}
+
+    # Códigos de clase: resuelven grado/IE en asignaciones antiguas sin esos campos.
+    codigo_clase_ids = {a.codigo_clase_id for a in asignaciones if a.codigo_clase_id}
+    cc_info: dict = {}
+    if codigo_clase_ids:
+        cc_rows = (
+            await db.execute(
+                select(
+                    CodigoClase.id,
+                    CodigoClase.grado_id,
+                    CodigoClase.institucion_educativa_id,
+                ).where(CodigoClase.id.in_(codigo_clase_ids))
+            )
+        ).all()
+        cc_info = {
+            r[0]: {"grado_id": r[1], "ie_id": r[2]}
+            for r in cc_rows
+        }
+
+    grado_ids = {a.grado_id for a in asignaciones if a.grado_id}
+    grado_ids |= {v["grado_id"] for v in cc_info.values() if v["grado_id"]}
+    grados_r = await db.execute(select(Grado).where(Grado.id.in_(grado_ids)))
+    grado_map = {g.id: g.nombre for g in grados_r.scalars().all()}
+
+    ie_ids = {a.institucion_educativa_id for a in asignaciones if a.institucion_educativa_id}
+    ie_ids |= {v["ie_id"] for v in cc_info.values() if v["ie_id"]}
+    ie_ids |= {
+        row.institucion_educativa_id
+        for row in ultimos.values()
+        if row.institucion_educativa_id
+    }
+    ies_r = await db.execute(
+        select(InstitucionEducativa).where(InstitucionEducativa.id.in_(ie_ids))
+    )
+    ies = ies_r.scalars().all()
+    ie_map = {ie.id: ie for ie in ies}
+    ugel_ids = {ie.ugel_id for ie in ies if ie.ugel_id}
+    ugel_map: dict = {}
+    if ugel_ids:
+        ug_r = await db.execute(select(Ugel).where(Ugel.id.in_(ugel_ids)))
+        ugel_map = {u.id: u.nombre for u in ug_r.scalars().all()}
+
+    docente_ids = {a.asignado_por_id for a in asignaciones if a.asignado_por_id}
+    docentes_r = await db.execute(select(Usuario).where(Usuario.id.in_(docente_ids)))
+    docente_map = {}
+    for u in docentes_r.scalars().all():
+        docente_map[u.id] = (
+            " ".join(filter(None, [u.apellidos, u.nombres])).strip()
+            or u.dni
+            or f"Usuario {u.id}"
+        )
+
+    # Títulos de los exámenes, separados por área.
+    lectura_ids = {a.examen_id for a in asignaciones if a.tipo_examen == "lectura"}
+    matematica_ids = {a.examen_id for a in asignaciones if a.tipo_examen == "matematica"}
+    titulos: dict = {}
+    if lectura_ids:
+        rows = (
+            await db.execute(
+                select(ExamenLectura.id, ExamenLectura.titulo).where(
+                    ExamenLectura.id.in_(lectura_ids)
+                )
+            )
+        ).all()
+        titulos.update({("lectura", r[0]): r[1] for r in rows})
+    if matematica_ids:
+        rows = (
+            await db.execute(
+                select(ExamenMatematica.id, ExamenMatematica.titulo).where(
+                    ExamenMatematica.id.in_(matematica_ids)
+                )
+            )
+        ).all()
+        titulos.update({("matematica", r[0]): r[1] for r in rows})
+
+    # Matrículas de los estudiantes; se elige la del año de la asignación.
+    matriculas_rows = (
+        await db.execute(
+            select(
+                Matricula.estudiante_id,
+                Matricula.año_escolar,
+                Matricula.grado_id,
+                Matricula.seccion,
+            )
+            .where(Matricula.estudiante_id.in_(estudiante_ids))
+            .order_by(Matricula.estudiante_id, Matricula.año_escolar.desc())
+        )
+    ).all()
+    matriculas_por_estudiante: dict = {}
+    for est_id, anio, mat_grado_id, mat_seccion in matriculas_rows:
+        matriculas_por_estudiante.setdefault(est_id, []).append(
+            (anio, mat_grado_id, mat_seccion)
+        )
+
+    out = []
+    for (asig_id, _est_id), row in ultimos.items():
+        asignacion = asig_map[asig_id]
+        cc = cc_info.get(asignacion.codigo_clase_id) or {}
+        ie_id = (
+            asignacion.institucion_educativa_id
+            or cc.get("ie_id")
+            or row.institucion_educativa_id
+        )
+        ie = ie_map.get(ie_id)
+        grado_id_asig = asignacion.grado_id or cc.get("grado_id")
+
+        matriculas = matriculas_por_estudiante.get(row.estudiante_id, [])
+        matricula = next(
+            (m for m in matriculas if m[0] == asignacion.año_escolar),
+            matriculas[0] if matriculas else None,
+        )
+        mat_anio, mat_grado_id, mat_seccion = matricula if matricula else (None, None, None)
+        grado_id_final = mat_grado_id or grado_id_asig
+        seccion_final = mat_seccion or asignacion.seccion
+        anio_final = asignacion.año_escolar or mat_anio
+
+        nota = row.nota_vigesimal
+        cneb = nota_a_nivel(nota) if nota is not None else row.nivel_cneb
+        nivel = _CNEB_A_4NIVELES.get(cneb) if cneb else None
+        if nivel is None and row.nivel_logro in _NIVELES_4:
+            nivel = row.nivel_logro
+
+        out.append({
+            "asignacion_id": asig_id,
+            "ugel": ugel_map.get(ie.ugel_id) if ie else None,
+            "institucion_educativa": ie.nombre if ie else None,
+            "codigo_modular": ie.codigo_modular if ie else None,
+            "docente": docente_map.get(asignacion.asignado_por_id),
+            "area": _AREA_REPORTE.get(asignacion.tipo_examen, asignacion.tipo_examen),
+            "examen": titulos.get((asignacion.tipo_examen, asignacion.examen_id))
+            or f"Asignación #{asig_id}",
+            "grado": grado_map.get(grado_id_final) or grado_map.get(grado_id_asig),
+            "seccion": seccion_final,
+            "año_escolar": anio_final,
+            "codigo_estudiante": row.codigo_estudiante,
+            "dni": row.dni,
+            "estudiante": (
+                " ".join(filter(None, [row.nombres, row.apellidos])).strip()
+                or row.codigo_estudiante
+                or row.dni
+                or "Estudiante"
+            ),
+            "estado": row.estado,
+            "numero_intento": row.numero_intento,
+            "nota_vigesimal": round(nota, 2) if nota is not None else None,
+            "nivel_logro": nivel,
+            "nivel_logro_label": _NIVEL_4_LABEL.get(nivel) if nivel else None,
+            "nivel_cneb": cneb,
+            "puntaje_total": (
+                round(row.puntaje_total, 2) if row.puntaje_total is not None else None
+            ),
+            "correctas": row.preguntas_correctas,
+            "total_preguntas": row.preguntas_total,
+            "fecha_inicio": _iso_peru(row.fecha_inicio),
+            "fecha_fin": _iso_peru(row.fecha_fin),
+            "fecha_asignacion": _iso_peru(asignacion.fecha_creacion),
+        })
+
+    out.sort(
+        key=lambda r: (
+            (r["ugel"] or "").casefold(),
+            (r["institucion_educativa"] or "").casefold(),
+            (r["grado"] or "").casefold(),
+            (r["seccion"] or "").casefold(),
+            (r["estudiante"] or "").casefold(),
+            (r["examen"] or "").casefold(),
+        )
+    )
+    return out
 
 
 @router.delete("/examenes/asignaciones/{asig_id}")

@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { construirFechaISO, extraerFechaHora, formatFechaHora } from '../../shared/utils/dateUtils'
-import { ref, shallowRef, computed, onMounted } from 'vue'
+import { ref, shallowRef, computed, onMounted, onUnmounted, watch } from 'vue'
 import type { Component } from 'vue'
+import * as d3 from 'd3'
 import { useRouter } from 'vue-router'
 import { apiClient, asignacionesService, examenesService, organizacionService, codigosClaseService } from '../../shared/services/api'
-import type { UpdateAsignacionPayload, CodigoClase, ClasificacionNiveles } from '../../shared/services/api'
+import type { UpdateAsignacionPayload, CodigoClase, ClasificacionNiveles, FiltroAula, FiltrosClasificacion, ClasificacionFiltro, ReporteEstudianteFila } from '../../shared/services/api'
 import Header from '../../shared/components/Header.vue'
 import Footer from '../../shared/components/Footer.vue'
 import EduBackground from '../../shared/components/EduBackground.vue'
@@ -18,7 +19,7 @@ import {
   Loader2, Users, ChevronDown, ChevronRight, Award,
   Clock, AlertCircle, Plus, X, BookMarked, Save, User, Pencil,
   RefreshCw, TrendingUp, GraduationCap, Calendar, ShieldCheck, Hash, Check,
-  LayoutGrid, LayoutList, BarChart3, CheckCircle2, Timer, CircleDashed
+  LayoutGrid, LayoutList, BarChart3, CheckCircle2, Timer, CircleDashed, Download, FileSpreadsheet
 } from 'lucide-vue-next'
 import type { Grado } from '../../shared/types'
 import { useAuthStore } from '../../stores/auth'
@@ -29,6 +30,7 @@ const auth = useAuthStore()
 const vistaIE = computed(() => auth.isDirector || auth.isAuxiliar)
 const vistaUGEL = computed(() => auth.isResponsableUGEL)
 const headerTitle = computed(() => {
+  if (auth.isEspecialista) return 'Asignaciones de la Región'
   if (vistaIE.value) return 'Asignaciones de la Institución'
   if (vistaUGEL.value) return 'Asignaciones de la UGEL'
   return 'Mis Asignaciones'
@@ -349,7 +351,7 @@ async function toggle(asig: Asignacion) {
 onMounted(() => {
   fetchAsignaciones()
   if (tab.value === 'clasificacion') {
-    fetchAulasFiltro()
+    cargarFiltros()
     fetchClasificacion()
   }
 })
@@ -389,7 +391,7 @@ function setTab(t: VistaTab) {
   tab.value = t
   localStorage.setItem('asignaciones_tab', t)
   if (t === 'clasificacion') {
-    fetchAulasFiltro()
+    cargarFiltros()
     if (clasificacion.value === null) fetchClasificacion()
   }
 }
@@ -400,74 +402,535 @@ type NivelLogroKey = 'satisfactorio' | 'proceso' | 'inicio' | 'pre_inicio'
 interface NivelLogroConfig {
   codigo: NivelLogroKey
   label: string
+  cneb: string
   hex: string
   rango: string
   icon: Component
 }
 
 const NIVEL_LOGRO_CONFIG: NivelLogroConfig[] = [
-  { codigo: 'satisfactorio', label: 'Satisfactorio', hex: '#22C55E', rango: '18 – 20', icon: CheckCircle2 },
-  { codigo: 'proceso', label: 'En Proceso', hex: '#F97316', rango: '15 – 17', icon: Timer },
-  { codigo: 'inicio', label: 'En Inicio', hex: '#EF4444', rango: '11 – 14', icon: AlertCircle },
-  { codigo: 'pre_inicio', label: 'Pre Inicio', hex: '#9CA3AF', rango: '00 – 10', icon: CircleDashed },
+  { codigo: 'pre_inicio', label: 'Pre Inicio', cneb: 'C', hex: '#9CA3AF', rango: '00 – 10', icon: CircleDashed },
+  { codigo: 'inicio', label: 'En Inicio', cneb: 'B', hex: '#EF4444', rango: '11 – 14', icon: AlertCircle },
+  { codigo: 'proceso', label: 'En Proceso', cneb: 'A', hex: '#F97316', rango: '15 – 17', icon: Timer },
+  { codigo: 'satisfactorio', label: 'Satisfactorio', cneb: 'AD', hex: '#22C55E', rango: '18 – 20', icon: CheckCircle2 },
 ]
 
 const clasificacion = ref<ClasificacionNiveles | null>(null)
 const loadingClasificacion = ref(false)
 const clasificacionError = ref('')
 
-// Filtro por aula (códigos de clase del docente/director a cargo)
-const mostrarFiltroAula = computed(() => auth.isDocente || auth.isAuxiliar || auth.isDirector)
-const aulasFiltro = ref<CodigoClase[]>([])
-const loadingAulas = ref(false)
+// ── Filtro jerárquico (UGEL → IE → docente → aula) ───────────────────────────
+// El scope lo impone el backend; estos selectores solo acotan dentro de él.
+const esDre = computed(() => auth.isEspecialista)
+const esUgel = computed(() => auth.isResponsableUGEL)
+const esDirector = computed(() => auth.isDirector)
+// Docente/auxiliar no eligen IE ni docente: solo sus propias aulas.
+const puedeElegirInstitucion = computed(() => esDre.value || esUgel.value)
+const puedeElegirDocente = computed(() => esDre.value || esUgel.value || esDirector.value)
+
+const filtrosClasificacion = ref<FiltrosClasificacion | null>(null)
+const loadingFiltros = ref(false)
+const filtrosCargados = ref(false)
+
+const FILTRO_SELECT_CLASS =
+  'appearance-none w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 pl-3 pr-9 text-xs font-bold text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
+
+const filtroUgelId = ref<number | null>(null)
+const filtroIeId = ref<number | null>(null)
+const filtroDocenteId = ref<number | null>(null)
 const aulaFiltroId = ref<string>('') // '' = todas las aulas
-const aulaSeleccionada = computed(() =>
-  aulasFiltro.value.find((a) => String(a.id) === aulaFiltroId.value) ?? null
+
+const ugelesOpciones = computed(() => filtrosClasificacion.value?.ugeles ?? [])
+
+const iesOpciones = computed(() => {
+  const todas = filtrosClasificacion.value?.instituciones ?? []
+  if (esDre.value && filtroUgelId.value) {
+    return todas.filter((ie) => ie.ugel_id === filtroUgelId.value)
+  }
+  return todas
+})
+
+const docentesOpciones = computed(() => {
+  const todos = filtrosClasificacion.value?.docentes ?? []
+  if (filtroIeId.value) {
+    return todos.filter((d) => d.institucion_educativa_ids.includes(filtroIeId.value!))
+  }
+  if (esDre.value && filtroUgelId.value) {
+    return todos.filter((d) => d.ugel_ids.includes(filtroUgelId.value!))
+  }
+  return todos
+})
+
+const aulasOpciones = computed(() => {
+  const todas = filtrosClasificacion.value?.aulas ?? []
+  return todas.filter((a) => {
+    if (filtroIeId.value && a.institucion_educativa_id !== filtroIeId.value) return false
+    if (!filtroIeId.value && esDre.value && filtroUgelId.value && a.ugel_id !== filtroUgelId.value) {
+      return false
+    }
+    if (filtroDocenteId.value && !a.docente_ids.includes(filtroDocenteId.value)) return false
+    return true
+  })
+})
+
+const aulaSeleccionada = computed<FiltroAula | null>(() =>
+  aulasOpciones.value.find((a) => a.key === aulaFiltroId.value) ?? null
 )
+
+const mostrarAnioAula = computed(
+  () => new Set(aulasOpciones.value.map((a) => a.año_escolar)).size > 1
+)
+
+// Etiqueta del aula; añade IE/año cuando hace falta para distinguir opciones.
+function aulaLabel(a: FiltroAula): string {
+  const grado = a.grado_nombre ?? `Grado ${a.grado_id}`
+  const seccion = a.seccion ? `Secc. ${a.seccion}` : 'Todas las secciones'
+  const partes = [`${grado} — ${seccion}`]
+  if (!filtroIeId.value && puedeElegirInstitucion.value && a.institucion_nombre) {
+    partes.push(a.institucion_nombre)
+  }
+  if (mostrarAnioAula.value && a.año_escolar) {
+    partes.push(String(a.año_escolar))
+  }
+  return partes.join(' · ')
+}
+
+const docenteSeleccionado = computed(() =>
+  docentesOpciones.value.find((d) => d.id === filtroDocenteId.value) ?? null
+)
+
+// Encabezado: docente a cargo y grado/sección del aula seleccionada
+const docenteNombre = computed(() => {
+  const d = docenteSeleccionado.value
+  if (d?.nombre) return d.nombre
+  const a = aulaSeleccionada.value
+  if (a) {
+    if (a.docente_nombres.length === 1) return a.docente_nombres[0] ?? 'Docente'
+    if (a.docente_nombres.length > 1) return 'Varios docentes'
+  }
+  if ((auth.isDocente || auth.isAuxiliar) && auth.user) {
+    const nombre = [auth.user.apellidos, auth.user.nombres].filter(Boolean).join(' ').trim()
+    return nombre || auth.user.dni || 'Docente'
+  }
+  return 'Todos los docentes'
+})
+
+const gradoSeccionLabel = computed(() => {
+  const a = aulaSeleccionada.value
+  if (!a) return 'Todas las secciones'
+  const grado = a.grado_nombre ?? `Grado ${a.grado_id}`
+  return a.seccion ? `${grado} — Sección ${a.seccion}` : `${grado} — Todas las secciones`
+})
+
+// Exportar el gráfico a PNG
+const chartRef = ref<HTMLElement | null>(null)
+const exportingPng = ref(false)
+
+async function exportarPng() {
+  if (!chartRef.value || exportingPng.value) return
+  exportingPng.value = true
+  // Fija las barras en su altura final para que el PNG no capture una animación.
+  renderChart(false)
+  try {
+    const { domToPng } = await import('modern-screenshot')
+    const dark = document.documentElement.classList.contains('dark')
+    const dataUrl = await domToPng(chartRef.value, {
+      scale: 2,
+      backgroundColor: dark ? '#0f172a' : '#ffffff',
+      filter: (node) => !(node instanceof HTMLElement && node.dataset?.exportIgnore === 'true'),
+    })
+    const safe = (docenteNombre.value || 'docente')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^\w\-]+/g, '_')
+    const link = document.createElement('a')
+    link.download = `niveles-logro_${safe}.png`
+    link.href = dataUrl
+    link.click()
+  } catch {
+    Toast.fire({ icon: 'error', title: 'No se pudo exportar la imagen' })
+  } finally {
+    exportingPng.value = false
+  }
+}
 
 const totalClasificados = computed(() => clasificacion.value?.total_clasificados ?? 0)
 const sinNivel = computed(() => clasificacion.value?.sin_nivel ?? 0)
 
-const barrasNiveles = computed(() => {
+// ── Reporte Excel de estudiantes evaluados ───────────────────────────────────
+const exportandoReporte = ref(false)
+
+function formatearFechaReporte(valor: string | null): string {
+  return valor ? formatFechaHora(valor) : ''
+}
+
+const columnasReporte: {
+  header: string
+  width: number
+  value: (f: ReporteEstudianteFila) => string | number
+}[] = [
+  { header: 'UGEL', width: 24, value: (f) => f.ugel ?? '' },
+  { header: 'Institución Educativa', width: 34, value: (f) => f.institucion_educativa ?? '' },
+  { header: 'Código Modular', width: 14, value: (f) => f.codigo_modular ?? '' },
+  { header: 'Docente a cargo', width: 30, value: (f) => f.docente ?? '' },
+  { header: 'Área', width: 14, value: (f) => f.area ?? '' },
+  { header: 'Examen', width: 40, value: (f) => f.examen ?? '' },
+  { header: 'Grado', width: 14, value: (f) => f.grado ?? '' },
+  { header: 'Sección', width: 10, value: (f) => f.seccion ?? '' },
+  { header: 'Año Escolar', width: 12, value: (f) => f.año_escolar ?? '' },
+  { header: 'Código Estudiante', width: 18, value: (f) => f.codigo_estudiante ?? '' },
+  { header: 'DNI', width: 12, value: (f) => f.dni ?? '' },
+  { header: 'Estudiante', width: 34, value: (f) => f.estudiante },
+  { header: 'Estado', width: 12, value: (f) => estadoLabels[f.estado] ?? f.estado },
+  { header: 'N° Intento', width: 10, value: (f) => f.numero_intento },
+  { header: 'Nota Vigesimal', width: 14, value: (f) => f.nota_vigesimal ?? '' },
+  {
+    header: 'Nivel de Logro',
+    width: 16,
+    value: (f) =>
+      f.nivel_logro_label ?? (f.nivel_logro ? nivelLabels[f.nivel_logro] : '') ?? '',
+  },
+  { header: 'Nivel CNEB', width: 10, value: (f) => f.nivel_cneb ?? '' },
+  { header: 'Puntaje (%)', width: 12, value: (f) => f.puntaje_total ?? '' },
+  { header: 'Correctas', width: 10, value: (f) => f.correctas ?? '' },
+  { header: 'Total Preguntas', width: 12, value: (f) => f.total_preguntas ?? '' },
+  { header: 'Inicio del Intento', width: 20, value: (f) => formatearFechaReporte(f.fecha_inicio) },
+  { header: 'Fin de la Evaluación', width: 20, value: (f) => formatearFechaReporte(f.fecha_fin) },
+  { header: 'Fecha de Asignación', width: 20, value: (f) => formatearFechaReporte(f.fecha_asignacion) },
+]
+
+function fechaReporte(): string {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'America/Lima' })
+}
+
+function slugReporte(valor: string): string {
+  return valor
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 60)
+}
+
+async function descargarReporteExcel(filas: ReporteEstudianteFila[], nombreArchivo: string) {
+  const XLSX = await import('xlsx')
+  const aoa: (string | number)[][] = [
+    columnasReporte.map((c) => c.header),
+    ...filas.map((f) => columnasReporte.map((c) => c.value(f))),
+  ]
+  const ws = XLSX.utils.aoa_to_sheet(aoa)
+  ws['!cols'] = columnasReporte.map((c) => ({ wch: c.width }))
+  ws['!autofilter'] = {
+    ref: XLSX.utils.encode_range({
+      s: { r: 0, c: 0 },
+      e: { r: aoa.length - 1, c: columnasReporte.length - 1 },
+    }),
+  }
+
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, 'Evaluados')
+  XLSX.writeFile(wb, `${nombreArchivo}.xlsx`)
+}
+
+function toastReporteExportado(cantidad: number) {
+  Toast.fire({
+    icon: 'success',
+    title: `${cantidad} ${cantidad === 1 ? 'registro exportado' : 'registros exportados'}`,
+  })
+}
+
+async function exportarReporteExcel() {
+  if (exportandoReporte.value) return
+  exportandoReporte.value = true
+  try {
+    const filas = await asignacionesService.getReporteEstudiantes()
+    if (!filas.length) {
+      Toast.fire({ icon: 'info', title: 'No hay estudiantes evaluados para exportar' })
+      return
+    }
+    await descargarReporteExcel(filas, `reporte_estudiantes_evaluados_${fechaReporte()}`)
+    toastReporteExportado(filas.length)
+  } catch {
+    Toast.fire({ icon: 'error', title: 'No se pudo generar el reporte' })
+  } finally {
+    exportandoReporte.value = false
+  }
+}
+
+async function exportarReporteAsignacion() {
+  const asig = resultadosAsig.value
+  if (!asig || exportandoReporte.value) return
+  exportandoReporte.value = true
+  try {
+    const filas = await asignacionesService.getReporteEstudiantes({ asignacion_id: asig.id })
+    if (!filas.length) {
+      Toast.fire({ icon: 'info', title: 'Esta asignación aún no tiene estudiantes evaluados' })
+      return
+    }
+    const slug = slugReporte(asig.titulo ?? '') || `asignacion_${asig.id}`
+    await descargarReporteExcel(filas, `reporte_${slug}_${fechaReporte()}`)
+    toastReporteExportado(filas.length)
+  } catch {
+    Toast.fire({ icon: 'error', title: 'No se pudo generar el reporte' })
+  } finally {
+    exportandoReporte.value = false
+  }
+}
+
+type BarraNivel = NivelLogroConfig & {
+  count: number
+  pct: number
+  /** Porcentaje sin redondear: define la altura real de la barra. */
+  pctReal: number
+}
+
+const barrasNiveles = computed<BarraNivel[]>(() => {
   const c = clasificacion.value
   const total = totalClasificados.value
   return NIVEL_LOGRO_CONFIG.map((n) => {
     const count = c ? c[n.codigo] : 0
-    const pct = total > 0 ? Math.round((count / total) * 100) : 0
+    const ratio = total > 0 ? count / total : 0
     return {
       ...n,
       count,
-      pct,
-      widthPct: count > 0 ? Math.max(pct, 2) : 0,
+      pct: Math.round(ratio * 100),
+      pctReal: ratio * 100,
     }
   })
 })
 
-async function fetchAulasFiltro() {
-  if (!mostrarFiltroAula.value || aulasFiltro.value.length > 0) return
-  loadingAulas.value = true
-  try {
-    const data = await codigosClaseService.getAll()
-    aulasFiltro.value = data.filter((c) => c.is_active)
-  } catch {
-    aulasFiltro.value = []
-  } finally {
-    loadingAulas.value = false
+// ── Gráfico de barras con d3 ──────────────────────────────────────────────────
+const chartSvgRef = ref<HTMLElement | null>(null)
+let chartResizeObserver: ResizeObserver | null = null
+let chartThemeObserver: MutationObserver | null = null
+let chartRaf = 0
+let lastChartWidth = 0
+
+function isDarkTheme(): boolean {
+  return document.documentElement.classList.contains('dark')
+}
+
+/** Rectángulo con esquinas superiores redondeadas y base recta. */
+function barPath(x: number, yTop: number, width: number, height: number, radius: number): string {
+  const r = Math.max(0, Math.min(radius, height, width / 2))
+  return [
+    `M${x},${yTop + height}`,
+    `V${yTop + r}`,
+    `Q${x},${yTop} ${x + r},${yTop}`,
+    `H${x + width - r}`,
+    `Q${x + width},${yTop} ${x + width},${yTop + r}`,
+    `V${yTop + height}`,
+    'Z',
+  ].join(' ')
+}
+
+function renderChart(animate = true) {
+  const host = chartSvgRef.value
+  if (!host) return
+
+  const data = barrasNiveles.value
+  const width = Math.max(host.clientWidth, 240)
+  const compact = width < 480
+  const plotHeight = compact ? 192 : 248
+  const barWidth = Math.min(72, width / 4 - (compact ? 18 : 26))
+  const dark = isDarkTheme()
+
+  lastChartWidth = width
+
+  d3.select(host).selectAll('*').remove()
+
+  const svg = d3.select(host)
+    .append('svg')
+    .attr('width', width)
+    .attr('height', plotHeight)
+    .attr('viewBox', `0 0 ${width} ${plotHeight}`)
+    .attr('role', 'img')
+    .attr('aria-label', `Distribución de ${totalClasificados.value} estudiantes en cuatro niveles de logro`)
+    .style('display', 'block')
+    .style('width', '100%')
+    .style('height', 'auto')
+    .style('overflow', 'visible')
+
+  const x = d3.scaleBand<string>()
+    .domain(data.map((d) => d.codigo))
+    .range([0, width])
+    .padding(0)
+
+  const y = d3.scaleLinear().domain([0, 100]).range([plotHeight, 0])
+
+  const band = x.bandwidth()
+  const gap = (band - barWidth) / 2
+  const barX = (d: BarraNivel) => (x(d.codigo) ?? 0) + gap
+  const barTop = (d: BarraNivel) => y(d.pctReal)
+  const barHeight = (d: BarraNivel) => plotHeight - barTop(d)
+
+  // Pista de fondo de cada barra
+  svg.append('g')
+    .selectAll<SVGRectElement, BarraNivel>('rect')
+    .data(data)
+    .join('rect')
+    .attr('x', barX)
+    .attr('y', 0)
+    .attr('width', barWidth)
+    .attr('height', plotHeight)
+    .attr('rx', 10)
+    .attr('fill', dark ? '#1e293b' : '#f8fafc')
+
+  // Líneas de referencia al 25 / 50 / 75 / 100 %
+  svg.append('g')
+    .attr('pointer-events', 'none')
+    .selectAll<SVGLineElement, number>('line')
+    .data([25, 50, 75, 100])
+    .join('line')
+    .attr('x1', 0)
+    .attr('x2', width)
+    .attr('y1', (d) => y(d))
+    .attr('y2', (d) => y(d))
+    .attr('stroke', dark ? '#475569' : '#cbd5e1')
+    .attr('stroke-opacity', 0.65)
+    .attr('stroke-dasharray', '3 6')
+
+  // Línea base
+  svg.append('line')
+    .attr('x1', 0)
+    .attr('x2', width)
+    .attr('y1', plotHeight)
+    .attr('y2', plotHeight)
+    .attr('stroke', dark ? '#334155' : '#e2e8f0')
+
+  // Barras
+  const bars = svg.append('g')
+    .selectAll<SVGPathElement, BarraNivel>('path')
+    .data(data)
+    .join('path')
+    .attr('fill', (d) => d.hex)
+    .attr('d', (d) => barPath(barX(d), plotHeight, barWidth, 0, 10))
+    .style('cursor', 'pointer')
+
+  bars.append('title')
+    .text((d) => `${d.label} (${d.cneb}): ${d.count} estudiante${d.count === 1 ? '' : 's'} · ${d.pct}%`)
+
+  bars
+    .on('mouseenter', function () {
+      d3.select(this).attr('fill-opacity', 0.82)
+    })
+    .on('mouseleave', function () {
+      d3.select(this).attr('fill-opacity', 1)
+    })
+
+  const target = (d: BarraNivel) => barPath(barX(d), barTop(d), barWidth, barHeight(d), 10)
+
+  if (animate) {
+    bars.transition()
+      .duration(750)
+      .delay((_, i) => i * 90)
+      .ease(d3.easeCubicOut)
+      .attr('d', target)
+  } else {
+    bars.attr('d', target)
   }
+}
+
+function scheduleChartRender(animate = true) {
+  if (chartRaf) cancelAnimationFrame(chartRaf)
+  chartRaf = requestAnimationFrame(() => {
+    chartRaf = 0
+    renderChart(animate)
+  })
+}
+
+watch(chartSvgRef, (el) => {
+  chartResizeObserver?.disconnect()
+  chartResizeObserver = null
+  if (!el) return
+  chartResizeObserver = new ResizeObserver(() => {
+    const current = chartSvgRef.value
+    if (current && Math.abs(current.clientWidth - lastChartWidth) > 0.5) {
+      scheduleChartRender(false)
+    }
+  })
+  chartResizeObserver.observe(el)
+  scheduleChartRender(true)
+})
+
+watch(barrasNiveles, () => {
+  if (chartSvgRef.value) scheduleChartRender(true)
+})
+
+onMounted(() => {
+  chartThemeObserver = new MutationObserver(() => {
+    if (chartSvgRef.value) scheduleChartRender(false)
+  })
+  chartThemeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+})
+
+onUnmounted(() => {
+  if (chartRaf) cancelAnimationFrame(chartRaf)
+  chartResizeObserver?.disconnect()
+  chartThemeObserver?.disconnect()
+})
+
+async function cargarFiltros() {
+  if (filtrosCargados.value) return
+  loadingFiltros.value = true
+  try {
+    filtrosClasificacion.value = await asignacionesService.getFiltros()
+    filtrosCargados.value = true
+  } catch {
+    filtrosClasificacion.value = { ugeles: [], instituciones: [], docentes: [], aulas: [] }
+  } finally {
+    loadingFiltros.value = false
+  }
+}
+
+function buildFiltroClasificacion(): ClasificacionFiltro | undefined {
+  // El aula es el filtro más específico: IE + grado + sección + año.
+  const aula = aulaSeleccionada.value
+  if (aula) {
+    const filtro: ClasificacionFiltro = {
+      institucion_educativa_id: aula.institucion_educativa_id,
+      grado_id: aula.grado_id,
+    }
+    if (aula.seccion) filtro.seccion = aula.seccion
+    if (aula.año_escolar != null) filtro.año_escolar = aula.año_escolar
+    return filtro
+  }
+  const filtro: ClasificacionFiltro = {}
+  if (filtroDocenteId.value) filtro.docente_id = filtroDocenteId.value
+  if (filtroIeId.value) filtro.institucion_educativa_id = filtroIeId.value
+  else if (esDre.value && filtroUgelId.value) filtro.ugel_id = filtroUgelId.value
+  return Object.keys(filtro).length ? filtro : undefined
 }
 
 async function fetchClasificacion() {
   loadingClasificacion.value = true
   clasificacionError.value = ''
   try {
-    const aula = aulaSeleccionada.value
-    const filtro = aula ? { grado_id: aula.grado_id, seccion: aula.seccion } : undefined
-    clasificacion.value = await asignacionesService.getClasificacion(filtro)
+    clasificacion.value = await asignacionesService.getClasificacion(buildFiltroClasificacion())
   } catch (e: any) {
     clasificacionError.value = e.response?.data?.detail ?? 'Error al cargar la clasificación'
   } finally {
     loadingClasificacion.value = false
   }
+}
+
+// Al cambiar un nivel se limpian los niveles inferiores y se recarga el gráfico.
+function onUgelChange() {
+  filtroIeId.value = null
+  filtroDocenteId.value = null
+  aulaFiltroId.value = ''
+  void fetchClasificacion()
+}
+
+function onIeChange() {
+  filtroDocenteId.value = null
+  aulaFiltroId.value = ''
+  void fetchClasificacion()
+}
+
+function onDocenteChange() {
+  aulaFiltroId.value = ''
+  void fetchClasificacion()
 }
 </script>
 
@@ -513,7 +976,7 @@ async function fetchClasificacion() {
             {{ asignaciones.length }} asignación(es) activas en el sistema.
           </p>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex flex-wrap items-center gap-3">
           <div class="flex items-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-1 shadow-sm">
             <button @click="setViewMode('cards')" title="Vista cards"
               class="p-2.5 rounded-xl transition-all"
@@ -526,7 +989,15 @@ async function fetchClasificacion() {
               <LayoutList class="w-4 h-4" />
             </button>
           </div>
-          <BaseButton size="lg" class="group hover:-translate-y-0.5" @click="openModal">
+          <BaseButton variant="secondary" size="md" :loading="exportandoReporte" class="hover:-translate-y-0.5"
+            title="Descargar reporte de estudiantes evaluados en Excel"
+            @click="exportarReporteExcel">
+            <template #icon>
+              <FileSpreadsheet class="w-4 h-4" />
+            </template>
+            <span>{{ exportandoReporte ? 'Generando…' : 'Reporte Excel' }}</span>
+          </BaseButton>
+          <BaseButton v-if="!esUgel" size="lg" class="group hover:-translate-y-0.5" @click="openModal">
             <template #icon>
               <Plus class="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
             </template>
@@ -565,9 +1036,9 @@ async function fetchClasificacion() {
         </div>
         <h3 class="text-2xl font-black text-slate-800 dark:text-white mb-2 tracking-tight">Sin asignaciones aún</h3>
         <p class="text-sm text-slate-500 dark:text-slate-400 mb-8 max-w-sm mx-auto">
-          Comienza asignando uno de tus exámenes generados a un grado o sección específica.
+          {{ esUgel ? 'Aún no hay asignaciones registradas en las instituciones de tu UGEL.' : 'Comienza asignando uno de tus exámenes generados a un grado o sección específica.' }}
         </p>
-        <BaseButton size="lg" @click="openModal">
+        <BaseButton v-if="!esUgel" size="lg" @click="openModal">
           <template #icon>
             <Plus class="w-5 h-5" />
           </template>
@@ -742,7 +1213,7 @@ async function fetchClasificacion() {
       <!-- ===================== PESTAÑA: NIVELES DE LOGRO ===================== -->
       <template v-else>
 
-        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div class="flex flex-col gap-5">
           <div class="space-y-1">
             <div class="flex items-center gap-2 text-violet-600 dark:text-violet-400 font-bold text-sm tracking-wider uppercase">
               <BarChart3 class="w-4 h-4" />
@@ -755,22 +1226,56 @@ async function fetchClasificacion() {
               Estudiantes agrupados según su nota vigesimal (escala de 4 niveles).
             </p>
           </div>
-          <div class="flex flex-col sm:flex-row items-stretch sm:items-end gap-3">
-            <!-- Filtro por aula -->
-            <div v-if="mostrarFiltroAula" class="space-y-1.5">
+
+          <!-- Filtro jerárquico: UGEL → IE → docente → aula (según el rol) -->
+          <div class="flex flex-wrap items-end gap-3">
+            <div v-if="esDre" class="space-y-1.5 flex-1 min-w-[10rem]">
+              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">UGEL</label>
+              <div class="relative">
+                <select v-model="filtroUgelId" @change="onUgelChange" :disabled="loadingFiltros" :class="FILTRO_SELECT_CLASS">
+                  <option :value="null">Todas las UGEL</option>
+                  <option v-for="u in ugelesOpciones" :key="u.id" :value="u.id">{{ u.nombre ?? `UGEL ${u.id}` }}</option>
+                </select>
+                <ChevronDown class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              </div>
+            </div>
+
+            <div v-if="puedeElegirInstitucion" class="space-y-1.5 flex-1 min-w-[10rem]">
+              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Institución</label>
+              <div class="relative">
+                <select v-model="filtroIeId" @change="onIeChange" :disabled="loadingFiltros || !iesOpciones.length" :class="FILTRO_SELECT_CLASS">
+                  <option :value="null">Todas las IE</option>
+                  <option v-for="ie in iesOpciones" :key="ie.id" :value="ie.id">{{ ie.nombre ?? `IE ${ie.id}` }}</option>
+                </select>
+                <ChevronDown class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              </div>
+            </div>
+
+            <div v-if="puedeElegirDocente" class="space-y-1.5 flex-1 min-w-[10rem]">
+              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Docente</label>
+              <div class="relative">
+                <select v-model="filtroDocenteId" @change="onDocenteChange" :disabled="loadingFiltros || !docentesOpciones.length" :class="FILTRO_SELECT_CLASS">
+                  <option :value="null">Todos los docentes</option>
+                  <option v-for="d in docentesOpciones" :key="d.id" :value="d.id">{{ d.nombre ?? `Docente ${d.id}` }}</option>
+                </select>
+                <ChevronDown class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              </div>
+            </div>
+
+            <div class="space-y-1.5 flex-1 min-w-[10rem]">
               <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Aula</label>
               <div class="relative">
-                <select v-model="aulaFiltroId" @change="fetchClasificacion" :disabled="loadingAulas"
-                  class="appearance-none w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 pl-3 pr-9 text-xs font-bold text-slate-800 dark:text-white outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all shadow-sm cursor-pointer disabled:opacity-50">
+                <select v-model="aulaFiltroId" @change="fetchClasificacion" :disabled="loadingFiltros || !aulasOpciones.length" :class="FILTRO_SELECT_CLASS">
                   <option value="">Todas las aulas</option>
-                  <option v-for="a in aulasFiltro" :key="a.id" :value="String(a.id)">
-                    {{ a.grado_nombre ?? `Grado ${a.grado_id}` }} — Secc. {{ a.seccion }}
+                  <option v-for="a in aulasOpciones" :key="a.key" :value="a.key">
+                    {{ aulaLabel(a) }}
                   </option>
                 </select>
                 <ChevronDown class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
               </div>
             </div>
-            <BaseButton variant="secondary" size="lg" :loading="loadingClasificacion" @click="fetchClasificacion">
+
+            <BaseButton variant="secondary" size="lg" :loading="loadingClasificacion || loadingFiltros" @click="fetchClasificacion">
               <template #icon>
                 <RefreshCw class="w-5 h-5" />
               </template>
@@ -813,39 +1318,65 @@ async function fetchClasificacion() {
         </div>
 
         <!-- Barras -->
-        <div v-else class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm overflow-hidden">
-          <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-4">
-            <div>
-              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Estudiantes clasificados</p>
-              <p class="text-3xl font-black text-slate-800 dark:text-white">{{ totalClasificados }}</p>
+        <div v-else ref="chartRef" class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-sm overflow-hidden">
+          <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <!-- Docente a cargo + aula -->
+            <div class="flex items-center gap-4 min-w-0">
+              <div class="w-12 h-12 rounded-2xl bg-violet-50 dark:bg-violet-500/10 border border-violet-100 dark:border-violet-500/20 flex items-center justify-center shrink-0">
+                <GraduationCap class="w-6 h-6 text-violet-600 dark:text-violet-400" />
+              </div>
+              <div class="min-w-0">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Docente a cargo</p>
+                <p class="text-base sm:text-lg font-black text-slate-800 dark:text-white truncate">{{ docenteNombre }}</p>
+                <p class="text-xs font-bold text-slate-500 dark:text-slate-400">{{ gradoSeccionLabel }}</p>
+              </div>
             </div>
-            <div v-if="sinNivel > 0" class="text-right">
-              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sin nivel</p>
-              <p class="text-xl font-black text-slate-400">{{ sinNivel }}</p>
+            <!-- Totales + exportar PNG -->
+            <div class="flex items-center gap-5 shrink-0">
+              <div class="text-right">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Clasificados</p>
+                <p class="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white leading-none">{{ totalClasificados }}</p>
+              </div>
+              <div v-if="sinNivel > 0" class="text-right">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sin nivel</p>
+                <p class="text-xl font-black text-slate-400 leading-none">{{ sinNivel }}</p>
+              </div>
+              <button type="button" data-export-ignore="true" @click="exportarPng" :disabled="exportingPng"
+                :aria-busy="exportingPng"
+                class="inline-flex items-center gap-2 rounded-xl bg-violet-600 hover:bg-violet-700 disabled:opacity-60 disabled:cursor-wait text-white text-xs font-bold px-3.5 py-2.5 shadow-sm transition-colors"
+                title="Descargar el gráfico como imagen PNG">
+                <Loader2 v-if="exportingPng" class="w-4 h-4 animate-spin" />
+                <Download v-else class="w-4 h-4" />
+                <span>{{ exportingPng ? 'Descargando…' : 'PNG' }}</span>
+              </button>
             </div>
           </div>
 
-          <div class="p-6 space-y-8">
-            <div v-for="b in barrasNiveles" :key="b.codigo" class="group cursor-pointer active:scale-95 transition-all">
-              <div class="flex justify-between items-center mb-3">
-                <div class="flex items-center gap-4">
-                  <div class="w-12 h-12 rounded-2xl flex items-center justify-center border shadow-sm group-hover:scale-110 transition-transform"
-                    :style="{ backgroundColor: b.hex + '1a', borderColor: b.hex + '33', color: b.hex }">
-                    <component :is="b.icon" class="w-6 h-6" />
-                  </div>
-                  <div>
-                    <p class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tight">{{ b.label }}</p>
-                    <p class="text-xs font-bold text-slate-400">{{ b.rango }}</p>
-                  </div>
-                </div>
-                <div class="text-right">
-                  <p class="text-2xl font-black text-slate-800 dark:text-white leading-none">{{ b.count }}</p>
-                  <p class="text-xs font-black mt-1" :style="{ color: b.hex }">{{ b.pct }}%</p>
-                </div>
+          <div class="p-4 sm:p-8">
+            <!-- Valores -->
+            <div class="grid grid-cols-4">
+              <div v-for="b in barrasNiveles" :key="b.codigo" class="min-w-0 text-center">
+                <span class="block text-2xl sm:text-3xl font-black tabular-nums text-slate-800 dark:text-white leading-none">{{ b.count }}</span>
+                <span class="block text-[11px] font-black tabular-nums mt-1" :style="{ color: b.hex }">{{ b.pct }}%</span>
               </div>
-              <div class="h-4 w-full bg-slate-100 dark:bg-slate-800/50 rounded-full p-1 border border-slate-300 dark:border-slate-700/30">
-                <div class="h-full rounded-full transition-all duration-1000 shadow-sm"
-                  :style="{ width: b.widthPct + '%', backgroundColor: b.hex }"></div>
+            </div>
+
+            <!-- Barras (SVG generado con d3) -->
+            <div ref="chartSvgRef" class="mt-3 w-full"></div>
+
+            <!-- Etiquetas -->
+            <div class="grid grid-cols-4 mt-3">
+              <div v-for="b in barrasNiveles" :key="b.codigo" class="min-w-0 px-0.5 flex flex-col items-center gap-1.5 text-center">
+                <span class="w-9 h-9 rounded-xl flex items-center justify-center border"
+                  :style="{ backgroundColor: b.hex + '1a', borderColor: b.hex + '33', color: b.hex }">
+                  <component :is="b.icon" class="w-4 h-4" />
+                </span>
+                <div class="w-full flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5">
+                  <p class="w-full sm:w-auto text-[9px] sm:text-[11px] font-black text-slate-700 dark:text-slate-200 uppercase tracking-tight leading-tight">{{ b.label }}</p>
+                  <span class="px-1.5 py-0.5 rounded-full text-[9px] font-black border leading-none shrink-0"
+                    :style="{ color: b.hex, borderColor: b.hex + '55', backgroundColor: b.hex + '1a' }">{{ b.cneb }}</span>
+                </div>
+                <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 tabular-nums whitespace-nowrap">Nota {{ b.rango }}</p>
               </div>
             </div>
           </div>
@@ -1294,10 +1825,20 @@ async function fetchClasificacion() {
                   </div>
                 </div>
               </div>
-              <button @click="showResultados = false" aria-label="Cerrar reporte"
-                class="p-2.5 bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl transition-all cursor-pointer shrink-0">
-                <X class="w-5 h-5" />
-              </button>
+              <div class="flex items-center gap-2 shrink-0">
+                <button type="button" @click="exportarReporteAsignacion" :disabled="exportandoReporte"
+                  :aria-busy="exportandoReporte"
+                  title="Descargar Excel de estudiantes evaluados"
+                  aria-label="Descargar Excel de estudiantes evaluados"
+                  class="p-2.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 rounded-xl transition-all cursor-pointer disabled:opacity-60 disabled:cursor-wait">
+                  <Loader2 v-if="exportandoReporte" class="w-5 h-5 animate-spin" />
+                  <FileSpreadsheet v-else class="w-5 h-5" />
+                </button>
+                <button @click="showResultados = false" aria-label="Cerrar reporte"
+                  class="p-2.5 bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl transition-all cursor-pointer shrink-0">
+                  <X class="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
             <!-- Body -->

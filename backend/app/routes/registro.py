@@ -59,6 +59,8 @@ class CodigoClaseResponse(BaseModel):
     fecha_expiracion: Optional[datetime] = None
     institucion_nombre: Optional[str] = None
     total_estudiantes: int = 0
+    creado_por_id: Optional[int] = None
+    creado_por_nombre: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -214,6 +216,16 @@ async def listar_codigos_clase(
         ie = await db.execute(select(InstitucionEducativa).where(InstitucionEducativa.id.in_(ie_ids)))
         ie_map = {i.id: i.nombre for i in ie.scalars().all()}
 
+    # Nombre del docente a cargo (creador del aula)
+    creador_ids = list({c.creado_por_id for c in codigos if c.creado_por_id})
+    creador_map: dict = {}
+    if creador_ids:
+        cr = await db.execute(select(Usuario).where(Usuario.id.in_(creador_ids)))
+        for u in cr.scalars().all():
+            creador_map[u.id] = (
+                " ".join(filter(None, [u.apellidos, u.nombres])).strip() or u.dni or None
+            )
+
     # Contar matriculas activas agrupadas por ie+grado+seccion+año en un solo query
     estudiantes_map: dict = {}
     if codigos:
@@ -257,6 +269,8 @@ async def listar_codigos_clase(
             total_estudiantes=estudiantes_map.get(
                 (c.institucion_educativa_id, c.grado_id, c.seccion, c.año_escolar), 0
             ),
+            creado_por_id=c.creado_por_id,
+            creado_por_nombre=creador_map.get(c.creado_por_id),
         )
         for c in codigos
     ]
