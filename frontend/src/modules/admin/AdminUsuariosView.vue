@@ -695,10 +695,13 @@ async function deleteDocente(docente: Docente) {
   }
 }
 
-function creadorNombre(creado_por_id: number): string {
-  const creador = docentes.value.find(d => d.id === creado_por_id)
-  if (!creador) return `#${creado_por_id}`
-  return [creador.nombres, creador.apellidos].filter(Boolean).join(' ') || creador.dni || `#${creado_por_id}`
+function creadorNombre(docente: Docente): string {
+  if (docente.creado_por_nombre) return docente.creado_por_nombre
+  if (!docente.creado_por_id) return '—'
+  // Fallback: el creador puede no estar en la página actual
+  const creador = docentes.value.find(d => d.id === docente.creado_por_id)
+  if (creador) return [creador.nombres, creador.apellidos].filter(Boolean).join(' ') || creador.dni || `#${docente.creado_por_id}`
+  return `#${docente.creado_por_id}`
 }
 
 // formatFecha importado de shared/utils/dateUtils
@@ -1076,7 +1079,7 @@ async function saveResetPassword() {
                   <!-- Creado por -->
                   <td class="px-4 py-3 hidden xl:table-cell">
                     <span v-if="docente.creado_por_id" class="text-xs text-slate-600 dark:text-slate-300">
-                      {{ creadorNombre(docente.creado_por_id) }}
+                      {{ creadorNombre(docente) }}
                     </span>
                     <span v-else class="text-slate-400 text-xs">—</span>
                   </td>
@@ -1830,7 +1833,7 @@ async function saveResetPassword() {
                         <div class="flex-1">
                            <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-1">Creado por</p>
                            <p class="font-medium text-slate-700 dark:text-slate-200 text-sm">
-                             {{ detailsTarget.creado_por_id ? creadorNombre(detailsTarget.creado_por_id) : 'Sistema / Desconocido' }}
+                             {{ detailsTarget.creado_por_id ? creadorNombre(detailsTarget) : 'Sistema / Desconocido' }}
                            </p>
                         </div>
                         <div class="flex-1">

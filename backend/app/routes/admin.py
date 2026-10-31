@@ -41,6 +41,15 @@ def _scope(current_user: DocenteModel) -> dict:
     # Director
     return {"institucion_educativa_id": current_user.institucion_educativa_id}
 
+
+def _nombre_creador(creador: Optional[DocenteModel]) -> Optional[str]:
+    """Nombre visible del usuario creador (mismo orden que la tabla de usuarios)."""
+    if not creador:
+        return None
+    nombre = " ".join(filter(None, [creador.nombres, creador.apellidos])).strip()
+    return nombre or creador.dni or None
+
+
 router = APIRouter()
 
 
@@ -292,8 +301,13 @@ async def list_docentes(
     items, total = await docente_service.get_paginated_usuarios(
         db, skip=skip, limit=size, search_query=q, **scope
     )
+    usuarios: List[Docente] = []
+    for usuario, creador in items:
+        item = Docente.model_validate(usuario)
+        item.creado_por_nombre = _nombre_creador(creador)
+        usuarios.append(item)
     return PaginatedResponse(
-        items=items,
+        items=usuarios,
         total=total,
         page=page,
         size=size,

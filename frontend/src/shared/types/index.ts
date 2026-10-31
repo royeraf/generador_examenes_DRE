@@ -71,6 +71,7 @@ export interface Usuario {
   is_active: boolean
   rol_codigo: RolCodigo | null
   creado_por_id: number | null
+  creado_por_nombre?: string | null
   fecha_creacion: string | null
   ultimo_acceso: string | null
   permisos_modulos: string[] | null

@@ -1,7 +1,7 @@
 from typing import Optional, List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, or_
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import aliased, selectinload
 
 from app.models.usuario import Usuario
 from app.repositories.base_repository import BaseRepository
@@ -54,7 +54,8 @@ class UsuarioRepository(BaseRepository[Usuario, None, None]):
         search_query: Optional[str] = None,
         ugel_id: Optional[int] = None,
         institucion_educativa_id: Optional[int] = None,
-    ) -> tuple[List[Usuario], int]:
+    ) -> tuple[List[tuple[Usuario, Optional[Usuario]]], int]:
+        """Lista paginada junto con el usuario creador de cada registro."""
         from sqlalchemy import func
 
         stmt = select(Usuario)
@@ -78,8 +79,11 @@ class UsuarioRepository(BaseRepository[Usuario, None, None]):
         count_stmt = select(func.count()).select_from(stmt.subquery())
         total = (await db.execute(count_stmt)).scalar() or 0
 
+        creador = aliased(Usuario)
         items_stmt = (
             stmt
+            .add_columns(creador)
+            .outerjoin(creador, creador.id == Usuario.creado_por_id)
             .options(
                 selectinload(Usuario.rol),
                 selectinload(Usuario.provincia),
@@ -91,7 +95,8 @@ class UsuarioRepository(BaseRepository[Usuario, None, None]):
             .offset(skip)
             .limit(limit)
         )
-        items = (await db.execute(items_stmt)).scalars().all()
+        rows = (await db.execute(items_stmt)).all()
+        items = [(usuario, creador_usuario) for usuario, creador_usuario in rows]
 
         return items, total
 

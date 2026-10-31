@@ -131,7 +131,7 @@ class UsuarioService:
         search_query: Optional[str] = None,
         ugel_id: Optional[int] = None,
         institucion_educativa_id: Optional[int] = None,
-    ) -> tuple[List[Usuario], int]:
+    ) -> tuple[List[tuple[Usuario, Optional[Usuario]]], int]:
         return await self.repository.get_paginated_with_search(
             db,
             skip=skip,

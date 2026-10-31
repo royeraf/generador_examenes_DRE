@@ -91,6 +91,7 @@ class UsuarioInDBBase(UsuarioBase):
 
 class Usuario(UsuarioInDBBase):
     creado_por_id: Optional[int] = None
+    creado_por_nombre: Optional[str] = None
     fecha_creacion: Optional[datetime] = None
     ultimo_acceso: Optional[datetime] = None
     provincia_nombre: Optional[str] = None
