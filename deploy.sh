@@ -1,18 +1,22 @@
 #!/bin/bash
 # deploy.sh — Deploy completo (frontend + backend) al VPS
-# Repo: ~/sieva_repo/
-# Web root: ~/sieva.drehuanuco.gob.pe/
-# Uso: bash ~/sieva_repo/deploy.sh
+# Estructura: ~/sieva/app (repo) + ~/sieva/web (publicado)
+# Uso: bash ~/sieva/deploy.sh
+#
+# Los symlinks ~/sieva_repo -> ~/sieva/app y
+# ~/sieva.drehuanuco.gob.pe -> ~/sieva/web mantienen compatibilidad
+# con systemd, cPanel y comandos históricos.
 
-REPO="$HOME/sieva_repo"
-WEB="$HOME/sieva.drehuanuco.gob.pe"
+BASE="$HOME/sieva"
+REPO="$BASE/app"
+WEB="$BASE/web"
 FRONTEND="$REPO/frontend"
 BACKEND="$REPO/backend"
 
 fail() { echo "Error: $1"; exit 1; }
 
 echo ">>> Pulling latest changes..."
-cd "$REPO" && git pull || fail "git pull falló"
+cd "$REPO" && git pull --ff-only || fail "git pull falló"
 
 # ─── Frontend ────────────────────────────────────────────────────────────────
 echo ">>> Installing frontend dependencies..."
@@ -22,8 +26,11 @@ cd "$FRONTEND" && pnpm install || fail "pnpm install falló"
 echo ">>> Building frontend..."
 cd "$FRONTEND" && pnpm run build || fail "pnpm build falló"
 
-echo ">>> Deploying frontend to web root..."
-cp -a "$FRONTEND/dist/." "$WEB/" || fail "cp dist falló"
+echo ">>> Publishing frontend (sin acumular builds viejos)..."
+rsync -a --delete \
+  --exclude='.htaccess' \
+  --exclude='.well-known/' \
+  "$FRONTEND/dist/" "$WEB/" || fail "rsync dist falló"
 
 # ─── Backend ─────────────────────────────────────────────────────────────────
 echo ">>> Updating backend dependencies..."
