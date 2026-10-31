@@ -92,6 +92,21 @@ export function formatFecha(iso: string | null): string {
 }
 
 /**
+ * Solo fecha en formato numérico: "10/12/2026"
+ * Usado en listados administrativos (usuarios).
+ */
+export function formatFechaNumerica(iso: string | null): string {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  return d.toLocaleDateString(LOCALE_PERU, {
+    timeZone: TIMEZONE_PERU,
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  })
+}
+
+/**
  * Solo fecha con mes largo: "05 de mayo de 2026"
  * Usado en el badge de perfil.
  */

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { formatFecha } from '../../shared/utils/dateUtils'
+import { formatFechaNumerica } from '../../shared/utils/dateUtils'
 import { ref, watch, onMounted, onUnmounted, computed, nextTick, type Ref } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { adminUsuariosService, ubigeoService, organizacionService, rolesConfigService, reniecService, type DocenteCreatePayload, type DocenteUpdatePayload, type RolConfig } from '../../shared/services/api'
@@ -704,7 +704,7 @@ function creadorNombre(docente: Docente): string {
   return `#${docente.creado_por_id}`
 }
 
-// formatFecha importado de shared/utils/dateUtils
+// formatFechaNumerica importado de shared/utils/dateUtils
 
 // --- Reset de contraseña (admin) ---
 const showResetModal = ref(false)
@@ -1019,7 +1019,7 @@ async function saveResetPassword() {
 
               <div class="mt-4 pt-3 border-t border-slate-50 dark:border-slate-700 flex items-center justify-between">
                 <div class="text-[10px] font-mono text-slate-400 dark:text-slate-500">DNI: {{ docente.dni }}</div>
-                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ formatFecha(docente.fecha_creacion) }}</div>
+                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ formatFechaNumerica(docente.fecha_creacion) }}</div>
               </div>
             </div>
           </div>
@@ -1086,7 +1086,7 @@ async function saveResetPassword() {
                   <!-- Fecha de creación -->
                   <td class="px-4 py-3 hidden xl:table-cell">
                     <span v-if="docente.fecha_creacion" class="text-xs text-slate-500 dark:text-slate-400">
-                      {{ formatFecha(docente.fecha_creacion) }}
+                      {{ formatFechaNumerica(docente.fecha_creacion) }}
                     </span>
                     <span v-else class="text-slate-400 text-xs">—</span>
                   </td>
@@ -1839,7 +1839,7 @@ async function saveResetPassword() {
                         <div class="flex-1">
                            <p class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-1">Fecha de Creación</p>
                            <p class="font-medium text-slate-700 dark:text-slate-200 text-sm">
-                             {{ detailsTarget.fecha_creacion ? formatFecha(detailsTarget.fecha_creacion) : '—' }}
+                             {{ detailsTarget.fecha_creacion ? formatFechaNumerica(detailsTarget.fecha_creacion) : '—' }}
                            </p>
                         </div>
                     </div>
