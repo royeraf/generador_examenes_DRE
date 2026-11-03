@@ -1,6 +1,7 @@
 """
 Métricas scoped por rol del usuario autenticado.
 """
+import logging
 from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,11 +14,15 @@ from app.models.db_models import (
     InstitucionEducativa, Ugel, AsignacionExamen,
     IntentoExamen, ProgresoEstudiante,
 )
+from app.models.estudiante import Estudiante
+from app.models.ubigeo import Provincia
 from app.models.usuario import Usuario
 from app.models.enums import RolCodigo
 from app.api.dependencies import get_current_active_user, require_modulo
 
 router = APIRouter()
+
+logger = logging.getLogger(__name__)
 
 DRE_ROLES = {RolCodigo.ESPECIALISTA_DRE_COMUNICACION, RolCodigo.ESPECIALISTA_DRE_MATEMATICA}
 
@@ -213,4 +218,226 @@ async def resumen_metricas(
         "total_completados": total_completados,
         "recientes": recientes,
         "rol": rol.value,
+    }
+
+
+def _item_avance(id_, nombre, asignaciones, completados, ugel=None, provincia=None):
+    """Normaliza una fila de avance (asignaciones vs. asignaciones con intento completado)."""
+    asignaciones = int(asignaciones or 0)
+    completados = int(completados or 0)
+    pct = round((completados / asignaciones) * 100) if asignaciones else 0
+    return {
+        "id": id_,
+        "nombre": nombre or "Sin nombre",
+        "ugel": ugel,
+        "provincia": provincia,
+        "asignaciones": asignaciones,
+        "completados": completados,
+        "avance_pct": min(100, pct),
+    }
+
+
+@router.get("/distribucion")
+async def distribucion_metricas(
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(require_modulo("metricas")),
+):
+    """
+    Distribuciones para los gráficos del dashboard, scoped por rol:
+    - `avance_por_ugel`: avance de asignaciones por UGEL.
+    - `avance_por_institucion`: avance de asignaciones por IE.
+    - `estudiantes_por_institucion`: estudiantes activos por IE.
+
+    El avance se calcula como asignaciones con al menos un intento
+    completado sobre el total de asignaciones.
+    """
+    rol = RolCodigo(current_user.rol_codigo)
+    ugel_id = current_user.ugel_id
+    ie_id = current_user.institucion_educativa_id
+
+    ugel_ids: list[int] | None = None
+    ie_ids: list[int] | None = None
+    docente_id: int | None = None
+
+    if rol in DRE_ROLES:
+        pass
+    elif rol == RolCodigo.RESPONSABLE_UGEL and ugel_id:
+        ugel_ids = [ugel_id]
+    elif rol in {RolCodigo.DIRECTOR, RolCodigo.AUXILIAR} and ie_id:
+        ie_ids = [ie_id]
+    elif rol == RolCodigo.DOCENTE:
+        docente_id = current_user.id
+        if ie_id:
+            ie_ids = [ie_id]
+    else:
+        return {
+            "rol": rol.value,
+            "avance_por_ugel": [],
+            "avance_por_institucion": [],
+            "estudiantes_por_institucion": [],
+            "totales": {
+                "asignaciones": 0,
+                "completados": 0,
+                "estudiantes": 0,
+                "instituciones": 0,
+            },
+        }
+
+    avance_por_ugel: list[dict] = []
+    avance_por_institucion: list[dict] = []
+    estudiantes_por_institucion: list[dict] = []
+
+    # ── Scope de asignaciones ─────────────────────────────────────────────────
+    filtros_asig = [AsignacionExamen.institucion_educativa_id.isnot(None)]
+    if ie_ids is not None:
+        filtros_asig.append(AsignacionExamen.institucion_educativa_id.in_(ie_ids))
+    if ugel_ids is not None:
+        filtros_asig.append(InstitucionEducativa.ugel_id.in_(ugel_ids))
+    if docente_id is not None:
+        filtros_asig.append(AsignacionExamen.asignado_por_id == docente_id)
+
+    try:
+        # ── Avance por UGEL ───────────────────────────────────────────────────
+        # La DRE ve todas las UGELes activas, incluidas las que aún no tienen
+        # asignaciones (0 %), para evidenciar brechas de cobertura.
+        if rol in DRE_ROLES:
+            stmt_ugel = (
+                select(
+                    Ugel.id,
+                    Ugel.nombre,
+                    Provincia.nombre.label("provincia"),
+                    func.count(func.distinct(AsignacionExamen.id)).label("asignaciones"),
+                    func.count(func.distinct(IntentoExamen.asignacion_id)).label("completados"),
+                )
+                .select_from(Ugel)
+                .outerjoin(Provincia, Ugel.provincia_id == Provincia.id)
+                .outerjoin(InstitucionEducativa, InstitucionEducativa.ugel_id == Ugel.id)
+                .outerjoin(
+                    AsignacionExamen,
+                    AsignacionExamen.institucion_educativa_id == InstitucionEducativa.id,
+                )
+                .outerjoin(
+                    IntentoExamen,
+                    (IntentoExamen.asignacion_id == AsignacionExamen.id)
+                    & (IntentoExamen.estado == "completado"),
+                )
+                .where(Ugel.is_active == True)
+                .group_by(Ugel.id, Ugel.nombre, Provincia.nombre)
+                .order_by(Ugel.nombre)
+            )
+        else:
+            stmt_ugel = (
+                select(
+                    Ugel.id,
+                    Ugel.nombre,
+                    Provincia.nombre.label("provincia"),
+                    func.count(func.distinct(AsignacionExamen.id)).label("asignaciones"),
+                    func.count(func.distinct(IntentoExamen.asignacion_id)).label("completados"),
+                )
+                .select_from(AsignacionExamen)
+                .join(InstitucionEducativa, AsignacionExamen.institucion_educativa_id == InstitucionEducativa.id)
+                .join(Ugel, InstitucionEducativa.ugel_id == Ugel.id)
+                .outerjoin(Provincia, Ugel.provincia_id == Provincia.id)
+                .outerjoin(
+                    IntentoExamen,
+                    (IntentoExamen.asignacion_id == AsignacionExamen.id)
+                    & (IntentoExamen.estado == "completado"),
+                )
+                .where(*filtros_asig)
+                .group_by(Ugel.id, Ugel.nombre, Provincia.nombre)
+                .order_by(Ugel.nombre)
+            )
+        filas_ugel = (await db.execute(stmt_ugel)).all()
+        avance_por_ugel = [
+            _item_avance(f[0], f[1], f[3], f[4], provincia=f[2]) for f in filas_ugel
+        ]
+
+        # ── Avance por institución ────────────────────────────────────────────
+        stmt_ie = (
+            select(
+                InstitucionEducativa.id,
+                InstitucionEducativa.nombre,
+                Ugel.nombre.label("ugel"),
+                Provincia.nombre.label("provincia"),
+                func.count(func.distinct(AsignacionExamen.id)).label("asignaciones"),
+                func.count(func.distinct(IntentoExamen.asignacion_id)).label("completados"),
+            )
+            .select_from(AsignacionExamen)
+            .join(InstitucionEducativa, AsignacionExamen.institucion_educativa_id == InstitucionEducativa.id)
+            .join(Ugel, InstitucionEducativa.ugel_id == Ugel.id)
+            .outerjoin(Provincia, Ugel.provincia_id == Provincia.id)
+            .outerjoin(
+                IntentoExamen,
+                (IntentoExamen.asignacion_id == AsignacionExamen.id)
+                & (IntentoExamen.estado == "completado"),
+            )
+            .where(*filtros_asig)
+            .group_by(InstitucionEducativa.id, InstitucionEducativa.nombre, Ugel.nombre, Provincia.nombre)
+            .order_by(func.count(func.distinct(AsignacionExamen.id)).desc(), InstitucionEducativa.nombre)
+        )
+        filas_ie = (await db.execute(stmt_ie)).all()
+        avance_por_institucion = [
+            _item_avance(f[0], f[1], f[4], f[5], ugel=f[2], provincia=f[3]) for f in filas_ie
+        ]
+    except Exception:
+        # Tablas de la fase 3 pueden no existir en instalaciones antiguas.
+        logger.exception("No se pudo calcular el avance por UGEL/institución")
+        avance_por_ugel = []
+        avance_por_institucion = []
+
+    # ── Estudiantes por institución ───────────────────────────────────────────
+    # Un docente sin IE asignada no puede ver estudiantes.
+    if not (rol == RolCodigo.DOCENTE and ie_id is None):
+        try:
+            filtros_est = [
+                Estudiante.is_active == True,
+                Estudiante.institucion_educativa_id.isnot(None),
+            ]
+            if ie_ids is not None:
+                filtros_est.append(Estudiante.institucion_educativa_id.in_(ie_ids))
+            if ugel_ids is not None:
+                filtros_est.append(InstitucionEducativa.ugel_id.in_(ugel_ids))
+
+            stmt_est = (
+                select(
+                    InstitucionEducativa.id,
+                    InstitucionEducativa.nombre,
+                    Ugel.nombre.label("ugel"),
+                    Provincia.nombre.label("provincia"),
+                    func.count(Estudiante.id).label("estudiantes"),
+                )
+                .select_from(Estudiante)
+                .join(InstitucionEducativa, Estudiante.institucion_educativa_id == InstitucionEducativa.id)
+                .join(Ugel, InstitucionEducativa.ugel_id == Ugel.id)
+                .outerjoin(Provincia, Ugel.provincia_id == Provincia.id)
+                .where(*filtros_est)
+                .group_by(InstitucionEducativa.id, InstitucionEducativa.nombre, Ugel.nombre, Provincia.nombre)
+                .order_by(func.count(Estudiante.id).desc(), InstitucionEducativa.nombre)
+            )
+            filas_est = (await db.execute(stmt_est)).all()
+            estudiantes_por_institucion = [
+                {
+                    "id": f[0],
+                    "nombre": f[1] or "Sin nombre",
+                    "ugel": f[2],
+                    "provincia": f[3],
+                    "estudiantes": int(f[4] or 0),
+                }
+                for f in filas_est
+            ]
+        except Exception:
+            logger.exception("No se pudo calcular los estudiantes por institución")
+            estudiantes_por_institucion = []
+
+    return {
+        "rol": rol.value,
+        "avance_por_ugel": avance_por_ugel,
+        "avance_por_institucion": avance_por_institucion,
+        "estudiantes_por_institucion": estudiantes_por_institucion,
+        "totales": {
+            "asignaciones": sum(a["asignaciones"] for a in avance_por_ugel),
+            "completados": sum(a["completados"] for a in avance_por_ugel),
+            "estudiantes": sum(e["estudiantes"] for e in estudiantes_por_institucion),
+            "instituciones": len(estudiantes_por_institucion),
+        },
     }

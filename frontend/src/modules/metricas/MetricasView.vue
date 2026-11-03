@@ -6,11 +6,16 @@ import Navbar from '../../shared/components/Navbar.vue'
 import Footer from '../../shared/components/Footer.vue'
 import EduBackground from '../../shared/components/EduBackground.vue'
 import BaseButton from '../../shared/components/BaseButton.vue'
+import AvanceChart from './components/AvanceChart.vue'
+import EstudiantesTreemap from './components/EstudiantesTreemap.vue'
+import MapaProvincias from './components/MapaProvincias.vue'
+import type { DistribucionData, MetricaMapa } from './types'
 import {
   Users, BookOpen, Calculator,
   Clock, BarChart3, RefreshCw,
   Building2, CheckCircle2, ClipboardList,
-  TrendingUp, Activity, Medal
+  TrendingUp, Activity, Medal,
+  MapPin, GraduationCap, School, Map as MapIcon
 } from 'lucide-vue-next'
 import { useTheme } from '../../shared/composables/useTheme'
 
@@ -41,6 +46,10 @@ const resumen = ref<ResumenData | null>(null)
 const loading = ref(true)
 const error = ref('')
 
+const distribucion = ref<DistribucionData | null>(null)
+const loadingDist = ref(true)
+const errorDist = ref('')
+
 async function fetchMetricas() {
   loading.value = true
   error.value = ''
@@ -54,7 +63,24 @@ async function fetchMetricas() {
   }
 }
 
-onMounted(fetchMetricas)
+async function fetchDistribucion() {
+  loadingDist.value = true
+  errorDist.value = ''
+  try {
+    const res = await apiClient.get('/metricas/distribucion')
+    distribucion.value = res.data
+  } catch (e: any) {
+    errorDist.value = e.response?.data?.detail ?? 'Error al cargar la distribución territorial'
+  } finally {
+    loadingDist.value = false
+  }
+}
+
+async function refrescarTodo() {
+  await Promise.all([fetchMetricas(), fetchDistribucion()])
+}
+
+onMounted(refrescarTodo)
 
 const completadosPct = computed(() => {
   if (!resumen.value || !resumen.value.total_asignaciones) return 0
@@ -82,6 +108,158 @@ const rolLabel = computed(() => {
   }
   return labels[resumen.value?.rol ?? ''] ?? resumen.value?.rol ?? ''
 })
+
+// ── Distribución territorial ──────────────────────────────────────────────────
+const esDre = computed(() => (distribucion.value?.rol ?? '').startsWith('especialista_dre'))
+
+const avanceItems = computed(() => {
+  if (!distribucion.value) return []
+  return esDre.value
+    ? distribucion.value.avance_por_ugel
+    : distribucion.value.avance_por_institucion
+})
+
+const avanceTitulo = computed(() => (
+  esDre.value ? 'Avance SIEVA por UGEL' : 'Avance SIEVA por Institución'
+))
+
+const avanceSubtitulo = computed(() => (
+  esDre.value
+    ? 'Asignaciones con al menos un intento completado en cada UGEL.'
+    : 'Asignaciones con al menos un intento completado en cada institución.'
+))
+
+const avanceGlobalPct = computed(() => {
+  const totales = distribucion.value?.totales
+  if (!totales || totales.asignaciones === 0) return 0
+  return Math.min(100, Math.round((totales.completados / totales.asignaciones) * 100))
+})
+
+const institucionesConEstudiantes = computed(() => distribucion.value?.totales.instituciones ?? 0)
+
+// ── Vista mapa por provincia ──────────────────────────────────────────────────
+type VistaDistribucion = 'graficos' | 'mapa'
+
+const vistaDistribucion = ref<VistaDistribucion>('graficos')
+const mapaMetrica = ref<MetricaMapa>('avance')
+const provinciaSeleccionada = ref<string | null>(null)
+
+function normalizarProvincia(texto: string): string {
+  return texto
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase()
+}
+
+const provinciasConDatos = computed(() => {
+  if (!distribucion.value) return []
+
+  const mapa = new Map<string, {
+    nombre: string
+    estudiantes: number
+    asignaciones: number
+    completados: number
+    avancePct: number
+  }>()
+
+  const asegurar = (nombre: string) => {
+    const key = normalizarProvincia(nombre)
+    let item = mapa.get(key)
+    if (!item) {
+      item = { nombre, estudiantes: 0, asignaciones: 0, completados: 0, avancePct: 0 }
+      mapa.set(key, item)
+    }
+    return item
+  }
+
+  for (const item of distribucion.value.avance_por_ugel) {
+    if (!item.provincia) continue
+    const provincia = asegurar(item.provincia)
+    provincia.asignaciones += item.asignaciones
+    provincia.completados += item.completados
+  }
+
+  for (const item of distribucion.value.estudiantes_por_institucion) {
+    if (!item.provincia) continue
+    asegurar(item.provincia).estudiantes += item.estudiantes
+  }
+
+  const lista = [...mapa.values()]
+  for (const provincia of lista) {
+    provincia.avancePct = provincia.asignaciones > 0
+      ? Math.min(100, Math.round((provincia.completados / provincia.asignaciones) * 100))
+      : 0
+  }
+
+  return lista.sort((a, b) => (
+    b.estudiantes - a.estudiantes
+    || b.asignaciones - a.asignaciones
+    || a.nombre.localeCompare(b.nombre)
+  ))
+})
+
+const provinciaActiva = computed(() => {
+  if (provinciaSeleccionada.value) return provinciaSeleccionada.value
+  const lista = provinciasConDatos.value
+  if (!lista.length) return null
+  if (mapaMetrica.value === 'avance') {
+    const porAvance = [...lista].sort((a, b) => (
+      b.avancePct - a.avancePct
+      || b.asignaciones - a.asignaciones
+      || b.estudiantes - a.estudiantes
+      || a.nombre.localeCompare(b.nombre)
+    ))
+    return porAvance[0]?.nombre ?? null
+  }
+  return lista[0]?.nombre ?? null
+})
+
+const detalleProvincia = computed(() => {
+  const nombre = provinciaActiva.value
+  if (!nombre || !distribucion.value) return null
+
+  const key = normalizarProvincia(nombre)
+  const ugeles = distribucion.value.avance_por_ugel.filter(
+    (item) => item.provincia && normalizarProvincia(item.provincia) === key,
+  )
+  const instituciones = distribucion.value.estudiantes_por_institucion
+    .filter((item) => item.provincia && normalizarProvincia(item.provincia) === key)
+    .sort((a, b) => b.estudiantes - a.estudiantes)
+
+  const asignaciones = ugeles.reduce((acc, item) => acc + item.asignaciones, 0)
+  const completados = ugeles.reduce((acc, item) => acc + item.completados, 0)
+  const estudiantes = instituciones.reduce((acc, item) => acc + item.estudiantes, 0)
+
+  // El registro "Sin UGEL asignada" es un contenedor heredado; no debe
+  // contarse como una UGEL adicional en el resumen de la provincia.
+  const ugelesReales = ugeles.filter((item) => !item.nombre.toLowerCase().startsWith('sin ugel'))
+
+  return {
+    nombre,
+    ugelLabel: ugelesReales.length === 0
+      ? 'Sin UGEL en tu ámbito'
+      : ugelesReales.length === 1
+        ? ugelesReales[0]?.nombre ?? 'Sin UGEL en tu ámbito'
+        : `${ugelesReales.length} UGELs en la provincia`,
+    asignaciones,
+    completados,
+    estudiantes,
+    instituciones: instituciones.length,
+    avancePct: asignaciones > 0 ? Math.min(100, Math.round((completados / asignaciones) * 100)) : 0,
+    topInstituciones: instituciones.slice(0, 5),
+  }
+})
+
+const mapaTitulo = computed(() => (
+  mapaMetrica.value === 'avance' ? 'Mapa de avance por provincia' : 'Mapa de estudiantes por provincia'
+))
+
+const mapaSubtitulo = computed(() => (
+  mapaMetrica.value === 'avance'
+    ? 'Selecciona una provincia para ver el detalle de su avance.'
+    : 'Selecciona una provincia para ver sus estudiantes por institución.'
+))
 </script>
 
 <template>
@@ -105,9 +283,9 @@ const rolLabel = computed(() => {
             Estadísticas consolidadas para el rol <span class="text-indigo-600 dark:text-indigo-400 font-bold border-b-2 border-indigo-500/20">{{ rolLabel }}</span>.
           </p>
         </div>
-        <BaseButton type="button" variant="primary" size="md" class="group" :disabled="loading" @click="fetchMetricas">
+        <BaseButton type="button" variant="primary" size="md" class="group" :disabled="loading || loadingDist" @click="refrescarTodo">
           <template #icon>
-            <RefreshCw class="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" :class="{'animate-spin': loading}" />
+            <RefreshCw class="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" :class="{'animate-spin': loading || loadingDist}" />
           </template>
           Actualizar Datos
         </BaseButton>
@@ -358,6 +536,283 @@ const rolLabel = computed(() => {
           </div>
 
         </div>
+
+        <!-- ── Distribución territorial ─────────────────────────────────────── -->
+        <section class="space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2 text-teal-600 dark:text-teal-400 font-bold text-sm tracking-wider uppercase">
+                <MapPin class="w-4 h-4" />
+                <span>Cobertura territorial</span>
+              </div>
+              <h2 class="text-2xl md:text-3xl font-black text-slate-800 dark:text-white tracking-tight">
+                Distribución SIEVA
+              </h2>
+              <p class="text-slate-500 dark:text-slate-400 text-sm max-w-2xl">
+                Avance de las evaluaciones y estudiantes registrados según el ámbito de gestión.
+              </p>
+            </div>
+
+            <div
+              v-if="distribucion"
+              class="inline-flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 self-start sm:self-auto shrink-0"
+            >
+              <button
+                type="button"
+                class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                :class="vistaDistribucion === 'graficos'
+                  ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"
+                @click="vistaDistribucion = 'graficos'"
+              >
+                <BarChart3 class="w-4 h-4" />
+                Gráficos
+              </button>
+              <button
+                type="button"
+                class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                :class="vistaDistribucion === 'mapa'
+                  ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"
+                @click="vistaDistribucion = 'mapa'"
+              >
+                <MapIcon class="w-4 h-4" />
+                Mapa
+              </button>
+            </div>
+          </div>
+
+          <!-- Error distribución -->
+          <div v-if="errorDist" class="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-2xl p-5 text-red-600 dark:text-red-400 text-sm flex items-center justify-between shadow-lg">
+            <span class="flex items-center gap-3 font-medium">
+              <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+              {{ errorDist }}
+            </span>
+            <button @click="fetchDistribucion" class="px-4 py-1.5 bg-red-100 dark:bg-red-500/20 rounded-xl font-bold hover:bg-red-200 dark:hover:bg-red-500/30 transition-colors cursor-pointer">
+              Reintentar
+            </button>
+          </div>
+
+          <!-- Loading distribución -->
+          <div v-else-if="loadingDist && !distribucion" class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+            <div v-for="n in 2" :key="n" class="h-96 rounded-2xl bg-white dark:bg-slate-900 border border-slate-300/60 dark:border-slate-800 animate-pulse"></div>
+          </div>
+
+          <div v-else-if="distribucion && vistaDistribucion === 'graficos'" class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 items-start">
+            <!-- Avance por UGEL / institución -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl p-6 md:p-8 shadow-sm flex flex-col">
+              <div class="flex items-start justify-between gap-4 mb-6">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-500/10 border border-teal-100 dark:border-teal-500/20 flex items-center justify-center text-teal-600 dark:text-teal-400 shrink-0">
+                    <MapPin class="w-6 h-6" />
+                  </div>
+                  <div class="min-w-0">
+                    <h3 class="text-base md:text-lg font-black text-slate-800 dark:text-white leading-tight">{{ avanceTitulo }}</h3>
+                    <p class="text-xs font-semibold text-slate-400 leading-snug">{{ avanceSubtitulo }}</p>
+                  </div>
+                </div>
+                <div class="text-right shrink-0">
+                  <p class="text-2xl md:text-3xl font-black text-teal-600 dark:text-teal-400 leading-none">{{ avanceGlobalPct }}%</p>
+                  <p class="text-[10px] font-black text-slate-400 uppercase tracking-wider mt-1">Avance global</p>
+                </div>
+              </div>
+
+              <AvanceChart v-if="avanceItems.length" :items="avanceItems" class="flex-1" />
+
+              <div v-else class="flex-1 flex flex-col items-center justify-center text-center px-6 py-14">
+                <div class="w-16 h-16 bg-slate-50 dark:bg-slate-800/50 rounded-full flex items-center justify-center mb-4">
+                  <School class="w-8 h-8 text-slate-200 dark:text-slate-700" />
+                </div>
+                <p class="text-sm font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Sin asignaciones</p>
+                <p class="text-xs text-slate-400 mt-2 max-w-xs">Cuando se asignen evaluaciones en este ámbito, el avance aparecerá aquí.</p>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3 mt-6">
+                <div class="rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-300 dark:border-slate-700/50 p-3">
+                  <p class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Asignaciones</p>
+                  <p class="text-xl font-black text-slate-800 dark:text-white leading-none">{{ distribucion.totales.asignaciones }}</p>
+                </div>
+                <div class="rounded-xl bg-teal-50/60 dark:bg-teal-500/10 border border-teal-100 dark:border-teal-500/20 p-3">
+                  <p class="text-[10px] font-black text-teal-600 dark:text-teal-400 uppercase tracking-wider mb-1">Completadas</p>
+                  <p class="text-xl font-black text-teal-600 dark:text-teal-400 leading-none">{{ distribucion.totales.completados }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Estudiantes por institución -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl p-6 md:p-8 shadow-sm flex flex-col">
+              <div class="flex items-start justify-between gap-4 mb-6">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
+                    <GraduationCap class="w-6 h-6" />
+                  </div>
+                  <div class="min-w-0">
+                    <h3 class="text-base md:text-lg font-black text-slate-800 dark:text-white leading-tight">Estudiantes por Institución</h3>
+                    <p class="text-xs font-semibold text-slate-400 leading-snug">Estudiantes activos registrados en cada IE.</p>
+                  </div>
+                </div>
+                <div class="text-right shrink-0">
+                  <p class="text-2xl md:text-3xl font-black text-indigo-600 dark:text-indigo-400 leading-none">{{ distribucion.totales.estudiantes }}</p>
+                  <p class="text-[10px] font-black text-slate-400 uppercase tracking-wider mt-1">Estudiantes</p>
+                </div>
+              </div>
+
+              <EstudiantesTreemap v-if="distribucion.estudiantes_por_institucion.length" :items="distribucion.estudiantes_por_institucion" class="flex-1" />
+
+              <div v-else class="flex-1 flex flex-col items-center justify-center text-center px-6 py-14">
+                <div class="w-16 h-16 bg-slate-50 dark:bg-slate-800/50 rounded-full flex items-center justify-center mb-4">
+                  <GraduationCap class="w-8 h-8 text-slate-200 dark:text-slate-700" />
+                </div>
+                <p class="text-sm font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Sin estudiantes</p>
+                <p class="text-xs text-slate-400 mt-2 max-w-xs">Aún no hay estudiantes activos registrados en este ámbito.</p>
+              </div>
+
+              <div class="mt-6 flex items-center justify-between gap-4 rounded-xl bg-slate-50 dark:bg-slate-800/30 border border-slate-300 dark:border-slate-700/50 px-4 py-3">
+                <div class="flex items-center gap-2 text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                  <Building2 class="w-4 h-4 text-indigo-500" />
+                  {{ institucionesConEstudiantes }} instituciones con estudiantes
+                </div>
+                <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Área = estudiantes</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vista mapa por provincia -->
+          <div v-else-if="distribucion" class="grid grid-cols-1 xl:grid-cols-3 gap-6 md:gap-8 items-start">
+            <div class="xl:col-span-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl p-6 md:p-8 shadow-sm">
+              <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-500/10 border border-teal-100 dark:border-teal-500/20 flex items-center justify-center text-teal-600 dark:text-teal-400 shrink-0">
+                    <MapIcon class="w-6 h-6" />
+                  </div>
+                  <div class="min-w-0">
+                    <h3 class="text-base md:text-lg font-black text-slate-800 dark:text-white leading-tight">{{ mapaTitulo }}</h3>
+                    <p class="text-xs font-semibold text-slate-400 leading-snug">{{ mapaSubtitulo }}</p>
+                  </div>
+                </div>
+
+                <div class="inline-flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 self-start shrink-0">
+                  <button
+                    type="button"
+                    class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                    :class="mapaMetrica === 'avance'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"
+                    @click="mapaMetrica = 'avance'"
+                  >
+                    Avance
+                  </button>
+                  <button
+                    type="button"
+                    class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                    :class="mapaMetrica === 'estudiantes'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"
+                    @click="mapaMetrica = 'estudiantes'"
+                  >
+                    Estudiantes
+                  </button>
+                </div>
+              </div>
+
+              <MapaProvincias
+                :avance="distribucion.avance_por_ugel"
+                :estudiantes="distribucion.estudiantes_por_institucion"
+                :metrica="mapaMetrica"
+                :seleccionada="provinciaActiva"
+                @select="provinciaSeleccionada = $event"
+              />
+
+              <p class="mt-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 flex items-center gap-2">
+                <MapPin class="w-3.5 h-3.5" />
+                Haz clic en una provincia para ver su detalle.
+              </p>
+            </div>
+
+            <!-- Detalle de la provincia seleccionada -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl p-6 md:p-8 shadow-sm">
+              <template v-if="detalleProvincia">
+                <div class="flex items-center gap-3 mb-6">
+                  <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
+                    <MapPin class="w-6 h-6" />
+                  </div>
+                  <div class="min-w-0">
+                    <h3 class="text-lg font-black text-slate-800 dark:text-white leading-tight truncate">{{ detalleProvincia.nombre }}</h3>
+                    <p class="text-xs font-semibold text-slate-400 truncate">{{ detalleProvincia.ugelLabel }}</p>
+                  </div>
+                </div>
+
+                <div class="rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-300 dark:border-slate-700/50 p-5 mb-5">
+                  <template v-if="mapaMetrica === 'avance'">
+                    <div class="flex items-end justify-between gap-3 mb-3">
+                      <div>
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Avance de evaluaciones</p>
+                        <p class="text-4xl font-black text-teal-600 dark:text-teal-400 leading-none">{{ detalleProvincia.avancePct }}%</p>
+                      </div>
+                      <p class="text-xs font-bold text-slate-400 shrink-0">{{ detalleProvincia.completados }} / {{ detalleProvincia.asignaciones }}</p>
+                    </div>
+                    <div class="h-2.5 w-full rounded-full bg-slate-200 dark:bg-slate-700/60 overflow-hidden">
+                      <div
+                        class="h-full rounded-full bg-gradient-to-r from-teal-400 to-emerald-500 transition-all duration-700"
+                        :style="{ width: `${detalleProvincia.avancePct}%` }"
+                      ></div>
+                    </div>
+                  </template>
+
+                  <template v-else>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Estudiantes registrados</p>
+                    <p class="text-4xl font-black text-indigo-600 dark:text-indigo-400 leading-none">{{ detalleProvincia.estudiantes }}</p>
+                    <p class="text-xs font-semibold text-slate-400 mt-2">
+                      {{ detalleProvincia.instituciones }} instituciones educativas con estudiantes
+                    </p>
+                  </template>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                  <div class="rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-300 dark:border-slate-700/50 p-3">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Asignaciones</p>
+                    <p class="text-xl font-black text-slate-800 dark:text-white leading-none">{{ detalleProvincia.asignaciones }}</p>
+                  </div>
+                  <div class="rounded-xl bg-teal-50/60 dark:bg-teal-500/10 border border-teal-100 dark:border-teal-500/20 p-3">
+                    <p class="text-[10px] font-black text-teal-600 dark:text-teal-400 uppercase tracking-wider mb-1">Completadas</p>
+                    <p class="text-xl font-black text-teal-600 dark:text-teal-400 leading-none">{{ detalleProvincia.completados }}</p>
+                  </div>
+                  <div class="rounded-xl bg-indigo-50/60 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 p-3">
+                    <p class="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-1">Estudiantes</p>
+                    <p class="text-xl font-black text-indigo-600 dark:text-indigo-400 leading-none">{{ detalleProvincia.estudiantes }}</p>
+                  </div>
+                  <div class="rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-300 dark:border-slate-700/50 p-3">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Instituciones</p>
+                    <p class="text-xl font-black text-slate-800 dark:text-white leading-none">{{ detalleProvincia.instituciones }}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-3">Instituciones con más estudiantes</h4>
+                  <ul v-if="detalleProvincia.topInstituciones.length" class="space-y-2">
+                    <li
+                      v-for="ie in detalleProvincia.topInstituciones"
+                      :key="ie.id"
+                      class="flex items-center justify-between gap-3 rounded-lg px-2 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                    >
+                      <span class="text-xs font-bold text-slate-600 dark:text-slate-300 truncate">{{ ie.nombre }}</span>
+                      <span class="text-xs font-black text-indigo-600 dark:text-indigo-400 shrink-0">{{ ie.estudiantes }}</span>
+                    </li>
+                  </ul>
+                  <p v-else class="text-xs text-slate-400 dark:text-slate-500">Sin estudiantes registrados en esta provincia.</p>
+                </div>
+              </template>
+
+              <div v-else class="flex flex-col items-center justify-center text-center px-6 py-20">
+                <div class="w-16 h-16 bg-slate-50 dark:bg-slate-800/50 rounded-full flex items-center justify-center mb-4">
+                  <MapPin class="w-8 h-8 text-slate-200 dark:text-slate-700" />
+                </div>
+                <p class="text-sm font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Sin provincia</p>
+                <p class="text-xs text-slate-400 mt-2 max-w-xs">Selecciona una provincia en el mapa para ver su detalle.</p>
+              </div>
+            </div>
+          </div>
+        </section>
 
       </template>
     </main>
