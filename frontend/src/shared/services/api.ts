@@ -961,7 +961,7 @@ export interface RegistrarEstudianteDirectoPayload {
 }
 
 export interface ImportarEstudianteFilaPayload {
-  dni: string
+  dni?: string | null
   nombres: string
   apellidos: string
 }
@@ -988,6 +988,7 @@ export interface ImportarEstudiantesResponse {
   creados: number
   omitidos: number
   omitidos_dnis: string[]
+  omitidos_nombres?: string[]
   password: string
 }
 

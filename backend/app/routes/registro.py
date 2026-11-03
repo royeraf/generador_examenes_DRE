@@ -3,6 +3,7 @@ Rutas para auto-registro de estudiantes y gestión de códigos de clase.
 """
 import random
 import string
+import unicodedata
 from typing import List, Optional
 from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends, Query
@@ -29,6 +30,16 @@ CREADORES_ROLES = (
     RolCodigo.DOCENTE, RolCodigo.AUXILIAR, RolCodigo.DIRECTOR,
     RolCodigo.ESPECIALISTA_DRE_COMUNICACION, RolCodigo.ESPECIALISTA_DRE_MATEMATICA,
 )
+
+
+def _normalizar_nombre(valor: Optional[str]) -> str:
+    """Mayúsculas, sin tildes y con espacios colapsados — para comparar nombres."""
+    if not valor:
+        return ""
+    sin_tildes = "".join(
+        c for c in unicodedata.normalize("NFD", valor) if unicodedata.category(c) != "Mn"
+    )
+    return " ".join(sin_tildes.upper().split())
 
 
 # ─── Schemas ─────────────────────────────────────────────────────────────────
@@ -114,9 +125,21 @@ class EstudianteListItem(BaseModel):
 
 
 class ImportarEstudianteFila(BaseModel):
-    dni: str = Field(..., min_length=8, max_length=8, pattern=r"^\d{8}$")
+    # El DNI es opcional: hay nóminas (p. ej. listados de participantes) que no
+    # lo traen. Si viene, debe tener 8 dígitos exactos.
+    dni: Optional[str] = Field(None, min_length=8, max_length=8, pattern=r"^\d{8}$")
     nombres: str = Field(..., min_length=2, max_length=100)
     apellidos: str = Field(..., min_length=2, max_length=100)
+
+    @field_validator("dni", mode="before")
+    @classmethod
+    def _dni_vacio_es_nulo(cls, v):
+        if v is None:
+            return None
+        if isinstance(v, str):
+            v = v.strip()
+            return v or None
+        return str(v).strip() or None
 
 
 class ImportarEstudiantesRequest(BaseModel):
@@ -131,6 +154,7 @@ class ImportarEstudiantesResponse(BaseModel):
     creados: int
     omitidos: int = 0
     omitidos_dnis: List[str] = []
+    omitidos_nombres: List[str] = []
     password: str
 
 
@@ -529,21 +553,48 @@ async def importar_estudiantes_desde_nomina(
     if not grado_result.scalars().first():
         raise HTTPException(400, "El grado seleccionado no existe")
 
-    # Los DNI repetidos dentro del archivo o ya registrados se omiten (no
-    # bloquean la importación); se reportan en la respuesta.
-    dnis = [fila.dni.strip() for fila in data.estudiantes]
-    existing_result = await db.execute(select(Estudiante.dni).where(Estudiante.dni.in_(dnis)))
-    existing_dnis = {dni for dni in existing_result.scalars().all() if dni}
+    # Se omiten (sin bloquear la importación) los DNI repetidos dentro del
+    # archivo o ya registrados. Las filas sin DNI se deduplican por nombre
+    # completo contra el propio archivo y contra los estudiantes ya existentes
+    # en la institución, para que reimportar la misma nómina no duplique cuentas.
+    dnis = [fila.dni for fila in data.estudiantes if fila.dni]
+    existing_dnis: set[str] = set()
+    if dnis:
+        existing_result = await db.execute(select(Estudiante.dni).where(Estudiante.dni.in_(dnis)))
+        existing_dnis = {dni for dni in existing_result.scalars().all() if dni}
 
-    vistos: set[str] = set()
+    apellidos_sin_dni = [fila.apellidos.strip() for fila in data.estudiantes if not fila.dni]
+    existentes_por_nombre: set[tuple[str, str]] = set()
+    if apellidos_sin_dni:
+        nombre_result = await db.execute(
+            select(Estudiante.apellidos, Estudiante.nombres).where(
+                Estudiante.institucion_educativa_id == current_user.institucion_educativa_id,
+                func.upper(Estudiante.apellidos).in_([a.upper() for a in apellidos_sin_dni]),
+            )
+        )
+        existentes_por_nombre = {
+            (_normalizar_nombre(apellidos), _normalizar_nombre(nombres))
+            for apellidos, nombres in nombre_result.all()
+        }
+
+    vistos_dnis: set[str] = set()
+    vistos_nombres: set[tuple[str, str]] = set()
     omitidos_dnis: set[str] = set()
+    omitidos_nombres: set[str] = set()
     filas_a_crear: List[ImportarEstudianteFila] = []
     for fila in data.estudiantes:
-        dni = fila.dni.strip()
-        if dni in vistos or dni in existing_dnis:
-            omitidos_dnis.add(dni)
-            continue
-        vistos.add(dni)
+        dni = fila.dni
+        if dni:
+            if dni in vistos_dnis or dni in existing_dnis:
+                omitidos_dnis.add(dni)
+                continue
+            vistos_dnis.add(dni)
+        else:
+            clave = (_normalizar_nombre(fila.apellidos), _normalizar_nombre(fila.nombres))
+            if clave in vistos_nombres or clave in existentes_por_nombre:
+                omitidos_nombres.add(f"{fila.apellidos.strip()}, {fila.nombres.strip()}")
+                continue
+            vistos_nombres.add(clave)
         filas_a_crear.append(fila)
 
     año_escolar = data.año_escolar or datetime.now().year
@@ -562,7 +613,7 @@ async def importar_estudiantes_desde_nomina(
     for fila in filas_a_crear:
         await estudiante_service.crear_estudiante(
             db,
-            dni=fila.dni.strip(),
+            dni=fila.dni,
             nombres=fila.nombres.strip(),
             apellidos=fila.apellidos.strip(),
             password=data.password,
@@ -578,8 +629,9 @@ async def importar_estudiantes_desde_nomina(
 
     return ImportarEstudiantesResponse(
         creados=creados,
-        omitidos=len(omitidos_dnis),
+        omitidos=len(omitidos_dnis) + len(omitidos_nombres),
         omitidos_dnis=sorted(omitidos_dnis),
+        omitidos_nombres=sorted(omitidos_nombres),
         password=data.password,
     )
 

@@ -354,7 +354,7 @@ async function avanzarAño() {
 }
 
 function descargarPlantillaNomina() {
-  const wsData = [['dni', 'nombres', 'apellidos'], ['12345678', 'María Fernanda', 'García López']]
+  const wsData = [['dni', 'nombres', 'apellidos'], ['12345678', 'María Fernanda', 'García López'], ['', 'Sin DNI', 'Pérez Quispe']]
   const ws = XLSX.utils.aoa_to_sheet(wsData)
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, 'Nomina')
@@ -363,6 +363,13 @@ function descargarPlantillaNomina() {
 
 function seleccionarArchivoNomina() {
   nominaFileInput.value?.click()
+}
+
+/** Normaliza la celda de DNI: vacía -> null; numérica -> 8 dígitos con ceros a la izquierda. */
+function dniDesdeCelda(valor: unknown): string | null {
+  if (valor === '' || valor === null || valor === undefined) return null
+  if (typeof valor === 'number') return String(valor).padStart(8, '0')
+  return String(valor).trim() || null
 }
 
 async function onNominaFileChange(event: Event) {
@@ -385,17 +392,16 @@ async function importarNomina() {
     if (!sheet) throw new Error('No se encontró la hoja en el archivo')
     const rows = XLSX.utils.sheet_to_json<any[]>(sheet, { header: 1, defval: '' })
     
-    // Obtener filas válidas
+    // Obtener filas válidas (el DNI es opcional; nombres y apellidos son obligatorios)
     const estudiantesImportados: ImportarEstudianteFilaPayload[] = rows.slice(1)
-        .filter(r => r[0] && r[1] && r[2]) // Asegurar que tenga DNI, nombres y apellidos
-        .map(r => ({ 
-            dni: String(r[0]).trim(), 
-            nombres: String(r[1]).trim(), 
-            apellidos: String(r[2]).trim() 
+        .filter(r => r[1] && r[2]) // Asegurar que tenga nombres y apellidos
+        .map(r => ({
+            dni: dniDesdeCelda(r[0]),
+            nombres: String(r[1]).trim(),
+            apellidos: String(r[2]).trim()
         }))
-
     if (estudiantesImportados.length === 0) {
-        throw new Error('No se encontraron estudiantes válidos en el archivo')
+        throw new Error('No se encontraron estudiantes válidos (se requieren nombres y apellidos)')
     }
 
     const res = await docenteEstudiantesService.importarNomina({
@@ -407,15 +413,20 @@ async function importarNomina() {
     closeImportModal()
     await cargarEstudiantes()
 
+    const omitidosNombres = res.omitidos_nombres ?? []
     const detalleOmitidos = res.omitidos > 0
-      ? `<br><br>Se omitieron <strong>${res.omitidos}</strong> DNI ya registrados${res.omitidos_dnis.length ? `:<br><span class="text-xs">${res.omitidos_dnis.join(', ')}</span>` : ''}`
+      ? [
+          `<br><br>Se omitieron <strong>${res.omitidos}</strong> registro(s) ya existentes`,
+          res.omitidos_dnis.length ? `<br><span class="text-xs">DNI: ${res.omitidos_dnis.join(', ')}</span>` : '',
+          omitidosNombres.length ? `<br><span class="text-xs">Sin DNI (mismo nombre en la institución): ${omitidosNombres.join('; ')}</span>` : '',
+        ].join('')
       : ''
 
     if (res.creados === 0) {
       await Swal.fire({
         icon: 'info',
         title: 'No se importó ningún estudiante',
-        html: `Todos los DNI del archivo ya estaban registrados.${detalleOmitidos}`,
+        html: `Todos los registros del archivo ya estaban registrados.${detalleOmitidos}`,
         confirmButtonText: 'Entendido',
       })
     } else {
@@ -856,7 +867,7 @@ function nombreGrado(id: number | null) {
             <div class="flex-1 min-h-0 overflow-y-auto custom-scrollbar space-y-6 p-6">
               <div class="rounded-xl border border-teal-100 bg-teal-50/50 p-5 text-xs font-bold text-teal-700 shadow-sm flex items-start gap-3">
                 <AlertCircle class="w-5 h-5 shrink-0" />
-                <div><p class="text-base font-black tracking-tight">Columnas: dni, nombres, apellidos</p></div>
+                <div><p class="text-base font-black tracking-tight">Columnas: dni (opcional), nombres, apellidos</p><p class="mt-1 text-[11px] font-bold text-teal-600 dark:text-teal-300">Si el DNI se deja vacío, el estudiante se identifica con su código generado.</p></div>
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="space-y-1.5">
