@@ -25,3 +25,6 @@ tmp/
 temp/
 docs/
 diagrams/
+
+# Salidas generadas (contienen datos personales: DNI y credenciales)
+exports/
