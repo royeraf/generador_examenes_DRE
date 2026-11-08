@@ -5,7 +5,7 @@ from typing import List, Optional
 from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update, func, or_
+from sqlalchemy import select, update, func, or_, case
 from pydantic import BaseModel, field_validator
 
 from app.core.database import get_db
@@ -15,7 +15,7 @@ from app.core.escala_cneb import clasificar, porcentaje_a_nota, nota_a_nivel
 from app.models.db_models import (
     AsignacionExamen, IntentoExamen, ProgresoEstudiante,
     ExamenLectura, ExamenMatematica, TextoExamen,
-    PreguntaExamen, Rol, CodigoClase, Matricula, Grado,
+    PreguntaExamen, RespuestaIntento, Rol, CodigoClase, Matricula, Grado,
 )
 from app.models.usuario import Usuario
 from app.models.estudiante import Estudiante
@@ -529,6 +529,48 @@ async def progreso_estudiante(
         if matricula_id else select(ProgresoEstudiante).where(False)
     )
     progresos = result.scalars().all()
+
+    # Dominio acumulado por desempeño: se calcula sobre todas las respuestas
+    # calificadas del estudiante (no solo el último intento), de modo que el
+    # porcentaje refleje su desempeño histórico en cada desempeño CNEB.
+    area_expr = case(
+        (PreguntaExamen.examen_lectura_id.isnot(None), "comunicacion"),
+        else_="matematica",
+    )
+    dominio_r = await db.execute(
+        select(
+            area_expr.label("area"),
+            PreguntaExamen.desempeno_codigo,
+            func.max(PreguntaExamen.desempeno_descripcion),
+            func.count(RespuestaIntento.id),
+            func.sum(case((RespuestaIntento.es_correcta == True, 1), else_=0)),
+        )
+        .select_from(RespuestaIntento)
+        .join(PreguntaExamen, PreguntaExamen.id == RespuestaIntento.pregunta_id)
+        .join(IntentoExamen, IntentoExamen.id == RespuestaIntento.intento_id)
+        .where(
+            IntentoExamen.estudiante_id == current_user.id,
+            IntentoExamen.estado == "completado",
+            PreguntaExamen.desempeno_codigo.isnot(None),
+            PreguntaExamen.desempeno_codigo != "",
+        )
+        .group_by(area_expr, PreguntaExamen.desempeno_codigo)
+        .order_by(area_expr, PreguntaExamen.desempeno_codigo)
+    )
+    dominio_por_area: dict[str, list[dict]] = {"comunicacion": [], "matematica": []}
+    for area, codigo, descripcion, total, correctas in dominio_r.all():
+        total = int(total or 0)
+        correctas = int(correctas or 0)
+        porcentaje = round((correctas / total * 100) if total else 0, 2)
+        dominio_por_area.setdefault(area, []).append({
+            "desempeno_codigo": codigo,
+            "desempeno_descripcion": descripcion,
+            "total_preguntas": total,
+            "correctas": correctas,
+            "porcentaje": porcentaje,
+            "nivel_cneb": nota_a_nivel(porcentaje_a_nota(porcentaje)),
+        })
+
     return [
         {
             "area": p.area,
@@ -540,6 +582,7 @@ async def progreso_estudiante(
                 nota_a_nivel(porcentaje_a_nota(p.puntaje_promedio))
                 if p.puntaje_promedio is not None else None
             ),
+            "dominio_desempenos": dominio_por_area.get(p.area, []),
             "ultima_actividad": _iso_peru(p.ultima_actividad),
         }
         for p in progresos

@@ -5,14 +5,16 @@ import logging
 from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, case
 
 from app.core.database import get_db
 from app.core.tz import iso_peru
+from app.core.escala_cneb import clasificar, nota_a_nivel
 from app.models.db_models import (
     ExamenLectura, ExamenMatematica,
     InstitucionEducativa, Ugel, AsignacionExamen,
     IntentoExamen, ProgresoEstudiante,
+    PreguntaExamen, RespuestaIntento,
 )
 from app.models.estudiante import Estudiante
 from app.models.ubigeo import Provincia
@@ -440,4 +442,191 @@ async def distribucion_metricas(
             "estudiantes": sum(e["estudiantes"] for e in estudiantes_por_institucion),
             "instituciones": len(estudiantes_por_institucion),
         },
+    }
+
+
+# ─── Métricas académicas: promedios, niveles de logro y dominio de desempeños ──
+
+_NIVELES_4 = ["pre_inicio", "inicio", "proceso", "satisfactorio"]
+_CNEB_A_4NIVELES = {"AD": "satisfactorio", "A": "proceso", "B": "inicio", "C": "pre_inicio"}
+_AREA_METRICA = {"lectura": "comunicacion", "matematica": "matematica"}
+
+
+def _promedio_academico(filas: list[dict]) -> dict:
+    """Promedio de puntaje/nota y nivel CNEB para un conjunto de intentos."""
+    puntajes = [f["puntaje"] for f in filas if f["puntaje"] is not None]
+    notas = [f["nota"] for f in filas if f["nota"] is not None]
+    if not puntajes:
+        return {
+            "evaluados": len(filas),
+            "puntaje_promedio": None,
+            "nota_promedio": None,
+            "nivel_cneb": None,
+        }
+    puntaje_promedio = round(sum(puntajes) / len(puntajes), 2)
+    nota_promedio = round(sum(notas) / len(notas), 2) if notas else None
+    return {
+        "evaluados": len(filas),
+        "puntaje_promedio": puntaje_promedio,
+        "nota_promedio": nota_promedio,
+        "nivel_cneb": clasificar(puntaje_promedio)["nivel_cneb"],
+    }
+
+
+@router.get("/academico")
+async def metricas_academicas(
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(require_modulo("metricas")),
+):
+    """Rendimiento académico consolidado y scoped por rol.
+
+    Devuelve, para el ámbito del usuario autenticado:
+    - Promedios de puntaje y nota vigesimal por área (Comunicación / Matemática).
+    - Distribución de estudiantes por nivel de logro CNEB (último intento por
+      asignación y estudiante).
+    - Dominio acumulado por desempeño CNEB, calculado sobre todas las respuestas
+      calificadas de los intentos completados.
+
+    El scope replica el de las demás métricas: DRE ve todo el sistema, UGEL sus
+    instituciones, director/auxiliar su IE y docente únicamente sus asignaciones.
+    """
+    rol = RolCodigo(current_user.rol_codigo)
+    ugel_id = current_user.ugel_id
+    ie_id = current_user.institucion_educativa_id
+    DRE_ROLES = {RolCodigo.ESPECIALISTA_DRE_COMUNICACION, RolCodigo.ESPECIALISTA_DRE_MATEMATICA}
+    GESTORES_IE = {RolCodigo.DIRECTOR, RolCodigo.AUXILIAR}
+
+    condiciones = []
+    if rol in DRE_ROLES:
+        pass
+    elif rol == RolCodigo.RESPONSABLE_UGEL and ugel_id:
+        ie_ids_r = await db.execute(
+            select(InstitucionEducativa.id).where(InstitucionEducativa.ugel_id == ugel_id)
+        )
+        condiciones.append(
+            AsignacionExamen.institucion_educativa_id.in_([r[0] for r in ie_ids_r.all()])
+        )
+    elif rol in GESTORES_IE and ie_id:
+        condiciones.append(AsignacionExamen.institucion_educativa_id == ie_id)
+    else:
+        condiciones.append(AsignacionExamen.asignado_por_id == current_user.id)
+
+    asig_q = select(AsignacionExamen.id, AsignacionExamen.tipo_examen)
+    if condiciones:
+        asig_q = asig_q.where(*condiciones)
+    asignaciones = (await db.execute(asig_q)).all()
+    asig_area = {f[0]: _AREA_METRICA.get(f[1], f[1]) for f in asignaciones}
+    asig_ids = list(asig_area)
+
+    vacio = {
+        "rol": rol.value,
+        "total_evaluados": 0,
+        "promedios": {
+            "general": _promedio_academico([]),
+            "comunicacion": _promedio_academico([]),
+            "matematica": _promedio_academico([]),
+        },
+        "distribucion_niveles": {**{n: 0 for n in _NIVELES_4}, "total": 0},
+        "dominio_desempenos": {"comunicacion": [], "matematica": []},
+    }
+    if not asig_ids:
+        return vacio
+
+    # Último intento completado por (asignación, estudiante): base de promedios
+    # y de la distribución de niveles, para no sobrerrepresentar a quien repite.
+    intentos_r = await db.execute(
+        select(
+            IntentoExamen.asignacion_id,
+            IntentoExamen.estudiante_id,
+            IntentoExamen.numero_intento,
+            IntentoExamen.puntaje_total,
+            IntentoExamen.nota_vigesimal,
+            IntentoExamen.nivel_cneb,
+        )
+        .where(
+            IntentoExamen.asignacion_id.in_(asig_ids),
+            IntentoExamen.estado == "completado",
+        )
+        .order_by(
+            IntentoExamen.asignacion_id,
+            IntentoExamen.estudiante_id,
+            IntentoExamen.numero_intento.desc(),
+        )
+    )
+    ultimos: dict = {}
+    for asig_id, est_id, _num, puntaje, nota, nivel_cneb in intentos_r.all():
+        clave = (asig_id, est_id)
+        if clave in ultimos:
+            continue
+        ultimos[clave] = {
+            "area": asig_area.get(asig_id),
+            "puntaje": puntaje,
+            "nota": nota,
+            "nivel_cneb": nivel_cneb,
+        }
+
+    filas = list(ultimos.values())
+    distribucion = {n: 0 for n in _NIVELES_4}
+    for fila in filas:
+        cneb = fila["nivel_cneb"] or (
+            nota_a_nivel(fila["nota"]) if fila["nota"] is not None else None
+        )
+        nivel = _CNEB_A_4NIVELES.get(cneb)
+        if nivel:
+            distribucion[nivel] += 1
+
+    # Dominio acumulado por desempeño: todas las respuestas calificadas.
+    area_expr = case(
+        (PreguntaExamen.examen_lectura_id.isnot(None), "comunicacion"),
+        else_="matematica",
+    )
+    dominio_r = await db.execute(
+        select(
+            area_expr.label("area"),
+            PreguntaExamen.desempeno_codigo,
+            func.max(PreguntaExamen.desempeno_descripcion),
+            func.count(RespuestaIntento.id),
+            func.sum(case((RespuestaIntento.es_correcta == True, 1), else_=0)),
+        )
+        .select_from(RespuestaIntento)
+        .join(PreguntaExamen, PreguntaExamen.id == RespuestaIntento.pregunta_id)
+        .join(IntentoExamen, IntentoExamen.id == RespuestaIntento.intento_id)
+        .where(
+            IntentoExamen.asignacion_id.in_(asig_ids),
+            IntentoExamen.estado == "completado",
+            PreguntaExamen.desempeno_codigo.isnot(None),
+            PreguntaExamen.desempeno_codigo != "",
+        )
+        .group_by(area_expr, PreguntaExamen.desempeno_codigo)
+        .order_by(area_expr, PreguntaExamen.desempeno_codigo)
+    )
+    dominio = {"comunicacion": [], "matematica": []}
+    for area, codigo, descripcion, total, correctas in dominio_r.all():
+        total = int(total or 0)
+        correctas = int(correctas or 0)
+        porcentaje = round((correctas / total * 100) if total else 0, 2)
+        dominio.setdefault(area, []).append({
+            "desempeno_codigo": codigo,
+            "desempeno_descripcion": descripcion,
+            "total_preguntas": total,
+            "correctas": correctas,
+            "porcentaje": porcentaje,
+            "nivel_cneb": nota_a_nivel(clasificar(porcentaje)["nota_vigesimal"])
+            if total else None,
+        })
+
+    return {
+        "rol": rol.value,
+        "total_evaluados": len(filas),
+        "promedios": {
+            "general": _promedio_academico(filas),
+            "comunicacion": _promedio_academico(
+                [f for f in filas if f["area"] == "comunicacion"]
+            ),
+            "matematica": _promedio_academico(
+                [f for f in filas if f["area"] == "matematica"]
+            ),
+        },
+        "distribucion_niveles": {**distribucion, "total": sum(distribucion.values())},
+        "dominio_desempenos": dominio,
     }

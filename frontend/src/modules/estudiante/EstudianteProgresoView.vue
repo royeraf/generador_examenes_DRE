@@ -15,6 +15,15 @@ import {
 
 const router = useRouter()
 
+interface DominioDesempeno {
+  desempeno_codigo: string
+  desempeno_descripcion: string | null
+  total_preguntas: number
+  correctas: number
+  porcentaje: number
+  nivel_cneb: string | null
+}
+
 interface ProgresoArea {
   area: string
   total_examenes_completados: number
@@ -22,6 +31,7 @@ interface ProgresoArea {
   nivel_logro_actual: string | null
   nota_promedio_vigesimal?: number | null
   nivel_cneb_actual?: string | null
+  dominio_desempenos?: DominioDesempeno[]
   ultima_actividad: string | null
 }
 
@@ -182,6 +192,31 @@ const nivelLabels: Record<string, string> = {
                 </div>
                 <p class="text-2xl font-black text-slate-900 dark:text-white leading-none">{{ p.puntaje_promedio.toFixed(0) }}%</p>
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Efectividad</p>
+              </div>
+            </div>
+
+            <!-- Dominio acumulado por desempeño -->
+            <div v-if="p.dominio_desempenos?.length" class="mt-10 pt-8 border-t border-slate-200 dark:border-slate-800">
+              <div class="flex items-center gap-2 mb-5">
+                <Target class="w-4 h-4 text-slate-400" />
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Dominio por desempeño</span>
+              </div>
+              <div class="space-y-4">
+                <div v-for="d in p.dominio_desempenos.slice(0, 6)" :key="d.desempeno_codigo">
+                  <div class="flex items-start justify-between gap-3 mb-1.5">
+                    <p class="text-[11px] font-bold text-slate-600 dark:text-slate-300 leading-snug line-clamp-2" :title="d.desempeno_descripcion ?? ''">
+                      {{ d.desempeno_descripcion || `Desempeño ${d.desempeno_codigo}` }}
+                    </p>
+                    <span class="text-xs font-black text-slate-900 dark:text-white tabular-nums shrink-0">{{ d.porcentaje.toFixed(0) }}%</span>
+                  </div>
+                  <div class="h-2.5 bg-slate-100 dark:bg-slate-800/60 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700/40">
+                    <div
+                      class="h-full rounded-full bg-gradient-to-r transition-all duration-1000"
+                      :class="d.porcentaje >= 70 ? 'from-emerald-400 to-teal-500' : d.porcentaje >= 40 ? 'from-amber-400 to-orange-500' : 'from-rose-400 to-red-500'"
+                      :style="{ width: `${d.porcentaje}%` }"
+                    ></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

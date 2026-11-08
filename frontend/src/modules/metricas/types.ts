@@ -29,6 +29,43 @@ export interface DistribucionData {
   }
 }
 
+export interface PromedioArea {
+  evaluados: number
+  puntaje_promedio: number | null
+  nota_promedio: number | null
+  nivel_cneb: string | null
+}
+
+export interface DominioDesempeno {
+  desempeno_codigo: string
+  desempeno_descripcion: string | null
+  total_preguntas: number
+  correctas: number
+  porcentaje: number
+  nivel_cneb: string | null
+}
+
+export interface AcademicoData {
+  rol: string
+  total_evaluados: number
+  promedios: {
+    general: PromedioArea
+    comunicacion: PromedioArea
+    matematica: PromedioArea
+  }
+  distribucion_niveles: {
+    pre_inicio: number
+    inicio: number
+    proceso: number
+    satisfactorio: number
+    total: number
+  }
+  dominio_desempenos: {
+    comunicacion: DominioDesempeno[]
+    matematica: DominioDesempeno[]
+  }
+}
+
 export type MetricaMapa = 'avance' | 'estudiantes'
 
 export interface ProvinciaStats {

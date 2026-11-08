@@ -9,7 +9,7 @@ import BaseButton from '../../shared/components/BaseButton.vue'
 import AvanceChart from './components/AvanceChart.vue'
 import EstudiantesTreemap from './components/EstudiantesTreemap.vue'
 import MapaProvincias from './components/MapaProvincias.vue'
-import type { DistribucionData, MetricaMapa } from './types'
+import type { AcademicoData, DistribucionData, DominioDesempeno, MetricaMapa } from './types'
 import {
   Users, BookOpen, Calculator,
   Clock, BarChart3, RefreshCw,
@@ -50,6 +50,10 @@ const distribucion = ref<DistribucionData | null>(null)
 const loadingDist = ref(true)
 const errorDist = ref('')
 
+const academico = ref<AcademicoData | null>(null)
+const loadingAcademico = ref(true)
+const errorAcademico = ref('')
+
 async function fetchMetricas() {
   loading.value = true
   error.value = ''
@@ -76,8 +80,21 @@ async function fetchDistribucion() {
   }
 }
 
+async function fetchAcademico() {
+  loadingAcademico.value = true
+  errorAcademico.value = ''
+  try {
+    const res = await apiClient.get('/metricas/academico')
+    academico.value = res.data
+  } catch (e: any) {
+    errorAcademico.value = e.response?.data?.detail ?? 'Error al cargar el rendimiento académico'
+  } finally {
+    loadingAcademico.value = false
+  }
+}
+
 async function refrescarTodo() {
-  await Promise.all([fetchMetricas(), fetchDistribucion()])
+  await Promise.all([fetchMetricas(), fetchDistribucion(), fetchAcademico()])
 }
 
 onMounted(refrescarTodo)
@@ -136,6 +153,51 @@ const avanceGlobalPct = computed(() => {
 })
 
 const institucionesConEstudiantes = computed(() => distribucion.value?.totales.instituciones ?? 0)
+
+// ── Rendimiento académico ─────────────────────────────────────────────────────
+const areaAcademica = ref<'comunicacion' | 'matematica'>('comunicacion')
+
+const promediosAcademicos = computed(() => {
+  if (!academico.value) return []
+  return [
+    { key: 'comunicacion', label: 'Comunicación', ...academico.value.promedios.comunicacion },
+    { key: 'matematica', label: 'Matemática', ...academico.value.promedios.matematica },
+  ]
+})
+
+const nivelesAcademicos = computed(() => {
+  const d = academico.value?.distribucion_niveles
+  if (!d) return []
+  const total = d.total || 0
+  return [
+    { key: 'satisfactorio', label: 'Satisfactorio', count: d.satisfactorio, color: 'from-emerald-400 to-teal-500' },
+    { key: 'proceso', label: 'En proceso', count: d.proceso, color: 'from-amber-400 to-orange-500' },
+    { key: 'inicio', label: 'En inicio', count: d.inicio, color: 'from-rose-400 to-red-500' },
+    { key: 'pre_inicio', label: 'Pre inicio', count: d.pre_inicio, color: 'from-slate-400 to-slate-500' },
+  ].map((n) => ({ ...n, pct: total ? Math.round((n.count / total) * 100) : 0 }))
+})
+
+const dominioSeleccionado = computed<DominioDesempeno[]>(() => {
+  const lista = academico.value?.dominio_desempenos?.[areaAcademica.value] ?? []
+  return [...lista].sort((a, b) => a.porcentaje - b.porcentaje).slice(0, 6)
+})
+
+function nivelAcademicoLabel(nivel: string | null): string {
+  const labels: Record<string, string> = {
+    AD: 'Logro destacado',
+    A: 'Logro esperado',
+    B: 'En proceso',
+    C: 'En inicio',
+  }
+  return nivel ? labels[nivel] ?? nivel : 'Sin datos'
+}
+
+function colorNivelAcademico(nivel: string | null): string {
+  if (nivel === 'AD') return 'text-emerald-500'
+  if (nivel === 'A') return 'text-teal-500'
+  if (nivel === 'B') return 'text-amber-500'
+  return 'text-rose-500'
+}
 
 // ── Vista mapa por provincia ──────────────────────────────────────────────────
 type VistaDistribucion = 'graficos' | 'mapa'
@@ -283,9 +345,9 @@ const mapaSubtitulo = computed(() => (
             Estadísticas consolidadas para el rol <span class="text-indigo-600 dark:text-indigo-400 font-bold border-b-2 border-indigo-500/20">{{ rolLabel }}</span>.
           </p>
         </div>
-        <BaseButton type="button" variant="primary" size="md" class="group" :disabled="loading || loadingDist" @click="refrescarTodo">
+        <BaseButton type="button" variant="primary" size="md" class="group" :disabled="loading || loadingDist || loadingAcademico" @click="refrescarTodo">
           <template #icon>
-            <RefreshCw class="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" :class="{'animate-spin': loading || loadingDist}" />
+            <RefreshCw class="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" :class="{'animate-spin': loading || loadingDist || loadingAcademico}" />
           </template>
           Actualizar Datos
         </BaseButton>
@@ -374,6 +436,165 @@ const mapaSubtitulo = computed(() => (
           </div>
 
         </div>
+
+        <!-- ── Rendimiento académico ───────────────────────────────────────── -->
+        <section class="space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-sm tracking-wider uppercase">
+                <Medal class="w-4 h-4" />
+                <span>Resultados de aprendizaje</span>
+              </div>
+              <h2 class="text-2xl md:text-3xl font-black text-slate-800 dark:text-white tracking-tight">
+                Rendimiento académico
+              </h2>
+              <p class="text-slate-500 dark:text-slate-400 text-sm max-w-2xl">
+                Promedios, distribución de niveles de logro y dominio acumulado de desempeños CNEB
+                en el ámbito de tu rol.
+              </p>
+            </div>
+            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-500 dark:text-slate-400 shadow-sm">
+              <Users class="w-4 h-4 text-emerald-500" />
+              {{ academico?.total_evaluados ?? 0 }} estudiantes evaluados
+            </span>
+          </div>
+
+          <div v-if="errorAcademico" class="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-2xl p-5 text-red-600 dark:text-red-400 text-sm flex items-center justify-between shadow-lg">
+            <span class="flex items-center gap-3 font-medium">
+              <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+              {{ errorAcademico }}
+            </span>
+            <button @click="fetchAcademico" class="px-4 py-1.5 bg-red-100 dark:bg-red-500/20 rounded-xl font-bold hover:bg-red-200 dark:hover:bg-red-500/30 transition-colors cursor-pointer">
+              Reintentar
+            </button>
+          </div>
+
+          <div v-else-if="loadingAcademico && !academico" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div v-for="i in 3" :key="i" class="h-64 rounded-2xl bg-white dark:bg-slate-900 border border-slate-300/60 dark:border-slate-800 animate-pulse"></div>
+          </div>
+
+          <div v-else-if="academico" class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+            <!-- Promedios por área -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-300/60 dark:border-slate-800 rounded-2xl p-7 shadow-sm">
+              <h3 class="text-lg font-black text-slate-800 dark:text-white mb-1 flex items-center gap-3">
+                <span class="w-2 h-8 bg-teal-500 rounded-full"></span>
+                Promedios por área
+              </h3>
+              <p class="text-xs text-slate-400 font-medium mb-7">Nota vigesimal promedio del último intento por evaluación.</p>
+
+              <div class="space-y-7">
+                <div v-for="area in promediosAcademicos" :key="area.key">
+                  <div class="flex items-end justify-between mb-2">
+                    <div>
+                      <p class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tight">{{ area.label }}</p>
+                      <p class="text-[11px] font-bold text-slate-400">{{ area.evaluados }} evaluados</p>
+                    </div>
+                    <div class="text-right">
+                      <span class="text-3xl font-black text-slate-800 dark:text-white tabular-nums">{{ area.nota_promedio ?? '—' }}</span>
+                      <span class="text-xs font-bold text-slate-400"> /20</span>
+                      <p class="text-[10px] font-black uppercase tracking-wider mt-0.5" :class="colorNivelAcademico(area.nivel_cneb)">
+                        {{ nivelAcademicoLabel(area.nivel_cneb) }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="h-3 bg-slate-100 dark:bg-slate-800/60 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700/40">
+                    <div
+                      class="h-full rounded-full transition-all duration-1000 bg-gradient-to-r"
+                      :class="area.key === 'comunicacion' ? 'from-teal-400 to-emerald-500' : 'from-indigo-400 to-purple-500'"
+                      :style="{ width: `${Math.min(100, ((area.nota_promedio ?? 0) / 20) * 100)}%` }"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-7 pt-5 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Promedio general</span>
+                <span class="text-xl font-black text-slate-800 dark:text-white">
+                  {{ academico.promedios.general.nota_promedio ?? '—' }}<span class="text-xs text-slate-400"> /20</span>
+                </span>
+              </div>
+            </div>
+
+            <!-- Distribución de niveles -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-300/60 dark:border-slate-800 rounded-2xl p-7 shadow-sm">
+              <h3 class="text-lg font-black text-slate-800 dark:text-white mb-1 flex items-center gap-3">
+                <span class="w-2 h-8 bg-amber-500 rounded-full"></span>
+                Niveles de logro
+              </h3>
+              <p class="text-xs text-slate-400 font-medium mb-7">Distribución de estudiantes según la escala CNEB.</p>
+
+              <div class="space-y-5">
+                <div v-for="nivel in nivelesAcademicos" :key="nivel.key">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-xs font-bold text-slate-600 dark:text-slate-300">{{ nivel.label }}</span>
+                    <span class="text-xs font-black text-slate-800 dark:text-white tabular-nums">
+                      {{ nivel.count }} <span class="text-slate-400 font-bold">({{ nivel.pct }}%)</span>
+                    </span>
+                  </div>
+                  <div class="h-3 bg-slate-100 dark:bg-slate-800/60 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700/40">
+                    <div class="h-full rounded-full transition-all duration-1000 bg-gradient-to-r" :class="nivel.color" :style="{ width: `${nivel.pct}%` }"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-7 pt-5 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Total clasificados</span>
+                <span class="text-xl font-black text-slate-800 dark:text-white">{{ academico.distribucion_niveles.total }}</span>
+              </div>
+            </div>
+
+            <!-- Dominio de desempeños -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-300/60 dark:border-slate-800 rounded-2xl p-7 shadow-sm">
+              <div class="flex items-start justify-between gap-3 mb-1">
+                <h3 class="text-lg font-black text-slate-800 dark:text-white flex items-center gap-3">
+                  <span class="w-2 h-8 bg-indigo-500 rounded-full"></span>
+                  Dominio de desempeños
+                </h3>
+              </div>
+              <p class="text-xs text-slate-400 font-medium mb-5">Desempeños con menor dominio acumulado (oportunidades de refuerzo).</p>
+
+              <div class="inline-flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-300 dark:border-slate-700 mb-6">
+                <button
+                  type="button"
+                  class="px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-colors cursor-pointer"
+                  :class="areaAcademica === 'comunicacion' ? 'bg-white dark:bg-slate-900 text-teal-600 dark:text-teal-400 shadow-sm' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'"
+                  @click="areaAcademica = 'comunicacion'"
+                >
+                  Comunicación
+                </button>
+                <button
+                  type="button"
+                  class="px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-colors cursor-pointer"
+                  :class="areaAcademica === 'matematica' ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'"
+                  @click="areaAcademica = 'matematica'"
+                >
+                  Matemática
+                </button>
+              </div>
+
+              <div v-if="dominioSeleccionado.length" class="space-y-4">
+                <div v-for="d in dominioSeleccionado" :key="d.desempeno_codigo">
+                  <div class="flex items-start justify-between gap-3 mb-1.5">
+                    <p class="text-[11px] font-bold text-slate-600 dark:text-slate-300 leading-snug line-clamp-2" :title="d.desempeno_descripcion ?? ''">
+                      {{ d.desempeno_descripcion || `Desempeño ${d.desempeno_codigo}` }}
+                    </p>
+                    <span class="text-xs font-black text-slate-800 dark:text-white tabular-nums shrink-0">{{ d.porcentaje }}%</span>
+                  </div>
+                  <div class="h-2.5 bg-slate-100 dark:bg-slate-800/60 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700/40">
+                    <div
+                      class="h-full rounded-full bg-gradient-to-r transition-all duration-1000"
+                      :class="d.porcentaje >= 70 ? 'from-emerald-400 to-teal-500' : d.porcentaje >= 40 ? 'from-amber-400 to-orange-500' : 'from-rose-400 to-red-500'"
+                      :style="{ width: `${d.porcentaje}%` }"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="py-10 text-center text-xs font-bold text-slate-400">
+                Aún no hay respuestas calificadas en esta área.
+              </div>
+            </div>
+          </div>
+        </section>
 
         <!-- Detailed Analytics Section -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
