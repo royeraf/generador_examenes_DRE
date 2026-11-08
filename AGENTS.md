@@ -88,6 +88,18 @@ GOOGLE_API_KEY=...       # Gemini — primary AI
 OPENAI_API_KEY=...       # OpenAI — fallback AI
 ```
 
+Opcionales de seguridad de login (defaults en `app/core/config.py`):
+
+```env
+LOGIN_MAX_ATTEMPTS=5              # fallos por IP + identificador
+LOGIN_MAX_IP_ATTEMPTS=300         # fallos por IP (aulas con NAT)
+LOGIN_ATTEMPT_WINDOW_MINUTES=5    # ventana en minutos
+```
+
+Un aula comparte una sola IP pública: el límite por IP es alto para no bloquear
+al colegio entero; el límite por IP + identificador (5) es la protección real
+contra fuerza bruta.
+
 ---
 
 ## Comandos de verificación
@@ -191,11 +203,25 @@ Reglas críticas que nunca se rompen:
 ## Base de datos
 
 - **Desarrollo**: SQLite en `backend/desempenos.db` (creado automáticamente).
-- **Producción**: PostgreSQL vía `DATABASE_URL`.
+- **Producción**: MySQL o PostgreSQL vía `DATABASE_URL` (el VPS usa MySQL).
 - Migraciones con Alembic — **nunca** modificar el schema manualmente.
 - Para agregar una columna: editar el modelo, generar migración, aplicarla.
 
 Usuarios de prueba disponibles en `USUARIOS_PRUEBA.md` — contraseña: `Test2024!`.
+
+---
+
+## Rate limiting en producción (VPS)
+
+- nginx aplica `limit_conn perip_conn 500` por IP (global) y una zona
+  `sieva_api` de `30r/s` con `burst=300 nodelay` sobre `location ^~ /api/`.
+  El burst alto absorbe el envío simultáneo de un aula con NAT.
+- `/api/` va directo a gunicorn (`127.0.0.1:8000`), sin Apache ni caché.
+  El vhost lo regenera `ngxconf`; `/usr/local/sbin/sieva-api-direct.timer`
+  reinyecta el bloque `/api/` cada 30 s. Cualquier cambio de ese bloque debe
+  reflejarse también en `/usr/local/sbin/sieva-api-direct.py`.
+- El rate limit de login vive en `app/services/login_guard.py` y se ajusta con
+  `LOGIN_MAX_*`; no hay rate limit general en el resto de endpoints.
 
 ---
 
